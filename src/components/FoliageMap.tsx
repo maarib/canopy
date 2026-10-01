@@ -1,12 +1,18 @@
-import { AdvancedMarker, APIProvider, Map, useMap } from '@vis.gl/react-google-maps'
-import { useEffect } from 'react'
+import 'maplibre-gl/dist/maplibre-gl.css'
+import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import Map, { Layer, Marker, NavigationControl, Source, type MapRef } from 'react-map-gl/maplibre'
+import type { FeatureCollection, Point } from 'geojson'
 import type { Region } from '../data/regions'
 import type { LeafObservation } from '../lib/inaturalist'
 import { PHASE_STYLE, peakPhase } from '../lib/peak'
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined
-const MAP_ID = (import.meta.env.VITE_GOOGLE_MAP_ID as string | undefined) || 'DEMO_MAP_ID'
-const CANADA = { lat: 52, lng: -92 }
+// OpenFreeMap: free OpenStreetMap vector basemaps, no key required.
+// Swapping back to Google (for Places photos and 3D) is noted in docs/PLAN.md §3.
+const STYLE = {
+  light: 'https://tiles.openfreemap.org/styles/positron',
+  dark: 'https://tiles.openfreemap.org/styles/dark',
+}
+const CANADA = { longitude: -92, latitude: 56, zoom: 3 }
 
 type Props = {
   regions: Region[]
@@ -15,49 +21,83 @@ type Props = {
   onSelect: (region: Region) => void
 }
 
-export function FoliageMap(props: Props) {
-  if (!API_KEY) return <MissingKey />
+export function FoliageMap({ regions, observations, selected, onSelect }: Props) {
+  const mapRef = useRef<MapRef>(null)
+  const dark = usePrefersDark()
+
+  const sightings = useMemo<FeatureCollection<Point>>(
+    () => ({
+      type: 'FeatureCollection',
+      features: observations.map((o) => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [o.lng, o.lat] },
+        properties: { species: o.species, observedOn: o.observedOn },
+      })),
+    }),
+    [observations],
+  )
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    if (selected) map.flyTo({ center: [selected.lng, selected.lat], zoom: 8, duration: 1600 })
+    else map.flyTo({ center: [CANADA.longitude, CANADA.latitude], zoom: CANADA.zoom, duration: 1200 })
+  }, [selected])
+
   return (
-    <APIProvider apiKey={API_KEY}>
-      <Map
-        mapId={MAP_ID}
-        defaultCenter={CANADA}
-        defaultZoom={4}
-        minZoom={3}
-        gestureHandling="greedy"
-        disableDefaultUI
-        zoomControl
-        className="h-full w-full"
-      >
-        {props.observations.map((o) => (
-          <AdvancedMarker key={o.id} position={o} title={`${o.species} · ${o.observedOn}`} zIndex={1}>
-            <span className="block size-2.5 rounded-full border border-white/80 bg-pumpkin shadow" />
-          </AdvancedMarker>
-        ))}
-        {props.regions.map((r) => (
-          <AdvancedMarker key={r.id} position={r} title={r.name} zIndex={10} onClick={() => props.onSelect(r)}>
-            <LeafPin color={PHASE_STYLE[peakPhase(r)].color} active={props.selected?.id === r.id} />
-          </AdvancedMarker>
-        ))}
-        <FlyTo target={props.selected} />
-      </Map>
-    </APIProvider>
+    <Map
+      ref={mapRef}
+      initialViewState={CANADA}
+      minZoom={2}
+      mapStyle={dark ? STYLE.dark : STYLE.light}
+      style={{ width: '100%', height: '100%' }}
+      attributionControl={{ compact: true }}
+    >
+      <NavigationControl position="top-right" showCompass={false} />
+
+      <Source id="sightings" type="geojson" data={sightings}>
+        <Layer
+          id="sightings-dots"
+          type="circle"
+          paint={{
+            'circle-color': '#e8730c',
+            'circle-opacity': 0.85,
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 3, 10, 7],
+            'circle-stroke-color': '#ffffff',
+            'circle-stroke-width': 1,
+          }}
+        />
+      </Source>
+
+      {regions.map((r) => (
+        <Marker
+          key={r.id}
+          longitude={r.lng}
+          latitude={r.lat}
+          anchor="center"
+          onClick={(e) => {
+            e.originalEvent.stopPropagation()
+            onSelect(r)
+          }}
+        >
+          <button title={r.name} aria-label={r.name} className="cursor-pointer">
+            <LeafPin color={PHASE_STYLE[peakPhase(r)].color} active={selected?.id === r.id} />
+          </button>
+        </Marker>
+      ))}
+    </Map>
   )
 }
 
-function FlyTo({ target }: { target: Region | null }) {
-  const map = useMap()
-  useEffect(() => {
-    if (!map) return
-    if (target) {
-      map.panTo(target)
-      map.setZoom(8)
-    } else {
-      map.panTo(CANADA)
-      map.setZoom(4)
-    }
-  }, [map, target])
-  return null
+function usePrefersDark() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)')
+      mq.addEventListener('change', cb)
+      return () => mq.removeEventListener('change', cb)
+    },
+    () => window.matchMedia('(prefers-color-scheme: dark)').matches,
+  )
 }
 
 function LeafPin({ color, active }: { color: string; active: boolean }) {
@@ -73,19 +113,5 @@ function LeafPin({ color, active }: { color: string; active: boolean }) {
         d="M16 5l1.6 3.9 2.6-1.2-.6 4.6 3.5-2.6.4 2.4 3.1-.6-1.2 3.3 1.4.7-4.7 4 .6 1.9-4.4-.8.2 5.4h-2.2l.2-5.4-4.4.8.6-1.9-4.7-4 1.4-.7-1.2-3.3 3.1.6.4-2.4 3.5 2.6-.6-4.6 2.6 1.2z"
       />
     </svg>
-  )
-}
-
-function MissingKey() {
-  return (
-    <div className="flex h-full items-center justify-center bg-[var(--surface-2)] p-6">
-      <div className="max-w-sm rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 text-sm shadow-sm">
-        <p className="mb-2 font-semibold">Add a Google Maps key to see the map</p>
-        <p className="text-[var(--ink-soft)]">
-          Copy <code>.env.example</code> to <code>.env.local</code> and set <code>VITE_GOOGLE_MAPS_API_KEY</code>.
-          The regions, forecasts and leaf photos in the panel work without it.
-        </p>
-      </div>
-    </div>
   )
 }

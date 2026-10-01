@@ -120,11 +120,12 @@ None of AllTrails, Parks Canada, Ontario Parks or Sépaq offer public APIs for r
 
 ⚠️ **Licensing constraint:** Google's Service Specific Terms say Places content (and Directions) **must not be used in conjunction with a non-Google map**. If we show Google Places data (photos, ratings), the map has to be a Google map.
 
-### Decision: Google Maps as the primary map ✅
-- Main map: Google vector map + custom cloud style + **deck.gl overlay** for the foliage data layers.
-- Park detail: **`<Map3D>`** photorealistic flyover (lazy-loaded).
-- Places photos and ratings stay legal.
-- **Fallback / v2 option:** MapLibre GL + Protomaps/MapTiler + terrain for a fully open stack (cheaper at scale, more styling freedom), giving up Google Places data on the map. Keep map code behind a thin `MapView` boundary so a swap stays possible.
+### Decision (updated 2026-09-30): start on the free open stack ✅
+- **Now:** MapLibre GL (`react-map-gl/maplibre`) + **OpenFreeMap** vector basemaps (free, no key, light/dark styles). Data layers are MapLibre sources/layers, so deck.gl's `MapboxOverlay` works when we need hexbins or animation.
+- Free alternatives for later: MapTiler or Protomaps (custom styles, terrain DEM for 3D hills), and AWS Terrain Tiles for hillshade.
+- **Because of Google's licence terms, Google Places content can't go on this map.** For photos and POIs, use iNaturalist, Wikimedia Commons, OSM (waterfalls, viewpoints) and Parks Canada data instead.
+- **Option to add Google later:** a park-detail screen that's a *separate* Google `<Map3D>` view, with Places photos and ratings shown only on that Google map. Map code lives in `src/components/FoliageMap.tsx` so the main map can also be swapped wholesale if we ever want to.
+- Dev note: `maplibre-gl` is excluded from Vite's `optimizeDeps` because v6 loads its worker from a sibling file.
 
 ---
 
@@ -132,7 +133,7 @@ None of AllTrails, Parks Canada, Ontario Parks or Sépaq offer public APIs for r
 
 ```
 ┌──────────────────────────── Web app (Vite + React + TS) ────────────────────────────┐
-│  React Router · TanStack Query · Tailwind v4 · @vis.gl/react-google-maps · deck.gl │
+│  React Router · TanStack Query · Tailwind v4 · MapLibre (react-map-gl) · deck.gl    │
 │  Views: Map (home) · Region/Park detail · Species · Trip planner · Report           │
 └───────────────┬────────────────────────────────────────────┬────────────────────────┘
                 │ client-safe, CORS-OK APIs                  │ our API
@@ -182,14 +183,14 @@ Report   { id, userId, location, colourChangePct, leafFallPct, speciesIds[], pho
 ## 6. Roadmap
 
 ### Milestone 0 — Foundations (this commit)
-- [x] Vite + React + TS + Tailwind + Google Maps scaffold (React Router added when we add routes)
+- [x] Vite + React + TS + Tailwind + MapLibre/OpenFreeMap scaffold (React Router added when we add routes)
 - [x] Live iNaturalist "Colored Leaves" observations across Canada on the map
 - [x] Curated regions with typical peak windows
 - [x] Region panel with Open-Meteo 7-day forecast plus colour outlook
 - [x] CI (lint/build) on GitHub Actions
 
 ### Milestone 1 — The live map (MVP)
-- Custom cloud map style (autumn), deck.gl hexbin colour-status layer
+- Custom autumn map style (MapTiler/Protomaps or a tweaked OpenFreeMap style), hexbin colour-status layer, 3D terrain
 - Species filter (from iNat taxa)
 - Ontario Parks scraper → `/status` endpoint (Worker + cron)
 - Parks Canada trails layer (GeoJSON, line styling by zoom)
