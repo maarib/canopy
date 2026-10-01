@@ -24,9 +24,10 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           <Badge color={stage.color}>{stage.label}</Badge>
           {reported && (
-            <span className="flex items-center gap-1 text-[var(--ink-soft)]">
+            <span className="flex items-center gap-1 text-[var(--ink-soft)]" title="Official report date">
               <Schedule className="size-4" />
-              Official report · {reported}
+              <span className="sr-only">Official report, </span>
+              {reported}
             </span>
           )}
         </div>
