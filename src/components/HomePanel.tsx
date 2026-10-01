@@ -66,7 +66,7 @@ function SightingsSummary({ treeColourSightings, parks }: Pick<Props, 'treeColou
 function Stat({ value, label, dot }: { value: number | undefined; label: string; dot: string }) {
   return (
     <div className="rounded-xl bg-[var(--surface-2)] px-3 py-2.5">
-      <div className="flex items-center gap-1.5 text-xl font-bold tabular-nums">
+      <div className="flex items-center gap-1.5 font-display text-3xl leading-none">
         <span className="size-2 rounded-full" style={{ background: dot }} />
         {value === undefined ? '…' : value.toLocaleString('en-CA')}
       </div>

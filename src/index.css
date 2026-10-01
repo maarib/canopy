@@ -7,7 +7,9 @@
   --color-spruce: #2f5d3a;
   --color-bark: #3b2f2a;
   --color-mist: #f6f1ea;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* Livvic for everything; Londrina Solid for display titles and headings. */
+  --font-sans: 'Livvic', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Londrina Solid', 'Livvic', ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -25,6 +27,16 @@
     --ink: #f3ebe2;
     --ink-soft: #b3a69a;
     --line: #3a312a;
+  }
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
   }
 }
 

@@ -121,7 +121,7 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 
 ### Visual language
 - **Palette:** maple `#c8102e`, pumpkin `#e8730c`, birch `#e9b824`, spruce `#2f5d3a`, bark `#3b2f2a`, mist `#f6f1ea`. The stage scale runs green → gold → orange → red → brown and stays colour-blind safe (checked with simulators; paired with labels/icons).
-- **Type:** Inter (UI). Evaluate a display serif for headings (e.g. Fraunces) for an editorial "field guide" feel.
+- **Type:** **Londrina Solid** for display titles and headings (400; 900 for the wordmark) and **Livvic** for everything else: body, labels, captions (400–700).
 - **Motion:** sheet springs, fly-to camera moves, and a falling-leaf micro-animation reserved for "peak" moments only.
 - **Tone:** warm, local, precise. "Algonquin is at peak, about 90% colour. Go before Friday's wind."
 

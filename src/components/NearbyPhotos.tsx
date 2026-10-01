@@ -9,7 +9,7 @@ export function NearbyPhotos({ lat, lng, radiusKm = 75 }: { lat: number; lng: nu
 
   return (
     <section>
-      <h3 className="mb-2 text-sm font-semibold">Recent colour sightings nearby</h3>
+      <h3 className="mb-2 text-lg">Recent colour sightings nearby</h3>
       {photos.isPending && <p className="text-sm text-[var(--ink-soft)]">Loading photos…</p>}
       {photos.data?.length === 0 && (
         <p className="text-sm text-[var(--ink-soft)]">

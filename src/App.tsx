@@ -84,7 +84,7 @@ export default function App() {
     <div className="flex h-full flex-col">
       <header className="z-30 flex items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)] px-5 py-3">
         <img src="/favicon.svg" alt="" className="size-6" />
-        <h1 className="text-lg font-bold tracking-tight">Canopy</h1>
+        <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Fall colours across Canada</span>
         {sightings.isFetching && (
           <span className="ml-auto text-xs text-[var(--ink-soft)]">Loading live sightings…</span>

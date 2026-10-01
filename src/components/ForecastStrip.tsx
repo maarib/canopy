@@ -16,7 +16,7 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
 
   return (
     <section>
-      <h3 className="mb-2 text-sm font-semibold">7-day colour outlook</h3>
+      <h3 className="mb-2 text-lg">7-day colour outlook</h3>
       {forecast.isPending && <p className="text-sm text-[var(--ink-soft)]">Loading forecast…</p>}
       {forecast.isError && <p className="text-sm text-maple">Couldn’t load the forecast.</p>}
       {forecast.data && (

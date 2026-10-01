@@ -13,7 +13,7 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
 
       <header>
         <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">{region.province} · Region</p>
-        <h2 className="text-2xl font-bold">{region.name}</h2>
+        <h2 className="text-3xl leading-tight">{region.name}</h2>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           <Badge color={phase.color}>{phase.label}</Badge>
           <span className="text-[var(--ink-soft)]">Typical peak {formatWindow(region)}</span>
@@ -23,7 +23,7 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
       <ForecastStrip lat={region.lat} lng={region.lng} />
 
       <section>
-        <h3 className="mb-2 text-sm font-semibold">Trees to look for</h3>
+        <h3 className="mb-2 text-lg">Trees to look for</h3>
         <ul className="flex flex-wrap gap-1.5">
           {region.species.map((s) => (
             <li key={s} className="rounded-full border border-[var(--line)] px-2.5 py-0.5 text-sm">
@@ -34,7 +34,7 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
       </section>
 
       <section>
-        <h3 className="mb-2 text-sm font-semibold">Don’t miss</h3>
+        <h3 className="mb-2 text-lg">Don’t miss</h3>
         <ul className="list-inside list-disc space-y-0.5 text-sm">
           {region.highlights.map((h) => (
             <li key={h}>{h}</li>

@@ -19,7 +19,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">
           ON · {park.region} · Provincial park
         </p>
-        <h2 className="text-2xl font-bold">{parkTitle(park)}</h2>
+        <h2 className="text-3xl leading-tight">{parkTitle(park)}</h2>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           <Badge color={stage.color}>{stage.label}</Badge>
           {reported && <span className="text-[var(--ink-soft)]">Official report · {reported}</span>}
@@ -36,7 +36,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
 
       {park.viewing && (
         <section>
-          <h3 className="mb-1 text-sm font-semibold">Best viewing</h3>
+          <h3 className="mb-1 text-lg">Best viewing</h3>
           <p className="text-sm leading-relaxed">{park.viewing}</p>
         </section>
       )}
