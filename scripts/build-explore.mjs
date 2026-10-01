@@ -8,7 +8,7 @@
 //
 // Usage: node scripts/build-explore.mjs [areaId]
 
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { PNG } from 'pngjs'
 
 const AREAS = [
@@ -324,12 +324,11 @@ async function buildArea(area) {
       else if (ref - v > 3) [loss, ref] = [loss + ref - v, v]
     }
     const every = Math.max(1, Math.ceil(samples.length / 120))
-    const profile = samples
-      .filter((_, i) => i % every === 0 || i === samples.length - 1)
-      .map((s, i, arr) => {
-        const idx = samples.indexOf(s)
-        return [+(s.d / 1000).toFixed(2), Math.round(smooth[idx]), +s.p[0].toFixed(5), +s.p[1].toFixed(5)]
-      })
+    const profile = samples.flatMap((s, i) =>
+      i % every === 0 || i === samples.length - 1
+        ? [[+(s.d / 1000).toFixed(2), Math.round(smooth[i]), +s.p[0].toFixed(5), +s.p[1].toFixed(5)]]
+        : [],
+    )
 
     // Places along the trail, with where along it they are.
     const sampleXY = samples.map((s) => ({ ...s, xy: proj(s.p) }))
@@ -458,6 +457,12 @@ async function buildArea(area) {
   }
   await mkdir(new URL('../public/data/explore/', import.meta.url), { recursive: true })
   const file = new URL(`../public/data/explore/${area.id}.json`, import.meta.url)
+  // Keep the file (and its generatedAt) untouched when nothing changed, so CI only commits real updates.
+  const previous = await readFile(file, 'utf8').then(JSON.parse, () => null)
+  if (previous && JSON.stringify([previous.trails, previous.pois]) === JSON.stringify([out.trails, out.pois])) {
+    console.log('  = unchanged')
+    return
+  }
   await writeFile(file, JSON.stringify(out) + '\n')
   console.log(`  → ${trails.length} trails, ${poiList.length} places written to public/data/explore/${area.id}.json`)
 }

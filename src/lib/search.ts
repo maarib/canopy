@@ -1,11 +1,14 @@
 import { REGIONS } from '../data/regions'
 import { TREE_GROUPS } from '../data/treeGroups'
+import { formatDuration, PLACE_KINDS, type Place, type Trail } from './explore'
 import { parkTitle, type ParkReport } from './ontarioParks'
 
 export type SearchResult =
   | { kind: 'region'; id: string; label: string; detail: string }
   | { kind: 'park'; park: ParkReport; label: string; detail: string }
   | { kind: 'tree'; id: string; label: string; detail: string }
+  | { kind: 'trail'; trail: Trail; label: string; detail: string }
+  | { kind: 'explore-place'; place: Place; label: string; detail: string }
   | { kind: 'place'; id: string; label: string; detail: string; lat: number; lng: number; zoom: number }
 
 /** Lowercase, strip accents (Québec → quebec) and punctuation. */
@@ -25,7 +28,13 @@ function score(query: string, text: string): number {
   return t.includes(query) ? 1 : 0
 }
 
-export function searchLocal(rawQuery: string, parks: ParkReport[], limit = 7): SearchResult[] {
+export function searchLocal(
+  rawQuery: string,
+  parks: ParkReport[],
+  trails: Trail[] = [],
+  places: Place[] = [],
+  limit = 8,
+): SearchResult[] {
   const q = normalize(rawQuery)
   if (!q) return []
   const scored: [number, SearchResult][] = []
@@ -37,6 +46,19 @@ export function searchLocal(rawQuery: string, parks: ParkReport[], limit = 7): S
   for (const p of parks.filter((p) => p.main)) {
     const s = score(q, parkTitle(p))
     if (s) scored.push([s + 0.2, { kind: 'park', park: p, label: parkTitle(p), detail: `ON · Provincial park · ${p.colourChange ?? 0}% colour` }])
+  }
+  for (const t of trails) {
+    const s = score(q, t.name)
+    if (s)
+      scored.push([
+        s + 0.25,
+        { kind: 'trail', trail: t, label: t.name, detail: `Trail · ${t.lengthKm} km · ${formatDuration(t.durationH)}` },
+      ])
+  }
+  // Generated names ("Lookout on …") aren't useful search targets; real names are.
+  for (const p of places.filter((p) => !/^(Lookout on|Unnamed)/.test(p.name))) {
+    const s = Math.max(score(q, p.name), score(q, PLACE_KINDS[p.kind].label) && 1)
+    if (s) scored.push([s + 0.15, { kind: 'explore-place', place: p, label: p.name, detail: PLACE_KINDS[p.kind].label }])
   }
   for (const g of TREE_GROUPS) {
     const s = score(q, g.label)

@@ -3,9 +3,11 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Close, LocationOn, ProgressActivity, Search } from 'relume-icons'
 import { signatureTree, REGIONS } from '../data/regions'
 import type { TreeIconId } from '../data/treeIcons'
+import { PLACE_KINDS, type Place, type Trail } from '../lib/explore'
 import type { ParkReport } from '../lib/ontarioParks'
 import { searchLocal, searchPlaces, type SearchResult } from '../lib/search'
 import { STAGES } from '../lib/stage'
+import { PlaceIcon } from './PlaceIcon'
 import { TreeIcon } from './TreeIcon'
 
 function useDebounced<T>(value: T, ms: number): T {
@@ -17,7 +19,17 @@ function useDebounced<T>(value: T, ms: number): T {
   return debounced
 }
 
-export function SearchBox({ parks, onSelect }: { parks: ParkReport[]; onSelect: (r: SearchResult) => void }) {
+export function SearchBox({
+  parks,
+  trails,
+  places: explorePlaces,
+  onSelect,
+}: {
+  parks: ParkReport[]
+  trails: Trail[]
+  places: Place[]
+  onSelect: (r: SearchResult) => void
+}) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -25,7 +37,7 @@ export function SearchBox({ parks, onSelect }: { parks: ParkReport[]; onSelect: 
   const listId = useId()
 
   const trimmed = query.trim()
-  const local = useMemo(() => searchLocal(trimmed, parks), [trimmed, parks])
+  const local = useMemo(() => searchLocal(trimmed, parks, trails, explorePlaces), [trimmed, parks, trails, explorePlaces])
   const debounced = useDebounced(trimmed, 300)
   const places = useQuery({
     queryKey: ['photon', debounced],
@@ -119,7 +131,7 @@ export function SearchBox({ parks, onSelect }: { parks: ParkReport[]; onSelect: 
         >
           {results.map((r, i) => (
             <li
-              key={`${r.kind}:${r.kind === 'park' ? r.park.id : r.id}`}
+              key={`${r.kind}:${r.kind === 'park' ? r.park.id : r.kind === 'trail' ? r.trail.id : r.kind === 'explore-place' ? r.place.id : r.id}`}
               id={`${listId}-${i}`}
               role="option"
               aria-selected={i === active}
@@ -162,6 +174,14 @@ function ResultIcon({ result }: { result: SearchResult }) {
         <span className="size-3 rounded-full" style={{ background: STAGES[result.park.stage].color }} />
       </span>
     )
+  if (result.kind === 'trail' || result.kind === 'explore-place') {
+    const kind = result.kind === 'trail' ? 'trail' : result.place.kind
+    return (
+      <span className={`${box} text-white`} style={{ background: PLACE_KINDS[kind].color }}>
+        <PlaceIcon kind={kind} className="size-4" />
+      </span>
+    )
+  }
   if (result.kind === 'tree')
     return (
       <span className={`${box} text-pumpkin`}>
