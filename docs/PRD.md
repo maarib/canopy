@@ -193,8 +193,8 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 |---|---|---|---|
 | PLACE-1 | Region and park pages with status, outlook, photos, links | P0 | ✅ |
 | PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | 🟡 |
-| PLACE-3 | Trail pages from Parks Canada + OSM (length, elevation profile, scenic/colour score) | P0 | ⬜ |
-| PLACE-4 | POIs: waterfalls, lookouts, lakes, scenic drives (OSM Overpass + curated) | P0 | ⬜ |
+| PLACE-3 | Trail pages (length, elevation profile, along-the-trail stops, GPX). Ontario Trail Network + OSM; see [EXPLORE.md](EXPLORE.md) | P0 | 🟡 Algonquin |
+| PLACE-4 | Place pages with their own identity: waterfalls, lookouts, peaks, lakes, rivers, creeks (OSM + curated) | P0 | 🟡 Algonquin |
 | PLACE-5 | Curated content: "Top 5 things to do in X this fall" per region (editorial) | P1 | ⬜ |
 | PLACE-6 | Expand seed regions from 15 → 60+ covering every province | P0 | ⬜ |
 | PLACE-7 | Crowd/busyness hints (weekend vs weekday) where data exists | P2 | ⬜ |

@@ -16,6 +16,8 @@ import { ExternalIcon } from './ui'
 import { signatureTree, type Region } from '../data/regions'
 import type { TreeIconId } from '../data/treeIcons'
 import { TreeIcon } from './TreeIcon'
+import { PlaceIcon, type PlaceIconId } from './PlaceIcon'
+import { isPhotoSpot, PLACE_KINDS, type Place, type Trail } from '../lib/explore'
 import { useIsDesktop, usePrefersDark } from '../hooks'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
 import type { LeafObservation } from '../lib/inaturalist'
@@ -37,8 +39,11 @@ import { fetchParksCanadaTrails, snapBounds, type Bounds } from '../lib/trails'
  * Camera padding so targets land in the visible part of the map. The map keeps padding
  * between moves, so every move sets it: half-open sheet for places, peek height otherwise.
  */
+/** Must match the half snap point in BottomSheet.tsx. */
+const SHEET_HALF = 0.52
+
 function sheetPadding(isDesktop: boolean, placeOpen: boolean) {
-  const bottom = isDesktop ? 0 : placeOpen ? Math.round(window.innerHeight * 0.45) : 132
+  const bottom = isDesktop ? 0 : placeOpen ? Math.round(window.innerHeight * SHEET_HALF) : 132
   return { top: 0, left: 0, right: 0, bottom }
 }
 
@@ -51,7 +56,14 @@ export type MapLayers = {
   terrain3d: boolean
 }
 
-export type FlyTarget = { id: string; lng: number; lat: number; zoom: number } | null
+export type FlyTarget = {
+  id: string
+  lng: number
+  lat: number
+  zoom: number
+  /** Fit these bounds instead of flying to a point (e.g. a whole trail). */
+  bounds?: [number, number, number, number]
+} | null
 export type MapView = { lat: number; lng: number; zoom: number }
 
 type Props = {
@@ -71,6 +83,20 @@ type Props = {
   onViewChange: (view: MapView) => void
   /** One-off fly-to (e.g. a town picked in search); a new `id` triggers it. */
   focus: FlyTarget
+  explore: { trails: Trail[]; places: Place[] }
+  selectedTrail: Trail | null
+  selectedPlace: Place | null
+  /** Point highlighted from the elevation chart. */
+  hoverPoint: [number, number] | null
+  onSelectTrail: (t: Trail) => void
+  onSelectPlace: (p: Place) => void
+}
+
+/** Room for the search bar on top and the sheet/panel elsewhere when fitting a trail. */
+function fitPadding(isDesktop: boolean) {
+  return isDesktop
+    ? { top: 120, bottom: 60, left: 60, right: 60 }
+    : { top: 130, bottom: Math.round(window.innerHeight * SHEET_HALF) + 28, left: 36, right: 36 }
 }
 
 /** Where nearly all of Canada's fall colour is: the southern band, BC to Newfoundland. */
@@ -81,7 +107,7 @@ const COLOUR_BELT: [[number, number], [number, number]] = [
 /** Phones are too narrow for the whole belt; start on the east, where most of the colour is. */
 const EAST_BELT = { longitude: -73, latitude: 46.5, zoom: 3.4 }
 const TRAILS_MIN_ZOOM = 9
-const INTERACTIVE = ['parks-circles', 'sightings-dots', 'hexes-fill']
+const INTERACTIVE = ['explore-trails-hit', 'parks-circles', 'sightings-dots', 'hexes-fill']
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] }
 
 type PopupInfo = { lng: number; lat: number; title: string; lines: string[]; href?: string }
@@ -111,7 +137,15 @@ export function FoliageMap(props: Props) {
       if (!target) return
     }
     const padding = sheetPadding(isDesktop, !!target)
-    if (target) map.flyTo({ center: [target.lng, target.lat], zoom: target.zoom, padding, duration: 1600, essential: true })
+    if (target?.bounds)
+      map.fitBounds(
+        [
+          [target.bounds[0], target.bounds[1]],
+          [target.bounds[2], target.bounds[3]],
+        ],
+        { padding: fitPadding(isDesktop), maxZoom: 15, duration: 1500 },
+      )
+    else if (target) map.flyTo({ center: [target.lng, target.lat], zoom: target.zoom, padding, duration: 1600, essential: true })
     else if (isDesktop) map.fitBounds(COLOUR_BELT, { padding: 24, duration: 1200 })
     else map.flyTo({ center: [EAST_BELT.longitude, EAST_BELT.latitude], zoom: EAST_BELT.zoom, padding, duration: 1200 })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fly only when the target changes identity
@@ -179,6 +213,35 @@ export function FoliageMap(props: Props) {
     [props.parks, props.selectedId],
   )
 
+  const exploreTrails = useMemo<FeatureCollection>(
+    () => ({
+      type: 'FeatureCollection',
+      features: props.explore.trails.map((t) => ({
+        type: 'Feature',
+        geometry: t.geometry,
+        properties: { id: t.id, name: t.name, selected: t.id === props.selectedTrail?.id },
+      })),
+    }),
+    [props.explore.trails, props.selectedTrail?.id],
+  )
+  const selectedTrailData = useMemo<FeatureCollection>(
+    () =>
+      props.selectedTrail
+        ? { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: props.selectedTrail.geometry, properties: {} }] }
+        : EMPTY,
+    [props.selectedTrail],
+  )
+
+  // Which places get a pin: a selected trail's stops; otherwise photo spots and trailheads when zoomed in.
+  const placePins = useMemo(() => {
+    const byId = new globalThis.Map(props.explore.places.map((p) => [p.id, p]))
+    if (props.selectedTrail) return props.selectedTrail.along.flatMap((a) => byId.get(a.poi) ?? [])
+    const pins = zoom >= 9 ? props.explore.places.filter((p) => isPhotoSpot(p.kind)) : []
+    if (props.selectedPlace && !pins.includes(props.selectedPlace)) pins.push(props.selectedPlace)
+    return pins
+  }, [props.explore.places, props.selectedTrail, props.selectedPlace, zoom])
+  const trailheadPins = props.selectedTrail ? [props.selectedTrail] : zoom >= 9.5 ? props.explore.trails : []
+
   const trailBounds = layers.trails && zoom >= TRAILS_MIN_ZOOM && bounds ? snapBounds(bounds) : null
   const trails = useQuery({
     queryKey: ['trails', trailBounds],
@@ -202,7 +265,11 @@ export function FoliageMap(props: Props) {
     const feature = e.features?.[0]
     if (!feature) return setPopup(null)
     const p = feature.properties as Record<string, string | number>
-    if (feature.layer?.id === 'parks-circles') {
+    if (feature.layer?.id === 'explore-trails-hit') {
+      const trail = props.explore.trails.find((t) => t.id === p.id)
+      if (trail) props.onSelectTrail(trail)
+      setPopup(null)
+    } else if (feature.layer?.id === 'parks-circles') {
       const park = props.parks.find((x) => x.id === String(p.id))
       if (park) props.onSelectPark(park)
       setPopup(null)
@@ -231,7 +298,9 @@ export function FoliageMap(props: Props) {
     <Map
       ref={mapRef}
       initialViewState={
-        props.target
+        props.target?.bounds
+          ? { bounds: props.target.bounds, fitBoundsOptions: { padding: fitPadding(isDesktop) } }
+          : props.target
           ? { longitude: props.target.lng, latitude: props.target.lat, zoom: props.target.zoom - 2 }
           : props.initialView
             ? { longitude: props.initialView.lng, latitude: props.initialView.lat, zoom: props.initialView.zoom }
@@ -327,6 +396,65 @@ export function FoliageMap(props: Props) {
             'text-halo-color': dark ? '#000' : '#fff',
             'text-halo-width': 1.2,
           }}
+        />
+      </Source>
+
+      {/* Ontario Trail Network trails from the Explore data. */}
+      <Source id="explore-trails" type="geojson" data={exploreTrails}>
+        <Layer
+          id="explore-trails-line"
+          type="line"
+          slot="middle"
+          minzoom={7.5}
+          layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+          paint={{
+            'line-color': dark ? '#a9cf8f' : '#2f5d3a',
+            'line-width': ['interpolate', ['linear'], ['zoom'], 8, 1.5, 14, 4],
+            'line-opacity': props.selectedTrail ? 0.35 : 0.95,
+            'line-emissive-strength': 1,
+          }}
+        />
+        {/* Wide invisible line so trails are easy to tap. */}
+        <Layer
+          id="explore-trails-hit"
+          type="line"
+          slot="middle"
+          minzoom={7.5}
+          paint={{ 'line-color': '#000', 'line-opacity': 0, 'line-width': 16 }}
+        />
+        <Layer
+          id="explore-trails-label"
+          type="symbol"
+          slot="top"
+          minzoom={11}
+          layout={{
+            'symbol-placement': 'line',
+            'text-field': ['get', 'name'],
+            'text-font': ['DIN Pro Medium', 'Arial Unicode MS Regular'],
+            'text-size': 12,
+          }}
+          paint={{
+            'text-color': dark ? '#d6ebc6' : '#24482d',
+            'text-halo-color': dark ? '#000' : '#fff',
+            'text-halo-width': 1.4,
+          }}
+        />
+      </Source>
+      {/* The selected trail's track, drawn over everything else. */}
+      <Source id="selected-trail" type="geojson" data={selectedTrailData}>
+        <Layer
+          id="selected-trail-casing"
+          type="line"
+          slot="top"
+          layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+          paint={{ 'line-color': '#fff', 'line-width': ['interpolate', ['linear'], ['zoom'], 9, 6, 15, 11], 'line-emissive-strength': 1 }}
+        />
+        <Layer
+          id="selected-trail-line"
+          type="line"
+          slot="top"
+          layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+          paint={{ 'line-color': '#e8730c', 'line-width': ['interpolate', ['linear'], ['zoom'], 9, 3.5, 15, 7], 'line-emissive-strength': 1 }}
         />
       </Source>
 
@@ -432,6 +560,32 @@ export function FoliageMap(props: Props) {
         </Marker>
       ))}
 
+      {trailheadPins.map((t) => (
+        <Marker key={`th-${t.id}`} longitude={t.trailhead[0]} latitude={t.trailhead[1]} anchor="center" onClick={(e) => {
+          e.originalEvent.stopPropagation()
+          props.onSelectTrail(t)
+        }}>
+          <button title={`${t.name} trailhead`} aria-label={`${t.name} trailhead`} className="cursor-pointer">
+            <PlacePin kind="trailhead" active={props.selectedTrail?.id === t.id} />
+          </button>
+        </Marker>
+      ))}
+      {placePins.map((p) => (
+        <Marker key={p.id} longitude={p.lng} latitude={p.lat} anchor="center" onClick={(e) => {
+          e.originalEvent.stopPropagation()
+          props.onSelectPlace(p)
+        }}>
+          <button title={p.name} aria-label={`${PLACE_KINDS[p.kind].label}: ${p.name}`} className="cursor-pointer">
+            <PlacePin kind={p.kind} active={props.selectedPlace?.id === p.id} />
+          </button>
+        </Marker>
+      ))}
+      {props.hoverPoint && (
+        <Marker longitude={props.hoverPoint[0]} latitude={props.hoverPoint[1]} anchor="center">
+          <span className="block size-4 rounded-full border-[3px] border-white bg-[#e8730c] shadow-lg" />
+        </Marker>
+      )}
+
       {popup && (
         <Popup longitude={popup.lng} latitude={popup.lat} onClose={() => setPopup(null)} closeButton={false} maxWidth="240px">
           <div className="text-[13px] text-[#2a211c]">
@@ -484,5 +638,18 @@ function MissingToken() {
         </p>
       </div>
     </div>
+  )
+}
+
+function PlacePin({ kind, active }: { kind: PlaceIconId; active: boolean }) {
+  return (
+    <span
+      className={`flex items-center justify-center rounded-full border-2 border-white text-white shadow-md transition-transform ${
+        active ? 'size-10 scale-110' : 'size-7 hover:scale-110'
+      }`}
+      style={{ background: PLACE_KINDS[kind].color }}
+    >
+      <PlaceIcon kind={kind} className={active ? 'size-6' : 'size-4'} />
+    </span>
   )
 }

@@ -4,6 +4,7 @@ Track fall colours and leaf drop across Canada: every tree species, every park, 
 
 > Working title.
 > - **[docs/PRD.md](docs/PRD.md)**: product requirements, user journeys, design patterns and release plan
+> - **[docs/EXPLORE.md](docs/EXPLORE.md)**: trails, waterfalls, lookouts, lakes and creeks: research, identity system, data
 > - **[docs/PLAN.md](docs/PLAN.md)**: technical plan, data sources and architecture
 > - **[Issues](https://github.com/maarib/canopy/issues)** and **[milestones](https://github.com/maarib/canopy/milestones)**: every design and dev task
 
@@ -11,6 +12,7 @@ Track fall colours and leaf drop across Canada: every tree species, every park, 
 - **Live map**: Mapbox Standard on a globe with autumn colours and dusk lighting (dawn/day/night too), hillshade, optional 3D terrain
 - **Official reports**: Ontario Parks colour % and leaf-fall % for ~65 parks, refreshed daily by a GitHub Action
 - **Crowd sightings**: iNaturalist coloured-leaf observations, grouped into hexes and filterable by tree type (maples, oaks, birches, aspens, larches…)
+- **Trails & places (Algonquin first)**: Ontario Trail Network trails with their own pages (track on the map, elevation chart, stops along the way, GPX), and pages for waterfalls, lookouts, peaks, lakes and creeks
 - **Trails**: Parks Canada official trails when zoomed in
 - **Satellite**: NASA VIIRS daily true-colour imagery with a date picker
 - **Region and park panels**: 7-day colour outlook, trees to look for, nearby photos, directions and booking links
@@ -25,7 +27,7 @@ npm run dev
 
 The map needs a free [Mapbox](https://account.mapbox.com/access-tokens/) public token (`pk.…`). Copy `.env.example` to `.env.local` and set `VITE_MAPBOX_TOKEN`. Everything else uses free, open services.
 
-Refresh the Ontario Parks snapshot locally with `npm run data:ontario-parks` (CI does this daily in season).
+Refresh the Ontario Parks snapshot with `npm run data:ontario-parks` (CI: daily in season) and trails/places with `npm run data:explore` (CI: weekly).
 
 ## Stack
 Vite · React 19 · TypeScript · Tailwind v4 · TanStack Query · Mapbox GL JS (`react-map-gl`) · Mapbox Standard style

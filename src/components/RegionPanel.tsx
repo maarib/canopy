@@ -4,10 +4,26 @@ import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { CalendarToday, LocationOn, Star } from 'relume-icons'
 import { treeIconFor } from '../data/treeIcons'
+import { isPhotoSpot, PLACE_KINDS, type ExploreArea, type Place, type Trail } from '../lib/explore'
+import { PlaceIcon } from './PlaceIcon'
+import { TrailCard } from './TrailPanel'
 import { TreeIcon } from './TreeIcon'
 import { BackButton, Badge, LinkButton, ShareButton } from './ui'
 
-export function RegionPanel({ region, onBack }: { region: Region; onBack: () => void }) {
+type Props = {
+  region: Region
+  onBack: () => void
+  /** Trails and places for this region, when an explore area covers it. */
+  area?: ExploreArea
+  places: Map<string, Place>
+  onSelectTrail: (t: Trail) => void
+  onSelectPlace: (p: Place) => void
+}
+
+export function RegionPanel({ region, onBack, area, places, onSelectTrail, onSelectPlace }: Props) {
+  const photoSpots = (area?.pois ?? []).filter((p) => isPhotoSpot(p.kind) && !/^(Lookout on|Unnamed)/.test(p.name))
+  const dayHikes = (area?.trails ?? []).filter((t) => t.difficulty !== 'backpacking')
+  const backpacking = (area?.trails ?? []).filter((t) => t.difficulty === 'backpacking')
   const phase = PHASE_STYLE[peakPhase(region)]
 
   return (
@@ -54,6 +70,47 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
           ))}
         </ul>
       </section>
+
+      {area && (
+        <section>
+          <h3 className="text-lg">Trails</h3>
+          <p className="mb-1 text-xs text-[var(--ink-soft)]">
+            {dayHikes.length} day hikes{backpacking.length ? ` · ${backpacking.length} backpacking` : ''} · tap one to see its route and
+            what's along it
+          </p>
+          <ul className="divide-y divide-[var(--line)]">
+            {[...dayHikes, ...backpacking].map((t) => (
+              <li key={t.id}>
+                <TrailCard trail={t} places={places} onClick={() => onSelectTrail(t)} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {photoSpots.length > 0 && (
+        <section>
+          <h3 className="mb-2 text-lg">Waterfalls & lookouts</h3>
+          <ul className="flex flex-wrap gap-1.5">
+            {photoSpots.map((p) => (
+              <li key={p.id}>
+                <button
+                  onClick={() => onSelectPlace(p)}
+                  className="flex items-center gap-1.5 rounded-full border border-[var(--line)] py-1 pr-3 pl-1 text-sm hover:bg-[var(--surface-2)]"
+                >
+                  <span
+                    className="flex size-6 items-center justify-center rounded-full text-white"
+                    style={{ background: PLACE_KINDS[p.kind].color }}
+                  >
+                    <PlaceIcon kind={p.kind} className="size-3.5" />
+                  </span>
+                  {p.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <NearbyPhotos lat={region.lat} lng={region.lng} />
 
