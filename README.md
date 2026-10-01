@@ -2,7 +2,10 @@
 
 Track fall colours and leaf drop across Canada: every tree species, every park, live conditions, and when and where to go.
 
-> Working title. See **[docs/PLAN.md](docs/PLAN.md)** for the full product and technical plan: data sources, Google Maps strategy, architecture and roadmap.
+> Working title.
+> - **[docs/PRD.md](docs/PRD.md)**: product requirements, user journeys, design patterns and release plan
+> - **[docs/PLAN.md](docs/PLAN.md)**: technical plan, data sources and architecture
+> - **[Issues](https://github.com/maarib/canopy/issues)** and **[milestones](https://github.com/maarib/canopy/milestones)**: every design and dev task
 
 ## What works today (Milestone 1)
 - **Live map**: autumn-tinted free basemap (light/dark), hillshade, optional 3D terrain
