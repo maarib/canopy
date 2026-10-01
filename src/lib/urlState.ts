@@ -1,7 +1,7 @@
 import type { MapLayers } from '../components/FoliageMap'
 import type { TreeFilterValue } from '../components/MapControls'
 import type { ParkReport } from './ontarioParks'
-import { LIGHT_PRESETS, localDate, type LightSetting } from './mapStyle'
+import { DEFAULT_LIGHT, LIGHT_PRESETS, localDate, type LightSetting } from './mapStyle'
 
 // Everything that makes a view shareable lives in the URL:
 //   path   /region/:id · /park/:id-slug
@@ -39,10 +39,10 @@ export function writeTree(params: URLSearchParams, tree: TreeFilterValue) {
 
 export const readLight = (params: URLSearchParams): LightSetting => {
   const l = params.get('light')
-  return (LIGHT_PRESETS as readonly string[]).includes(l ?? '') ? (l as LightSetting) : 'auto'
+  return l === 'auto' || (LIGHT_PRESETS as readonly string[]).includes(l ?? '') ? (l as LightSetting) : DEFAULT_LIGHT
 }
 export function writeLight(params: URLSearchParams, light: LightSetting) {
-  if (light === 'auto') params.delete('light')
+  if (light === DEFAULT_LIGHT) params.delete('light')
   else params.set('light', light)
 }
 

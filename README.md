@@ -8,7 +8,7 @@ Track fall colours and leaf drop across Canada: every tree species, every park, 
 > - **[Issues](https://github.com/maarib/canopy/issues)** and **[milestones](https://github.com/maarib/canopy/milestones)**: every design and dev task
 
 ## What works today (Milestone 1)
-- **Live map**: autumn-tinted free basemap (light/dark), hillshade, optional 3D terrain
+- **Live map**: Mapbox Standard on a globe with autumn colours and dusk lighting (dawn/day/night too), hillshade, optional 3D terrain
 - **Official reports**: Ontario Parks colour % and leaf-fall % for ~65 parks, refreshed daily by a GitHub Action
 - **Crowd sightings**: iNaturalist coloured-leaf observations, grouped into hexes and filterable by tree type (maples, oaks, birches, aspens, larches…)
 - **Trails**: Parks Canada official trails when zoomed in
@@ -19,18 +19,19 @@ Track fall colours and leaf drop across Canada: every tree species, every park, 
 ## Getting started
 ```bash
 npm install
+cp .env.example .env.local   # add your Mapbox token
 npm run dev
 ```
 
-No API keys needed. Everything runs on free, open services.
+The map needs a free [Mapbox](https://account.mapbox.com/access-tokens/) public token (`pk.…`). Copy `.env.example` to `.env.local` and set `VITE_MAPBOX_TOKEN`. Everything else uses free, open services.
 
 Refresh the Ontario Parks snapshot locally with `npm run data:ontario-parks` (CI does this daily in season).
 
 ## Stack
-Vite · React 19 · TypeScript · Tailwind v4 · TanStack Query · MapLibre GL (`react-map-gl`) · OpenFreeMap basemaps
+Vite · React 19 · TypeScript · Tailwind v4 · TanStack Query · Mapbox GL JS (`react-map-gl`) · Mapbox Standard style
 
 ## Data credits
-- Basemap: [OpenFreeMap](https://openfreemap.org) · © [OpenMapTiles](https://openmaptiles.org) · data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
+- Basemap: © [Mapbox](https://www.mapbox.com/about/maps/) · © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
 - Observations and photos: [iNaturalist](https://www.inaturalist.org) contributors (individual CC licences)
 - Weather: [Open-Meteo](https://open-meteo.com) (CC BY 4.0, non-commercial free tier)
 - Park reports: [Ontario Parks Fall Colour Report](https://www.ontarioparks.ca/fallcolour)

@@ -11,6 +11,9 @@ export type LightPreset = (typeof LIGHT_PRESETS)[number]
 /** 'auto' follows the system colour scheme (night in dark mode, day otherwise). */
 export type LightSetting = LightPreset | 'auto'
 
+/** Dusk: warm low light that flatters fall colour, and reads well in light and dark UI. */
+export const DEFAULT_LIGHT: LightSetting = 'dusk'
+
 export function resolveLight(setting: LightSetting, dark: boolean): LightPreset {
   return setting === 'auto' ? (dark ? 'night' : 'day') : setting
 }
