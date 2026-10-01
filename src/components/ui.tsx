@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { ArrowBack, ArrowForward } from 'relume-icons'
+import { useState, type ReactNode } from 'react'
+import { ArrowBack, ArrowForward, Check, Link } from 'relume-icons'
 
 export function BackButton({ onClick }: { onClick: () => void }) {
   return (
@@ -67,5 +67,38 @@ export function Meter({ label, value, color }: { label: string; value: number | 
         <div className="h-full rounded-full transition-all" style={{ width: `${value ?? 0}%`, background: color }} />
       </div>
     </div>
+  )
+}
+
+/** Native share sheet where available (phones), otherwise copy the link. */
+export function ShareButton({ title }: { title: string }) {
+  const [copied, setCopied] = useState(false)
+  async function share() {
+    const url = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url })
+        return
+      } catch (e) {
+        if ((e as Error).name === 'AbortError') return // user closed the sheet
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      window.prompt('Copy this link', url)
+    }
+  }
+  return (
+    <button
+      onClick={share}
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm hover:bg-[var(--surface-2)]"
+      aria-live="polite"
+    >
+      {copied ? <Check className="size-4 text-spruce dark:text-[#a9cf8f]" /> : <Link className="size-4" />}
+      {copied ? 'Link copied' : 'Share'}
+    </button>
   )
 }

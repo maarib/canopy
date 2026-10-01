@@ -5,7 +5,7 @@ import { NearbyPhotos } from './NearbyPhotos'
 import { CalendarToday, LocationOn, Star } from 'relume-icons'
 import { treeIconFor } from '../data/treeIcons'
 import { TreeIcon } from './TreeIcon'
-import { BackButton, Badge, LinkButton } from './ui'
+import { BackButton, Badge, LinkButton, ShareButton } from './ui'
 
 export function RegionPanel({ region, onBack }: { region: Region; onBack: () => void }) {
   const phase = PHASE_STYLE[peakPhase(region)]
@@ -61,6 +61,7 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
         <LinkButton primary href={directionsUrl(region.lat, region.lng)} icon={<LocationOn className="size-4" />}>
           Directions
         </LinkButton>
+        <ShareButton title={`${region.name} fall colours · Canopy`} />
         {region.links.map((l) => (
           <LinkButton
             key={l.url}
