@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Layers } from 'relume-icons'
 import { TREE_GROUPS } from '../data/treeGroups'
 import { localDate } from '../lib/mapStyle'
+import type { TreeIconId } from '../data/treeIcons'
+import { TreeIcon } from './TreeIcon'
 import { STAGES, type Stage } from '../lib/stage'
 import type { MapLayers } from './FoliageMap'
 
@@ -135,7 +137,9 @@ export function TreeFilter({
           aria-pressed={value === g.id}
           onClick={() => onChange(value === g.id ? 'trees' : g.id)}
         >
-          <span className="size-2.5 rounded-full" style={{ background: g.colour }} />
+          <span style={{ color: value === g.id ? undefined : g.colour }}>
+            <TreeIcon id={g.id as TreeIconId} className="size-4" />
+          </span>
           {g.label} <span className="opacity-60">{counts.get(g.id)}</span>
         </button>
       ))}

@@ -2,6 +2,8 @@
 // provincial tourism guidance and park reports. Milestone 2 replaces them with
 // per-cell historical peaks from VIIRS/MODIS phenology.
 
+import { treeIconFor, type TreeIconId } from './treeIcons'
+
 export type Region = {
   id: string
   name: string
@@ -13,6 +15,11 @@ export type Region = {
   species: string[]
   highlights: string[]
   links: { label: string; url: string }[]
+}
+
+/** The tree a region is best known for in fall: its first listed species. */
+export function signatureTree(region: Region): TreeIconId {
+  return treeIconFor(region.species[0] ?? '') ?? 'maples'
 }
 
 export const REGIONS: Region[] = [

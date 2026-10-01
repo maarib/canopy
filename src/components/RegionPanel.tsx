@@ -3,6 +3,8 @@ import { directionsUrl, formatWindow, PHASE_STYLE, peakPhase } from '../lib/peak
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { CalendarToday, LocationOn, Star } from 'relume-icons'
+import { treeIconFor } from '../data/treeIcons'
+import { TreeIcon } from './TreeIcon'
 import { BackButton, Badge, LinkButton } from './ui'
 
 export function RegionPanel({ region, onBack }: { region: Region; onBack: () => void }) {
@@ -29,11 +31,15 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
       <section>
         <h3 className="mb-2 text-lg">Trees to look for</h3>
         <ul className="flex flex-wrap gap-1.5">
-          {region.species.map((s) => (
-            <li key={s} className="rounded-full border border-[var(--line)] px-2.5 py-0.5 text-sm">
-              {s}
-            </li>
-          ))}
+          {region.species.map((s) => {
+            const icon = treeIconFor(s)
+            return (
+              <li key={s} className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm">
+                {icon && <TreeIcon id={icon} className="size-4 text-pumpkin" />}
+                {s}
+              </li>
+            )
+          })}
         </ul>
       </section>
 
