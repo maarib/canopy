@@ -102,3 +102,49 @@ export function ShareButton({ title }: { title: string }) {
     </button>
   )
 }
+
+/** Placeholder block while content loads. Size it with classes. */
+export function Skeleton({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
+  return <span aria-hidden className={`skeleton block ${className}`} style={style} />
+}
+
+/** A loading panel shaped like a place page. */
+export function PanelSkeleton({ label = 'Loading…' }: { label?: string }) {
+  return (
+    <div className="space-y-5 p-5" role="status" aria-label={label}>
+      <Skeleton className="h-4 w-16" />
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-32" />
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-6 w-40 rounded-full" />
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {Array.from({ length: 4 }, (_, i) => (
+          <Skeleton key={i} className="h-14 rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="h-36 rounded-xl" />
+      <div className="space-y-2">
+        {Array.from({ length: 4 }, (_, i) => (
+          <Skeleton key={i} className="h-10" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Thin determinate progress bar (e.g. sightings streaming in). */
+export function ProgressBar({ value, label }: { value: number; label: string }) {
+  return (
+    <div
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(value * 100)}
+      className="h-0.5 w-full overflow-hidden bg-transparent"
+    >
+      <div className="h-full bg-pumpkin transition-[width] duration-500 ease-out" style={{ width: `${Math.max(4, value * 100)}%` }} />
+    </div>
+  )
+}

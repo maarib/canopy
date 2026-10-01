@@ -8,19 +8,20 @@ import { isPhotoSpot, PLACE_KINDS, type ExploreArea, type Place, type Trail } fr
 import { PlaceIcon } from './PlaceIcon'
 import { TrailCard } from './TrailPanel'
 import { TreeIcon } from './TreeIcon'
-import { BackButton, Badge, LinkButton, ShareButton } from './ui'
+import { BackButton, Badge, LinkButton, ShareButton, Skeleton } from './ui'
 
 type Props = {
   region: Region
   onBack: () => void
   /** Trails and places for this region, when an explore area covers it. */
   area?: ExploreArea
+  areaLoading?: boolean
   places: Map<string, Place>
   onSelectTrail: (t: Trail) => void
   onSelectPlace: (p: Place) => void
 }
 
-export function RegionPanel({ region, onBack, area, places, onSelectTrail, onSelectPlace }: Props) {
+export function RegionPanel({ region, onBack, area, areaLoading, places, onSelectTrail, onSelectPlace }: Props) {
   const photoSpots = (area?.pois ?? []).filter((p) => isPhotoSpot(p.kind) && !/^(Lookout on|Unnamed)/.test(p.name))
   const dayHikes = (area?.trails ?? []).filter((t) => t.difficulty !== 'backpacking')
   const backpacking = (area?.trails ?? []).filter((t) => t.difficulty === 'backpacking')
@@ -71,6 +72,22 @@ export function RegionPanel({ region, onBack, area, places, onSelectTrail, onSel
         </ul>
       </section>
 
+      {areaLoading && (
+        <section role="status" aria-label="Loading trails">
+          <h3 className="mb-2 text-lg">Trails</h3>
+          <ul className="space-y-3">
+            {Array.from({ length: 4 }, (_, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <Skeleton className="size-10 rounded-xl" />
+                <span className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       {area && (
         <section>
           <h3 className="text-lg">Trails</h3>

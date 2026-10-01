@@ -1,9 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { experimental_streamedQuery as streamedQuery, useQuery } from '@tanstack/react-query'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { ProgressActivity } from 'relume-icons'
 import { BottomSheet, type SnapPoint } from './components/BottomSheet'
-import { FoliageMap, type FlyTarget, type MapLayers, type MapView } from './components/FoliageMap'
+import type { FlyTarget, MapLayers, MapView } from './components/FoliageMap'
+import { MapSkeleton } from './components/MapSkeleton'
 import { HomePanel } from './components/HomePanel'
 import { LayerControl, Legend, TreeFilter, type TreeFilterValue } from './components/MapControls'
 import { ParkPanel } from './components/ParkPanel'
@@ -11,7 +12,7 @@ import { PlacePanel } from './components/PlacePanel'
 import { TrailPanel } from './components/TrailPanel'
 import { RegionPanel } from './components/RegionPanel'
 import { SearchBox } from './components/SearchBox'
-import { BackButton } from './components/ui'
+import { BackButton, PanelSkeleton, ProgressBar } from './components/ui'
 import { REGIONS, type Region } from './data/regions'
 import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop } from './hooks'
@@ -25,7 +26,15 @@ import {
   type Place,
   type Trail,
 } from './lib/explore'
-import { countByGroup, fetchSeasonSightings } from './lib/inaturalist'
+import { setHoverPoint } from './lib/hoverStore'
+import {
+  countByGroup,
+  EMPTY_SIGHTINGS,
+  readCachedSightings,
+  reduceSightings,
+  streamSeasonSightings,
+  writeCachedSightings,
+} from './lib/inaturalist'
 import { fetchOntarioParks, parkTitle, type ParkReport } from './lib/ontarioParks'
 import type { LightSetting } from './lib/mapStyle'
 import type { SearchResult } from './lib/search'
@@ -44,6 +53,12 @@ import {
   writeTree,
 } from './lib/urlState'
 
+/** Stable empty list, so memoized children don't re-render while parks load. */
+const NO_PARKS: ParkReport[] = []
+
+// The map engine (~500 KB gzipped) loads in parallel while the panels render.
+const FoliageMap = lazy(() => import('./components/FoliageMap').then((m) => ({ default: m.FoliageMap })))
+
 type Selection =
   | { kind: 'region'; region: Region }
   | { kind: 'park'; park: ParkReport }
@@ -61,10 +76,25 @@ export default function App() {
   const [sheet, setSheet] = useState<SnapPoint>('peek')
   const [focus, setFocus] = useState<FlyTarget>(null)
 
-  const sightings = useQuery({ queryKey: ['season-sightings'], queryFn: () => fetchSeasonSightings() })
+  // Sightings stream in page by page; a recent copy on the device makes reopening instant.
+  const [cached] = useState(readCachedSightings)
+  const sightings = useQuery({
+    queryKey: ['season-sightings'],
+    queryFn: streamedQuery({
+      streamFn: ({ signal }) => streamSeasonSightings(14, 6, signal),
+      reducer: reduceSightings,
+      initialValue: EMPTY_SIGHTINGS,
+      refetchMode: 'replace', // keep showing the old sightings until fresh ones are complete
+    }),
+    initialData: cached?.data,
+    initialDataUpdatedAt: cached?.savedAt,
+  })
+  useEffect(() => {
+    if (sightings.data?.complete && sightings.dataUpdatedAt !== cached?.savedAt) writeCachedSightings(sightings.data)
+  }, [sightings.data, sightings.dataUpdatedAt, cached?.savedAt])
+  const sightingsLoading = sightings.isFetching && !sightings.data?.complete
   const parks = useQuery({ queryKey: ['ontario-parks'], queryFn: fetchOntarioParks })
   const explore = useQuery({ queryKey: ['explore'], queryFn: fetchExploreAreas, staleTime: Infinity })
-  const [hoverPoint, setHoverPoint] = useState<[number, number] | null>(null)
 
   // Flattened lookups across all explore areas.
   const exploreIndex = useMemo(() => {
@@ -89,8 +119,9 @@ export default function App() {
   const updateParams = useCallback(
     (fn: (p: URLSearchParams) => void) =>
       setParams(
-        (prev) => {
-          const next = new URLSearchParams(prev)
+        () => {
+          // Start from the live URL: the map view is written straight to history (see onViewChange).
+          const next = new URLSearchParams(window.location.search)
           fn(next)
           return next
         },
@@ -131,21 +162,25 @@ export default function App() {
   }, [regionMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Navigate to a place (new history entry), keeping filters and layers. */
+  // Stable callbacks, so the memoized map doesn't re-render when the app does.
   const go = useCallback(
     (pathname: string) => {
-      const next = new URLSearchParams(params)
+      const next = new URLSearchParams(window.location.search)
       next.delete('map') // the place decides the view
       navigate({ pathname, search: next.toString() })
     },
-    [navigate, params],
+    [navigate],
   )
-  const goHome = () => go('/')
+  const goHome = useCallback(() => go('/'), [go])
   /** Back to wherever the user came from inside the app (e.g. region → trail → back), else home. */
-  const goBack = () => ((window.history.state as { idx?: number } | null)?.idx ? navigate(-1) : goHome())
-  const selectTrail = (t: Trail) => go(trailPath(t))
-  const selectPlace = (p: Place) => go(placePath(p))
-  const selectRegion = (r: Region) => go(regionPath(r.id))
-  const selectPark = (p: ParkReport) => go(parkPath(p))
+  const goBack = useCallback(
+    () => ((window.history.state as { idx?: number } | null)?.idx ? navigate(-1) : goHome()),
+    [navigate, goHome],
+  )
+  const selectTrail = useCallback((t: Trail) => go(trailPath(t)), [go])
+  const selectPlace = useCallback((p: Place) => go(placePath(p)), [go])
+  const selectRegion = useCallback((r: Region) => go(regionPath(r.id)), [go])
+  const selectPark = useCallback((p: ParkReport) => go(parkPath(p)), [go])
 
   const selectionKey =
     selection?.kind === 'region'
@@ -164,7 +199,6 @@ export default function App() {
   if (sheetFor !== selectionKey) {
     setSheetFor(selectionKey)
     setSheet(selectionKey === 'home' ? 'peek' : 'half')
-    setHoverPoint(null)
   }
 
   // Tab titles make shared links and history readable.
@@ -182,13 +216,20 @@ export default function App() {
     document.title = name ? `${name} · Canopy` : 'Canopy · Fall colours across Canada'
   }, [selection])
 
+  // Written straight to history rather than through the router, so panning the map doesn't
+  // re-render the whole app on every move. Keeps the router's state object intact.
   const onViewChange = useCallback(
     (view: MapView) => {
       if (selectionKey !== 'home') return
-      updateParams((p) => p.set('map', formatMapView(view)))
+      const url = new URL(window.location.href)
+      url.searchParams.set('map', formatMapView(view))
+      window.history.replaceState(window.history.state, '', url)
     },
-    [selectionKey, updateParams],
+    [selectionKey],
   )
+
+  // A hover point from a previous trail's chart shouldn't linger.
+  useEffect(() => setHoverPoint(null), [selectionKey])
 
   function onSearch(r: SearchResult) {
     if (r.kind === 'region') go(regionPath(r.id))
@@ -247,6 +288,7 @@ export default function App() {
         region={selection.region}
         onBack={goBack}
         area={explore.data?.find((a) => a.regionId === selection.region.id)}
+        areaLoading={explore.isPending}
         places={exploreIndex.placeById}
         onSelectTrail={selectTrail}
         onSelectPlace={selectPlace}
@@ -274,9 +316,7 @@ export default function App() {
     ) : selection?.kind === 'park' ? (
       <ParkPanel key={selection.park.id} park={selection.park} onBack={goBack} />
     ) : selection?.kind === 'loading' ? (
-      <p className="flex items-center gap-2 p-5 text-sm text-[var(--ink-soft)]">
-        <ProgressActivity className="size-4 animate-spin" /> Loading…
-      </p>
+      <PanelSkeleton />
     ) : selection?.kind === 'missing' ? (
       <div className="space-y-3 p-5">
         <BackButton onClick={goBack} />
@@ -288,7 +328,7 @@ export default function App() {
         regions={REGIONS}
         parks={parks.data?.parks}
         parksFetchedAt={parks.data?.fetchedAt}
-        treeColourSightings={treeColourSightings}
+        treeColourSightings={sightings.data?.loaded ? treeColourSightings : undefined}
         onSelectRegion={selectRegion}
         onSelectPark={selectPark}
       />
@@ -296,17 +336,25 @@ export default function App() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="z-30 flex items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)] px-5 py-3">
+      <header className="relative z-30 flex items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)] px-5 py-3">
         <button onClick={goHome} className="flex items-center gap-2" aria-label="Canopy home">
           <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-6" />
           <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         </button>
         <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Fall colours across Canada</span>
-        {sightings.isFetching && (
-          <span className="ml-auto flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
-            <ProgressActivity className="size-4 animate-spin" />
-            <span className="hidden sm:inline">Loading live sightings…</span>
-          </span>
+        {sightingsLoading && (
+          <>
+            <span className="ml-auto flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
+              <ProgressActivity className="size-4 animate-spin" />
+              <span className="hidden sm:inline">Loading live sightings…</span>
+            </span>
+            <div className="absolute inset-x-0 -bottom-px">
+              <ProgressBar
+                value={(sightings.data?.loaded ?? 0) / (sightings.data?.expected || 1)}
+                label="Loading live sightings"
+              />
+            </div>
+          </>
         )}
       </header>
 
@@ -316,9 +364,10 @@ export default function App() {
         )}
 
         <div className="relative min-w-0 flex-1">
+          <Suspense fallback={<MapSkeleton />}>
           <FoliageMap
             regions={REGIONS}
-            parks={parks.data?.parks ?? []}
+            parks={parks.data?.parks ?? NO_PARKS}
             sightings={visibleSightings}
             layers={layers}
             satelliteDate={satelliteDate}
@@ -333,16 +382,16 @@ export default function App() {
             explore={exploreIndex}
             selectedTrail={selection?.kind === 'trail' ? selection.trail : null}
             selectedPlace={selection?.kind === 'place' ? selection.place : null}
-            hoverPoint={hoverPoint}
             onSelectTrail={selectTrail}
             onSelectPlace={selectPlace}
           />
+          </Suspense>
 
           <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 p-3 pr-14">
             <div className="pointer-events-auto flex items-start gap-2 md:max-w-xl">
               <div className="min-w-0 flex-1">
                 <SearchBox
-                  parks={parks.data?.parks ?? []}
+                  parks={parks.data?.parks ?? NO_PARKS}
                   trails={exploreIndex.trails}
                   places={exploreIndex.places}
                   onSelect={onSearch}

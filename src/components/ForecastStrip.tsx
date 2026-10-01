@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Skeleton } from './ui'
 import { colourOutlook, fetchForecast, weatherEmoji, type ColourOutlook } from '../lib/weather'
 
 const OUTLOOK_DOT: Record<ColourOutlook, { label: string; cls: string } | null> = {
@@ -17,7 +18,13 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
   return (
     <section>
       <h3 className="mb-2 text-lg">7-day colour outlook</h3>
-      {forecast.isPending && <p className="text-sm text-[var(--ink-soft)]">Loading forecast…</p>}
+      {forecast.isPending && (
+        <div className="grid grid-cols-7 gap-1" role="status" aria-label="Loading forecast">
+          {Array.from({ length: 7 }, (_, i) => (
+            <Skeleton key={i} className="h-[92px]" />
+          ))}
+        </div>
+      )}
       {forecast.isError && <p className="text-sm text-maple">Couldn’t load the forecast.</p>}
       {forecast.data && (
         <ol className="grid grid-cols-7 gap-1 text-center text-xs">

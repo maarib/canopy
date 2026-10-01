@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import type { FeatureCollection, Point } from 'geojson'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import Map, {
   AttributionControl,
   Layer,
@@ -16,6 +16,8 @@ import { ExternalIcon } from './ui'
 import { signatureTree, type Region } from '../data/regions'
 import type { TreeIconId } from '../data/treeIcons'
 import { TreeIcon } from './TreeIcon'
+import { MapSkeleton } from './MapSkeleton'
+import { useHoverPoint } from '../lib/hoverStore'
 import { PlaceIcon, type PlaceIconId } from './PlaceIcon'
 import { isPhotoSpot, PLACE_KINDS, type Place, type Trail } from '../lib/explore'
 import { useIsDesktop, usePrefersDark } from '../hooks'
@@ -86,8 +88,6 @@ type Props = {
   explore: { trails: Trail[]; places: Place[] }
   selectedTrail: Trail | null
   selectedPlace: Place | null
-  /** Point highlighted from the elevation chart. */
-  hoverPoint: [number, number] | null
   onSelectTrail: (t: Trail) => void
   onSelectPlace: (p: Place) => void
 }
@@ -112,7 +112,8 @@ const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] }
 
 type PopupInfo = { lng: number; lat: number; title: string; lines: string[]; href?: string }
 
-export function FoliageMap(props: Props) {
+/** Memoized: the app re-renders often (sheet, search, panels); the map only when its props change. */
+export const FoliageMap = memo(function FoliageMap(props: Props) {
   const { layers } = props
   const mapRef = useRef<MapRef>(null)
   const dark = usePrefersDark()
@@ -159,7 +160,11 @@ export function FoliageMap(props: Props) {
     map.setConfig('basemap', standardConfig(lightPreset))
   }, [mapReady, lightPreset])
 
+  // Record the view after moves the user made, or a fly-to they asked for (search), but not
+  // the map settling on load.
+  const reportNextMove = useRef(false)
   useEffect(() => {
+    if (focus) reportNextMove.current = true
     if (focus)
       mapRef.current?.flyTo({
         center: [focus.lng, focus.lat],
@@ -295,6 +300,7 @@ export function FoliageMap(props: Props) {
   const vis = (on: boolean) => (on ? 'visible' : 'none') as 'visible' | 'none'
 
   return (
+    <>
     <Map
       ref={mapRef}
       initialViewState={
@@ -324,7 +330,12 @@ export function FoliageMap(props: Props) {
         updateView(false)
         setMapReady(true)
       }}
-      onMoveEnd={() => updateView()}
+      onMoveEnd={(e) => {
+        // Mapbox sets originalEvent only for user-driven moves (react-map-gl's type omits it).
+        const byUser = !!(e as { originalEvent?: Event }).originalEvent
+        updateView(byUser || reportNextMove.current)
+        reportNextMove.current = false
+      }}
       terrain={layers.terrain3d ? { source: 'mapbox-dem', exaggeration: 1.4 } : undefined}
     >
       <NavigationControl position="top-right" visualizePitch />
@@ -580,11 +591,7 @@ export function FoliageMap(props: Props) {
           </button>
         </Marker>
       ))}
-      {props.hoverPoint && (
-        <Marker longitude={props.hoverPoint[0]} latitude={props.hoverPoint[1]} anchor="center">
-          <span className="block size-4 rounded-full border-[3px] border-white bg-[#e8730c] shadow-lg" />
-        </Marker>
-      )}
+      <HoverMarker />
 
       {popup && (
         <Popup longitude={popup.lng} latitude={popup.lat} onClose={() => setPopup(null)} closeButton={false} maxWidth="240px">
@@ -611,6 +618,19 @@ export function FoliageMap(props: Props) {
         </div>
       )}
     </Map>
+    {!mapReady && <MapSkeleton />}
+    </>
+  )
+})
+
+/** Follows the elevation chart; subscribes to the hover store so only this re-renders. */
+function HoverMarker() {
+  const point = useHoverPoint()
+  if (!point) return null
+  return (
+    <Marker longitude={point[0]} latitude={point[1]} anchor="center">
+      <span className="block size-4 rounded-full border-[3px] border-white bg-[#e8730c] shadow-lg" />
+    </Marker>
   )
 }
 
