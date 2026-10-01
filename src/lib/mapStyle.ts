@@ -1,67 +1,33 @@
-import type { StyleSpecification } from 'maplibre-gl'
+// Mapbox Standard basemap, configured for Canopy: faded theme so our data leads,
+// warm autumn land/greenspace/water, fewer labels, and a light preset.
+// Config reference: https://docs.mapbox.com/map-styles/standard/guides/
 
-// OpenFreeMap basemaps (free, no key), re-tinted with an autumn palette.
-const BASE = {
-  light: 'https://tiles.openfreemap.org/styles/positron',
-  dark: 'https://tiles.openfreemap.org/styles/dark',
+export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
+export const MAPBOX_STYLE = 'mapbox://styles/mapbox/standard'
+export const MAPBOX_DEM = 'mapbox://mapbox.mapbox-terrain-dem-v1'
+
+export const LIGHT_PRESETS = ['dawn', 'day', 'dusk', 'night'] as const
+export type LightPreset = (typeof LIGHT_PRESETS)[number]
+/** 'auto' follows the system colour scheme (night in dark mode, day otherwise). */
+export type LightSetting = LightPreset | 'auto'
+
+export function resolveLight(setting: LightSetting, dark: boolean): LightPreset {
+  return setting === 'auto' ? (dark ? 'night' : 'day') : setting
 }
 
-type Palette = Record<'background' | 'water' | 'wood' | 'park' | 'residential' | 'boundary', string>
-
-const PALETTE: Record<'light' | 'dark', Palette> = {
-  light: {
-    background: '#f3ede3',
-    water: '#bccfd4',
-    wood: '#e4dcc8',
-    park: '#dfe1cc',
-    residential: '#ece4d8',
-    boundary: '#b6a594',
-  },
-  dark: {
-    background: '#16120f',
-    water: '#0e1a1f',
-    wood: '#211a14',
-    park: '#1e2117',
-    residential: '#1b1612',
-    boundary: '#4d4036',
-  },
-}
-
-function tint(style: StyleSpecification, p: Palette): StyleSpecification {
-  const layers = style.layers.map((layer) => {
-    const id = layer.id
-    const set = (prop: string, color: string) => ({ ...layer, paint: { ...layer.paint, [prop]: color } }) as typeof layer
-    if (id === 'background') return set('background-color', p.background)
-    if (id === 'water') return set('fill-color', p.water)
-    if (id === 'waterway') return set('line-color', p.water)
-    if (id === 'landcover_wood') return set('fill-color', p.wood)
-    if (id === 'park' || id === 'landuse_park') return set('fill-color', p.park)
-    if (id === 'landuse_residential') return set('fill-color', p.residential)
-    if (id.startsWith('boundary')) return set('line-color', p.boundary)
-    return layer
-  })
-  return { ...style, layers }
-}
-
-const cache = new Map<string, Promise<StyleSpecification>>()
-
-export function loadAutumnStyle(scheme: 'light' | 'dark'): Promise<StyleSpecification> {
-  let style = cache.get(scheme)
-  if (!style) {
-    style = fetch(BASE[scheme])
-      .then((r) => r.json() as Promise<StyleSpecification>)
-      .then((s) => tint(s, PALETTE[scheme]))
-    cache.set(scheme, style)
+export function standardConfig(light: LightPreset): Record<string, string | boolean> {
+  return {
+    theme: 'faded',
+    lightPreset: light,
+    colorLand: '#efe6d6',
+    colorGreenspace: '#d8d6ae',
+    colorWater: '#a7c2cb',
+    showPointOfInterestLabels: false,
+    showTransitLabels: false,
+    showPedestrianRoads: false,
+    show3dObjects: true,
   }
-  return style
 }
-
-/** First symbol (label) layer, so our data layers sit under place names. */
-export function firstLabelLayerId(style: StyleSpecification): string | undefined {
-  return style.layers.find((l) => l.type === 'symbol')?.id
-}
-
-export const TERRAIN_TILES = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'
 
 /** NASA GIBS daily VIIRS true-colour mosaic for a given date (YYYY-MM-DD). */
 export const satelliteTiles = (date: string) =>
