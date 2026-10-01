@@ -30,6 +30,15 @@ import { fetchParksCanadaTrails, snapBounds, type Bounds } from '../lib/trails'
 
 setWorkerUrl(maplibreWorkerUrl)
 
+/**
+ * Camera padding so targets land in the visible part of the map. MapLibre keeps padding
+ * between moves, so every move sets it: half-open sheet for places, peek height otherwise.
+ */
+function sheetPadding(isDesktop: boolean, placeOpen: boolean) {
+  const bottom = isDesktop ? 0 : placeOpen ? Math.round(window.innerHeight * 0.45) : 132
+  return { top: 0, left: 0, right: 0, bottom }
+}
+
 export type MapLayers = {
   reports: boolean
   hexes: boolean
@@ -40,6 +49,7 @@ export type MapLayers = {
 }
 
 export type FlyTarget = { id: string; lng: number; lat: number; zoom: number } | null
+export type MapView = { lat: number; lng: number; zoom: number }
 
 type Props = {
   regions: Region[]
@@ -51,6 +61,12 @@ type Props = {
   selectedId: string | null
   onSelectRegion: (r: Region) => void
   onSelectPark: (p: ParkReport) => void
+  /** Starting view (e.g. from a shared link); ignored when `target` is set. */
+  initialView: MapView | null
+  /** Called after the user pans/zooms. */
+  onViewChange: (view: MapView) => void
+  /** One-off fly-to (e.g. a town picked in search); a new `id` triggers it. */
+  focus: FlyTarget
 }
 
 /** Where nearly all of Canada's fall colour is: the southern band, BC to Newfoundland. */
@@ -85,18 +101,38 @@ export function FoliageMap(props: Props) {
     }
   }, [dark])
 
-  // Fly to whatever the panel selected.
-  const { target } = props
+  // Fly to whatever the panel selected. On first load, a deep link jumps straight there
+  // and a shared map view (or the default) is already the initial view.
+  const { target, focus } = props
+  const firstRun = useRef(true)
+  // The map engine loads asynchronously, so a target can arrive before the map exists;
+  // `mapReady` re-runs the fly once it does.
+  const [mapReady, setMapReady] = useState(false)
   useEffect(() => {
     const map = mapRef.current
-    if (!map) return
-    // On phones the bottom sheet covers the lower half; keep the target in the visible part.
-    const padding = { top: 0, left: 0, right: 0, bottom: isDesktop ? 0 : Math.round(window.innerHeight * 0.45) }
+    if (!map || !mapReady) return
+    if (firstRun.current) {
+      firstRun.current = false
+      if (!target) return
+    }
+    const padding = sheetPadding(isDesktop, !!target)
     if (target) map.flyTo({ center: [target.lng, target.lat], zoom: target.zoom, padding, duration: 1600, essential: true })
     else if (isDesktop) map.fitBounds(COLOUR_BELT, { padding: 24, duration: 1200 })
     else map.flyTo({ center: [EAST_BELT.longitude, EAST_BELT.latitude], zoom: EAST_BELT.zoom, padding, duration: 1200 })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fly only when the target changes identity
-  }, [target?.id])
+  }, [target?.id, mapReady])
+
+  useEffect(() => {
+    if (focus)
+      mapRef.current?.flyTo({
+        center: [focus.lng, focus.lat],
+        zoom: focus.zoom,
+        padding: sheetPadding(isDesktop, false),
+        duration: 1600,
+        essential: true,
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fly once per focus request
+  }, [focus?.id])
 
   useEffect(() => {
     mapRef.current?.easeTo({ pitch: layers.terrain3d ? 60 : 0, duration: 1000 })
@@ -149,10 +185,12 @@ export function FoliageMap(props: Props) {
     placeholderData: (prev) => prev,
   })
 
-  function updateView() {
+  function updateView(report = true) {
     const map = mapRef.current
     if (!map) return
     setZoom(map.getZoom())
+    const c = map.getCenter()
+    if (report) props.onViewChange({ lat: c.lat, lng: c.lng, zoom: map.getZoom() })
     const b = map.getBounds()
     setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()])
   }
@@ -190,7 +228,15 @@ export function FoliageMap(props: Props) {
   return (
     <Map
       ref={mapRef}
-      initialViewState={isDesktop ? { bounds: COLOUR_BELT, fitBoundsOptions: { padding: 24 } } : EAST_BELT}
+      initialViewState={
+        props.target
+          ? { longitude: props.target.lng, latitude: props.target.lat, zoom: props.target.zoom - 2 }
+          : props.initialView
+            ? { longitude: props.initialView.lng, latitude: props.initialView.lat, zoom: props.initialView.zoom }
+            : isDesktop
+              ? { bounds: COLOUR_BELT, fitBoundsOptions: { padding: 24 } }
+              : EAST_BELT
+      }
       minZoom={2}
       maxPitch={75}
       mapStyle={style}
@@ -203,9 +249,10 @@ export function FoliageMap(props: Props) {
       onClick={handleClick}
       onLoad={(e) => {
         if (import.meta.env.DEV) Object.assign(window, { __canopyMap: e.target }) // for debugging in devtools
-        updateView()
+        updateView(false)
+        setMapReady(true)
       }}
-      onMoveEnd={updateView}
+      onMoveEnd={() => updateView()}
       terrain={layers.terrain3d ? { source: 'terrain-dem', exaggeration: 1.4 } : undefined}
     >
       <NavigationControl position="top-right" visualizePitch />

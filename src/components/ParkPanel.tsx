@@ -4,7 +4,7 @@ import { STAGES } from '../lib/stage'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { CalendarToday, LocationOn, Schedule } from 'relume-icons'
-import { BackButton, Badge, LinkButton, Meter } from './ui'
+import { BackButton, Badge, LinkButton, ShareButton, Meter } from './ui'
 
 export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => void }) {
   const stage = STAGES[park.stage]
@@ -54,6 +54,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         <LinkButton primary href={directionsUrl(park.lat, park.lng)} icon={<LocationOn className="size-4" />}>
           Directions
         </LinkButton>
+        <ShareButton title={`${parkTitle(park)} fall colours · Canopy`} />
         <LinkButton href="https://reservations.ontarioparks.ca/" icon={<CalendarToday className="size-4" />} external>
           Book
         </LinkButton>

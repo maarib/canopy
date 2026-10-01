@@ -35,13 +35,14 @@ export function LayerControl({
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-sm font-medium shadow-md"
+        aria-label="Map layers"
+        className="flex h-[42px] items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 text-sm font-medium shadow-md"
       >
-        <Layers className="size-4" />
-        Layers
+        <Layers className="size-5" />
+        <span className="hidden sm:inline">Layers</span>
       </button>
       {open && (
-        <div className="absolute top-full left-0 z-10 mt-2 w-72 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 shadow-xl">
+        <div className="absolute top-full right-0 z-20 mt-2 w-72 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 shadow-xl">
           <ul className="space-y-1">
             {LAYER_LABELS.map(([key, label, hint]) => (
               <li key={key}>
