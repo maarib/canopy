@@ -38,9 +38,9 @@ const midrib = (top: number, bottom: number) => slit(12, top, 12, bottom)
 const ICONS: Record<TreeIconId, ReactNode> = {
   maples: (
     <path
-      d="M12 2l1.2 2.7 1.6-.6-.9 4.3 2.9-3 .7 1.5 3.3-.7-1.2 3.4 1.3.7-3.9 3.3.6 1.7-3.9-.6v6.9h-1.4V15.7l-3.9.6.6-1.7-3.9-3.3 1.3-.7-1.2-3.4 3.3.7.7-1.5 2.9 3-.9-4.3 1.6.6z"
+      d="M12 1.6L13.5 4.6L15.4 3.8L14.6 8.5L16.7 6.2L17.5 7.4L21 6.4L19.6 10L20.8 10.8L16.9 13.8L17.6 15.7L13.3 15L12.65 15.6L12.65 21.8L11.35 21.8L11.35 15.6L10.7 15L6.4 15.7L7.1 13.8L3.2 10.8L4.4 10L3 6.4L6.5 7.4L7.3 6.2L9.4 8.5L8.6 3.8L10.5 4.6Z"
       stroke="currentColor"
-      strokeWidth="0.6"
+      strokeWidth="0.5"
       strokeLinejoin="round"
     />
   ),
