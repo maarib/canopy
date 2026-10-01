@@ -189,12 +189,20 @@ Report   { id, userId, location, colourChangePct, leafFallPct, speciesIds[], pho
 - [x] Region panel with Open-Meteo 7-day forecast plus colour outlook
 - [x] CI (lint/build) on GitHub Actions
 
-### Milestone 1 — The live map (MVP)
-- Custom autumn map style (MapTiler/Protomaps or a tweaked OpenFreeMap style), hexbin colour-status layer, 3D terrain
-- Species filter (from iNat taxa)
-- Ontario Parks scraper → `/status` endpoint (Worker + cron)
-- Parks Canada trails layer (GeoJSON, line styling by zoom)
-- Responsive bottom-sheet UX, PWA basics
+### Milestone 1 — The live map (MVP) ✅ 2026-09-30
+- [x] Autumn-tinted OpenFreeMap style (light + dark), hillshade, optional 3D terrain (AWS Terrarium DEM)
+- [x] Colour-sighting hexbins from iNaturalist (zoom-adaptive, client-side, no deps) + individual sightings when zoomed in
+- [x] Tree filter: iNat observations grouped into maples, oaks, birches, aspens, larches and more via genus ancestors (`src/data/treeGroups.ts`)
+- [x] Ontario Parks report → `public/data/ontario-parks.json`, refreshed daily by a GitHub Action (no backend needed yet)
+- [x] Official park layer coloured by stage, park detail panel (colour %, leaf fall %, viewing tips, forecast, photos, booking)
+- [x] Parks Canada trails layer (bbox-queried from ArcGIS at zoom ≥ 9, cached per 0.5° tile)
+- [x] NASA GIBS VIIRS true-colour satellite layer with a date picker
+- [x] Mobile bottom sheet (peek / half / full), desktop side panel, layers popover + legend
+- [x] Web app manifest (installable). Service worker / offline still to do.
+
+**Learned along the way**
+- iNat's "Leaves" annotation is mostly used for coloured leaves (766 vs 64 leafless in 14 days), so hexes show *where colour is being seen*, not % change. Real % change needs green-leaf counts too: use iNat's UTFGrid tiles or the `/observations` count endpoint per cell (Milestone 2).
+- Raw iNat top species are often non-trees (fireweed, poison ivy), hence the genus-based tree groups.
 
 ### Milestone 2 — When to go
 - VIIRS/MODIS historical peak pipeline → typical peak per cell
