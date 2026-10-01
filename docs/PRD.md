@@ -122,6 +122,7 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 ### Visual language
 - **Palette:** maple `#c8102e`, pumpkin `#e8730c`, birch `#e9b824`, spruce `#2f5d3a`, bark `#3b2f2a`, mist `#f6f1ea`. The stage scale runs green → gold → orange → red → brown and stays colour-blind safe (checked with simulators; paired with labels/icons).
 - **Type:** **Londrina Solid** for display titles and headings (400; 900 for the wordmark) and **Livvic** for everything else: body, labels, captions (400–700).
+- **Icons:** [Relume icons](https://www.npmjs.com/package/relume-icons) (MIT, rounded outline style, tree-shaken) for UI controls and actions. Weather keeps its emoji, and the maple-leaf pins stay as the brand mark. The package has 60 icons and no outdoor/POI set, so POI icons (waterfall, lookout, trailhead…) are custom (D-05).
 - **Motion:** sheet springs, fly-to camera moves, and a falling-leaf micro-animation reserved for "peak" moments only.
 - **Tone:** warm, local, precise. "Algonquin is at peak, about 90% colour. Go before Friday's wind."
 

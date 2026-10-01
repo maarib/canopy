@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
+import { ProgressActivity } from 'relume-icons'
 import { BottomSheet, type SnapPoint } from './components/BottomSheet'
 import { FoliageMap, type FlyTarget, type MapLayers } from './components/FoliageMap'
 import { HomePanel } from './components/HomePanel'
@@ -87,7 +88,10 @@ export default function App() {
         <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Fall colours across Canada</span>
         {sightings.isFetching && (
-          <span className="ml-auto text-xs text-[var(--ink-soft)]">Loading live sightings…</span>
+          <span className="ml-auto flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
+            <ProgressActivity className="size-4 animate-spin" />
+            Loading live sightings…
+          </span>
         )}
       </header>
 

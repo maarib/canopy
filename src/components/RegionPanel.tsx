@@ -2,6 +2,7 @@ import type { Region } from '../data/regions'
 import { directionsUrl, formatWindow, PHASE_STYLE, peakPhase } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
+import { CalendarToday, LocationOn, Star } from 'relume-icons'
 import { BackButton, Badge, LinkButton } from './ui'
 
 export function RegionPanel({ region, onBack }: { region: Region; onBack: () => void }) {
@@ -16,7 +17,10 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
         <h2 className="text-3xl leading-tight">{region.name}</h2>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           <Badge color={phase.color}>{phase.label}</Badge>
-          <span className="text-[var(--ink-soft)]">Typical peak {formatWindow(region)}</span>
+          <span className="flex items-center gap-1 text-[var(--ink-soft)]">
+            <CalendarToday className="size-4" />
+            Typical peak {formatWindow(region)}
+          </span>
         </div>
       </header>
 
@@ -35,9 +39,12 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
 
       <section>
         <h3 className="mb-2 text-lg">Don’t miss</h3>
-        <ul className="list-inside list-disc space-y-0.5 text-sm">
+        <ul className="space-y-1 text-sm">
           {region.highlights.map((h) => (
-            <li key={h}>{h}</li>
+            <li key={h} className="flex items-center gap-2">
+              <Star className="size-4 shrink-0 text-pumpkin" />
+              {h}
+            </li>
           ))}
         </ul>
       </section>
@@ -45,12 +52,17 @@ export function RegionPanel({ region, onBack }: { region: Region; onBack: () => 
       <NearbyPhotos lat={region.lat} lng={region.lng} />
 
       <section className="flex flex-wrap gap-2">
-        <LinkButton primary href={directionsUrl(region.lat, region.lng)}>
+        <LinkButton primary href={directionsUrl(region.lat, region.lng)} icon={<LocationOn className="size-4" />}>
           Directions
         </LinkButton>
         {region.links.map((l) => (
-          <LinkButton key={l.url} href={l.url}>
-            {l.label} ↗
+          <LinkButton
+            key={l.url}
+            href={l.url}
+            external
+            icon={/book|reserv/i.test(l.label) ? <CalendarToday className="size-4" /> : undefined}
+          >
+            {l.label}
           </LinkButton>
         ))}
       </section>

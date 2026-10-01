@@ -3,6 +3,7 @@ import { directionsUrl } from '../lib/peak'
 import { STAGES } from '../lib/stage'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
+import { CalendarToday, LocationOn, Schedule } from 'relume-icons'
 import { BackButton, Badge, LinkButton, Meter } from './ui'
 
 export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => void }) {
@@ -22,7 +23,12 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         <h2 className="text-3xl leading-tight">{parkTitle(park)}</h2>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           <Badge color={stage.color}>{stage.label}</Badge>
-          {reported && <span className="text-[var(--ink-soft)]">Official report · {reported}</span>}
+          {reported && (
+            <span className="flex items-center gap-1 text-[var(--ink-soft)]">
+              <Schedule className="size-4" />
+              Official report · {reported}
+            </span>
+          )}
         </div>
       </header>
 
@@ -45,11 +51,15 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
       <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} />
 
       <section className="flex flex-wrap gap-2">
-        <LinkButton primary href={directionsUrl(park.lat, park.lng)}>
+        <LinkButton primary href={directionsUrl(park.lat, park.lng)} icon={<LocationOn className="size-4" />}>
           Directions
         </LinkButton>
-        <LinkButton href={park.url}>Park page ↗</LinkButton>
-        <LinkButton href="https://reservations.ontarioparks.ca/">Book ↗</LinkButton>
+        <LinkButton href="https://reservations.ontarioparks.ca/" icon={<CalendarToday className="size-4" />} external>
+          Book
+        </LinkButton>
+        <LinkButton href={park.url} external>
+          Park page
+        </LinkButton>
       </section>
 
       <p className="text-[11px] text-[var(--ink-soft)]">

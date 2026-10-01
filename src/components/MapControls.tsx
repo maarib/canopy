@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Layers } from 'relume-icons'
 import { TREE_GROUPS } from '../data/treeGroups'
 import { localDate } from '../lib/mapStyle'
 import { STAGES, type Stage } from '../lib/stage'
@@ -34,9 +35,7 @@ export function LayerControl({
         aria-expanded={open}
         className="flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-sm font-medium shadow-md"
       >
-        <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-          <path d="M10 2 2 6.5 10 11l8-4.5L10 2ZM2 10l8 4.5 8-4.5M2 13.5 10 18l8-4.5" strokeLinejoin="round" />
-        </svg>
+        <Layers className="size-4" />
         Layers
       </button>
       {open && (

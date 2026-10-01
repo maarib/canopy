@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ChevronRight } from 'relume-icons'
 import type { Region } from '../data/regions'
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/peak'
@@ -109,6 +110,7 @@ function ParkList({
                 <span className="shrink-0 text-xs font-medium" style={{ color: stage.color }}>
                   {stage.label}
                 </span>
+                <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
               </button>
             </li>
           )
@@ -146,6 +148,7 @@ function RegionList({ regions, onSelect }: { regions: Region[]; onSelect: (r: Re
                 <span className="shrink-0 text-xs font-medium" style={{ color: phase.color }}>
                   {phase.label}
                 </span>
+                <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
               </button>
             </li>
           )

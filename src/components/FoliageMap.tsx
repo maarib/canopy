@@ -12,6 +12,7 @@ import Map, {
   type MapLayerMouseEvent,
   type MapRef,
 } from 'react-map-gl/maplibre'
+import { ExternalIcon } from './ui'
 import type { Region } from '../data/regions'
 import { useIsDesktop, usePrefersDark } from '../hooks'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
@@ -378,8 +379,9 @@ export function FoliageMap(props: Props) {
               </div>
             ))}
             {popup.href && (
-              <a href={popup.href} target="_blank" rel="noreferrer" className="mt-1 inline-block text-maple underline">
+              <a href={popup.href} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-maple underline">
                 View on iNaturalist
+                <ExternalIcon className="size-3.5" />
               </a>
             )}
           </div>
