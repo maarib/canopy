@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import type { FeatureCollection, Point } from 'geojson'
-import type { StyleSpecification } from 'maplibre-gl'
+import { setWorkerUrl, type StyleSpecification } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+// MapLibre computes its worker URL at runtime, which bundlers can't follow, so the worker
+// would be missing from production builds. Bundle it explicitly and point MapLibre at it.
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Map, {
   Layer,
@@ -13,7 +16,9 @@ import Map, {
   type MapRef,
 } from 'react-map-gl/maplibre'
 import { ExternalIcon } from './ui'
-import type { Region } from '../data/regions'
+import { signatureTree, type Region } from '../data/regions'
+import type { TreeIconId } from '../data/treeIcons'
+import { TreeIcon } from './TreeIcon'
 import { useIsDesktop, usePrefersDark } from '../hooks'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
 import type { LeafObservation } from '../lib/inaturalist'
@@ -22,6 +27,8 @@ import type { ParkReport } from '../lib/ontarioParks'
 import { PHASE_STYLE, peakPhase } from '../lib/peak'
 import { STAGE_COLOR_EXPRESSION, STAGES } from '../lib/stage'
 import { fetchParksCanadaTrails, snapBounds, type Bounds } from '../lib/trails'
+
+setWorkerUrl(maplibreWorkerUrl)
 
 export type MapLayers = {
   reports: boolean
@@ -364,7 +371,12 @@ export function FoliageMap(props: Props) {
           }}
         >
           <button title={r.name} aria-label={r.name} className="cursor-pointer">
-            <LeafPin color={PHASE_STYLE[peakPhase(r)].color} active={props.selectedId === r.id} small={zoom < 4.5} />
+            <TreePin
+              tree={signatureTree(r)}
+              color={PHASE_STYLE[peakPhase(r)].color}
+              active={props.selectedId === r.id}
+              small={zoom < 4.5}
+            />
           </button>
         </Marker>
       ))}
@@ -397,18 +409,15 @@ export function FoliageMap(props: Props) {
   )
 }
 
-function LeafPin({ color, active, small }: { color: string; active: boolean; small: boolean }) {
+function TreePin({ tree, color, active, small }: { tree: TreeIconId; color: string; active: boolean; small: boolean }) {
   return (
-    <svg
-      viewBox="0 0 32 32"
-      className={`drop-shadow-md transition-transform ${active ? 'size-10 scale-110' : small ? 'size-5 hover:scale-125' : 'size-7 hover:scale-110'}`}
-      aria-hidden
+    <span
+      className={`flex items-center justify-center rounded-full bg-white shadow-md transition-transform ${
+        active ? 'size-10 scale-110' : small ? 'size-6 hover:scale-125' : 'size-8 hover:scale-110'
+      }`}
+      style={{ color }}
     >
-      <circle cx="16" cy="16" r="15" fill="white" />
-      <path
-        fill={color}
-        d="M16 5l1.6 3.9 2.6-1.2-.6 4.6 3.5-2.6.4 2.4 3.1-.6-1.2 3.3 1.4.7-4.7 4 .6 1.9-4.4-.8.2 5.4h-2.2l.2-5.4-4.4.8.6-1.9-4.7-4 1.4-.7-1.2-3.3 3.1.6.4-2.4 3.5 2.6-.6-4.6 2.6 1.2z"
-      />
-    </svg>
+      <TreeIcon id={tree} className={active ? 'size-6' : small ? 'size-4' : 'size-5'} />
+    </span>
   )
 }

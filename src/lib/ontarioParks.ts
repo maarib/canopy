@@ -23,7 +23,7 @@ export type ParkReportFeed = { source: string; fetchedAt: string; parks: ParkRep
 
 /** Daily snapshot written by scripts/scrape-ontario-parks.mjs. */
 export async function fetchOntarioParks(): Promise<ParkReportFeed> {
-  const res = await fetch('/data/ontario-parks.json')
+  const res = await fetch(`${import.meta.env.BASE_URL}data/ontario-parks.json`)
   if (!res.ok) throw new Error(`Ontario Parks data ${res.status}`)
   const feed = (await res.json()) as ParkReportFeed
   return {

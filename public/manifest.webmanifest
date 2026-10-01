@@ -2,9 +2,9 @@
   "name": "Canopy · Fall colours across Canada",
   "short_name": "Canopy",
   "description": "Track fall colours, leaf drop, weather and trails across Canada.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#fffdf9",
   "theme_color": "#c8102e",
-  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
 }
