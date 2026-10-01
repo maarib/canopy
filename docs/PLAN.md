@@ -120,12 +120,14 @@ None of AllTrails, Parks Canada, Ontario Parks or Sépaq offer public APIs for r
 
 ⚠️ **Licensing constraint:** Google's Service Specific Terms say Places content (and Directions) **must not be used in conjunction with a non-Google map**. If we show Google Places data (photos, ratings), the map has to be a Google map.
 
-### Decision (updated 2026-09-30): start on the free open stack ✅
-- **Now:** MapLibre GL (`react-map-gl/maplibre`) + **OpenFreeMap** vector basemaps (free, no key, light/dark styles). Data layers are MapLibre sources/layers, so deck.gl's `MapboxOverlay` works when we need hexbins or animation.
-- Free alternatives for later: MapTiler or Protomaps (custom styles, terrain DEM for 3D hills), and AWS Terrain Tiles for hillshade.
-- **Because of Google's licence terms, Google Places content can't go on this map.** For photos and POIs, use iNaturalist, Wikimedia Commons, OSM (waterfalls, viewpoints) and Parks Canada data instead.
-- **Option to add Google later:** a park-detail screen that's a *separate* Google `<Map3D>` view, with Places photos and ratings shown only on that Google map. Map code lives in `src/components/FoliageMap.tsx` so the main map can also be swapped wholesale if we ever want to.
-- Dev note: `maplibre-gl` is excluded from Vite's `optimizeDeps` because v6 loads its worker from a sibling file.
+### Decision (updated 2026-10-01): Mapbox GL JS + Mapbox Standard ✅
+- **Now:** Mapbox GL JS v3 (`react-map-gl/mapbox`) with the **Mapbox Standard** style, configured at runtime (`src/lib/mapStyle.ts`): faded theme, autumn land/greenspace/water colours, fewer labels, 3D trees and landmarks, a globe at low zoom, and a light preset (**dusk** by default; dawn/day/night/auto in the Layers menu).
+- Data layers use Standard **slots** (`bottom` for hillshade/satellite, `middle` for our data, `top` for trail labels) and `*-emissive-strength: 1` so colours stay true under every light preset.
+- Terrain and hillshade come from Mapbox's DEM (`mapbox.mapbox-terrain-dem-v1`).
+- Same token unlocks Isochrone (drive-time filter, EXP-3), Directions, Search Box/Geocoding and Static Images (share images, PLAT-9).
+- **Cost:** 50k web map loads/month free. Token is a URL-restricted public `pk.` token in `VITE_MAPBOX_TOKEN` (repo variable for Pages builds).
+- **Trade-offs:** ~517 KB gzipped engine (vs ~280 KB MapLibre); proprietary licence. The previous free stack (MapLibre + OpenFreeMap) is in git history (`937eb75`) if we ever need to switch back.
+- **Google Places content still can't go on this map** (Google's licence terms). Use iNaturalist, Wikimedia Commons, OSM and Parks Canada for photos and POIs.
 
 ---
 
@@ -133,7 +135,7 @@ None of AllTrails, Parks Canada, Ontario Parks or Sépaq offer public APIs for r
 
 ```
 ┌──────────────────────────── Web app (Vite + React + TS) ────────────────────────────┐
-│  React Router · TanStack Query · Tailwind v4 · MapLibre (react-map-gl) · deck.gl    │
+│  React Router · TanStack Query · Tailwind v4 · Mapbox GL (react-map-gl) · deck.gl   │
 │  Views: Map (home) · Region/Park detail · Species · Trip planner · Report           │
 └───────────────┬────────────────────────────────────────────┬────────────────────────┘
                 │ client-safe, CORS-OK APIs                  │ our API

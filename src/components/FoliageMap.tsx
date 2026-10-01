@@ -1,20 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import type { FeatureCollection, Point } from 'geojson'
-import { setWorkerUrl, type StyleSpecification } from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
-// MapLibre computes its worker URL at runtime, which bundlers can't follow, so the worker
-// would be missing from production builds. Bundle it explicitly and point MapLibre at it.
-import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Map, {
+  AttributionControl,
   Layer,
   Marker,
   NavigationControl,
   Popup,
   Source,
-  type MapLayerMouseEvent,
+  type MapMouseEvent,
   type MapRef,
-} from 'react-map-gl/maplibre'
+} from 'react-map-gl/mapbox'
 import { ExternalIcon } from './ui'
 import { signatureTree, type Region } from '../data/regions'
 import type { TreeIconId } from '../data/treeIcons'
@@ -22,16 +19,22 @@ import { TreeIcon } from './TreeIcon'
 import { useIsDesktop, usePrefersDark } from '../hooks'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
 import type { LeafObservation } from '../lib/inaturalist'
-import { firstLabelLayerId, loadAutumnStyle, satelliteTiles, TERRAIN_TILES } from '../lib/mapStyle'
+import {
+  MAPBOX_DEM,
+  MAPBOX_STYLE,
+  MAPBOX_TOKEN,
+  resolveLight,
+  satelliteTiles,
+  standardConfig,
+  type LightSetting,
+} from '../lib/mapStyle'
 import type { ParkReport } from '../lib/ontarioParks'
 import { PHASE_STYLE, peakPhase } from '../lib/peak'
 import { STAGE_COLOR_EXPRESSION, STAGES } from '../lib/stage'
 import { fetchParksCanadaTrails, snapBounds, type Bounds } from '../lib/trails'
 
-setWorkerUrl(maplibreWorkerUrl)
-
 /**
- * Camera padding so targets land in the visible part of the map. MapLibre keeps padding
+ * Camera padding so targets land in the visible part of the map. The map keeps padding
  * between moves, so every move sets it: half-open sheet for places, peek height otherwise.
  */
 function sheetPadding(isDesktop: boolean, placeOpen: boolean) {
@@ -57,6 +60,7 @@ type Props = {
   sightings: LeafObservation[]
   layers: MapLayers
   satelliteDate: string
+  light: LightSetting
   target: FlyTarget
   selectedId: string | null
   onSelectRegion: (r: Region) => void
@@ -87,19 +91,10 @@ export function FoliageMap(props: Props) {
   const mapRef = useRef<MapRef>(null)
   const dark = usePrefersDark()
   const isDesktop = useIsDesktop()
-  const [style, setStyle] = useState<StyleSpecification | null>(null)
   const [zoom, setZoom] = useState(3.3)
   const [bounds, setBounds] = useState<Bounds | null>(null)
   const [hovering, setHovering] = useState(false)
   const [popup, setPopup] = useState<PopupInfo | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    loadAutumnStyle(dark ? 'dark' : 'light').then((s) => !cancelled && setStyle(s))
-    return () => {
-      cancelled = true
-    }
-  }, [dark])
 
   // Fly to whatever the panel selected. On first load, a deep link jumps straight there
   // and a shared map view (or the default) is already the initial view.
@@ -121,6 +116,14 @@ export function FoliageMap(props: Props) {
     else map.flyTo({ center: [EAST_BELT.longitude, EAST_BELT.latitude], zoom: EAST_BELT.zoom, padding, duration: 1200 })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fly only when the target changes identity
   }, [target?.id, mapReady])
+
+  // Mapbox Standard is configured at runtime: theme, autumn colours, light preset.
+  const lightPreset = resolveLight(props.light, dark)
+  useEffect(() => {
+    const map = mapRef.current?.getMap()
+    if (!map || !mapReady) return
+    map.setConfig('basemap', standardConfig(lightPreset))
+  }, [mapReady, lightPreset])
 
   useEffect(() => {
     if (focus)
@@ -192,18 +195,18 @@ export function FoliageMap(props: Props) {
     const c = map.getCenter()
     if (report) props.onViewChange({ lat: c.lat, lng: c.lng, zoom: map.getZoom() })
     const b = map.getBounds()
-    setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()])
+    if (b) setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()])
   }
 
-  function handleClick(e: MapLayerMouseEvent) {
+  function handleClick(e: MapMouseEvent) {
     const feature = e.features?.[0]
     if (!feature) return setPopup(null)
     const p = feature.properties as Record<string, string | number>
-    if (feature.layer.id === 'parks-circles') {
+    if (feature.layer?.id === 'parks-circles') {
       const park = props.parks.find((x) => x.id === String(p.id))
       if (park) props.onSelectPark(park)
       setPopup(null)
-    } else if (feature.layer.id === 'sightings-dots') {
+    } else if (feature.layer?.id === 'sightings-dots') {
       setPopup({
         lng: e.lngLat.lng,
         lat: e.lngLat.lat,
@@ -221,8 +224,7 @@ export function FoliageMap(props: Props) {
     }
   }
 
-  if (!style) return <div className="h-full w-full bg-[var(--surface-2)]" />
-  const labelId = firstLabelLayerId(style)
+  if (!MAPBOX_TOKEN) return <MissingToken />
   const vis = (on: boolean) => (on ? 'visible' : 'none') as 'visible' | 'none'
 
   return (
@@ -237,11 +239,12 @@ export function FoliageMap(props: Props) {
               ? { bounds: COLOUR_BELT, fitBoundsOptions: { padding: 24 } }
               : EAST_BELT
       }
+      mapboxAccessToken={MAPBOX_TOKEN}
       minZoom={2}
       maxPitch={75}
-      mapStyle={style}
+      mapStyle={MAPBOX_STYLE}
       style={{ width: '100%', height: '100%' }}
-      attributionControl={{ compact: true }}
+      attributionControl={false}
       interactiveLayerIds={INTERACTIVE}
       cursor={hovering ? 'pointer' : 'grab'}
       onMouseEnter={() => setHovering(true)}
@@ -253,47 +256,76 @@ export function FoliageMap(props: Props) {
         setMapReady(true)
       }}
       onMoveEnd={() => updateView()}
-      terrain={layers.terrain3d ? { source: 'terrain-dem', exaggeration: 1.4 } : undefined}
+      terrain={layers.terrain3d ? { source: 'mapbox-dem', exaggeration: 1.4 } : undefined}
     >
       <NavigationControl position="top-right" visualizePitch />
+      <AttributionControl compact position="bottom-right" />
 
-      {/* Rendered top-down: each layer slots in below the one before it. */}
-      <Source id="parks" type="geojson" data={parkPoints}>
+      {/*
+        Mapbox Standard slots: "bottom" sits on land/water under roads, "middle" above roads
+        under labels and 3D, "top" above everything. Within a slot, later layers draw on top.
+      */}
+      <Source id="mapbox-dem" type="raster-dem" url={MAPBOX_DEM} tileSize={512} maxzoom={14}>
         <Layer
-          id="parks-circles"
-          type="circle"
-          beforeId={labelId}
-          layout={{ visibility: vis(layers.reports), 'circle-sort-key': ['case', ['get', 'main'], 1, 0] }}
+          id="hillshade"
+          type="hillshade"
+          slot="bottom"
           paint={{
-            'circle-color': STAGE_COLOR_EXPRESSION as never,
-            'circle-radius': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              3,
-              ['case', ['get', 'main'], 4.5, 3],
-              9,
-              ['case', ['get', 'main'], 10, 7],
-            ],
-            'circle-stroke-color': ['case', ['get', 'selected'], '#111', '#fff'],
-            'circle-stroke-width': ['case', ['get', 'selected'], 3, 1.5],
+            'hillshade-exaggeration': 0.3,
+            'hillshade-shadow-color': dark ? '#000000' : '#6b5a4a',
+            'hillshade-highlight-color': dark ? '#2a221c' : '#fffaf2',
+            'hillshade-accent-color': dark ? '#000000' : '#6b5a4a',
           }}
         />
       </Source>
 
-      <Source id="sightings" type="geojson" data={sightingPoints}>
+      <Source
+        key={props.satelliteDate}
+        id="satellite"
+        type="raster"
+        tiles={[satelliteTiles(props.satelliteDate)]}
+        tileSize={256}
+        maxzoom={9}
+        attribution="Imagery: NASA EOSDIS GIBS (VIIRS)"
+      >
         <Layer
-          id="sightings-dots"
-          type="circle"
-          beforeId="parks-circles"
-          minzoom={6}
-          layout={{ visibility: vis(layers.sightings) }}
+          id="satellite-raster"
+          type="raster"
+          slot="bottom"
+          layout={{ visibility: vis(layers.satellite) }}
+          paint={{ 'raster-opacity': 0.95 }}
+        />
+      </Source>
+
+      <Source id="trails" type="geojson" data={trailBounds && trails.data ? trails.data : EMPTY}>
+        <Layer
+          id="trails-line"
+          type="line"
+          slot="middle"
+          layout={{ visibility: vis(layers.trails), 'line-cap': 'round', 'line-join': 'round' }}
           paint={{
-            'circle-color': ['match', ['get', 'state'], 'bare', STAGES.past.color, '#e8730c'],
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 2.5, 12, 6],
-            'circle-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0, 7, 0.9],
-            'circle-stroke-color': '#fff',
-            'circle-stroke-width': 1,
+            'line-color': dark ? '#a9cf8f' : '#2f5d3a',
+            'line-width': ['interpolate', ['linear'], ['zoom'], 9, 1.2, 14, 3.5],
+            'line-dasharray': [2, 1.2],
+            'line-emissive-strength': 1,
+          }}
+        />
+        <Layer
+          id="trails-label"
+          type="symbol"
+          slot="top"
+          minzoom={12}
+          layout={{
+            visibility: vis(layers.trails),
+            'symbol-placement': 'line',
+            'text-field': ['coalesce', ['get', 'name'], ''],
+            'text-font': ['DIN Pro Medium', 'Arial Unicode MS Regular'],
+            'text-size': 11,
+          }}
+          paint={{
+            'text-color': dark ? '#cfe3c0' : '#2f5d3a',
+            'text-halo-color': dark ? '#000' : '#fff',
+            'text-halo-width': 1.2,
           }}
         />
       </Source>
@@ -302,7 +334,7 @@ export function FoliageMap(props: Props) {
         <Layer
           id="hexes-fill"
           type="fill"
-          beforeId="sightings-dots"
+          slot="middle"
           maxzoom={11}
           layout={{ visibility: vis(layers.hexes) }}
           paint={{
@@ -322,89 +354,61 @@ export function FoliageMap(props: Props) {
               10.5,
               ['interpolate', ['linear'], ['get', 'total'], 1, 0.08, 8, 0.18],
             ],
+            // Keep data colours true under every light preset.
+            'fill-emissive-strength': 1,
           }}
         />
         <Layer
           id="hexes-outline"
           type="line"
-          beforeId="sightings-dots"
+          slot="middle"
           maxzoom={11}
           layout={{ visibility: vis(layers.hexes) }}
-          paint={{ 'line-color': dark ? '#000' : '#fff', 'line-opacity': 0.5, 'line-width': 0.75 }}
+          paint={{ 'line-color': dark ? '#000' : '#fff', 'line-opacity': 0.5, 'line-width': 0.75, 'line-emissive-strength': 1 }}
         />
       </Source>
 
-      <Source id="trails" type="geojson" data={trailBounds && trails.data ? trails.data : EMPTY}>
+      <Source id="sightings" type="geojson" data={sightingPoints}>
         <Layer
-          id="trails-line"
-          type="line"
-          beforeId="hexes-fill"
-          layout={{ visibility: vis(layers.trails), 'line-cap': 'round', 'line-join': 'round' }}
+          id="sightings-dots"
+          type="circle"
+          slot="middle"
+          minzoom={6}
+          layout={{ visibility: vis(layers.sightings) }}
           paint={{
-            'line-color': dark ? '#a9cf8f' : '#2f5d3a',
-            'line-width': ['interpolate', ['linear'], ['zoom'], 9, 1.2, 14, 3.5],
-            'line-dasharray': [2, 1.2],
-          }}
-        />
-        <Layer
-          id="trails-label"
-          type="symbol"
-          minzoom={12}
-          layout={{
-            visibility: vis(layers.trails),
-            'symbol-placement': 'line',
-            'text-field': ['coalesce', ['get', 'name'], ''],
-            'text-font': ['Noto Sans Regular'],
-            'text-size': 11,
-          }}
-          paint={{
-            'text-color': dark ? '#cfe3c0' : '#2f5d3a',
-            'text-halo-color': dark ? '#000' : '#fff',
-            'text-halo-width': 1.2,
+            'circle-color': ['match', ['get', 'state'], 'bare', STAGES.past.color, '#e8730c'],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 2.5, 12, 6],
+            'circle-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0, 7, 0.9],
+            'circle-stroke-color': '#fff',
+            'circle-stroke-width': 1,
+            'circle-emissive-strength': 1,
           }}
         />
       </Source>
 
-      <Source
-        key={props.satelliteDate}
-        id="satellite"
-        type="raster"
-        tiles={[satelliteTiles(props.satelliteDate)]}
-        tileSize={256}
-        maxzoom={9}
-        attribution="Imagery: NASA EOSDIS GIBS (VIIRS)"
-      >
+      <Source id="parks" type="geojson" data={parkPoints}>
         <Layer
-          id="satellite-raster"
-          type="raster"
-          beforeId="trails-line"
-          layout={{ visibility: vis(layers.satellite) }}
-          paint={{ 'raster-opacity': 0.95 }}
-        />
-      </Source>
-
-      <Source id="hillshade-dem" type="raster-dem" tiles={[TERRAIN_TILES]} encoding="terrarium" tileSize={256} maxzoom={13}>
-        <Layer
-          id="hillshade"
-          type="hillshade"
-          beforeId={style.layers.some((l) => l.id === 'waterway') ? 'waterway' : labelId}
+          id="parks-circles"
+          type="circle"
+          slot="middle"
+          layout={{ visibility: vis(layers.reports), 'circle-sort-key': ['case', ['get', 'main'], 1, 0] }}
           paint={{
-            'hillshade-exaggeration': 0.35,
-            'hillshade-shadow-color': dark ? '#000000' : '#6b5a4a',
-            'hillshade-highlight-color': dark ? '#2a221c' : '#fffaf2',
-            'hillshade-accent-color': dark ? '#000000' : '#6b5a4a',
+            'circle-color': STAGE_COLOR_EXPRESSION as never,
+            'circle-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              3,
+              ['case', ['get', 'main'], 4.5, 3],
+              9,
+              ['case', ['get', 'main'], 10, 7],
+            ],
+            'circle-stroke-color': ['case', ['get', 'selected'], '#111', '#fff'],
+            'circle-stroke-width': ['case', ['get', 'selected'], 3, 1.5],
+            'circle-emissive-strength': 1,
           }}
         />
       </Source>
-      <Source
-        id="terrain-dem"
-        type="raster-dem"
-        tiles={[TERRAIN_TILES]}
-        encoding="terrarium"
-        tileSize={256}
-        maxzoom={13}
-        attribution="Terrain: Mapzen / AWS Open Data"
-      />
 
       {props.regions.map((r) => (
         <Marker
@@ -466,5 +470,19 @@ function TreePin({ tree, color, active, small }: { tree: TreeIconId; color: stri
     >
       <TreeIcon id={tree} className={active ? 'size-6' : small ? 'size-4' : 'size-5'} />
     </span>
+  )
+}
+
+function MissingToken() {
+  return (
+    <div className="flex h-full items-center justify-center bg-[var(--surface-2)] p-6">
+      <div className="max-w-sm rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 text-sm shadow-sm">
+        <p className="mb-2 font-semibold">Add a Mapbox token to see the map</p>
+        <p className="text-[var(--ink-soft)]">
+          Put your public token (starts with <code>pk.</code>) in <code>.env.local</code> as{' '}
+          <code>VITE_MAPBOX_TOKEN</code>, then restart the dev server.
+        </p>
+      </div>
+    </div>
   )
 }

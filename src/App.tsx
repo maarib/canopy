@@ -15,6 +15,7 @@ import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop } from './hooks'
 import { countByGroup, fetchSeasonSightings } from './lib/inaturalist'
 import { fetchOntarioParks, parkTitle, type ParkReport } from './lib/ontarioParks'
+import type { LightSetting } from './lib/mapStyle'
 import type { SearchResult } from './lib/search'
 import {
   formatMapView,
@@ -22,10 +23,12 @@ import {
   parkPath,
   readDate,
   readLayers,
+  readLight,
   readMapView,
   readTree,
   regionPath,
   writeLayers,
+  writeLight,
   writeTree,
 } from './lib/urlState'
 
@@ -51,6 +54,7 @@ export default function App() {
   const treeFilter = readTree(params)
   const layers = useMemo(() => readLayers(params), [params])
   const satelliteDate = readDate(params)
+  const light = readLight(params)
   const [initialView] = useState(() => readMapView(params))
 
   /** Update query params in place (no new history entry for filter tweaks). */
@@ -69,6 +73,7 @@ export default function App() {
   const setTreeFilter = (v: TreeFilterValue) => updateParams((p) => writeTree(p, v))
   const setLayers = (l: MapLayers) => updateParams((p) => writeLayers(p, l))
   const setSatelliteDate = (d: string) => updateParams((p) => p.set('date', d))
+  const setLight = (l: LightSetting) => updateParams((p) => writeLight(p, l))
 
   const regionMatch = matchPath('/region/:id', location.pathname)
   const parkMatch = matchPath('/park/:slug', location.pathname)
@@ -219,6 +224,7 @@ export default function App() {
             sightings={visibleSightings}
             layers={layers}
             satelliteDate={satelliteDate}
+            light={light}
             target={target}
             focus={focus}
             initialView={initialView}
@@ -238,6 +244,8 @@ export default function App() {
                 onChange={setLayers}
                 satelliteDate={satelliteDate}
                 onSatelliteDate={setSatelliteDate}
+                light={light}
+                onLight={setLight}
               />
             </div>
             <div className="pointer-events-auto">

@@ -34,6 +34,8 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
+          # Public (pk.) token, URL-restricted in the Mapbox dashboard; stored as a repo variable.
+          VITE_MAPBOX_TOKEN: ${{ vars.VITE_MAPBOX_TOKEN }}
       # SPA fallback so deep links work once we add routes.
       - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5

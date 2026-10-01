@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Layers } from 'relume-icons'
 import { TREE_GROUPS } from '../data/treeGroups'
-import { localDate } from '../lib/mapStyle'
+import { LIGHT_PRESETS, localDate, type LightSetting } from '../lib/mapStyle'
 import type { TreeIconId } from '../data/treeIcons'
 import { TreeIcon } from './TreeIcon'
 import { STAGES, type Stage } from '../lib/stage'
@@ -21,11 +21,15 @@ export function LayerControl({
   onChange,
   satelliteDate,
   onSatelliteDate,
+  light,
+  onLight,
 }: {
   layers: MapLayers
   onChange: (l: MapLayers) => void
   satelliteDate: string
   onSatelliteDate: (d: string) => void
+  light: LightSetting
+  onLight: (l: LightSetting) => void
 }) {
   const [open, setOpen] = useState(false)
   const [today] = useState(() => localDate())
@@ -71,6 +75,24 @@ export function LayerControl({
               </li>
             ))}
           </ul>
+          <div className="mt-3 border-t border-[var(--line)] pt-3">
+            <div className="mb-1.5 text-xs font-semibold">Light</div>
+            <div role="radiogroup" aria-label="Map light" className="flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-xs">
+              {(['auto', ...LIGHT_PRESETS] as LightSetting[]).map((l) => (
+                <button
+                  key={l}
+                  role="radio"
+                  aria-checked={light === l}
+                  onClick={() => onLight(l)}
+                  className={`flex-1 rounded-full py-1 capitalize transition ${
+                    light === l ? 'bg-[var(--surface)] font-medium shadow-sm' : 'text-[var(--ink-soft)]'
+                  }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="mt-3 border-t border-[var(--line)] pt-3">
             <Legend />
           </div>
