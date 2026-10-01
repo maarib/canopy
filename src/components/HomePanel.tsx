@@ -5,6 +5,7 @@ import { TreeIcon } from './TreeIcon'
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/peak'
 import { STAGE_ORDER, STAGES } from '../lib/stage'
+import { Skeleton } from './ui'
 
 type Tab = 'reports' | 'regions'
 const PHASE_ORDER: PeakPhase[] = ['peak', 'approaching', 'early', 'past']
@@ -70,7 +71,7 @@ function Stat({ value, label, dot }: { value: number | undefined; label: string;
     <div className="rounded-xl bg-[var(--surface-2)] px-3 py-2.5">
       <div className="flex items-center gap-1.5 font-display text-3xl leading-none">
         <span className="size-2 rounded-full" style={{ background: dot }} />
-        {value === undefined ? '…' : value.toLocaleString('en-CA')}
+        {value === undefined ? <Skeleton className="h-7 w-12" /> : value.toLocaleString('en-CA')}
       </div>
       <div className="text-xs text-[var(--ink-soft)]">{label}</div>
     </div>
@@ -86,7 +87,20 @@ function ParkList({
   fetchedAt: string | undefined
   onSelect: (p: ParkReport) => void
 }) {
-  if (!parks) return <p className="py-4 text-sm text-[var(--ink-soft)]">Loading reports…</p>
+  if (!parks)
+    return (
+      <ul className="space-y-3 py-2" role="status" aria-label="Loading reports">
+        {Array.from({ length: 6 }, (_, i) => (
+          <li key={i} className="flex items-center gap-3">
+            <Skeleton className="size-3 rounded-full" />
+            <span className="flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-3 w-1/2" />
+            </span>
+          </li>
+        ))}
+      </ul>
+    )
   const sorted = parks
     .filter((p) => p.main)
     .sort(

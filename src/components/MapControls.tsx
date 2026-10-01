@@ -4,6 +4,7 @@ import { TREE_GROUPS } from '../data/treeGroups'
 import { LIGHT_PRESETS, localDate, type LightSetting } from '../lib/mapStyle'
 import type { TreeIconId } from '../data/treeIcons'
 import { TreeIcon } from './TreeIcon'
+import { Skeleton } from './ui'
 import { STAGES, type Stage } from '../lib/stage'
 import type { MapLayers } from './FoliageMap'
 
@@ -137,7 +138,14 @@ export function TreeFilter({
   value: TreeFilterValue
   onChange: (v: TreeFilterValue) => void
 }) {
-  if (!counts.size) return null
+  if (!counts.size)
+    return (
+      <div className="flex gap-1.5 overflow-hidden" aria-hidden>
+        {[84, 120, 96, 132].map((w) => (
+          <Skeleton key={w} className="h-[34px] shrink-0 rounded-full shadow-md" style={{ width: w }} />
+        ))}
+      </div>
+    )
   // Real trees first by count; shrubs and vines go last.
   const groups = TREE_GROUPS.filter((g) => counts.get(g.id)).sort(
     (a, b) => Number(b.tree) - Number(a.tree) || counts.get(b.id)! - counts.get(a.id)!,
