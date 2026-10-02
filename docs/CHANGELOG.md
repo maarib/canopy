@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | Leaf icons PR |
+| 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | [#99](https://github.com/maarib/canopy/pull/99) |
 | 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
 | 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
@@ -23,7 +23,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-01 · Two-colour leaf icon set
 
-**Ref:** Leaf icons PR
+**Ref:** [#99](https://github.com/maarib/canopy/pull/99)
 
 **Before.** Thirteen minimal, geometric tree icons on a 24×24 grid, built from circles, ellipses and straight slits and tinted with a single colour. They were crisp but mechanical, and several were hard to tell apart (birch, aspen and elm were all similar ovals).
 
