@@ -5,6 +5,7 @@ import { TreeIcon } from './TreeIcon'
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/peak'
 import { STAGE_ORDER, STAGES } from '../lib/stage'
+import { ROW } from '../lib/styles'
 import { Skeleton } from './ui'
 
 type Tab = 'reports' | 'regions'
@@ -29,7 +30,7 @@ export function HomePanel(props: Props) {
       <div role="tablist" className="mb-2 flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-sm">
         {(
           [
-            ['reports', 'Official reports'],
+            ['reports', 'Park reports'],
             ['regions', 'When to go'],
           ] as const
         ).map(([id, label]) => (
@@ -39,7 +40,7 @@ export function HomePanel(props: Props) {
             aria-selected={tab === id}
             onClick={() => setTab(id)}
             className={`flex-1 rounded-full px-3 py-1.5 font-medium transition ${
-              tab === id ? 'bg-[var(--surface)] shadow-sm' : 'text-[var(--ink-soft)]'
+              tab === id ? 'bg-[var(--surface)] shadow-sm' : 'text-[var(--ink-soft)] hover:bg-[var(--surface)]/60 hover:text-[var(--ink)]'
             }`}
           >
             {label}
@@ -61,7 +62,7 @@ function SightingsSummary({ treeColourSightings, parks }: Pick<Props, 'treeColou
   return (
     <div className="mb-4 grid grid-cols-2 gap-2">
       <Stat value={atPeak} label="Ontario parks at peak" dot={STAGES.peak.color} />
-      <Stat value={treeColourSightings} label="trees seen turning, last 14 days" dot="#e8730c" />
+      <Stat value={treeColourSightings} label="trees seen turning in the last 14 days" dot="#e8730c" />
     </div>
   )
 }
@@ -114,7 +115,7 @@ function ParkList({
           const stage = STAGES[p.stage]
           return (
             <li key={p.id}>
-              <button onClick={() => onSelect(p)} className="flex w-full items-center gap-3 py-2.5 text-left hover:opacity-80">
+              <button onClick={() => onSelect(p)} className={`${ROW} py-2.5`}>
                 <span className="size-3 shrink-0 rounded-full" style={{ background: stage.color }} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{parkTitle(p)}</span>
@@ -133,7 +134,7 @@ function ParkList({
       </ul>
       <p className="mt-3 text-[11px] text-[var(--ink-soft)]">
         Source:{' '}
-        <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline">
+        <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
           Ontario Parks Fall Colour Report
         </a>
         {fetchedAt && ` · updated ${new Date(fetchedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}`}. Other
@@ -152,7 +153,7 @@ function RegionList({ regions, onSelect }: { regions: Region[]; onSelect: (r: Re
           const phase = PHASE_STYLE[peakPhase(r)]
           return (
             <li key={r.id}>
-              <button onClick={() => onSelect(r)} className="flex w-full items-center gap-3 py-2.5 text-left hover:opacity-80">
+              <button onClick={() => onSelect(r)} className={`${ROW} py-2.5`}>
                 <span className="shrink-0" style={{ color: phase.color }}>
                   <TreeIcon id={signatureTree(r)} className="size-5" />
                 </span>

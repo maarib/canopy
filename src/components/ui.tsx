@@ -43,10 +43,10 @@ export function LinkButton({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm ${
+      className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition ${
         primary
-          ? 'bg-maple font-medium text-white hover:opacity-90'
-          : 'border border-[var(--line)] hover:bg-[var(--surface-2)]'
+          ? 'bg-maple font-medium text-white hover:brightness-110 active:scale-[0.97]'
+          : 'border border-[var(--line)] hover:bg-[var(--surface-2)] active:scale-[0.97]'
       }`}
     >
       {icon}
@@ -94,7 +94,7 @@ export function ShareButton({ title, url: shareUrl, label = 'Share' }: { title: 
   return (
     <button
       onClick={share}
-      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm hover:bg-[var(--surface-2)]"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm transition hover:bg-[var(--surface-2)] active:scale-[0.97] disabled:active:scale-100"
       aria-live="polite"
     >
       {copied ? <Check className="size-4 text-spruce dark:text-[#a9cf8f]" /> : <Link className="size-4" />}

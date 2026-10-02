@@ -11,6 +11,7 @@ import {
   type Trail,
 } from '../lib/explore'
 import { directionsUrl } from '../lib/peak'
+import { ROW } from '../lib/styles'
 import { ElevationChart } from './ElevationChart'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
@@ -136,14 +137,14 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
               'application/gpx+xml',
             )
           }
-          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm hover:bg-[var(--surface-2)]"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm transition hover:bg-[var(--surface-2)] active:scale-[0.97] disabled:active:scale-100"
         >
           <Description className="size-4" />
-          GPX
+          Download GPX
         </button>
         {trail.website && (
           <LinkButton href={trail.website} external icon={<CalendarToday className="size-4" />}>
-            Park info
+            Official trail info
           </LinkButton>
         )}
       </section>
@@ -207,7 +208,7 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
   const difficulty = DIFFICULTY[trail.difficulty]
   const kinds = [...new Set(trail.along.map((a) => places.get(a.poi)?.kind).filter(Boolean))] as Place['kind'][]
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 py-2.5 text-left hover:opacity-80">
+    <button onClick={onClick} className={`${ROW} py-2.5`}>
       <span
         className="flex size-10 shrink-0 items-center justify-center rounded-xl text-white"
         style={{ background: PLACE_KINDS.trail.color }}

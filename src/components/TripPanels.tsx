@@ -21,6 +21,7 @@ import {
   type StopRef,
   type Trip,
 } from '../lib/trips'
+import { ROW } from '../lib/styles'
 import { BackButton, ShareButton } from './ui'
 
 /** A trip stop resolved against the app's data, with how to draw and open it. */
@@ -92,7 +93,7 @@ export function TripsPanel({
           className="min-w-0 flex-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-maple/40"
         />
         <button type="submit" className="inline-flex items-center gap-1 rounded-full bg-maple px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-          <Add className="size-4" /> New
+          <Add className="size-4" /> Create trip
         </button>
       </form>
 
@@ -107,7 +108,7 @@ export function TripsPanel({
             const sum = totals(stops)
             return (
               <li key={t.id}>
-                <button onClick={() => onOpen(t)} className="flex w-full items-center gap-3 py-3 text-left hover:opacity-80">
+                <button onClick={() => onOpen(t)} className={`${ROW} py-3`}>
                   <span className="flex -space-x-2">
                     {stops.slice(0, 3).map((s) => (
                       <span
@@ -170,9 +171,9 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
 
       {shared && (
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-maple/10 p-3 text-sm">
-          <span>Someone shared this trip with you.</span>
+          <span>This trip was shared with you. Save it to make changes.</span>
           <button onClick={onSaveCopy} className="shrink-0 rounded-full bg-maple px-3 py-1.5 font-medium text-white hover:opacity-90">
-            Save a copy
+            Save to my trips
           </button>
         </div>
       )}
@@ -254,15 +255,16 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
                     href={directions}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-sm text-maple hover:underline"
+                    aria-label={`Directions for ${dayLabel(trip, d + 1)}`}
+                    className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-maple transition-colors hover:bg-maple/10"
                   >
-                    <LocationOn className="size-4" /> Route
+                    <LocationOn className="size-4" /> Directions
                   </a>
                 )}
               </div>
               {dayStops.length === 0 ? (
                 <p className="rounded-xl bg-[var(--surface-2)] px-3 py-2.5 text-sm text-[var(--ink-soft)]">
-                  Free day. Move a stop here with its day picker.
+                  Nothing planned yet. Move a stop here from its day menu.
                 </p>
               ) : (
                 <ol className="space-y-1">
@@ -277,7 +279,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
                         >
                           {n}
                         </span>
-                        <button onClick={() => onOpenStop(s.ref)} className="min-w-0 flex-1 text-left hover:opacity-80">
+                        <button onClick={() => onOpenStop(s.ref)} className="-my-1 min-w-0 flex-1 rounded-lg px-1.5 py-1 text-left transition-colors hover:bg-[var(--surface-2)]">
                           <span className="flex items-center gap-1.5 truncate text-sm font-medium">
                             <span style={{ color: s.color }}>{s.icon}</span>
                             <span className="truncate">{s.name}</span>
@@ -336,9 +338,9 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
           <ShareButton title={`${trip.name} · Canopy trip`} url={sharedTripUrl(trip)} label="Share trip" />
           <button
             onClick={() => downloadFile(`${slug(trip.name)}.gpx`, tripGpx(trip.name, stops), 'application/gpx+xml')}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm hover:bg-[var(--surface-2)]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm transition hover:bg-[var(--surface-2)] active:scale-[0.97] disabled:active:scale-100"
           >
-            <Description className="size-4" /> GPX
+            <Description className="size-4" /> Download GPX
           </button>
           <button
             onClick={() =>
@@ -350,12 +352,15 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
               )
             }
             disabled={!trip.startDate}
-            title={trip.startDate ? undefined : 'Pick a start date first'}
+            title={trip.startDate ? undefined : 'Set a start date to add this trip to your calendar'}
             className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm hover:bg-[var(--surface-2)] disabled:opacity-50"
           >
-            <CalendarToday className="size-4" /> Calendar
+            <CalendarToday className="size-4" /> Add to calendar
           </button>
         </section>
+      )}
+      {stops.length > 0 && !trip.startDate && (
+        <p className="-mt-3 text-xs text-[var(--ink-soft)]">Set a start date to add this trip to your calendar.</p>
       )}
 
       {editable && (

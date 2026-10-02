@@ -124,7 +124,7 @@ export function ElevationChart({
             km {a[0].toFixed(1)} · {a[1]} m
           </span>
         ) : (
-          <span>Drag along the chart to follow the trail on the map</span>
+          <span>Hover or drag across the chart to see that spot on the map</span>
         )}
         <span>
           {trail.minEleM}–{trail.maxEleM} m

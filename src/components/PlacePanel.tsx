@@ -58,7 +58,7 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
       <p className="text-sm leading-relaxed">{BLURB[place.kind]}</p>
 
       <section>
-        <h3 className="mb-1 text-lg">{onTrails.length ? 'Reach it on' : 'Trails'}</h3>
+        <h3 className="mb-1 text-lg">{onTrails.length ? 'Trails that reach it' : 'Trails'}</h3>
         {onTrails.length ? (
           <ul className="divide-y divide-[var(--line)]">
             {onTrails.map(({ trail, km }) => (
@@ -78,12 +78,12 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
 
       <section className="flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(place.lat, place.lng)} icon={<LocationOn className="size-4" />}>
-          Directions
+          Get directions
         </LinkButton>
         <SaveButton stopRef={`place:${place.id}`} name={place.name} />
         <ShareButton title={`${place.name} · Canopy`} />
         <LinkButton href={place.osm} external>
-          OpenStreetMap
+          View on OpenStreetMap
         </LinkButton>
       </section>
 

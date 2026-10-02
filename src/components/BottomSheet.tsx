@@ -51,7 +51,7 @@ export function BottomSheet({ snap, onSnap, contentKey, children }: Props) {
       style={{ height: dragHeight ?? heightFor(snap), transition: dragHeight === null ? 'height 280ms cubic-bezier(.2,.8,.2,1)' : 'none' }}
     >
       <div
-        className="flex shrink-0 cursor-grab touch-none justify-center pt-2.5 pb-1.5"
+        className="group flex shrink-0 cursor-grab touch-none justify-center pt-2.5 pb-1.5 active:cursor-grabbing"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -66,7 +66,7 @@ export function BottomSheet({ snap, onSnap, contentKey, children }: Props) {
           if (e.key === 'ArrowDown') onSnap(snap === 'full' ? 'half' : 'peek')
         }}
       >
-        <span className="h-1.5 w-10 rounded-full bg-[var(--line)]" />
+        <span className="h-1.5 w-10 rounded-full bg-[var(--line)] transition-colors group-hover:bg-[var(--ink-soft)]" />
       </div>
       <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {children}
