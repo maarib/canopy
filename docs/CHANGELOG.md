@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | Usability PR |
+| 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
 | 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
 | 2026-10-01 | [Explore Ontario: trail and place pages](#2026-10-01-explore-ontario-trail-and-place-pages) | [#80](https://github.com/maarib/canopy/pull/80) |
@@ -22,7 +22,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-01 · Usability: cursors, hover states, action copy
 
-**Ref:** Usability PR
+**Ref:** [#98](https://github.com/maarib/canopy/pull/98)
 
 **Before.**
 - **Cursor:** Tailwind v4 resets `<button>` to the default arrow cursor, so most clickable controls showed an arrow. Only links showed the hand.
