@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | Park facilities PR |
+| 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | [#100](https://github.com/maarib/canopy/pull/100) |
 | 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | [#99](https://github.com/maarib/canopy/pull/99) |
 | 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
 | 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
@@ -24,7 +24,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-02 · Park activities and facilities
 
-**Ref:** Park facilities PR
+**Ref:** [#100](https://github.com/maarib/canopy/pull/100)
 
 **Before.** A park page showed the fall colour report (colour change, leaf fall, best viewing), the forecast, nearby photos and links. Nothing said what you could do at the park or what was there: campsites, washrooms, boat launches, rentals.
 
