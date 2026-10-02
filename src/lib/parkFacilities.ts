@@ -52,8 +52,6 @@ export function amenitiesFor(feed: ParkFacilitiesFeed, shortname: string): ParkA
   if (!park) return null
 
   const activities = park.activities
-    // "Camping" on its own duplicates the specific camping activities.
-    .filter((key) => key !== 'campsites' || !park.activities.some((k) => k.startsWith('camping_')))
     .map((key) => {
       const known = PARK_ACTIVITIES[key]
       return { key, label: known?.label ?? feed.labels.activities[key] ?? key, icon: known?.icon ?? 'info', count: null }

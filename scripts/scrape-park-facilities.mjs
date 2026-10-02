@@ -46,7 +46,8 @@ function parseIcons(html) {
   if (fac === -1 || act === -1) return null
   const end = html.indexOf('</section>', act) === -1 ? act + 20_000 : html.indexOf('</section>', act)
   const icons = (chunk) =>
-    [...chunk.matchAll(/<img\b[^>]*class="[^"]*park-icon[^"]*"[^>]*>/g)].flatMap(([tag]) => {
+    // icon_size_2 only: the operating-dates legend below Activities reuses smaller (icon_size_1) icons.
+    [...chunk.matchAll(/<img\b[^>]*class="[^"]*park-icon icon_size_2[^"]*"[^>]*>/g)].flatMap(([tag]) => {
       const src = tag.match(/src="[^"]*\/([a-z0-9_]+)\.svg"/i)?.[1]
       const title = tag.match(/title="([^"]*)"/)?.[1]
       if (!src || !title) return []
