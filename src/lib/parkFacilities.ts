@@ -1,4 +1,4 @@
-import { PARK_ACTIVITIES, PARK_FACILITIES, type AmenityIcon } from '../data/amenityIcons'
+import { PARK_ACTIVITIES, PARK_FACILITIES, PARK_FILTERS, type AmenityIcon } from '../data/amenityIcons'
 
 /** A facility key, or [key, count] when Ontario Parks lists a count. */
 type RawFacility = string | [string, number]
@@ -82,4 +82,18 @@ export function amenitiesFor(feed: ParkFacilitiesFeed, shortname: string): ParkA
     else out.amenities.push({ key, label, icon: 'info', count })
   }
   return out
+}
+
+/** True when the park offers every selected filter (AND), so filters narrow the map. */
+export function parkMatches(feed: ParkFacilitiesFeed, shortname: string, filterIds: string[]): boolean {
+  if (!filterIds.length) return true
+  const park = feed.parks[shortname]
+  if (!park) return false
+  const facilities = new Set(park.facilities.map((f) => (typeof f === 'string' ? f : f[0])))
+  const activities = new Set(park.activities)
+  return filterIds.every((id) => {
+    const f = PARK_FILTERS.get(id)
+    if (!f) return true
+    return f.activity ? activities.has(f.activity) : facilities.has(f.facility!)
+  })
 }

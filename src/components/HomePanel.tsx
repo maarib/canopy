@@ -14,6 +14,9 @@ const PHASE_ORDER: PeakPhase[] = ['peak', 'approaching', 'early', 'past']
 type Props = {
   regions: Region[]
   parks: ParkReport[] | undefined
+  /** Parks after the activity filter (the summary above always counts every park). */
+  listParks: ParkReport[] | undefined
+  activityFilter?: { labels: string[]; onClear: () => void }
   parksFetchedAt: string | undefined
   treeColourSightings: number | undefined
   onSelectRegion: (r: Region) => void
@@ -49,7 +52,22 @@ export function HomePanel(props: Props) {
       </div>
 
       {tab === 'reports' ? (
-        <ParkList parks={props.parks} fetchedAt={props.parksFetchedAt} onSelect={props.onSelectPark} />
+        <>
+          {props.activityFilter && (
+            <div className="mb-2 flex items-center gap-2 rounded-xl bg-[var(--surface-2)] px-3 py-2 text-sm">
+              <span className="min-w-0 flex-1">
+                Parks with <strong className="font-semibold">{props.activityFilter.labels.join(', ')}</strong>
+              </span>
+              <button
+                onClick={props.activityFilter.onClear}
+                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium text-maple transition-colors hover:bg-maple/10"
+              >
+                Clear
+              </button>
+            </div>
+          )}
+          <ParkList parks={props.listParks} fetchedAt={props.parksFetchedAt} onSelect={props.onSelectPark} filtered={!!props.activityFilter} />
+        </>
       ) : (
         <RegionList regions={props.regions} onSelect={props.onSelectRegion} />
       )}
@@ -83,10 +101,12 @@ function ParkList({
   parks,
   fetchedAt,
   onSelect,
+  filtered,
 }: {
   parks: ParkReport[] | undefined
   fetchedAt: string | undefined
   onSelect: (p: ParkReport) => void
+  filtered: boolean
 }) {
   if (!parks)
     return (
@@ -110,6 +130,9 @@ function ParkList({
     )
   return (
     <>
+      {filtered && !sorted.length && (
+        <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No reporting park offers all of these. Try removing one.</p>
+      )}
       <ul className="divide-y divide-[var(--line)]">
         {sorted.map((p) => {
           const stage = STAGES[p.stage]
