@@ -2,7 +2,7 @@
 
 _A responsive web app for tracking fall colours and leaf drop across Canada: every tree species, every park, live conditions, and when and where to go._
 
-Last updated: 2026-09-30
+Last updated: 2026-10-01 · This is the original technical plan with its research. Decisions that changed it (map engine, data APIs, performance) are recorded in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -28,7 +28,7 @@ Fall-colour info in Canada is scattered. Ontario Parks publishes per-park report
 
 ## 2. Data sources (researched and verified)
 
-✅ = queried live from this machine on 2026-09-30.
+✅ = queried live and verified on 2026-09-30.
 
 ### 2.1 Leaf status and colour progression
 

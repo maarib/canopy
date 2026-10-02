@@ -1,0 +1,300 @@
+# Canopy: change log and decision record
+
+What changed, what was there before, what it changed to, and why. Newest first. Each entry links the commit or pull request that made the change. Research behind the product lives in [PRD.md](PRD.md), [PLAN.md](PLAN.md) and [EXPLORE.md](EXPLORE.md).
+
+| Date | Change | Ref |
+|---|---|---|
+| 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
+| 2026-10-01 | [Explore Ontario: trail and place pages](#2026-10-01-explore-ontario-trail-and-place-pages) | [#80](https://github.com/maarib/canopy/pull/80) |
+| 2026-10-01 | [Map engine: MapLibre + OpenFreeMap → Mapbox](#2026-10-01-map-engine-maplibre--openfreemap--mapbox) | [#78](https://github.com/maarib/canopy/pull/78) |
+| 2026-10-01 | [Shareable links, search, maple icon fix](#2026-10-01-shareable-links-search-maple-icon-fix) | [#77](https://github.com/maarib/canopy/pull/77) |
+| 2026-10-01 | [Tree icon set and GitHub Pages deploy](#2026-10-01-tree-icon-set-and-github-pages-deploy) | [#76](https://github.com/maarib/canopy/pull/76) |
+| 2026-09-30 | [Relume icons for UI controls](#2026-09-30-relume-icons-for-ui-controls) | `e0e1e38` |
+| 2026-09-30 | [Typography: Inter → Londrina Solid + Livvic](#2026-09-30-typography-inter--londrina-solid--livvic) | `276a210` |
+| 2026-09-30 | [Product requirements and project tracking](#2026-09-30-product-requirements-and-project-tracking) | `74ed32b` |
+| 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
+| 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
+| 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-01 · Performance and loading states
+
+**Ref:** [#81](https://github.com/maarib/canopy/pull/81)
+
+**Before.** Measured on a production build served locally:
+- iNaturalist sightings came from API **v1**, which returns full observation records: **9.3 MB per page** of 200 observations (9,317,933 bytes measured), about 45 MB per app open across 5 pages.
+- Parsing each page blocked the main thread for 55–98 ms: 11 long tasks, **803 ms** in total on a cold start.
+- Nothing appeared until all pages had arrived (~4.2 s).
+- Every map pan wrote the map view through the router, which re-rendered the whole app. Dragging along the elevation chart also re-rendered the whole app on every pointer move.
+- The Mapbox engine (517 KB gzipped) was part of the initial load.
+- Loading states were plain "Loading…" text or empty space.
+
+**After.**
+
+| | Before | After |
+|---|---|---|
+| Sightings per page | 9.3 MB (v1) | 159 KB (v2 with `fields`) |
+| Sightings per cold open | ~45 MB | ~0.8 MB |
+| Sightings on a repeat open within 30 min | ~45 MB | 0 (device cache) |
+| Main-thread long tasks, cold start | 803 ms | 377 ms (map engine start-up) |
+| First sightings on the map | after all pages (~4.2 s) | after the first pages (~0.9 s) |
+| 30 elevation-chart pointer moves | 30 whole-app renders | 11 ms total; only the map dot re-renders |
+
+- **iNaturalist API v2 with `fields`** requests only the 11 fields the app uses. Nearby-photo queries dropped to ~8 KB.
+- **Streaming.** The first page of coloured and of leafless sightings load in parallel and render immediately; the rest follow one page at a time, ~1 request/second as iNaturalist asks (TanStack Query `streamedQuery`).
+- **Device cache.** Completed sightings are kept in `localStorage` for 30 minutes. Refreshes keep showing the old data until new data is complete.
+- **Lazy map engine.** `FoliageMap` and Mapbox load as their own chunks in parallel with the panels. The map is memoized with stable callbacks.
+- **Map view is written with `history.replaceState`**, not the router, so panning doesn't re-render the app. Only user-driven or search-driven moves are recorded, so a freshly opened home page keeps a clean URL.
+- **Elevation hover lives in a small external store** (`useSyncExternalStore`).
+- **Preconnect** to Mapbox and iNaturalist.
+- **Loading states:**
+  - a map placeholder until the first frame
+  - a header progress bar while sightings stream
+  - skeletons for the forecast, nearby photos (with fade-in), home stats, park list, tree chips, region trail lists and loading place pages
+  - reduced-motion users get static skeletons
+
+**Why.** The app felt laggy, especially on phones. The download size was the dominant cost, and the remaining jank came from avoidable re-renders.
+
+---
+
+## 2026-10-01 · Explore Ontario: trail and place pages
+
+**Ref:** [#80](https://github.com/maarib/canopy/pull/80) · Design notes: [EXPLORE.md](EXPLORE.md)
+
+**Before.**
+- Trails were a single Parks Canada layer (national parks only), drawn as lines with no pages.
+- Waterfalls, lookouts, lakes and creeks weren't in the app.
+- Region pages listed a few hand-written highlights.
+
+**Research.**
+- **AllTrails:** trail pages lead with length, time, gain and route type. A draggable elevation chart is linked to the map, waypoints sit along the route, and condition reports are dated.
+- **Tripadvisor:** every attraction gets its own page, with "nearby" suggestions and directions.
+- **Airbnb:** split list + map, and wishlists for planning together.
+
+**Data sources.**
+
+| Source | Coverage | Licence |
+|---|---|---|
+| Ontario Trail Network (MNRF) | 5,760 off-road segments, 853 access points | Open Government Licence – Ontario |
+| OpenStreetMap via Overpass | Waterfalls, lookouts, peaks, lakes, rivers, creeks | ODbL |
+| Mapzen Terrarium tiles (AWS Open Data) | Elevation | Public |
+| Provincial Park Regulated (MNRF) | 347 parks; not used yet | Open Government Licence – Ontario |
+
+MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
+
+**After.**
+- **A build-time data pipeline** (`scripts/build-explore.mjs`) writes one file per area. For each trail it computes:
+  - length, elevation gain and loss, and a profile
+  - loop vs point to point
+  - difficulty and a relaxed-pace time estimate
+  - every waterfall, lookout, peak, lake, river and creek along it, with its km
+- **First area: the Algonquin Highway 60 corridor** (17 hikeable trails, 62 places, ~119 KB). CI rebuilds it weekly.
+- **Trail pages** (`/trail/:id`):
+  - the track plotted on the map
+  - stats, difficulty and loop status
+  - a draggable elevation chart that moves a marker on the map
+  - an "Along the trail" timeline
+  - the official description, colour outlook and photos
+  - Directions to trailhead, Share and GPX
+- **Place pages** (`/place/:id`): each kind has its own label, colour and icon (waterfall, lookout/"photo spot", peak, lake, river, creek). Each shows tips and the trails that reach it.
+- **Map:** trails drawn and tappable, with trailhead and photo-spot pins. Region pages list trails and waterfalls & lookouts, and search finds trails and places.
+
+**Decisions and why.**
+- **Build time, not live queries.** Public Overpass servers frequently returned 504s and one query hung for over 3 minutes during development, too unreliable for page loads. The script retries across three mirrors with backoff.
+- **Loop detection** allows a start–end gap up to 20% of the trail length (max 1.2 km). Official geometry often stops short at the parking lot; a strict 150 m rule marked loops such as Track and Tower and Booth's Rock as point to point.
+- **"Along the trail" thresholds:** falls 250 m, lookouts 200 m, peaks 250 m, lakes 120 m, creeks 40 m.
+- **Fixes during build:**
+  - The first points query omitted coordinates (`out tags`), so no waterfalls or lookouts matched; it now uses `out body`.
+  - Duplicate OSM nodes within 120 m are merged.
+  - Water areas named "River"/"Creek" are classified as rivers and creeks.
+  - Duplicate rivers are removed, but distinct unnamed lookouts are kept.
+- **Validation** against Algonquin Park's published lengths:
+
+  | Trail | Computed | Published |
+  |---|---|---|
+  | Booth's Rock | 5.1 km | 5.1 km |
+  | Centennial Ridges | 10.7 km | 10.4 km |
+  | Track and Tower | 8.0 km | 7.5 km |
+
+  15 of 17 trails are detected as loops.
+
+**Known gaps.**
+- Many OSM lookouts are unnamed.
+- Some well-known stops aren't mapped as viewpoints, e.g. Track and Tower's lookout over Cache Lake.
+- Only Algonquin is built so far.
+
+---
+
+## 2026-10-01 · Map engine: MapLibre + OpenFreeMap → Mapbox
+
+**Ref:** [#78](https://github.com/maarib/canopy/pull/78)
+
+**Before.** MapLibre GL 6 with OpenFreeMap vector styles, recoloured at runtime with an autumn palette, plus Terrarium hillshade and terrain. Free, no key.
+
+**After.**
+- **Mapbox GL JS v3 with the Mapbox Standard style**, configured at runtime:
+  - faded theme
+  - autumn land, greenspace and water colours
+  - point-of-interest and transit labels and pedestrian paths hidden
+  - 3D trees and landmarks
+  - globe at low zoom
+- **Light presets** (dawn, day, dusk, night, auto) in the Layers menu, saved in the URL. **Dusk is the default.**
+- **Layers placed in Standard's slots** (`bottom`, `middle`, `top`). Emissive strength keeps data colours true under every light preset.
+- **Terrain** comes from the Mapbox DEM.
+- **The token** is read from `VITE_MAPBOX_TOKEN` (a repository variable for Pages builds).
+- **Park report headers** show only a clock and the date; "Official report" remains as screen-reader text.
+
+**Why.** A more polished map (globe, atmosphere, lighting, better 3D terrain). The same token also unlocks Isochrone (the drive-time filter, EXP-3), Directions, Search and Static Images (share images, PLAT-9).
+
+**Trade-offs.**
+- **A larger engine:** the Mapbox chunk is 1,861,680 bytes raw / 517 KB gzipped, against 1,062,985 bytes raw for MapLibre.
+- **A proprietary licence.**
+- **The account is on Mapbox demo access**, which can't be charged but has low usage caps. Its single default token can't be URL-restricted or rotated, so moving to standard access before launch is tracked in [#79](https://github.com/maarib/canopy/issues/79).
+- The MapLibre version remains in history at `937eb75`.
+
+---
+
+## 2026-10-01 · Shareable links, search, maple icon fix
+
+**Ref:** [#77](https://github.com/maarib/canopy/pull/77)
+
+**Before.** Selection lived in component state, so links always opened the home view, and there was no search.
+
+**After.**
+- **React Router routes:** `/region/:id`, `/park/:id-slug` (later `/trail/:id`, `/place/:id`).
+- **Query parameters** carry the tree filter, layers, satellite date and map view, with defaults omitted.
+- **Navigation:** deep links fly to the place, Back/Forward work, unknown paths redirect home, and stale links show "Place not found". Tab titles name the place.
+- **A Share button** uses the native share sheet, or copies the link.
+- **Search** is a keyboard-accessible combobox:
+  - instant local results for regions, parks and tree types
+  - towns and landmarks in Canada from the Photon geocoder (OSM), debounced, 3+ characters
+- **The maple icon** was rebuilt as an exactly symmetric shape. The previous path's halves didn't mirror, which left a kinked top lobe and an off-centre stem.
+
+**Fixes.**
+- A deep link could arrive before the map engine finished loading, so the fly-to never ran. It now re-runs on map load.
+- Camera padding set for one view carried over to the next. It is now set on every move, so the mobile sheet never hides the target.
+
+---
+
+## 2026-10-01 · Tree icon set and GitHub Pages deploy
+
+**Ref:** [#76](https://github.com/maarib/canopy/pull/76)
+
+**Before.**
+- A single detailed maple leaf served as the logo, favicon and every region pin.
+- Tree filter chips used coloured dots.
+- The site was not deployed.
+
+**After.**
+- **Thirteen minimal tree icons**, one per tree group: maples, oaks, birches, aspens & poplars, larches, ashes, beeches, hickories & walnuts, elms & basswoods, cherries, alders & hornbeams, ginkgo & more, shrubs & vines.
+- **A new minimal maple** for the logo and favicon.
+- **Region pins show each region's signature tree** (e.g. larch for Banff, aspen for Riding Mountain), and the icons appear in tree chips and lists.
+- **A dev-only icon preview** at `/?icons`, excluded from production builds.
+- **GitHub Pages deployment** on every push to `main`, after the daily data job, or on demand, with the base path `/canopy/`.
+
+**Fix.** Production builds rendered a blank map: MapLibre builds its worker URL at runtime, so the bundler left the worker out. The worker was bundled explicitly with `?worker&url` and `setWorkerUrl`.
+
+**Why.** Every tree looked like a maple, and the app had no public URL.
+
+---
+
+## 2026-09-30 · Relume icons for UI controls
+
+**Ref:** `e0e1e38`
+
+**Before.** Hand-drawn SVG and text glyphs for controls (←, ↗).
+
+**After.**
+- **The `relume-icons` package** (MIT, 60 rounded icons) for:
+  - Layers, Back and Directions
+  - Book (calendar) and external links
+  - schedule, list chevrons, highlights and the loading spinner
+- **Weather keeps its emoji.**
+- **Only used icons ship**; unused icons are tree-shaken from the bundle (verified).
+
+**Why.** A consistent icon language. The npm package is MIT-licensed, which also permits a public repository; Relume's website library licence forbids redistribution. Relume has no outdoor icons, so place icons are custom (D-05).
+
+---
+
+## 2026-09-30 · Typography: Inter → Londrina Solid + Livvic
+
+**Ref:** `276a210`
+
+**Before.** Inter for everything.
+
+**After.**
+- **Londrina Solid** for display titles and headings (400; 900 for the wordmark).
+- **Livvic** for body text, labels and captions (400–700, italic 400).
+- Only the weights in use are loaded.
+- Map labels keep the map style's own fonts.
+
+**Why.** Brand direction.
+
+---
+
+## 2026-09-30 · Product requirements and project tracking
+
+**Ref:** `74ed32b`, `0bd266d`
+
+- **[PRD.md](PRD.md):** problem, goals, personas, journeys, a competitive scan, a design pattern library, about 70 requirements and a release plan.
+- **GitHub tracking:**
+  - 75 issues across milestones M2–M6 and Backlog
+  - labels by type, priority and area
+  - a project board with Track and Priority fields
+- **Research sources:** AllTrails, SmokyMountains.com, Leaf Peepr, Ontario Parks, Bonjour Québec, Windy, Google/Apple Maps and Airbnb (listed in the PRD). Mobbin screen references need a paid plan, so collecting them is design task D-01.
+
+---
+
+## 2026-09-30 · Milestone 1: the live colour map
+
+**Ref:** `2d0dfdc`
+
+**Before.** A map with 15 region pins and a single layer of sightings dots.
+
+**After.**
+- **Map style:** an autumn-tinted basemap (light/dark), hillshade and optional 3D terrain.
+- **Official reports:** an Ontario Parks scraper writes `public/data/ontario-parks.json` (70 report locations, 64 park-level) and runs daily in season.
+- **Report pages:** park reports are drawn by colour stage, each with a park page showing colour %, leaf fall %, dominant colour and viewing tips.
+- **Sightings:** iNaturalist sightings are grouped into zoom-adaptive hexagons, then individual dots when zoomed in.
+- **A tree filter** groups observations by genus.
+- **Other layers:** Parks Canada trails when zoomed in, and a NASA GIBS VIIRS satellite layer with a date picker.
+- **Mobile:** a bottom sheet with three snap points, plus a web app manifest.
+
+**Decisions and why.**
+- **Scrape Ontario Parks.** It has no API, but its report page embeds the data as a JSON array, which is read directly.
+- **Group by tree genus.** The raw most-common "species" in coloured-leaf sightings were often not trees (fireweed, poison ivy, roses).
+- **Fixes:**
+  - The hex opacity expression nested `zoom` inside another expression, which Mapbox/MapLibre reject; the layer failed, and so did the layers ordered after it.
+  - The satellite default date used UTC, which in Eastern evenings meant "today", before that day's pass was complete. It now uses yesterday in local time.
+
+**Caveat.** iNaturalist's leaf annotation is mostly used for coloured leaves (766 coloured vs 64 leafless in Canada over 14 days at the time). Hexagons therefore show where colour is being reported, not a percentage of change. A real percentage needs green-leaf counts per area (issue #29).
+
+---
+
+## 2026-09-30 · Map engine: Google Maps → MapLibre + OpenFreeMap
+
+**Ref:** `34c03de`
+
+**Before.** Google Maps JavaScript API through `@vis.gl/react-google-maps`, chosen because Google's terms require Places content (photos, ratings) to be shown on a Google map.
+
+**After.** MapLibre GL with OpenFreeMap basemaps: free, no key or billing account.
+
+**Why.** Google Maps needs an API key on a Cloud project with billing enabled. The free stack gave a working map without that setup. Places photos and ratings were dropped from the plan; iNaturalist, Wikimedia Commons, OpenStreetMap and Parks Canada are used instead.
+
+---
+
+## 2026-09-30 · Initial scaffold and research
+
+**Ref:** `6d75d8e`
+
+- **Data sources researched and verified live** ([PLAN.md §2](PLAN.md)):
+  - iNaturalist phenology annotations
+  - Ontario Parks and other provincial reports
+  - NASA GIBS and VIIRS/MODIS phenology
+  - Natural Resources Canada species maps (SCANFI)
+  - Open-Meteo and Environment Canada GeoMet weather
+  - Parks Canada trails and OpenStreetMap
+  - Google Maps Platform APIs and pricing
+- **App:** Vite, React 19, TypeScript, Tailwind v4 and TanStack Query. 15 curated regions with typical peak windows, live coloured-leaf sightings, and a region panel with a 7-day colour outlook (vivid / leaf-drop / frost) from Open-Meteo.
+- **CI:** lint and build on pushes to `main` and on pull requests.
