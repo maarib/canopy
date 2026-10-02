@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | Layout PR |
+| 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | [#103](https://github.com/maarib/canopy/pull/103) |
 | 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
 | 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | [#101](https://github.com/maarib/canopy/pull/101) |
 | 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | [#100](https://github.com/maarib/canopy/pull/100) |
@@ -27,7 +27,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-02 · Detail page layout, list rows, footer
 
-**Ref:** Layout PR
+**Ref:** [#103](https://github.com/maarib/canopy/pull/103)
 
 **Before.**
 - On region, park, trail, place and fishing pages, the action buttons (directions, save, share, booking and source links) sat at the bottom, below the forecast and photos.
