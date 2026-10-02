@@ -153,7 +153,7 @@ export function TreeFilter({
   const chip = (active: boolean) =>
     `flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm shadow-md transition ${
       active
-        ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]'
+        ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)] [--leaf-ink:var(--surface)]'
         : 'border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--surface-2)]'
     }`
   return (
@@ -168,9 +168,7 @@ export function TreeFilter({
           aria-pressed={value === g.id}
           onClick={() => onChange(value === g.id ? 'trees' : g.id)}
         >
-          <span style={{ color: value === g.id ? undefined : g.colour }}>
-            <TreeIcon id={g.id as TreeIconId} className="size-4" />
-          </span>
+          <TreeIcon id={g.id as TreeIconId} className="size-[18px]" />
           {g.label} <span className="opacity-60">{counts.get(g.id)}</span>
         </button>
       ))}
