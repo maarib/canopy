@@ -16,6 +16,7 @@ export const DEFAULT_LAYERS: MapLayers = {
   trails: true,
   satellite: false,
   terrain3d: false,
+  fishing: true,
 }
 const LAYER_KEYS = Object.keys(DEFAULT_LAYERS) as (keyof MapLayers)[]
 

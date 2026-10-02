@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | Fishing access PR |
 | 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | [#101](https://github.com/maarib/canopy/pull/101) |
 | 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | [#100](https://github.com/maarib/canopy/pull/100) |
 | 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | [#99](https://github.com/maarib/canopy/pull/99) |
@@ -20,6 +21,27 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-02 · Fishing access points
+
+**Ref:** Fishing access PR
+
+**Before.** The map showed park reports, regions, sightings, trails and explore places (waterfalls, lookouts, lakes) in a few areas. Nowhere to put a boat or a line in the water was marked.
+
+**Source.** Ontario Ministry of Natural Resources "Fishing Access Point" layer on Land Information Ontario (`LIO_Open07/MapServer/15`), the data behind Fish ON-Line. Open Government Licence – Ontario. Checked 2026-10-02:
+- 3,731 points: 3,446 boat launches, 231 shoreline access, 54 enhanced shoreline access (dock or pier).
+- 1,304 are flagged `VISIBILITY_IND = No` (not for public display) and are left out, leaving **2,427**.
+- Attributes are sparse. Among the public points, parking is known for 42%, ownership for 40%, fee for 32%, surface for 31% and wheelchair access for 14%. Photo links point to internal government file shares and comments are internal notes, so neither is used.
+- Names are present for most public points; internal suffixes (`-keap005`) and bare codes (`Ml-8`) are stripped.
+
+**After.**
+- **Build script** `scripts/build-fishing-access.mjs` pages through the service (2,000 at a time) and writes `public/data/fishing-access.json` as compact rows (241 KB, about 50 KB gzipped). Refreshed monthly by `.github/workflows/fishing-access.yml`; the file is only rewritten when a point changed.
+- **Map layer.** A Mapbox symbol layer from zoom 8, so 2,400 points cost nothing at country scale. Each pin is drawn once on a canvas when the map loads (white disc, teal ring, Windows 11 Color icon: boat launch, fishing rod or wharf). Overlapping pins are hidden automatically, named sites first. The selected point is drawn larger on top. The data loads only while the layer is on or a fishing link is opened. *Layers → Fishing access* toggles it.
+- **Access point page** (`/fishing/:id-name`): type, name, and only the attributes that are known (parking, fee, wheelchair access, surface, owner, year last checked), the 7-day outlook (wind matters on the water), licence reminder, directions, share, and links to Fish ON-Line (species, stocking, depth charts) and the Ontario fishing regulations summary.
+
+**Why.** Fall is prime fishing season in Ontario and a paddle on a lake is one of the best ways to see shoreline colour. Launches and shore access answer "where can I get on the water near the colour?"
 
 ---
 
