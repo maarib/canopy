@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | Fishing access PR |
+| 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
 | 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | [#101](https://github.com/maarib/canopy/pull/101) |
 | 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | [#100](https://github.com/maarib/canopy/pull/100) |
 | 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | [#99](https://github.com/maarib/canopy/pull/99) |
@@ -26,7 +26,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-02 · Fishing access points
 
-**Ref:** Fishing access PR
+**Ref:** [#102](https://github.com/maarib/canopy/pull/102)
 
 **Before.** The map showed park reports, regions, sightings, trails and explore places (waterfalls, lookouts, lakes) in a few areas. Nowhere to put a boat or a line in the water was marked.
 
