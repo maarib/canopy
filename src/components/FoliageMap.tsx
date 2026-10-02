@@ -662,11 +662,12 @@ function TreePin({ tree, color, active, small }: { tree: TreeIconId; color: stri
   return (
     <span
       className={`flex items-center justify-center rounded-full bg-white shadow-md transition-transform ${
-        active ? 'size-10 scale-110' : small ? 'size-6 hover:scale-125' : 'size-8 hover:scale-110'
+        active ? 'size-10 scale-110 border-[3px]' : small ? 'size-6 border-2 hover:scale-125' : 'size-8 border-[2.5px] hover:scale-110'
       }`}
-      style={{ color }}
+      // Leaf keeps its tree's fall colour; the ring shows where the region is in its peak window.
+      style={{ borderColor: color, ['--leaf-ink' as string]: '#2d3550' }}
     >
-      <TreeIcon id={tree} className={active ? 'size-6' : small ? 'size-4' : 'size-5'} />
+      <TreeIcon id={tree} className={active ? 'size-7' : small ? 'size-[18px]' : 'size-6'} />
     </span>
   )
 }

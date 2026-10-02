@@ -6,7 +6,7 @@ export function MapSkeleton() {
     <div role="status" aria-label="Loading map" className="absolute inset-0 flex items-center justify-center bg-[var(--surface-2)]">
       <div className="skeleton absolute inset-0 rounded-none opacity-60" />
       <div className="relative flex flex-col items-center gap-2 text-sm text-[var(--ink-soft)]">
-        <TreeIcon id="maples" variant="veined" className="size-10 animate-pulse text-maple motion-reduce:animate-none" />
+        <TreeIcon id="maples" className="size-10 animate-pulse motion-reduce:animate-none" />
         Loading map…
       </div>
     </div>

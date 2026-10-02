@@ -1,18 +1,20 @@
 import type { TreeIconId } from '../data/treeIcons'
 
-// Organic leaf silhouettes for the tree icons, drawn on a 100×100 grid.
-// Outlines are generated from a few botanical parameters and smoothed with a closed
-// Catmull–Rom spline, which gives the soft, hand-cut lobe tips of the reference style.
-// Each leaf also has vein lines, which the "veined" icon variant cuts out of the fill.
+// Tree icons on a 100×100 grid, in a two-colour style: smooth, chunky leaf blades in each
+// tree's fall colour, with the stem, stalk and veins drawn on top in one dark ink colour.
+// Shapes follow each group's main Ontario species (see docs/CHANGELOG.md for sources):
+// e.g. sugar maple's rounded U-shaped sinuses, shagbark hickory's five leaflets, white ash's seven.
 
 type Pt = [number, number]
+type Stroke = { d: string; width: number }
+
 export type LeafShape = {
-  /** Filled outline(s): SVG path data. */
-  fill: string
-  /** Stem as a stroke (path data + width), drawn with round caps. */
-  stem?: { d: string; width: number }
-  /** Vein lines for the veined variant: path data and stroke width. */
-  veins: { d: string; width: number }[]
+  /** Filled shapes: 'leaf' uses the tree's fall colour, 'accent' a second colour (fruit), 'ink' the stem colour. */
+  blades: { d: string; tone?: 'leaf' | 'accent' | 'ink' }[]
+  /** Strokes in the leaf colour (larch needles). */
+  needles?: Stroke[]
+  /** Stem, stalk and veins, in the ink colour, drawn on top. */
+  ink: Stroke[]
 }
 
 const f = (n: number) => +n.toFixed(2)
@@ -34,62 +36,48 @@ function smooth(pts: Pt[], tension = 1): string {
   return d + 'Z'
 }
 
-/** Chaikin corner cutting: softens sharp points before smoothing (closed shape). */
-function soften(pts: Pt[], amount = 0.22): Pt[] {
-  const out: Pt[] = []
-  for (let i = 0; i < pts.length; i++) {
-    const a = pts[i]
-    const b = pts[(i + 1) % pts.length]
-    out.push([a[0] + (b[0] - a[0]) * amount, a[1] + (b[1] - a[1]) * amount])
-    out.push([a[0] + (b[0] - a[0]) * (1 - amount), a[1] + (b[1] - a[1]) * (1 - amount)])
+/** Chaikin corner cutting: rounds sharp points (closed shape). */
+function soften(pts: Pt[], passes = 2, amount = 0.25): Pt[] {
+  let out = pts
+  for (let p = 0; p < passes; p++) {
+    const next: Pt[] = []
+    for (let i = 0; i < out.length; i++) {
+      const a = out[i]
+      const b = out[(i + 1) % out.length]
+      next.push([a[0] + (b[0] - a[0]) * amount, a[1] + (b[1] - a[1]) * amount])
+      next.push([a[0] + (b[0] - a[0]) * (1 - amount), a[1] + (b[1] - a[1]) * (1 - amount)])
+    }
+    out = next
   }
   return out
 }
 
 const line = (pts: Pt[]) => `M${pts.map(([x, y]) => `${f(x)} ${f(y)}`).join('L')}`
 const curve = (a: Pt, c: Pt, b: Pt) => `M${f(a[0])} ${f(a[1])}Q${f(c[0])} ${f(c[1])} ${f(b[0])} ${f(b[1])}`
+const circle = (cx: number, cy: number, r: number) => `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`
 
-// ── Palmate leaves: radius around a centre, with lobes at given angles ──────────
+const STEM = 6.4
+const VEIN = 4.6
 
-type Lobe = { at: number; len: number; width: number; teeth?: number }
+/** Stem from below the leaf, straight up into the midrib, with a slight curve at the foot. */
+const stemInto = (top: number, foot = 95, bend = 4): Stroke => ({
+  d: `M${50 + bend} ${foot}Q50 ${foot - 6} 50 ${foot - 16}L50 ${top}`,
+  width: STEM,
+})
 
-/**
- * Angles in degrees, screen space: -90 = up. `core` is the radius between lobes;
- * each lobe adds a Gaussian bump; the stem notch pulls the outline in at the bottom.
- */
-function palmate(c: Pt, core: number, lobes: Lobe[], { notch = 6, wobble = 0.35, samples = 220 } = {}): Pt[] {
-  const pts: Pt[] = []
-  for (let i = 0; i < samples; i++) {
-    const deg = -90 + (i / samples) * 360
-    let r = core
-    for (const l of lobes) {
-      const d = ((deg - l.at + 540) % 360) - 180
-      const g = Math.exp(-((d / l.width) ** 2))
-      r += l.len * g
-      // Teeth: small bumps on the outer part of each lobe.
-      if (l.teeth) r += Math.max(0, Math.sin(rad(d) * l.teeth * 6)) * l.len * 0.11 * g ** 0.5 * (g > 0.25 ? 1 : 0)
-    }
-    // Stem notch at the bottom (90°).
-    const dn = ((deg - 90 + 540) % 360) - 180
-    r -= notch * Math.exp(-((dn / 12) ** 2))
-    // A touch of irregularity so it doesn't look machine-made.
-    r += wobble * Math.sin(rad(deg) * 7 + 1.3)
-    pts.push([c[0] + Math.cos(rad(deg)) * r, c[1] + Math.sin(rad(deg)) * r])
-  }
-  return pts
-}
+/** Mirrored side veins from the midrib out toward the edge. */
+const pairs = (rows: [y: number, reach: number, rise: number][], width = VEIN): Stroke[] =>
+  rows.flatMap(([y, reach, rise]) => [
+    { d: curve([50, y], [50 + reach * 0.45, y - rise * 0.2], [50 + reach, y - rise]), width },
+    { d: curve([50, y], [50 - reach * 0.45, y - rise * 0.2], [50 - reach, y - rise]), width },
+  ])
 
-const tipOf = (c: Pt, core: number, l: Lobe, frac = 0.82): Pt => [
-  c[0] + Math.cos(rad(l.at)) * (core + l.len) * frac,
-  c[1] + Math.sin(rad(l.at)) * (core + l.len) * frac,
-]
-
-// ── Pinnate (feather-veined) leaves: half-width along the midrib ───────────────
+// ── Outline builders ────────────────────────────────────────────────────────────
 
 type Profile = (t: number) => number
 
-/** Outline from the tip (top, t = 0) to the base (t = 1); halfWidth may differ per side. */
-function pinnate(top: number, bottom: number, right: Profile, left: Profile = right, samples = 120, cx = 50): Pt[] {
+/** Outline from the tip (top, t = 0) to the base (t = 1) with a half-width profile per side. */
+function pinnate(top: number, bottom: number, right: Profile, left: Profile = right, samples = 140, cx = 50): Pt[] {
   const r: Pt[] = []
   const l: Pt[] = []
   for (let i = 0; i <= samples; i++) {
@@ -101,304 +89,262 @@ function pinnate(top: number, bottom: number, right: Profile, left: Profile = ri
   return [...r, ...l.reverse().slice(1, -1)]
 }
 
-/** Ovate body: zero at both ends, widest at `peak` (0..1 from the tip). */
+/** Ovate body: zero at both ends, widest at `peak` (0..1 from the tip); `round` < 1 fills it out. */
 const ovate = (w: number, peak: number, round = 1) => (t: number) => {
   const k = Math.log(0.5) / Math.log(peak)
   return w * Math.sin(Math.PI * t ** k) ** round
 }
 
-// ── Leaflets for compound leaves ────────────────────────────────────────────────
+/** Soft rounded teeth along a profile (none near the tip and base). */
+const teeth = (body: Profile, count: number, depth: number, from = 0.12, to = 0.86): Profile => (t) =>
+  body(t) * (1 - (t > from && t < to ? depth * (0.5 - 0.5 * Math.cos(2 * Math.PI * count * t)) : 0))
 
-/** A lanceolate leaflet from `base`, pointing at `angle`, as outline points. */
-function leaflet(base: Pt, angle: number, len: number, width: number, samples = 40): Pt[] {
-  const outline = pinnate(0, len, ovate(width, 0.45, 0.9), ovate(width, 0.45, 0.9), samples, 0)
-  const a = rad(angle + 90) // pinnate() points down the y axis; rotate so the tip points at `angle`
+type Lobe = { at: number; len: number; width: number }
+
+/** Radius around a centre with Gaussian lobes; -90° is up. Notch pulls in at the stem. */
+function palmate(c: Pt, core: number, lobes: Lobe[], notch = 6, samples = 240): Pt[] {
+  const pts: Pt[] = []
+  for (let i = 0; i < samples; i++) {
+    const deg = -90 + (i / samples) * 360
+    let r = core
+    for (const l of lobes) {
+      const d = ((deg - l.at + 540) % 360) - 180
+      r += l.len * Math.exp(-((d / l.width) ** 2))
+    }
+    const dn = ((deg - 90 + 540) % 360) - 180
+    r -= notch * Math.exp(-((dn / 14) ** 2))
+    pts.push([c[0] + Math.cos(rad(deg)) * r, c[1] + Math.sin(rad(deg)) * r])
+  }
+  return pts
+}
+
+/** A leaflet from `base`, pointing at `angle` (degrees, -90 = up). */
+function leaflet(base: Pt, angle: number, len: number, width: number, peak = 0.5): Pt[] {
+  const outline = pinnate(0, len, ovate(width, peak, 0.85), ovate(width, peak, 0.85), 48, 0)
+  const a = rad(angle + 90)
   return outline.map(([x, y]) => {
-    const yy = y - len // tip at -len, base at 0
+    const yy = y - len
     return [base[0] + x * Math.cos(a) - yy * Math.sin(a), base[1] + x * Math.sin(a) + yy * Math.cos(a)]
   })
 }
 
-const veinsFromBase = (base: Pt, tips: Pt[], width = 2.2) =>
-  tips.map((tip) => ({ d: curve(base, [(base[0] + tip[0]) / 2 + (tip[1] - base[1]) * 0.06, (base[1] + tip[1]) / 2], tip), width }))
+const toward = (from: Pt, angle: number, dist: number): Pt => [from[0] + Math.cos(rad(angle)) * dist, from[1] + Math.sin(rad(angle)) * dist]
 
 // ── The set ─────────────────────────────────────────────────────────────────────
 
 function maple(): LeafShape {
-  // Sugar maple, hand-placed (right half; mirrored): three big lobes with secondary points,
-  // two small lower lobes, deep rounded sinuses.
+  // Sugar maple: three big lobes and two small lower ones, rounded U-shaped sinuses,
+  // a few soft secondary points. Hand-placed right half, mirrored, then rounded.
   const right: Pt[] = [
-    [50, 5],
-    [55, 15],
-    [62, 12],
-    [59.5, 24],
-    [57, 34],
-    [66, 27],
-    [74, 17],
-    [76.5, 27.5],
-    [93, 26],
-    [85, 37],
-    [89, 45],
-    [77, 47.5],
-    [71, 52],
-    [79, 61],
-    [67, 61.5],
+    [50, 4],
+    [56, 13],
+    [63, 11],
+    [61, 23],
+    [57.5, 33],
+    [67, 26],
+    [75, 18],
+    [77.5, 27],
+    [94, 26],
+    [86, 38],
+    [90, 46],
+    [78, 48],
+    [72, 52],
+    [80, 61],
+    [67, 61],
     [58, 64],
-    [53.5, 69],
+    [53, 70],
   ]
   const left = right.map(([x, y]): Pt => [100 - x, y]).reverse()
   return {
-    fill: smooth(soften(soften([...right, ...left.slice(0, -1)], 0.2), 0.2), 1),
-    stem: { d: curve([50, 64], [50, 82], [55, 95]), width: 4.6 },
-    veins: veinsFromBase([50, 64], [
-      [50, 16],
-      [84, 29],
-      [16, 29],
-      [72, 57],
-      [28, 57],
-    ]),
-  }
-}
-
-function shrub(): LeafShape {
-  // Deeply cut and star-like, with pointed lobes; stands for sumacs, shrubs and vines.
-  const c: Pt = [50, 52]
-  const core = 11
-  const lobes: Lobe[] = [-90, -90 - 50, -90 + 50, -90 - 100, -90 + 100, -90 - 145, -90 + 145].map((at, i) => ({
-    at,
-    len: [36, 32, 32, 25, 25, 14, 14][i],
-    width: [12, 12, 12, 11, 11, 10, 10][i],
-  }))
-  return {
-    fill: smooth(palmate(c, core, lobes, { notch: 3, wobble: 0.25 })),
-    stem: { d: curve([50, 60], [49, 80], [53, 95]), width: 4.4 },
-    veins: veinsFromBase([50, 58], lobes.slice(0, 5).map((l) => tipOf(c, core, l, 0.76)), 2),
+    blades: [{ d: smooth(soften([...right, ...left.slice(0, -1)], 3, 0.24)) }],
+    ink: [stemInto(22), ...pairs([[52, 22, 16]]), ...pairs([[60, 18, 4]], VEIN - 0.6)],
   }
 }
 
 function oak(): LeafShape {
-  const lobes = 4
-  const body = ovate(27, 0.55, 0.75)
-  // Big rounded lobes with deep sinuses, alternating sides like a real oak.
-  const side = (phase: number) => (t: number) =>
-    body(t) * (0.42 + 0.58 * Math.abs(Math.sin(Math.PI * (t * lobes + phase))) ** 0.45) * (t > 0.92 ? 1 - (t - 0.92) * 4 : 1)
-  const tips: Pt[] = []
-  for (let k = 0; k < 4; k++) {
-    const t = (k + 0.5) / lobes
-    tips.push([50 + body(t) * 0.75, 6 + t * 70], [50 - body(t + 0.08) * 0.75, 6 + (t + 0.08) * 70])
-  }
+  // White oak: rounded finger-like lobes with deep sinuses; left and right offset so the
+  // lobes alternate. Hand-placed right side, left side mirrored and shifted down, then rounded.
+  const right: Pt[] = [
+    [50, 4],
+    [58, 6],
+    [65, 13],
+    [60, 21],
+    [71, 22],
+    [79, 30],
+    [70, 38],
+    [61, 39],
+    [75, 44],
+    [83, 53],
+    [74, 61],
+    [62, 59],
+    [71, 66],
+    [68, 73],
+    [57, 75],
+    [53, 79],
+  ]
+  const left = right
+    .slice(1)
+    .map(([x, y]): Pt => [100 - x, Math.min(79, y + 4)])
+    .reverse()
   return {
-    fill: smooth(pinnate(6, 76, side(0.15), side(0.62))),
-    stem: { d: curve([50, 74], [50, 86], [54, 95]), width: 4.4 },
-    veins: [{ d: line([[50, 12], [50, 72]]), width: 2.4 }, ...tips.map((tip) => ({ d: curve([50, tip[1] + 6], [(50 + tip[0]) / 2, tip[1] + 3], tip), width: 1.8 }))],
-  }
-}
-
-function toothed(w: number, peak: number, teeth: number, depth: number, round = 1) {
-  const body = ovate(w, peak, round)
-  return (t: number) => body(t) * (1 - depth * (0.5 - 0.5 * Math.cos(2 * Math.PI * teeth * t)) * Math.min(1, t * 6) * (t > 0.85 ? 0 : 1))
-}
-
-function sideVeins(top: number, bottom: number, body: Profile, count: number, spread = 0.72): { d: string; width: number }[] {
-  // Midrib starts below the tip so it doesn't split a narrow point.
-  const veins = [{ d: line([[50, top + 13], [50, bottom - 2]]), width: 2.4 }]
-  // Side veins from a quarter of the way down, so none crowd the narrow tip.
-  for (let k = 0; k < count; k++) {
-    const t = 0.26 + (k / Math.max(1, count - 1)) * 0.56
-    const y = top + t * (bottom - top)
-    for (const s of [1, -1]) {
-      const x = 50 + s * body(t) * spread
-      veins.push({ d: curve([50, y + 7], [50 + s * body(t) * 0.35, y + 4], [x, y - 2]), width: 1.7 })
-    }
-  }
-  return veins
-}
-
-function birch(): LeafShape {
-  // Ovate with a drawn-out tip and a toothed margin; widest near the base.
-  const body = toothed(25, 0.66, 9, 0.09)
-  return {
-    fill: smooth(pinnate(5, 76, body, toothed(25, 0.66, 9, 0.09))),
-    stem: { d: curve([50, 74], [50, 86], [53, 95]), width: 4.2 },
-    veins: sideVeins(5, 76, ovate(25, 0.66), 5),
-  }
-}
-
-function beech(): LeafShape {
-  // Narrow ellipse, gently wavy edge, many straight parallel veins.
-  const body = (t: number) => ovate(19, 0.5, 0.85)(t) * (1 - 0.05 * (0.5 - 0.5 * Math.cos(2 * Math.PI * 7 * t)) * (t > 0.88 ? 0 : 1))
-  return {
-    fill: smooth(pinnate(5, 78, body)),
-    stem: { d: curve([50, 76], [50, 87], [52, 95]), width: 4 },
-    veins: sideVeins(5, 78, ovate(19, 0.5, 0.85), 7, 0.8),
-  }
-}
-
-function aspen(): LeafShape {
-  // Nearly round with a short point and soft rounded teeth (reference: bottom-middle).
-  const body = (t: number) => ovate(31, 0.6, 0.62)(t) * (1 - 0.035 * (0.5 - 0.5 * Math.cos(2 * Math.PI * 8 * t)) * (t > 0.12 && t < 0.9 ? 1 : 0))
-  return {
-    fill: smooth(pinnate(8, 76, body)),
-    stem: { d: curve([50, 74], [49, 86], [52, 95]), width: 4.2 },
-    veins: [
-      { d: line([[50, 16], [50, 72]]), width: 2.4 },
-      ...[0.35, 0.55, 0.72].flatMap((t) => [1, -1].map((s) => ({ d: curve([50, 8 + t * 68 + 8], [50 + s * 10, 8 + t * 68 + 4], [50 + s * 24 * Math.sin(Math.PI * t), 8 + t * 68 - 4]), width: 1.7 }))),
+    blades: [{ d: smooth(soften([...right, ...left], 3, 0.24)) }],
+    ink: [
+      stemInto(14),
+      { d: curve([50, 36], [62, 34], [74, 30]), width: VEIN },
+      { d: curve([50, 58], [64, 56], [77, 53]), width: VEIN },
+      { d: curve([50, 42], [38, 40], [26, 34]), width: VEIN },
+      { d: curve([50, 63], [37, 61], [24, 57]), width: VEIN },
     ],
   }
 }
 
-function basswood(): LeafShape {
-  // Heart-shaped with a lopsided base and fine teeth (elms & basswoods).
-  const c: Pt = [50, 50]
-  const lobes: Lobe[] = [
-    { at: -90, len: 22, width: 30 },
-    { at: -20, len: 14, width: 40 },
-    { at: -160, len: 12, width: 40 },
-    { at: 40, len: 9, width: 26 },
-    { at: 145, len: 11, width: 26 },
-  ]
-  const outline = palmate(c, 20, lobes, { notch: 9, wobble: 0.2 }).map(([x, y], i, all): Pt => {
-    // fine teeth all round, except at the stem notch
-    const a = (i / all.length) * 2 * Math.PI
-    const k = 1 + 0.025 * Math.sin(a * 26)
-    return [c[0] + (x - c[0]) * k, c[1] + (y - c[1]) * k]
-  })
+function birch(): LeafShape {
+  // Paper birch: oval-triangular, widest low down, drawn-out tip, soft double teeth.
+  const body = teeth(ovate(27, 0.66, 0.9), 7, 0.06)
   return {
-    fill: smooth(outline),
-    stem: { d: curve([50, 66], [51, 84], [55, 95]), width: 4.2 },
-    veins: veinsFromBase([50, 66], [
-      [50, 18],
-      [72, 34],
-      [28, 36],
-      [68, 58],
-      [32, 59],
-    ]),
+    blades: [{ d: smooth(pinnate(4, 76, body)) }],
+    ink: [stemInto(22), ...pairs([[40, 13, 8], [53, 17, 8], [65, 16, 7]])],
   }
 }
 
-function alder(): LeafShape {
-  // Egg-shaped, widest above the middle with a rounded (slightly notched) tip, toothed edge.
-  const c: Pt = [50, 42]
-  const pts: Pt[] = []
-  for (let i = 0; i < 160; i++) {
-    const a = (i / 160) * 2 * Math.PI - Math.PI / 2 // start at the top
-    const down = Math.max(0, Math.sin(a)) // 0 at top, 1 at bottom
-    const rx = 27 * (1 - 0.42 * down ** 1.6)
-    const ry = a > 0 && a < Math.PI ? 34 : 30
-    const notch = 2.2 * Math.exp(-(((a + Math.PI / 2) / 0.12) ** 2))
-    const teeth = 1 + 0.024 * Math.sin(a * 18) * (down < 0.85 ? 1 : 0)
-    pts.push([c[0] + Math.cos(a) * rx * teeth, c[1] + Math.sin(a) * (ry - notch) * teeth])
-  }
+function aspen(): LeafShape {
+  // Trembling aspen: nearly round, short point, fine rounded teeth, long leaf stalk.
+  const body = teeth(ovate(30, 0.58, 0.55), 8, 0.035, 0.15, 0.9)
   return {
-    fill: smooth(pts),
-    stem: { d: curve([50, 74], [50, 86], [53, 95]), width: 4.2 },
-    veins: sideVeins(10, 76, (t) => 26 * Math.sin(Math.PI * Math.min(1, t * 1.15)) ** 0.6, 5),
-  }
-}
-
-function hickory(): LeafShape {
-  // Compound: five slim leaflets on short stalks, spreading from the top of the stem.
-  const hub: Pt = [50, 64]
-  const spec: [number, number, number][] = [
-    [-90, 44, 9.5],
-    [-90 - 44, 38, 9],
-    [-90 + 44, 38, 9],
-    [-90 - 98, 26, 7.5],
-    [-90 + 98, 26, 7.5],
-  ]
-  const baseOf = (a: number): Pt => [hub[0] + Math.cos(rad(a)) * 5, hub[1] + Math.sin(rad(a)) * 5]
-  return {
-    fill: spec.map(([a, len, w]) => smooth(leaflet(baseOf(a), a, len, w))).join(''),
-    stem: {
-      d: [curve([50, 62], [50, 82], [55, 95]), ...spec.map(([a]) => line([hub, baseOf(a)]))].join(''),
-      width: 4,
-    },
-    veins: spec.map(([a, len]) => {
-      const b = baseOf(a)
-      const at = (k: number): Pt => [b[0] + Math.cos(rad(a)) * len * k, b[1] + Math.sin(rad(a)) * len * k]
-      return { d: line([at(0.22), at(0.8)]), width: 1.8 }
-    }),
-  }
-}
-
-function ash(): LeafShape {
-  // Compound and pinnate: paired leaflets along a central stalk, plus one at the tip.
-  const leaflets: Pt[][] = [leaflet([50, 30], -90, 26, 8)]
-  const veins: { d: string; width: number }[] = [{ d: line([[50, 8], [50, 88]]), width: 2.4 }]
-  for (const [y, len] of [
-    [38, 25],
-    [56, 24],
-    [74, 21],
-  ] as [number, number][]) {
-    for (const s of [1, -1]) {
-      const angle = s === 1 ? -35 : -145
-      leaflets.push(leaflet([50, y], angle, len, 7.5))
-    }
-  }
-  return {
-    fill: leaflets.map((l) => smooth(l)).join(''),
-    stem: { d: curve([50, 30], [50, 70], [52, 96]), width: 3.6 },
-    veins,
-  }
-}
-
-function ginkgo(): LeafShape {
-  // Fan with a wavy outer edge and a central notch, narrowing to the stem (reference: bottom-right).
-  const hub: Pt = [50, 70]
-  const spread = 50
-  const outer: Pt[] = []
-  for (let i = 0; i <= 60; i++) {
-    const d = -spread + (i / 60) * 2 * spread
-    const notch = 10 * Math.exp(-((d / 5) ** 2))
-    const r = 50 - notch + 1.6 * Math.sin(rad(d) * 13) - 9 * (Math.abs(d) / spread) ** 3
-    outer.push([hub[0] + Math.sin(rad(d)) * r, hub[1] - Math.cos(rad(d)) * r])
-  }
-  // Concave sides curving in to the stem.
-  const side = (from: Pt, s: 1 | -1): Pt[] =>
-    [0.25, 0.5, 0.75].map((k) => [hub[0] + (from[0] - hub[0]) * (1 - k) + s * 4 * Math.sin(Math.PI * k), hub[1] + (from[1] - hub[1]) * (1 - k)])
-  const right = outer[outer.length - 1]
-  const left = outer[0]
-  const pts: Pt[] = [...outer, ...side(right, -1), [hub[0] + 2, hub[1]], [hub[0] - 2, hub[1]], ...side(left, 1).reverse()]
-  return {
-    fill: smooth(pts, 0.9),
-    stem: { d: curve([50, 68], [49, 83], [52, 96]), width: 4.2 },
-    veins: [-40, -22, -8, 8, 22, 40].map((d) => ({
-      d: line([
-        [hub[0], hub[1] - 6],
-        [hub[0] + Math.sin(rad(d)) * 42, hub[1] - Math.cos(rad(d)) * 42],
-      ]),
-      width: 1.6,
-    })),
+    blades: [{ d: smooth(pinnate(6, 66, body)) }],
+    ink: [stemInto(20, 96, 3), ...pairs([[38, 16, 7], [50, 18, 6]])],
   }
 }
 
 function larch(): LeafShape {
-  // A tuft of soft needles from a short spur.
-  const base: Pt = [50, 62]
-  const needles = Array.from({ length: 11 }, (_, i) => {
-    const a = -90 + (i - 5) * 13
-    const len = 40 - Math.abs(i - 5) * 2.2
-    const bend = (i - 5) * 0.9
-    const tip: Pt = [base[0] + Math.cos(rad(a)) * len, base[1] + Math.sin(rad(a)) * len]
-    const mid: Pt = [(base[0] + tip[0]) / 2 + bend, (base[1] + tip[1]) / 2]
-    return curve(base, mid, tip)
+  // Tamarack: a soft tuft of needles (they grow in bundles of 10–20) from a short spur.
+  const spur: Pt = [50, 60]
+  const needles: Stroke[] = Array.from({ length: 11 }, (_, i) => {
+    const a = -90 + (i - 5) * 14
+    const len = 42 - Math.abs(i - 5) * 2.4
+    const tip = toward(spur, a, len)
+    const mid: Pt = [(spur[0] + tip[0]) / 2 + (i - 5) * 0.8, (spur[1] + tip[1]) / 2]
+    return { d: curve(spur, mid, tip), width: 5.6 }
   })
   return {
-    // Needles are strokes; the "fill" is the spur knob.
-    fill: `M44 62a6 5.5 0 1 0 12 0a6 5.5 0 1 0-12 0Z`,
-    stem: { d: curve([50, 64], [50, 82], [54, 95]), width: 4.6 },
-    veins: needles.map((d) => ({ d, width: 3.6 })),
+    blades: [{ d: circle(50, 61, 6.5), tone: 'ink' }],
+    needles,
+    ink: [stemInto(62)],
+  }
+}
+
+function ash(): LeafShape {
+  // White ash: compound, usually seven leaflets in pairs plus one at the tip.
+  const blades = [{ d: smooth(leaflet([50, 28], -90, 24, 9)) }]
+  for (const [y, len, angle] of [
+    [32, 24, -22],
+    [51, 24, -18],
+    [70, 21, -14],
+  ] as [number, number, number][]) {
+    blades.push({ d: smooth(leaflet([50, y], angle, len, 8)) }, { d: smooth(leaflet([50, y], -180 - angle, len, 8)) })
+  }
+  return { blades, ink: [stemInto(12)] }
+}
+
+function beech(): LeafShape {
+  // American beech: elliptical, many straight parallel veins each ending in a small tooth.
+  const veinRows = 5
+  const body = (t: number) =>
+    ovate(22, 0.5, 0.8)(t) * (1 - (t > 0.14 && t < 0.86 ? 0.05 * (0.5 - 0.5 * Math.cos((2 * Math.PI * veinRows * (t - 0.14)) / 0.72)) : 0))
+  const rows: [number, number, number][] = Array.from({ length: veinRows }, (_, k) => {
+    const t = 0.24 + (k / (veinRows - 1)) * 0.56
+    return [5 + t * 72 + 7, ovate(22, 0.5, 0.8)(t) * 0.78, 9]
+  })
+  return {
+    blades: [{ d: smooth(pinnate(5, 77, body)) }],
+    ink: [stemInto(16), ...pairs(rows, VEIN - 0.8)],
+  }
+}
+
+function hickory(): LeafShape {
+  // Shagbark hickory: compound, almost always five leaflets; the top three are largest.
+  // Leaflets are widest toward their tips and start just off the stalk, so each reads separately.
+  const off = (y: number, a: number, d = 3.5) => toward([50, y], a, d)
+  return {
+    blades: [
+      { d: smooth(leaflet([50, 40], -90, 36, 10, 0.45)) },
+      { d: smooth(leaflet(off(48, -38), -38, 32, 9, 0.42)) },
+      { d: smooth(leaflet(off(48, -142), -142, 32, 9, 0.42)) },
+      { d: smooth(leaflet(off(68, -24), -24, 22, 7, 0.42)) },
+      { d: smooth(leaflet(off(68, -156), -156, 22, 7, 0.42)) },
+    ],
+    ink: [stemInto(18)],
+  }
+}
+
+function basswood(): LeafShape {
+  // American basswood (elms & basswoods): heart-shaped, lopsided base, short tip.
+  const c: Pt = [50, 46]
+  const lobes: Lobe[] = [
+    { at: -90, len: 21, width: 26 },
+    { at: -25, len: 13, width: 42 },
+    { at: -155, len: 11, width: 42 },
+    { at: 40, len: 10, width: 30 },
+    { at: 145, len: 12, width: 30 },
+  ]
+  return {
+    blades: [{ d: smooth(palmate(c, 21, lobes, 10)) }],
+    ink: [stemInto(20), { d: curve([50, 60], [58, 52], [68, 38]), width: VEIN }, { d: curve([50, 60], [42, 52], [32, 38]), width: VEIN }],
   }
 }
 
 function cherries(): LeafShape {
-  const circle = (cx: number, cy: number, r: number) => `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`
-  const leaf = smooth(leaflet([56, 16], -18, 28, 9))
+  // Black cherry: dark fruit on long stalks, with an oval leaf turning red-orange.
   return {
-    fill: circle(33, 76, 15) + circle(68, 79, 15) + leaf,
-    stem: { d: `${curve([35, 62], [38, 34], [56, 16])}${curve([66, 65], [64, 36], [56, 16])}`, width: 3.6 },
-    veins: [],
+    blades: [
+      { d: smooth(leaflet([55, 18], -24, 32, 11)) },
+      { d: circle(31, 75, 16), tone: 'accent' },
+      { d: circle(69, 79, 16), tone: 'accent' },
+    ],
+    ink: [
+      { d: curve([33, 60], [36, 32], [55, 17]), width: 5 },
+      { d: curve([67, 64], [64, 34], [55, 17]), width: 5 },
+      { d: line([[58, 15], [75, 7]]), width: 3.6 },
+    ],
   }
+}
+
+function alder(): LeafShape {
+  // Speckled alder: egg-shaped with a short pointed tip, shallow double teeth.
+  const body = teeth(ovate(27, 0.44, 0.7), 8, 0.05, 0.14, 0.84)
+  return {
+    blades: [{ d: smooth(pinnate(5, 74, body)) }],
+    ink: [stemInto(18), ...pairs([[36, 16, 8], [49, 19, 8], [61, 17, 7]])],
+  }
+}
+
+function ginkgo(): LeafShape {
+  // Ginkgo: a fan with a notch at the top (biloba = two lobes), narrowing to the stalk.
+  const hub: Pt = [50, 70]
+  const spread = 52
+  const outer: Pt[] = []
+  for (let i = 0; i <= 60; i++) {
+    const d = -spread + (i / 60) * 2 * spread
+    const notch = 12 * Math.exp(-((d / 6) ** 2))
+    const r = 52 - notch - 8 * (Math.abs(d) / spread) ** 3
+    outer.push([hub[0] + Math.sin(rad(d)) * r, hub[1] - Math.cos(rad(d)) * r])
+  }
+  const sideIn = (from: Pt, s: 1 | -1): Pt[] =>
+    [0.3, 0.6, 0.85].map((k) => [hub[0] + (from[0] - hub[0]) * (1 - k) + s * 3 * Math.sin(Math.PI * k), hub[1] + (from[1] - hub[1]) * (1 - k)])
+  const pts: Pt[] = [...outer, ...sideIn(outer[outer.length - 1], -1), [51.5, 71], [48.5, 71], ...sideIn(outer[0], 1).reverse()]
+  return {
+    blades: [{ d: smooth(soften(pts, 1, 0.2)) }],
+    ink: [stemInto(66, 96, 3)],
+  }
+}
+
+function sumac(): LeafShape {
+  // Staghorn sumac (sumacs, shrubs & vines): compound, many slim lance-shaped leaflets.
+  const blades = [{ d: smooth(leaflet([50, 22], -90, 20, 6.5, 0.45)) }]
+  for (const y of [27, 41, 55, 69]) {
+    blades.push({ d: smooth(leaflet([50, y], -24, 24, 6.2, 0.45)) }, { d: smooth(leaflet([50, y], -156, 24, 6.2, 0.45)) })
+  }
+  return { blades, ink: [stemInto(10)] }
 }
 
 export const LEAF_SHAPES: Record<TreeIconId, LeafShape> = {
@@ -414,8 +360,22 @@ export const LEAF_SHAPES: Record<TreeIconId, LeafShape> = {
   cherries: cherries(),
   alders: alder(),
   'other-trees': ginkgo(),
-  shrubs: shrub(),
+  shrubs: sumac(),
 }
 
-/** Needle and fruit icons draw their "veins" as visible strokes rather than cut-outs. */
-export const STROKE_ONLY: ReadonlySet<TreeIconId> = new Set(['larches'])
+/** Each group's fall colour (leaf) and, for fruit, a second colour. */
+export const LEAF_COLOURS: Record<TreeIconId, { leaf: string; accent?: string }> = {
+  maples: { leaf: '#e2602a' }, // sugar maple: yellow, burnt orange and red together
+  oaks: { leaf: '#9c3a22' }, // red oak: dark red to russet
+  birches: { leaf: '#f2c230' }, // paper birch: bright yellow
+  aspens: { leaf: '#f0a92a' }, // trembling aspen: gold
+  larches: { leaf: '#d99a2b' }, // tamarack: bright gold
+  ashes: { leaf: '#7e2f5d' }, // white ash: purple to maroon
+  beeches: { leaf: '#b8772f' }, // American beech: golden bronze
+  hickories: { leaf: '#d4a21f' }, // shagbark hickory: golden yellow
+  elms: { leaf: '#e3b43a' }, // basswood: deep yellow with orange hints
+  cherries: { leaf: '#e05a2b', accent: '#a11d2b' }, // black cherry: red-orange leaves, dark fruit
+  alders: { leaf: '#86893f' }, // speckled alder: stays dull green to brown
+  'other-trees': { leaf: '#f4c21b' }, // ginkgo: golden yellow
+  shrubs: { leaf: '#d42a1f' }, // staghorn sumac: brilliant scarlet
+}

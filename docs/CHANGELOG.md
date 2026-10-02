@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-01 | [Organic leaf icon set](#2026-10-01-organic-leaf-icon-set) | Leaf icons PR |
+| 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | Leaf icons PR |
 | 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
 | 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
@@ -21,50 +21,50 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-01 · Organic leaf icon set
+## 2026-10-01 · Two-colour leaf icon set
 
 **Ref:** Leaf icons PR
 
-**Before.** Thirteen minimal, geometric tree icons on a 24×24 grid, built from circles, ellipses and straight slits. They were crisp but mechanical, and several were hard to tell apart (birch, aspen and elm were similar ovals).
+**Before.** Thirteen minimal, geometric tree icons on a 24×24 grid, built from circles, ellipses and straight slits and tinted with a single colour. They were crisp but mechanical, and several were hard to tell apart (birch, aspen and elm were all similar ovals).
 
-**Reference.** A set of organic leaf silhouettes:
-- soft, slightly irregular outlines
-- rounded lobe tips and curved stems
-- solid and vein-cut variants
+**Reference.** A flat, two-colour leaf illustration:
+- smooth, rounded silhouettes
+- the leaf filled in its own colour
+- the stem and veins drawn as rounded strokes in a single dark ink
 
-That set is a watermarked marketplace pack, so no shapes were traced or copied. The new set is drawn from scratch in a similar style, so the project owns it outright (the repository is public).
+No shapes were traced or copied. Every leaf is drawn from scratch so the project owns the set outright (the repository is public).
 
 **After.**
-- **Generated shapes.** Thirteen icons on a 100×100 grid (`src/lib/leafShapes.ts`), built from botanical parameters and smoothed with a closed Catmull–Rom spline:
-  - **palmate:** radius around a centre with lobes at set angles, small teeth and a stem notch
-  - **pinnate:** half-width along the midrib, with lobes or teeth and slight asymmetry
-  - **compound:** leaflets on short stalks
-- **The sugar maple** is hand-placed and softened with two Chaikin corner-cutting passes.
-- **Every leaf now has its own silhouette:**
+- **Two colours per icon.** Each leaf is filled with its tree's typical fall colour; the stem and main veins use one ink colour from the `--leaf-ink` token (dark navy `#2d3550` in light mode, warm off-white `#f1e8dd` in dark mode). Cherries add a second fill for the fruit.
+- **Botanical shapes.** Each silhouette follows the tree's real leaf structure (lobing, margin, tip, base and leaf arrangement), checked against field-guide descriptions and photographs:
 
-  | Group | Shape |
-  |---|---|
-  | Maples | sugar maple: three large lobes with secondary points |
-  | Oaks | deep rounded lobes, alternating sides |
-  | Birches | ovate, toothed, drawn-out tip |
-  | Aspens & poplars | nearly round, soft teeth |
-  | Larches | needle tuft |
-  | Ashes | pinnate compound |
-  | Beeches | narrow ellipse, wavy edge, parallel veins |
-  | Hickories & walnuts | five leaflets on stalks |
-  | Elms & basswoods | lopsided heart, fine teeth |
-  | Cherries & serviceberries | cherries |
-  | Alders & hornbeams | egg-shaped, toothed, rounded tip |
-  | Ginkgo & more | scalloped fan with a central notch |
-  | Sumacs, shrubs & vines | deeply cut star |
+  | Group | Shape | Fall colour |
+  |---|---|---|
+  | Maples | sugar maple: five lobes, rounded sinuses, a few large points | orange-red `#e2602a` |
+  | Oaks | white oak: rounded lobes, alternating sides | russet `#9c3a22` |
+  | Birches | ovate, toothed, drawn-out tip | bright yellow `#f2c230` |
+  | Aspens & poplars | nearly round, fine teeth, long flat stem | golden `#f0a92a` |
+  | Larches | needle tuft on a short spur | gold `#d99a2b` |
+  | Ashes | pinnate compound, terminal leaflet plus three pairs | purple (white ash) `#7e2f5d` |
+  | Beeches | ellipse with straight, parallel side veins | bronze `#b8772f` |
+  | Hickories & walnuts | five leaflets, widest toward the tip | golden `#d4a21f` |
+  | Elms & basswoods | lopsided heart | pale yellow `#e3b43a` |
+  | Cherries & serviceberries | leaf with a pair of cherries | orange `#e05a2b`, fruit `#a11d2b` |
+  | Alders & hornbeams | egg-shaped, toothed, pointed tip | olive (alders hold green late) `#86893f` |
+  | Ginkgo & more | fan with a central notch | butter yellow `#f4c21b` |
+  | Sumacs, shrubs & vines | pinnate, narrow leaflets | scarlet `#d42a1f` |
 
-- **Two variants:**
-  - **solid**, for 16–24px (chips, pins, lists)
-  - **veined**, for 32px and up, with veins cut out using an SVG mask (used for the map loading state)
-- **Same component API**, so every existing usage picked up the new icons.
-- **The favicon and logo** are regenerated from the new maple.
+- **How the shapes are built.** `src/lib/leafShapes.ts` generates each outline from parameters (Gaussian lobes for palmate leaves, a width profile along the midrib for pinnate leaves, individual leaflets for compound leaves), rounds corners with Chaikin corner cutting and smooths the result with a closed Catmull–Rom spline. The maple and oak outlines are hand-placed points smoothed the same way.
+- **One component, two tones.** `<TreeIcon>` draws the two-colour version by default. `tone="mono"` draws everything in `currentColor` for places where the icon sits on a coloured background (trip stop avatars).
+- **Where they appear.**
+  - **Map pins:** a coloured leaf on a white disc; the disc's ring shows the region's peak phase.
+  - **Tree filter chips:** the icon carries its own colour; the active chip switches the ink to stay visible.
+  - **Region lists, "Trees to look for" and the map loading state:** use the coloured icons directly.
+  - **Header logo:** now rendered inline, so its ink follows the app's light/dark theme.
+  - **Favicon:** regenerated from the new maple; its ink switches with the system colour scheme.
+- **Dev preview:** `/?icons` shows the set at 96, 48, 24 and 16 px and in the single-colour tone.
 
-**Why.** More warmth and character for a fall-colour brand, and clearer differences between tree types.
+**Why.** A fall-colour app should show fall colour: each tree's icon now tells you what its leaves turn, as well as what they look like. The shapes are also easier to tell apart at chip and pin sizes.
 
 ---
 
