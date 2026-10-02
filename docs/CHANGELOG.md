@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-01 | [Organic leaf icon set](#2026-10-01-organic-leaf-icon-set) | Leaf icons PR |
 | 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
 | 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
@@ -17,6 +18,53 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-01 · Organic leaf icon set
+
+**Ref:** Leaf icons PR
+
+**Before.** Thirteen minimal, geometric tree icons on a 24×24 grid, built from circles, ellipses and straight slits. They were crisp but mechanical, and several were hard to tell apart (birch, aspen and elm were similar ovals).
+
+**Reference.** A set of organic leaf silhouettes:
+- soft, slightly irregular outlines
+- rounded lobe tips and curved stems
+- solid and vein-cut variants
+
+That set is a watermarked marketplace pack, so no shapes were traced or copied. The new set is drawn from scratch in a similar style, so the project owns it outright (the repository is public).
+
+**After.**
+- **Generated shapes.** Thirteen icons on a 100×100 grid (`src/lib/leafShapes.ts`), built from botanical parameters and smoothed with a closed Catmull–Rom spline:
+  - **palmate:** radius around a centre with lobes at set angles, small teeth and a stem notch
+  - **pinnate:** half-width along the midrib, with lobes or teeth and slight asymmetry
+  - **compound:** leaflets on short stalks
+- **The sugar maple** is hand-placed and softened with two Chaikin corner-cutting passes.
+- **Every leaf now has its own silhouette:**
+
+  | Group | Shape |
+  |---|---|
+  | Maples | sugar maple: three large lobes with secondary points |
+  | Oaks | deep rounded lobes, alternating sides |
+  | Birches | ovate, toothed, drawn-out tip |
+  | Aspens & poplars | nearly round, soft teeth |
+  | Larches | needle tuft |
+  | Ashes | pinnate compound |
+  | Beeches | narrow ellipse, wavy edge, parallel veins |
+  | Hickories & walnuts | five leaflets on stalks |
+  | Elms & basswoods | lopsided heart, fine teeth |
+  | Cherries & serviceberries | cherries |
+  | Alders & hornbeams | egg-shaped, toothed, rounded tip |
+  | Ginkgo & more | scalloped fan with a central notch |
+  | Sumacs, shrubs & vines | deeply cut star |
+
+- **Two variants:**
+  - **solid**, for 16–24px (chips, pins, lists)
+  - **veined**, for 32px and up, with veins cut out using an SVG mask (used for the map loading state)
+- **Same component API**, so every existing usage picked up the new icons.
+- **The favicon and logo** are regenerated from the new maple.
+
+**Why.** More warmth and character for a fall-colour brand, and clearer differences between tree types.
 
 ---
 
