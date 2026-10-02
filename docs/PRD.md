@@ -4,8 +4,8 @@
 |---|---|
 | **Product** | Canopy: fall colours across Canada (responsive web app / PWA) |
 | **Owner** | @maarib |
-| **Status** | Draft v1 · 2026-09-30 |
-| **Related** | [Technical plan](PLAN.md) · [GitHub issues](https://github.com/maarib/canopy/issues) |
+| **Status** | v1.1 · updated 2026-10-01 |
+| **Related** | [Technical plan](PLAN.md) · [Explore Ontario](EXPLORE.md) · [Change log](CHANGELOG.md) · [Issues](https://github.com/maarib/canopy/issues) · [Project board](https://github.com/users/maarib/projects/2) |
 
 ---
 
@@ -15,7 +15,7 @@ Every fall, millions of Canadians and visitors try to answer the same three ques
 
 Canopy is one map-first app that answers all three for all of Canada. It covers every tree type, every park and the trails, with live conditions, forecasts and a trip plan you can take with you.
 
-**What exists today (Milestones 0–1):** live map, Ontario Parks official reports (daily), iNaturalist colour sightings with a tree-type filter, Parks Canada trails, satellite and 3D terrain, region/park pages with a 7-day colour outlook, and a responsive bottom sheet.
+**What exists today (2026-10-01):** a live colour map on Mapbox (globe, light presets, 3D terrain); Ontario Parks official reports refreshed daily; iNaturalist colour sightings with a tree-type filter; region, park, trail and place pages; Algonquin trails with plotted tracks, elevation profiles and the waterfalls, lookouts, lakes and creeks along them; search; shareable links; skeleton loading states. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
 
 ---
 
@@ -102,7 +102,7 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 
 ## 7. Design direction and pattern library
 
-> Mobbin's MCP connection requires a paid Mobbin plan, so these references come from public product knowledge. Design task **D-01** covers collecting Mobbin screen references for each pattern once access is available.
+> Mobbin screen references require a paid Mobbin plan, so these patterns come from published product documentation and reviews. Design task **D-01** covers collecting Mobbin screen references for each pattern once access is available.
 
 | Pattern | Inspiration | How Canopy uses it |
 |---|---|---|
@@ -159,12 +159,12 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | MAP-1 | Map of Canada with official reports styled by colour stage | P0 | ✅ |
 | MAP-2 | Crowd sightings (iNat + ours) as hexes that turn into points when zoomed in | P0 | ✅ |
 | MAP-3 | Tree-type filter | P0 | ✅ |
-| MAP-4 | Layers sheet with map-type thumbnails + overlays (satellite, terrain, trails, weather, smoke) | P1 | 🟡 |
+| MAP-4 | Layers sheet with map-type thumbnails + overlays (satellite, terrain, trails, weather, smoke) | P1 | 🟡 Layers popover (reports, sightings, trails, satellite, 3D terrain, light presets); no thumbnails yet |
 | MAP-5 | **Season timeline scrubber** (history → today → forecast), animated playback | P0 | ⬜ |
 | MAP-6 | Unified **colour status surface**: a continuous % colour / % fallen field from blended sources, with confidence | P0 | ⬜ |
 | MAP-7 | "Near me" locate button and first-load centring on the user's region (with permission) | P0 | ⬜ |
-| MAP-8 | Search places (parks, towns, trails) with autocomplete | P0 | ⬜ |
-| MAP-9 | Map performance: 60 fps pan on mid-range phones; vector data in PMTiles for national layers | P1 | ⬜ |
+| MAP-8 | Search places (parks, towns, trails) with autocomplete | P0 | ✅ #77, #80 |
+| MAP-9 | Map performance: 60 fps pan on mid-range phones; vector data in PMTiles for national layers | P1 | 🟡 Performance pass #81; PMTiles not started |
 
 ### 9.2 Data coverage and status model
 | ID | Requirement | P | Status |
@@ -192,7 +192,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | ID | Requirement | P | Status |
 |---|---|---|---|
 | PLACE-1 | Region and park pages with status, outlook, photos, links | P0 | ✅ |
-| PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | 🟡 |
+| PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | 🟡 Directions, Share, Book; Save in progress |
 | PLACE-3 | Trail pages (length, elevation profile, along-the-trail stops, GPX). Ontario Trail Network + OSM; see [EXPLORE.md](EXPLORE.md) | P0 | 🟡 Algonquin |
 | PLACE-4 | Place pages with their own identity: waterfalls, lookouts, peaks, lakes, rivers, creeks (OSM + curated) | P0 | 🟡 Algonquin |
 | PLACE-5 | Curated content: "Top 5 things to do in X this fall" per region (editorial) | P1 | ⬜ |
@@ -230,9 +230,9 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | TRIP-1 | Save places/trails/POIs (works signed-out, local; syncs when signed in) | P0 | ⬜ |
 | TRIP-2 | Trips: group saves, order stops, day labels, notes | P1 | ⬜ |
 | TRIP-3 | Multi-stop Google Maps directions link | P0 | ⬜ |
-| TRIP-4 | Export: GPX (trails), .ics (dates), shareable trip link | P1 | ⬜ |
+| TRIP-4 | Export: GPX (trails), .ics (dates), shareable trip link | P1 | 🟡 GPX per trail (#80) |
 | TRIP-5 | Booking deep links for every park system (Parks Canada, Ontario Parks, Sépaq, BC Parks, NS, NB…) | P0 | 🟡 |
-| TRIP-6 | AllTrails / Google Maps / Apple Maps hand-off buttons | P0 | 🟡 |
+| TRIP-6 | AllTrails / Google Maps / Apple Maps hand-off buttons | P0 | 🟡 Google Maps directions |
 
 ### 9.9 Community
 | ID | Requirement | P | Status |
@@ -255,7 +255,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 ### 9.11 Accounts and platform
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| PLAT-1 | Routing with shareable URLs for every place, filter and map state | P0 | ⬜ |
+| PLAT-1 | Routing with shareable URLs for every place, filter and map state | P0 | ✅ #77 |
 | PLAT-2 | Accounts (email magic link + Google/Apple) | P1 | ⬜ |
 | PLAT-3 | Backend API (Cloudflare Workers + D1 + R2 + KV) for reports, saves, cached data | P0 | ⬜ |
 | PLAT-4 | PWA: service worker, offline park/trail pages, install prompt | P1 | 🟡 manifest |
@@ -264,7 +264,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | PLAT-7 | Privacy-friendly analytics (Plausible/Umami) + event plan | P0 | ⬜ |
 | PLAT-8 | Error monitoring (Sentry) | P0 | ⬜ |
 | PLAT-9 | SEO: prerendered region/park pages, OG images ("Algonquin: Peak · Oct 2") | P1 | ⬜ |
-| PLAT-10 | Hosting + CI/CD + preview deploys (Cloudflare Pages) | P0 | 🟡 CI |
+| PLAT-10 | Hosting + CI/CD + preview deploys | P0 | 🟡 GitHub Pages + CI (#76); no preview deploys |
 
 ---
 
@@ -301,7 +301,7 @@ Design runs about one milestone ahead of development (see the `design` label).
 | UGC abuse / unsafe locations | Moderation queue, rate limits, no exact home locations, report-abuse |
 | Monetization | Later: optional Pro (offline packs, advanced alerts), tourism-board partnerships. Never sell location data. |
 | Name/brand ("Canopy" is a working title) | Trademark check before launch (D-02) |
-| Mobbin references blocked (paid plan) | Upgrade, or collect references manually (D-01) |
+| Mobbin references need a paid plan | Upgrade, or collect references manually (D-01) |
 
 ---
 

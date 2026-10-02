@@ -1,42 +1,138 @@
 # 🍁 Canopy
 
-Track fall colours and leaf drop across Canada: every tree species, every park, live conditions, and when and where to go.
+**Fall colours across Canada, and everything worth exploring in Ontario.** Canopy shows where the leaves are turning right now, when to go, and what to do when you get there: trails, waterfalls, lookouts, lakes and creeks.
 
-> Working title.
-> - **[docs/PRD.md](docs/PRD.md)**: product requirements, user journeys, design patterns and release plan
-> - **[docs/EXPLORE.md](docs/EXPLORE.md)**: trails, waterfalls, lookouts, lakes and creeks: research, identity system, data
-> - **[docs/PLAN.md](docs/PLAN.md)**: technical plan, data sources and architecture
-> - **[Issues](https://github.com/maarib/canopy/issues)** and **[milestones](https://github.com/maarib/canopy/milestones)**: every design and dev task
+**Live:** https://maarib.github.io/canopy/ · **Board:** [Canopy roadmap](https://github.com/users/maarib/projects/2) · **Issues:** [maarib/canopy/issues](https://github.com/maarib/canopy/issues)
 
-## What works today (Milestone 1)
-- **Live map**: Mapbox Standard on a globe with autumn colours and dusk lighting (dawn/day/night too), hillshade, optional 3D terrain
-- **Official reports**: Ontario Parks colour % and leaf-fall % for ~65 parks, refreshed daily by a GitHub Action
-- **Crowd sightings**: iNaturalist coloured-leaf observations, grouped into hexes and filterable by tree type (maples, oaks, birches, aspens, larches…)
-- **Trails & places (Algonquin first)**: Ontario Trail Network trails with their own pages (track on the map, elevation chart, stops along the way, GPX), and pages for waterfalls, lookouts, peaks, lakes and creeks
-- **Trails**: Parks Canada official trails when zoomed in
-- **Satellite**: NASA VIIRS daily true-colour imagery with a date picker
-- **Region and park panels**: 7-day colour outlook, trees to look for, nearby photos, directions and booking links
-- **Responsive**: side panel on desktop, draggable bottom sheet on mobile
+> "Canopy" is a working title.
+
+---
+
+## What it does today
+
+### Live colour map
+- **Basemap:** Mapbox Standard on a globe, with autumn colours and **dusk lighting** by default. Dawn, day, night and auto are in the Layers menu.
+- **Official park reports:** Ontario Parks' colour % and leaf fall % for about 64 parks, coloured by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
+- **Live sightings:** iNaturalist coloured-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
+- **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon.
+- **More layers:** Parks Canada trails, a NASA VIIRS satellite view with a date picker, and 3D terrain.
+
+### Places with their own pages
+- **Regions** (15, hand-picked): typical peak window, a 7-day colour outlook, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
+- **Ontario provincial parks:** the official report (colour %, leaf fall %, dominant colour, viewing tips), outlook, photos, directions and booking.
+- **Trails** (Algonquin Highway 60 corridor, 17 trails):
+  - the track plotted on the map
+  - length, estimated time, climb, high point, difficulty, and loop or point to point
+  - a draggable elevation chart linked to the map
+  - an **"Along the trail"** timeline of waterfalls, lookouts (photo spots), lakes, rivers and creeks, each with its km
+  - Directions to trailhead, Share and GPX download
+- **Waterfalls, lookouts, peaks, lakes, rivers and creeks:** each has its own icon, colour and page, with the trails that reach it.
+
+### Getting around
+- **Search:** regions, parks, trails, places and tree types, plus any town or landmark in Canada.
+- **Shareable links** for every place, filter, layer and map view, with working Back and Forward and a Share button.
+- **Responsive:** a side panel on desktop and a draggable bottom sheet on phones. Skeleton loading states throughout, and the app can be installed (web app manifest).
+
+---
+
+## How data flows
+
+| Data | How it arrives | Freshness |
+|---|---|---|
+| Ontario Parks reports | Snapshot `public/data/ontario-parks.json`, built by `scripts/scrape-ontario-parks.mjs` | Daily, Sept–Nov (GitHub Action) |
+| Trails and places (Explore) | Snapshot `public/data/explore/<area>.json`, built by `scripts/build-explore.mjs` | Weekly (GitHub Action) |
+| iNaturalist sightings | Live from API v2 (only the fields used), streamed page by page; cached on the device for 30 min | Live, last 14 days |
+| Nearby photos | Live from iNaturalist | Live |
+| 7-day outlook | Live from Open-Meteo | Live |
+| Parks Canada trails | Live from Parks Canada's ArcGIS service when zoomed in | Live (updated weekly by Parks Canada) |
+| Satellite imagery | NASA GIBS tiles for the chosen date | Daily |
+| Town search | Photon geocoder (OpenStreetMap) | Live |
+| Regions, tree groups, icons | In the code | Fixed |
+
+The deploy workflow republishes the site after each data refresh.
+
+---
+
+## Tech stack
+
+- **App:** Vite · React 19 · TypeScript · Tailwind CSS v4
+- **Data fetching:** TanStack Query, including streamed queries for sightings
+- **Routing:** React Router
+- **Map:** Mapbox GL JS v3 through `react-map-gl`, using the Mapbox Standard style
+- **Type:** Londrina Solid (headings) and Livvic (body)
+- **Icons:** [`relume-icons`](https://www.npmjs.com/package/relume-icons) (MIT) for controls, plus custom tree and place icons
+- **Hosting:** GitHub Pages via GitHub Actions; CI runs lint and build
 
 ## Getting started
+
+Node 24+ and a Mapbox public token (`pk.…`) are required.
+
 ```bash
 npm install
-cp .env.example .env.local   # add your Mapbox token
+cp .env.example .env.local   # set VITE_MAPBOX_TOKEN
 npm run dev
 ```
 
-The map needs a free [Mapbox](https://account.mapbox.com/access-tokens/) public token (`pk.…`). Copy `.env.example` to `.env.local` and set `VITE_MAPBOX_TOKEN`. Everything else uses free, open services.
+| Script | What it does |
+|---|---|
+| `npm run dev` | Dev server at http://localhost:5173 (tree and place icon preview at `/?icons`) |
+| `npm run build` | Type-check and production build |
+| `npm run lint` | oxlint |
+| `npm run data:ontario-parks` | Refresh the Ontario Parks snapshot |
+| `npm run data:explore [area]` | Rebuild trails and places (all areas, or one) |
 
-Refresh the Ontario Parks snapshot with `npm run data:ontario-parks` (CI: daily in season) and trails/places with `npm run data:explore` (CI: weekly).
+**Deploys:** the Pages build reads `VITE_MAPBOX_TOKEN` from a repository variable and serves the app under `/canopy/` (`BASE_PATH`).
 
-## Stack
-Vite · React 19 · TypeScript · Tailwind v4 · TanStack Query · Mapbox GL JS (`react-map-gl`) · Mapbox Standard style
+## Project structure
+
+```
+src/
+  App.tsx              routes → selection → panels + map
+  components/          map (FoliageMap), panels (Home, Region, Park, Trail, Place),
+                       search, bottom sheet, elevation chart, icons, skeletons
+  data/                regions, tree groups, tree icon ids
+  lib/                 data clients (iNaturalist, Ontario Parks, explore, trails, weather),
+                       URL state, search, map style, hexbins, stages
+scripts/               data builders (Ontario Parks, explore areas)
+public/data/           built data snapshots
+docs/                  PRD, technical plan, Explore design, change log
+.github/workflows/     CI, deploy, daily parks data, weekly explore data
+```
+
+## Documentation
+
+| Doc | What's in it |
+|---|---|
+| [docs/PRD.md](docs/PRD.md) | Product requirements: problem, users, journeys, competitive scan, design patterns, requirements with status, release plan |
+| [docs/PLAN.md](docs/PLAN.md) | Original technical plan and data-source research |
+| [docs/EXPLORE.md](docs/EXPLORE.md) | Trails and places: research (AllTrails, Tripadvisor, Airbnb), identity system, data pipeline, roadmap |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md) | Every change: before, after and why, with measurements |
+
+## Roadmap
+
+Tracked as epics and milestones on the [project board](https://github.com/users/maarib/projects/2):
+- **Trips (in progress):** save trails and places, build a day-by-day plan, share it, export it
+- **Explore Ontario:** more areas (Killarney, Bon Echo, Frontenac, Arrowhead, Bruce Peninsula), pages for all 347 provincial parks, smaller parks and conservation areas
+- **When to go:** historical peak dates from satellite data, a forecast model and a season timeline
+- **Community:** colour reports with photos
+- **Launch readiness:** French, accessibility, offline use, notifications and SEO
+
+## Known limitations
+
+- Trail and place pages cover the Algonquin Highway 60 corridor only so far.
+- Official colour reports are Ontario-only. Other provinces rely on sightings and typical windows.
+- Hexagons show where colour is being *reported*, not a percentage of trees changed (see [#29](https://github.com/maarib/canopy/issues/29)).
+- The Mapbox account is on demo access: it can't be charged, but usage caps are low. Moving to standard access before launch is [#79](https://github.com/maarib/canopy/issues/79).
+- The 7-day outlook uses Open-Meteo's free tier, which is for non-commercial use. A switch to Environment Canada GeoMet is planned ([#36](https://github.com/maarib/canopy/issues/36)).
 
 ## Data credits
-- Basemap: © [Mapbox](https://www.mapbox.com/about/maps/) · © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
-- Observations and photos: [iNaturalist](https://www.inaturalist.org) contributors (individual CC licences)
-- Weather: [Open-Meteo](https://open-meteo.com) (CC BY 4.0, non-commercial free tier)
-- Park reports: [Ontario Parks Fall Colour Report](https://www.ontarioparks.ca/fallcolour)
-- Trails: [Parks Canada](https://open.canada.ca/data/en/dataset/64a90e8d-5bc0-4027-8645-b5881b4068d4) (Open Government Licence – Canada)
-- Satellite imagery: [NASA GIBS](https://www.earthdata.nasa.gov/gibs) · Terrain: Mapzen / AWS Open Data
-- Typical peak windows: provincial tourism and park guidance (approximate)
+
+- **Basemap:** © [Mapbox](https://www.mapbox.com/about/maps/) · © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
+- **Park reports:** [Ontario Parks Fall Colour Report](https://www.ontarioparks.ca/fallcolour)
+- **Trails (Ontario):** [Ontario Trail Network](https://data.ontario.ca/dataset/ontario-trail-network), Ministry of Natural Resources, Open Government Licence – Ontario
+- **Trails (national parks):** [Parks Canada](https://open.canada.ca/data/en/dataset/64a90e8d-5bc0-4027-8645-b5881b4068d4), Open Government Licence – Canada
+- **Waterfalls, lookouts, lakes, creeks:** © OpenStreetMap contributors (ODbL)
+- **Sightings and photos:** [iNaturalist](https://www.inaturalist.org) observers (individual CC licences)
+- **Weather:** [Open-Meteo](https://open-meteo.com) (CC BY 4.0)
+- **Satellite imagery:** [NASA GIBS](https://www.earthdata.nasa.gov/gibs) · **Elevation:** Mapzen Terrarium / AWS Open Data
+- **Town search:** [Photon](https://photon.komoot.io) (OpenStreetMap)
