@@ -98,8 +98,8 @@ export function SearchBox({
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={onKeyDown}
-          placeholder="Search parks, towns, trees…"
-          aria-label="Search parks, towns and trees"
+          placeholder="Search parks, trails, towns…"
+          aria-label="Search parks, trails, places, towns and trees"
           role="combobox"
           aria-expanded={showList}
           aria-controls={listId}
@@ -149,7 +149,9 @@ export function SearchBox({
           ))}
           {!results.length && !loading && (
             <li className="px-3.5 py-3 text-sm text-[var(--ink-soft)]">
-              {trimmed.length < 3 ? 'Keep typing…' : `No places found for “${trimmed}”`}
+              {trimmed.length < 3
+                ? 'Keep typing to search towns and landmarks'
+                : `No matches for “${trimmed}”. Try a park, trail, town or tree.`}
             </li>
           )}
         </ul>

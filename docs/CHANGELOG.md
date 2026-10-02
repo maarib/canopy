@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
 | 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
 | 2026-10-01 | [Explore Ontario: trail and place pages](#2026-10-01-explore-ontario-trail-and-place-pages) | [#80](https://github.com/maarib/canopy/pull/80) |
@@ -16,6 +17,61 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-01 · Usability: cursors, hover states, action copy
+
+**Ref:** [#98](https://github.com/maarib/canopy/pull/98)
+
+**Before.**
+- **Cursor:** Tailwind v4 resets `<button>` to the default arrow cursor, so most clickable controls showed an arrow. Only links showed the hand.
+- **Hover:**
+  - list rows (park reports, regions, trails, trips) only faded slightly on hover
+  - home tabs, the Layers button, light options, inline links and the sheet handle had no hover state
+  - there was no consistent keyboard focus indicator
+- **Copy:** several actions were terse or ambiguous: "Book", "Park page", "Park info", "GPX", "Calendar", "Route", "New", "Reach it on", "Keep typing…", "Save a copy".
+
+**After.**
+- **Cursor:**
+  - one base rule gives the hand cursor to buttons, links, tabs, options, radios, menu items, selects, checkboxes, date inputs and labels wrapping inputs
+  - disabled controls show "not-allowed"
+  - 106 of 107 interactive elements on the home screen now show the hand. The exception is Mapbox's compass, which keeps its grab cursor because it's dragged to rotate the map.
+- **Focus:** a visible focus ring in the brand colour for keyboard users.
+- **Hover and press:**
+  - list rows get a full-width rounded highlight on hover and a darker press state (shared `ROW` style)
+  - pill buttons scale down slightly when pressed
+  - primary buttons brighten on hover
+  - inactive tabs, the Layers button (also shown as active while open), light options, inline links, the day Directions link and the sheet handle all respond on hover
+- **Copy:**
+
+  | Before | After |
+  |---|---|
+  | Directions | Get directions |
+  | Book | Reserve a site |
+  | Park page | Ontario Parks page |
+  | Park info | Official trail info |
+  | OpenStreetMap | View on OpenStreetMap |
+  | GPX | Download GPX |
+  | Calendar | Add to calendar |
+  | Route | Directions (announced as "Directions for Day N") |
+  | New | Create trip |
+  | Save a copy | Save to my trips |
+  | Reach it on | Trails that reach it |
+  | Official reports (tab) | Park reports |
+  | Search parks, towns, trees… | Search parks, trails, towns… |
+  | Keep typing… | Keep typing to search towns and landmarks |
+  | No places found for "x" | No matches for "x". Try a park, trail, town or tree. |
+  | Drag along the chart to follow the trail on the map | Hover or drag across the chart to see that spot on the map |
+  | Free day. Move a stop here with its day picker. | Nothing planned yet. Move a stop here from its day menu. |
+  | Someone shared this trip with you. | This trip was shared with you. Save it to make changes. |
+  | Visible when zoomed in | Shown when you zoom in |
+  | x colour · y bare (map popup) | x turning · y leafless |
+
+- **Error recovery:** the forecast shows "Try again" when it fails to load.
+- **Visible hints:** trips without a start date say "Set a start date to add this trip to your calendar." (previously only a hover tooltip, which phones never show).
+
+**Why.** Clickable things should look and feel clickable. Action labels should say what will happen.
 
 ---
 

@@ -134,7 +134,7 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
 
       <section className="flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(region.lat, region.lng)} icon={<LocationOn className="size-4" />}>
-          Directions
+          Get directions
         </LinkButton>
         <SaveButton stopRef={`region:${region.id}`} name={region.name} />
         <ShareButton title={`${region.name} fall colours · Canopy`} />

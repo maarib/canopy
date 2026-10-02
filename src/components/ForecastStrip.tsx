@@ -25,7 +25,14 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
           ))}
         </div>
       )}
-      {forecast.isError && <p className="text-sm text-maple">Couldn’t load the forecast.</p>}
+      {forecast.isError && (
+        <p className="flex items-center gap-2 text-sm">
+          <span className="text-[var(--ink-soft)]">Couldn’t load the forecast.</span>
+          <button onClick={() => forecast.refetch()} className="rounded-full px-2 py-0.5 text-maple transition-colors hover:bg-maple/10">
+            Try again
+          </button>
+        </p>
+      )}
       {forecast.data && (
         <ol className="grid grid-cols-7 gap-1 text-center text-xs">
           {forecast.data.map((d) => {

@@ -54,21 +54,21 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
 
       <section className="flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(park.lat, park.lng)} icon={<LocationOn className="size-4" />}>
-          Directions
+          Get directions
         </LinkButton>
         <SaveButton stopRef={`park:${park.id}`} name={parkTitle(park)} />
         <ShareButton title={`${parkTitle(park)} fall colours · Canopy`} />
         <LinkButton href="https://reservations.ontarioparks.ca/" icon={<CalendarToday className="size-4" />} external>
-          Book
+          Reserve a site
         </LinkButton>
         <LinkButton href={park.url} external>
-          Park page
+          Ontario Parks page
         </LinkButton>
       </section>
 
       <p className="text-[11px] text-[var(--ink-soft)]">
         Colour data from the{' '}
-        <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline">
+        <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
           Ontario Parks Fall Colour Report
         </a>
         .

@@ -57,8 +57,8 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
         aria-haspopup={trips.length ? 'menu' : undefined}
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition ${
-          isSaved ? 'border-maple bg-maple/10 font-medium text-maple' : 'border-[var(--line)] hover:bg-[var(--surface-2)]'
+        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition active:scale-[0.97] ${
+          isSaved ? 'border-maple bg-maple/10 font-medium text-maple hover:bg-maple/15' : 'border-[var(--line)] hover:bg-[var(--surface-2)]'
         }`}
       >
         <Bookmark className="size-4" />

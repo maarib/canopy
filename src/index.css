@@ -31,6 +31,33 @@
 }
 
 @layer base {
+  /* Hand cursor on everything clickable. Tailwind v4 resets buttons to the default cursor. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  [role='option'],
+  [role='radio'],
+  [role='menuitemcheckbox'],
+  a[href],
+  select:not(:disabled),
+  summary,
+  label:has(> input),
+  input[type='checkbox']:not(:disabled),
+  input[type='radio']:not(:disabled),
+  input[type='date']:not(:disabled) {
+    cursor: pointer;
+  }
+  :disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
+  /* Visible focus for keyboard users, in the brand colour. */
+  :focus-visible {
+    outline: 2px solid var(--color-maple);
+    outline-offset: 2px;
+  }
+
   h1,
   h2,
   h3 {

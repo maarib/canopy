@@ -11,10 +11,10 @@ import type { MapLayers } from './FoliageMap'
 const LAYER_LABELS: [keyof MapLayers, string, string][] = [
   ['reports', 'Official park reports', 'Ontario Parks, updated daily'],
   ['hexes', 'Colour sightings', 'iNaturalist, grouped by area'],
-  ['sightings', 'Individual sightings', 'Visible when zoomed in'],
-  ['trails', 'Parks Canada trails', 'Visible when zoomed in'],
+  ['sightings', 'Individual sightings', 'Shown when you zoom in'],
+  ['trails', 'Parks Canada trails', 'Shown when you zoom in'],
   ['satellite', 'Satellite view', 'NASA VIIRS true colour'],
-  ['terrain3d', '3D terrain', 'Tilt the map to see hills'],
+  ['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys'],
 ]
 
 export function LayerControl({
@@ -41,7 +41,7 @@ export function LayerControl({
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label="Map layers"
-        className="flex h-[42px] items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 text-sm font-medium shadow-md"
+        className={`flex h-[42px] items-center gap-1.5 rounded-full border border-[var(--line)] px-3 text-sm font-medium shadow-md transition-colors hover:bg-[var(--surface-2)] ${open ? 'bg-[var(--surface-2)]' : 'bg-[var(--surface)]'}`}
       >
         <Layers className="size-5" />
         <span className="hidden sm:inline">Layers</span>
@@ -86,7 +86,7 @@ export function LayerControl({
                   aria-checked={light === l}
                   onClick={() => onLight(l)}
                   className={`flex-1 rounded-full py-1 capitalize transition ${
-                    light === l ? 'bg-[var(--surface)] font-medium shadow-sm' : 'text-[var(--ink-soft)]'
+                    light === l ? 'bg-[var(--surface)] font-medium shadow-sm' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
                   }`}
                 >
                   {l}

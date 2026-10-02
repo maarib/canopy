@@ -299,7 +299,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       setPopup({
         lng: e.lngLat.lng,
         lat: e.lngLat.lat,
-        title: `${p.colored} colour · ${p.bare} bare`,
+        title: `${p.colored} turning · ${p.bare} leafless`,
         lines: [`iNaturalist sightings, last 14 days`, String(p.top)],
       })
     }
@@ -627,7 +627,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
               </div>
             ))}
             {popup.href && (
-              <a href={popup.href} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-maple underline">
+              <a href={popup.href} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-maple underline underline-offset-2 hover:brightness-90">
                 View on iNaturalist
                 <ExternalIcon className="size-3.5" />
               </a>
