@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | Activity filter PR |
+| 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | [#101](https://github.com/maarib/canopy/pull/101) |
 | 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | [#100](https://github.com/maarib/canopy/pull/100) |
 | 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | [#99](https://github.com/maarib/canopy/pull/99) |
 | 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
@@ -25,7 +25,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-02 · Filter parks by activity
 
-**Ref:** Activity filter PR
+**Ref:** [#101](https://github.com/maarib/canopy/pull/101)
 
 **Before.** Park activities and facilities were only visible inside each park's panel. To find a park with canoe rentals and hiking, you had to open parks one by one.
 
