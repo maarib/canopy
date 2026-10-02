@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | Activity filter PR |
 | 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | [#100](https://github.com/maarib/canopy/pull/100) |
 | 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | [#99](https://github.com/maarib/canopy/pull/99) |
 | 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
@@ -19,6 +20,23 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-02 · Filter parks by activity
+
+**Ref:** Activity filter PR
+
+**Before.** Park activities and facilities were only visible inside each park's panel. To find a park with canoe rentals and hiking, you had to open parks one by one.
+
+**After.**
+- **Activities button** next to Layers opens a menu of 22 filters in three groups: Activities (hiking, canoeing, fishing, biking, mountain biking, swimming, boating, overnight hiking, horseback riding, Discovery Program, dark-sky viewing), Stay (car camping, backcountry camping, cabins and yurts, electrical sites, showers) and On site (canoe and bike rentals, visitor centre, park store, dog beach, all-terrain wheelchairs).
+- **Filters combine.** A park must offer everything selected. Each option shows how many parks would remain if you added it; options that would leave none are disabled, so the map never goes empty by accident.
+- **Map and list follow the filter.** Ontario Parks pins and the Park reports list show only matching parks, with a "Parks with …" banner and a Clear button. The park you have open stays on the map. Regions, sightings and the "parks at peak" count are not filtered.
+- **Shareable.** The selection lives in the URL (`?do=hiking,canoe-rental`), like the tree filter and layers.
+- **Data.** Uses the weekly Ontario Parks snapshot from #100 (`public/data/park-facilities.json`); filter definitions live in `src/data/amenityIcons.ts` (`PARK_FILTER_GROUPS`).
+
+**Why.** Planning starts from what you want to do. "Where can I rent a canoe and hike this weekend while the colours peak?" is now one tap instead of a dozen park pages.
 
 ---
 

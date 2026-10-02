@@ -1,11 +1,12 @@
 import type { MapLayers } from '../components/FoliageMap'
 import type { TreeFilterValue } from '../components/MapControls'
+import { PARK_FILTERS } from '../data/amenityIcons'
 import type { ParkReport } from './ontarioParks'
 import { DEFAULT_LIGHT, LIGHT_PRESETS, localDate, type LightSetting } from './mapStyle'
 
 // Everything that makes a view shareable lives in the URL:
 //   path   /region/:id · /park/:id-slug
-//   query  tree=maples · layers=reports,hexes,… · date=YYYY-MM-DD · map=lat,lng,zoom
+//   query  tree=maples · do=hiking,canoe-rental · layers=reports,hexes,… · date=YYYY-MM-DD · map=lat,lng,zoom
 // Defaults are omitted so links stay short.
 
 export const DEFAULT_LAYERS: MapLayers = {
@@ -72,3 +73,11 @@ const slugify = (s: string) =>
 export const parkPath = (p: ParkReport) => `/park/${p.id}-${slugify(p.location && !p.main ? `${p.name} ${p.location}` : p.name)}`
 export const regionPath = (id: string) => `/region/${id}`
 export const parkIdFromSlug = (slug: string) => slug.split('-')[0]
+
+/** Park activity filters: do=hiking,canoe-rental */
+export const readActivities = (params: URLSearchParams): string[] =>
+  (params.get('do') ?? '').split(',').filter((id) => PARK_FILTERS.has(id))
+export function writeActivities(params: URLSearchParams, ids: string[]) {
+  if (ids.length) params.set('do', ids.join(','))
+  else params.delete('do')
+}

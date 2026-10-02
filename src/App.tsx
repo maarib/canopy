@@ -6,7 +6,10 @@ import { BottomSheet, type SnapPoint } from './components/BottomSheet'
 import type { FlyTarget, MapLayers, MapView } from './components/FoliageMap'
 import { MapSkeleton } from './components/MapSkeleton'
 import { HomePanel } from './components/HomePanel'
+import { ActivityFilter } from './components/ActivityFilter'
 import { LayerControl, Legend, TreeFilter, type TreeFilterValue } from './components/MapControls'
+import { PARK_FILTERS } from './data/amenityIcons'
+import { fetchParkFacilities, parkMatches } from './lib/parkFacilities'
 import { ParkPanel } from './components/ParkPanel'
 import { PlacePanel } from './components/PlacePanel'
 import { TrailPanel } from './components/TrailPanel'
@@ -53,9 +56,11 @@ import {
   readDate,
   readLayers,
   readLight,
+  readActivities,
   readMapView,
   readTree,
   regionPath,
+  writeActivities,
   writeLayers,
   writeLight,
   writeTree,
@@ -106,6 +111,7 @@ export default function App() {
   const sightingsLoading = sightings.isFetching && !sightings.data?.complete
   const parks = useQuery({ queryKey: ['ontario-parks'], queryFn: fetchOntarioParks })
   const explore = useQuery({ queryKey: ['explore'], queryFn: fetchExploreAreas, staleTime: Infinity })
+  const facilities = useQuery({ queryKey: ['park-facilities'], queryFn: fetchParkFacilities, staleTime: Infinity })
 
   // Flattened lookups across all explore areas.
   const exploreIndex = useMemo(() => {
@@ -121,6 +127,8 @@ export default function App() {
 
   // ── URL state ──────────────────────────────────────────────
   const treeFilter = readTree(params)
+  const activityParam = params.get('do') ?? ''
+  const activities = useMemo(() => readActivities(new URLSearchParams({ do: activityParam })), [activityParam])
   const layers = useMemo(() => readLayers(params), [params])
   const satelliteDate = readDate(params)
   const light = readLight(params)
@@ -141,6 +149,7 @@ export default function App() {
     [setParams],
   )
   const setTreeFilter = (v: TreeFilterValue) => updateParams((p) => writeTree(p, v))
+  const setActivities = (ids: string[]) => updateParams((p) => writeActivities(p, ids))
   const setLayers = (l: MapLayers) => updateParams((p) => writeLayers(p, l))
   const setSatelliteDate = (d: string) => updateParams((p) => p.set('date', d))
   const setLight = (l: LightSetting) => updateParams((p) => writeLight(p, l))
@@ -326,6 +335,26 @@ export default function App() {
 
   // ── Derived data ───────────────────────────────────────────
   const groupCounts = useMemo(() => countByGroup(sightings.data?.items ?? []), [sightings.data])
+
+  // ── Park activity filter ───────────────────────────────────
+  /** How many parks (not report locations) offer all of `ids`. */
+  const countParksWith = useCallback(
+    (ids: string[]) => {
+      if (!parks.data || !facilities.data) return 0
+      const feed = facilities.data
+      return new Set(parks.data.parks.filter((p) => parkMatches(feed, p.shortname, ids)).map((p) => p.shortname)).size
+    },
+    [parks.data, facilities.data],
+  )
+  const selectedParkId = selection?.kind === 'park' ? selection.park.id : null
+  /** Report locations matching the filter; the open park stays on the map either way. */
+  const filteredParks = useMemo(() => {
+    const all = parks.data?.parks
+    if (!all || !activities.length || !facilities.data) return all
+    const feed = facilities.data
+    return all.filter((p) => p.id === selectedParkId || parkMatches(feed, p.shortname, activities))
+  }, [parks.data, facilities.data, activities, selectedParkId])
+  const activityLabels = activities.map((id) => PARK_FILTERS.get(id)!.label)
   const visibleSightings = useMemo(
     () =>
       (sightings.data?.items ?? []).filter((o) =>
@@ -455,6 +484,8 @@ export default function App() {
       <HomePanel
         regions={REGIONS}
         parks={parks.data?.parks}
+        listParks={filteredParks}
+        activityFilter={activities.length ? { labels: activityLabels, onClear: () => setActivities([]) } : undefined}
         parksFetchedAt={parks.data?.fetchedAt}
         treeColourSightings={sightings.data?.loaded ? treeColourSightings : undefined}
         onSelectRegion={selectRegion}
@@ -508,7 +539,7 @@ export default function App() {
           <Suspense fallback={<MapSkeleton />}>
           <FoliageMap
             regions={REGIONS}
-            parks={parks.data?.parks ?? NO_PARKS}
+            parks={filteredParks ?? NO_PARKS}
             sightings={visibleSightings}
             layers={layers}
             satelliteDate={satelliteDate}
@@ -540,6 +571,7 @@ export default function App() {
                   onSelect={onSearch}
                 />
               </div>
+              <ActivityFilter value={activities} onChange={setActivities} countWith={countParksWith} ready={!!facilities.data && !!parks.data} />
               <LayerControl
                 layers={layers}
                 onChange={setLayers}

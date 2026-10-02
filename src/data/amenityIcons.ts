@@ -153,3 +153,48 @@ export const PARK_FACILITIES: Record<string, Entry> = {
   ev_charging_station: { label: 'EV charging', icon: 'ev-charging' },
   pools: { label: 'Outdoor pool', icon: 'pool' },
 }
+
+export type ParkFilter = { id: string; label: string; icon: AmenityIcon; activity?: string; facility?: string }
+
+/** Map filters for Ontario Parks pins, grouped for the filter menu. Ids are what goes in the URL. */
+export const PARK_FILTER_GROUPS: { title: string; filters: ParkFilter[] }[] = [
+  {
+    title: 'Activities',
+    filters: [
+      { id: 'hiking', label: 'Hiking', icon: 'hiking', activity: 'hiking' },
+      { id: 'canoeing', label: 'Canoeing', icon: 'canoeing', activity: 'canoeing' },
+      { id: 'fishing', label: 'Fishing', icon: 'fishing', activity: 'fishing' },
+      { id: 'biking', label: 'Biking', icon: 'biking', activity: 'biking' },
+      { id: 'mountain-biking', label: 'Mountain biking', icon: 'biking', activity: 'mountain_biking' },
+      { id: 'swimming', label: 'Swimming', icon: 'swimming', activity: 'swimming' },
+      { id: 'boating', label: 'Boating', icon: 'boating', activity: 'boating' },
+      { id: 'backpacking', label: 'Overnight hiking', icon: 'overnight', activity: 'overnight_hiking' },
+      { id: 'horseback', label: 'Horseback riding', icon: 'horseback', activity: 'horseback_riding' },
+      { id: 'discovery', label: 'Discovery Program', icon: 'discovery', activity: 'discovery_program' },
+      { id: 'dark-sky', label: 'Dark-sky viewing', icon: 'dark-sky', activity: 'dark_sky_viewing' },
+    ],
+  },
+  {
+    title: 'Stay',
+    filters: [
+      { id: 'car-camping', label: 'Car camping', icon: 'campground', activity: 'camping_car' },
+      { id: 'backcountry', label: 'Backcountry camping', icon: 'backcountry', activity: 'camping_backcountry' },
+      { id: 'cabins', label: 'Cabins & yurts', icon: 'roofed', facility: 'roofedaccommodation' },
+      { id: 'electrical', label: 'Electrical sites', icon: 'electrical', facility: 'electrical_campsites' },
+      { id: 'showers', label: 'Showers', icon: 'showers', facility: 'showers' },
+    ],
+  },
+  {
+    title: 'On site',
+    filters: [
+      { id: 'canoe-rental', label: 'Canoe rentals', icon: 'canoeing', facility: 'rental_canoe' },
+      { id: 'bike-rental', label: 'Bike rentals', icon: 'biking', facility: 'rental_bike' },
+      { id: 'visitor-centre', label: 'Visitor centre', icon: 'visitor-centre', facility: 'visitor_centres' },
+      { id: 'park-store', label: 'Park store', icon: 'park-store', facility: 'park_store' },
+      { id: 'dog-beach', label: 'Dog beach', icon: 'pets', facility: 'dog_beaches' },
+      { id: 'accessible', label: 'All-terrain wheelchairs', icon: 'accessible', facility: 'allterrain_wheelchairs' },
+    ],
+  },
+]
+
+export const PARK_FILTERS = new Map(PARK_FILTER_GROUPS.flatMap((g) => g.filters.map((f) => [f.id, f] as const)))
