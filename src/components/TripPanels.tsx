@@ -108,7 +108,7 @@ export function TripsPanel({
             const sum = totals(stops)
             return (
               <li key={t.id}>
-                <button onClick={() => onOpen(t)} className={`${ROW} py-3`}>
+                <button onClick={() => onOpen(t)} className={ROW}>
                   <span className="flex -space-x-2">
                     {stops.slice(0, 3).map((s) => (
                       <span

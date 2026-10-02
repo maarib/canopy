@@ -35,6 +35,20 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         </div>
       </header>
 
+      <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
+        <LinkButton primary href={directionsUrl(park.lat, park.lng)} icon={<LocationOn className="size-4" />}>
+          Get directions
+        </LinkButton>
+        <SaveButton stopRef={`park:${park.id}`} name={parkTitle(park)} />
+        <ShareButton title={`${parkTitle(park)} fall colours · Canopy`} />
+        <LinkButton href="https://reservations.ontarioparks.ca/" icon={<CalendarToday className="size-4" />} external>
+          Reserve a site
+        </LinkButton>
+        <LinkButton href={park.url} external>
+          Ontario Parks page
+        </LinkButton>
+      </section>
+
       <section className="space-y-3">
         <Meter label="Colour change" value={park.colourChange} color={stage.color} />
         <Meter label="Leaf fall" value={park.leafFall} color={STAGES.past.color} />
@@ -54,20 +68,6 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
 
       <ForecastStrip lat={park.lat} lng={park.lng} />
       <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} />
-
-      <section className="flex flex-wrap gap-2">
-        <LinkButton primary href={directionsUrl(park.lat, park.lng)} icon={<LocationOn className="size-4" />}>
-          Get directions
-        </LinkButton>
-        <SaveButton stopRef={`park:${park.id}`} name={parkTitle(park)} />
-        <ShareButton title={`${parkTitle(park)} fall colours · Canopy`} />
-        <LinkButton href="https://reservations.ontarioparks.ca/" icon={<CalendarToday className="size-4" />} external>
-          Reserve a site
-        </LinkButton>
-        <LinkButton href={park.url} external>
-          Ontario Parks page
-        </LinkButton>
-      </section>
 
       <p className="text-[11px] text-[var(--ink-soft)]">
         Colour data from the{' '}

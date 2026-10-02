@@ -55,6 +55,17 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
         </div>
       </header>
 
+      <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
+        <LinkButton primary href={directionsUrl(place.lat, place.lng)} icon={<LocationOn className="size-4" />}>
+          Get directions
+        </LinkButton>
+        <SaveButton stopRef={`place:${place.id}`} name={place.name} />
+        <ShareButton title={`${place.name} · Canopy`} />
+        <LinkButton href={place.osm} external>
+          View on OpenStreetMap
+        </LinkButton>
+      </section>
+
       <p className="text-sm leading-relaxed">{BLURB[place.kind]}</p>
 
       <section>
@@ -75,17 +86,6 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
 
       <ForecastStrip lat={place.lat} lng={place.lng} />
       <NearbyPhotos lat={place.lat} lng={place.lng} radiusKm={3} />
-
-      <section className="flex flex-wrap gap-2">
-        <LinkButton primary href={directionsUrl(place.lat, place.lng)} icon={<LocationOn className="size-4" />}>
-          Get directions
-        </LinkButton>
-        <SaveButton stopRef={`place:${place.id}`} name={place.name} />
-        <ShareButton title={`${place.name} · Canopy`} />
-        <LinkButton href={place.osm} external>
-          View on OpenStreetMap
-        </LinkButton>
-      </section>
 
       <p className="text-[11px] text-[var(--ink-soft)]">Place data © OpenStreetMap contributors.</p>
     </div>

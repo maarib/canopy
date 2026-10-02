@@ -13,6 +13,7 @@ import { fetchParkFacilities, parkMatches } from './lib/parkFacilities'
 import { ParkPanel } from './components/ParkPanel'
 import { FishingPanel } from './components/FishingPanel'
 import { PlacePanel } from './components/PlacePanel'
+import { SiteFooter } from './components/SiteFooter'
 import { accessTitle, fetchFishingAccess, fishingIdFromSlug, fishingPath, type FishingAccess } from './lib/fishingAccess'
 import { TrailPanel } from './components/TrailPanel'
 import { TripPanel, TripsPanel, type StopInfo } from './components/TripPanels'
@@ -561,7 +562,10 @@ export default function App() {
 
       <main className="relative flex min-h-0 flex-1">
         {isDesktop && (
-          <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-[var(--line)]">{panel}</aside>
+          <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-[var(--line)]">
+            {panel}
+            <SiteFooter />
+          </aside>
         )}
 
         <div className="relative min-w-0 flex-1">
@@ -628,6 +632,7 @@ export default function App() {
         {!isDesktop && (
           <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey}>
             {panel}
+            <SiteFooter />
           </BottomSheet>
         )}
       </main>

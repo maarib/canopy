@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { ArrowBack, ArrowForward, Check, Link } from 'relume-icons'
+import { ICON_TILE, INFO_ROW } from '../lib/styles'
 
 export function BackButton({ onClick }: { onClick: () => void }) {
   return (
@@ -146,5 +147,19 @@ export function ProgressBar({ value, label }: { value: number; label: string }) 
     >
       <div className="h-full bg-pumpkin transition-[width] duration-500 ease-out" style={{ width: `${Math.max(4, value * 100)}%` }} />
     </div>
+  )
+}
+
+/** A fact, facility or activity: icon tile, label (and optional detail), value on the right. Same size as tappable rows. */
+export function InfoRow({ icon, label, detail, value }: { icon?: ReactNode; label: ReactNode; detail?: ReactNode; value?: ReactNode }) {
+  return (
+    <li className={INFO_ROW}>
+      {icon && <span className={`${ICON_TILE} bg-[var(--surface-2)]`}>{icon}</span>}
+      <span className="min-w-0 flex-1">
+        <span className="block font-medium">{label}</span>
+        {detail && <span className="block text-xs text-[var(--ink-soft)]">{detail}</span>}
+      </span>
+      {value != null && <span className="shrink-0 text-sm tabular-nums text-[var(--ink-soft)]">{value}</span>}
+    </li>
   )
 }

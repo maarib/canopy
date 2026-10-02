@@ -138,7 +138,7 @@ function ParkList({
           const stage = STAGES[p.stage]
           return (
             <li key={p.id}>
-              <button onClick={() => onSelect(p)} className={`${ROW} py-2.5`}>
+              <button onClick={() => onSelect(p)} className={ROW}>
                 <span className="size-3 shrink-0 rounded-full" style={{ background: stage.color }} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{parkTitle(p)}</span>
@@ -176,7 +176,7 @@ function RegionList({ regions, onSelect }: { regions: Region[]; onSelect: (r: Re
           const phase = PHASE_STYLE[peakPhase(r)]
           return (
             <li key={r.id}>
-              <button onClick={() => onSelect(r)} className={`${ROW} py-2.5`}>
+              <button onClick={() => onSelect(r)} className={ROW}>
                 <TreeIcon id={signatureTree(r)} className="size-6 shrink-0" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{r.name}</span>

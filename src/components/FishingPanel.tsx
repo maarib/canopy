@@ -3,7 +3,8 @@ import { ACCESS_ICONS, ACCESS_TYPES, accessTitle, FISH_ONLINE, type AccessType, 
 import { directionsUrl } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
 import { AmenityIcon } from './ParkAmenities'
-import { BackButton, LinkButton, ShareButton } from './ui'
+import { LIST } from '../lib/styles'
+import { BackButton, InfoRow, LinkButton, ShareButton } from './ui'
 
 const REGULATIONS = 'https://www.ontario.ca/document/ontario-fishing-regulations-summary'
 
@@ -40,30 +41,7 @@ export function FishingPanel({ access, onBack }: { access: FishingAccess; onBack
         </div>
       </header>
 
-      <p className="text-sm leading-relaxed">{BLURB[access.type]}</p>
-
-      {facts.length > 0 && (
-        <dl className="grid grid-cols-2 gap-1.5 text-sm">
-          {facts.map(([label, value]) => (
-            <div key={label} className="rounded-xl bg-[var(--surface-2)] px-3 py-2">
-              <dt className="text-xs text-[var(--ink-soft)]">{label}</dt>
-              <dd className="font-medium">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-
-      <ForecastStrip lat={access.lat} lng={access.lng} />
-
-      <section className="space-y-1.5 text-sm">
-        <h3 className="text-lg">Before you go</h3>
-        <p className="text-[var(--ink-soft)]">
-          Most Ontario residents aged 18–64 need an outdoors card and fishing licence. Seasons, sanctuaries and catch limits vary by zone
-          and lake.
-        </p>
-      </section>
-
-      <section className="flex flex-wrap gap-2">
+      <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(access.lat, access.lng)} icon={<LocationOn className="size-4" />}>
           Get directions
         </LinkButton>
@@ -79,6 +57,26 @@ export function FishingPanel({ access, onBack }: { access: FishingAccess; onBack
             More info
           </LinkButton>
         )}
+      </section>
+
+      <p className="text-sm leading-relaxed">{BLURB[access.type]}</p>
+
+      {facts.length > 0 && (
+        <ul className={LIST}>
+          {facts.map(([label, value]) => (
+            <InfoRow key={label} label={label} value={value} />
+          ))}
+        </ul>
+      )}
+
+      <ForecastStrip lat={access.lat} lng={access.lng} />
+
+      <section className="space-y-1.5 text-sm">
+        <h3 className="text-lg">Before you go</h3>
+        <p className="text-[var(--ink-soft)]">
+          Most Ontario residents aged 18–64 need an outdoors card and fishing licence. Seasons, sanctuaries and catch limits vary by zone
+          and lake.
+        </p>
       </section>
 
       <p className="text-[11px] text-[var(--ink-soft)]">

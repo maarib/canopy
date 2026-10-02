@@ -44,6 +44,24 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
         </div>
       </header>
 
+      <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
+        <LinkButton primary href={directionsUrl(region.lat, region.lng)} icon={<LocationOn className="size-4" />}>
+          Get directions
+        </LinkButton>
+        <SaveButton stopRef={`region:${region.id}`} name={region.name} />
+        <ShareButton title={`${region.name} fall colours · Canopy`} />
+        {region.links.map((l) => (
+          <LinkButton
+            key={l.url}
+            href={l.url}
+            external
+            icon={/book|reserv/i.test(l.label) ? <CalendarToday className="size-4" /> : undefined}
+          >
+            {l.label}
+          </LinkButton>
+        ))}
+      </section>
+
       <ForecastStrip lat={region.lat} lng={region.lng} />
 
       <section>
@@ -132,23 +150,6 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
 
       <NearbyPhotos lat={region.lat} lng={region.lng} />
 
-      <section className="flex flex-wrap gap-2">
-        <LinkButton primary href={directionsUrl(region.lat, region.lng)} icon={<LocationOn className="size-4" />}>
-          Get directions
-        </LinkButton>
-        <SaveButton stopRef={`region:${region.id}`} name={region.name} />
-        <ShareButton title={`${region.name} fall colours · Canopy`} />
-        {region.links.map((l) => (
-          <LinkButton
-            key={l.url}
-            href={l.url}
-            external
-            icon={/book|reserv/i.test(l.label) ? <CalendarToday className="size-4" /> : undefined}
-          >
-            {l.label}
-          </LinkButton>
-        ))}
-      </section>
     </div>
   )
 }

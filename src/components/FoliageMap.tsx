@@ -407,12 +407,12 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       terrain={layers.terrain3d ? { source: 'mapbox-dem', exaggeration: 1.4 } : undefined}
     >
       <NavigationControl position="top-right" visualizePitch />
-      <AttributionControl compact position="bottom-right" />
 
       {/*
         Mapbox Standard slots: "bottom" sits on land/water under roads, "middle" above roads
         under labels and 3D, "top" above everything. Within a slot, later layers draw on top.
       */}
+      <AttributionControl compact position="bottom-right" />
       <Source id="mapbox-dem" type="raster-dem" url={MAPBOX_DEM} tileSize={512} maxzoom={14}>
         <Layer
           id="hillshade"

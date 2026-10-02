@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | Layout PR |
 | 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
 | 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | [#101](https://github.com/maarib/canopy/pull/101) |
 | 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | [#100](https://github.com/maarib/canopy/pull/100) |
@@ -21,6 +22,24 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-02 · Detail page layout, list rows, footer
+
+**Ref:** Layout PR
+
+**Before.**
+- On region, park, trail, place and fishing pages, the action buttons (directions, save, share, booking and source links) sat at the bottom, below the forecast and photos.
+- Park activities were small chips and facilities were two-column tiles, each a different size from the app's other lists. Tappable rows set their own padding (`py-2.5` or `py-3`), so row heights varied slightly.
+- No footer: data credits were scattered across panels.
+
+**After.**
+- **Actions first.** On every detail page the buttons sit directly under the status line (colour stage and report date, or the type line), so directions and save are reachable without scrolling. The Save menu now opens downward to fit its new position.
+- **One row style.** `src/lib/styles.ts` defines the app's row: at least 56 px tall with a 40 px icon tile (`ROW` for tappable rows, `INFO_ROW` for facts, `ICON_TILE`, `LIST`). A shared `InfoRow` component renders icon, label and a right-aligned value. Park activities and facilities and fishing access facts now use full-width rows (activities show six, then "Show more"); park, region, trail and trip lists use the same height.
+- **Footer** at the end of every panel: © Canopy, a link to maaribs.com, and credits for every source (Ontario Parks, iNaturalist, Ontario Ministry of Natural Resources, Parks Canada, NASA GIBS, Open-Meteo, OpenStreetMap contributors, Mapbox) with their licences, and Icons8 for icons.
+
+**Why.** Actions are what people come to a detail page for. Taller rows are easier to scan and tap, and one size everywhere makes the app feel consistent. The footer puts attribution in one predictable place.
 
 ---
 
