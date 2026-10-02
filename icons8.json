@@ -1,0 +1,394 @@
+{
+  "version": 2,
+  "icons": {
+    "pack": "fluent",
+    "sizes": [
+      24,
+      48
+    ],
+    "color": "original",
+    "items": {
+      "waterfall": {
+        "id": "ACpXOMJTLZeO",
+        "label": "Waterfall"
+      },
+      "lookout": {
+        "id": "rEvs4RThYzFT",
+        "label": "Lookout"
+      },
+      "tower": {
+        "id": "8q8CHk0foXqh",
+        "label": "Fire / observation tower",
+        "standIn": true
+      },
+      "peak": {
+        "id": "dS4yBBYCfo3q",
+        "label": "Peak"
+      },
+      "lake": {
+        "id": "A9oi47sp8PRq",
+        "label": "Lake"
+      },
+      "river": {
+        "id": "BxDXJlL8qTUx",
+        "label": "River",
+        "standIn": true
+      },
+      "creek": {
+        "id": "kV1aGsF13WBt",
+        "label": "Creek"
+      },
+      "beach": {
+        "id": "JxowWafYSEQ6",
+        "label": "Beach"
+      },
+      "island": {
+        "id": "PlKV98BBmeZf",
+        "label": "Island"
+      },
+      "wetland": {
+        "id": "12tVexM3Oo21",
+        "label": "Wetland / bog"
+      },
+      "cave": {
+        "id": "NTlxDsp5FuMa",
+        "label": "Cave"
+      },
+      "forest": {
+        "id": "OL4KnqW4o3W0",
+        "label": "Old-growth forest"
+      },
+      "dark-sky": {
+        "id": "K7IwrqI6sWBi",
+        "label": "Dark-sky viewing"
+      },
+      "wildflowers": {
+        "id": "4HarEXA7jRrw",
+        "label": "Wildflowers"
+      },
+      "mushrooms": {
+        "id": "ELWgPsjUk2eD",
+        "label": "Mushrooms"
+      },
+      "berries": {
+        "id": "5fIvxsQAKu6e",
+        "label": "Berry picking"
+      },
+      "sunflowers": {
+        "id": "HIbj7WorHLRT",
+        "label": "Sunflower field"
+      },
+      "lavender": {
+        "id": "vgvdUorODfWE",
+        "label": "Lavender farm"
+      },
+      "cranberry": {
+        "id": "V1BFyoBBQub7",
+        "label": "Cranberry bog",
+        "standIn": true
+      },
+      "birding": {
+        "id": "RZSnN3dwr7cT",
+        "label": "Birding hotspot"
+      },
+      "wildlife": {
+        "id": "QPuuzpIlLDhj",
+        "label": "Wildlife viewing"
+      },
+      "apple-orchard": {
+        "id": "s3EqD09UVwX5",
+        "label": "Apple orchard"
+      },
+      "pumpkin-patch": {
+        "id": "nL40sAR12lU3",
+        "label": "Pumpkin patch"
+      },
+      "corn-maze": {
+        "id": "2rMSfiGkuMng",
+        "label": "Corn maze"
+      },
+      "sugar-shack": {
+        "id": "61lIdqtiPJI1",
+        "label": "Sugar shack"
+      },
+      "farm-market": {
+        "id": "F22ZxhQnpV4G",
+        "label": "Farm market"
+      },
+      "farmers-market": {
+        "id": "IDS6JTU1v8r1",
+        "label": "Farmers' market"
+      },
+      "winery": {
+        "id": "afMrhPmVhNz9",
+        "label": "Winery"
+      },
+      "brewery": {
+        "id": "rMv4B3bzTLCX",
+        "label": "Brewery"
+      },
+      "fall-fair": {
+        "id": "GcXOV6oxlohB",
+        "label": "Fall fair"
+      },
+      "hayride": {
+        "id": "XD0uO2KWD6pH",
+        "label": "Hayride"
+      },
+      "food": {
+        "id": "KiQusNWBmj8E",
+        "label": "Food & concessions"
+      },
+      "trail": {
+        "id": "z4PAfSteT7Sv",
+        "label": "Trail"
+      },
+      "hiking": {
+        "id": "hDc0KaCEHnX9",
+        "label": "Hiking"
+      },
+      "overnight": {
+        "id": "53JwZqiNlONr",
+        "label": "Overnight hiking"
+      },
+      "biking": {
+        "id": "EuCILJ2WLuTN",
+        "label": "Biking"
+      },
+      "horseback": {
+        "id": "8Xchc283yid4",
+        "label": "Horseback riding"
+      },
+      "scenic-drive": {
+        "id": "DKG5EanykiIZ",
+        "label": "Scenic drive"
+      },
+      "colour-train": {
+        "id": "NciuTjfiAILp",
+        "label": "Fall colour train"
+      },
+      "gondola": {
+        "id": "FEaAMT8vTvoO",
+        "label": "Gondola / chairlift"
+      },
+      "photography": {
+        "id": "axDKtYcsdOEA",
+        "label": "Photo spot"
+      },
+      "picnic": {
+        "id": "JGbBwPEzVQhE",
+        "label": "Picnic area"
+      },
+      "discovery": {
+        "id": "KPmthqkeTgDN",
+        "label": "Discovery program",
+        "standIn": true
+      },
+      "hunting": {
+        "id": "5ndWrWDbTE2Y",
+        "label": "Hunting",
+        "standIn": true
+      },
+      "fishing": {
+        "id": "V7OuQD53pEJV",
+        "label": "Fishing"
+      },
+      "swimming": {
+        "id": "Tw0qAYPwfEHy",
+        "label": "Swimming",
+        "standIn": true
+      },
+      "canoeing": {
+        "id": "rb7RHfMsD5Cv",
+        "label": "Canoeing",
+        "standIn": true
+      },
+      "boating": {
+        "id": "VEmoNmOxAYjG",
+        "label": "Boating",
+        "standIn": true
+      },
+      "kite-boarding": {
+        "id": "MtJjsxi0Sp0N",
+        "label": "Kite boarding",
+        "standIn": true
+      },
+      "campground": {
+        "id": "cSDbz8YVA0WI",
+        "label": "Car camping"
+      },
+      "backcountry": {
+        "id": "2pdigVffP8a8",
+        "label": "Backcountry camping"
+      },
+      "group-camping": {
+        "id": "hlk4Wa3wyoi9",
+        "label": "Group camping",
+        "standIn": true
+      },
+      "rv": {
+        "id": "2nQwWmC0DmyL",
+        "label": "RV & electrical sites"
+      },
+      "roofed": {
+        "id": "2f51y9VG56GI",
+        "label": "Cabins & yurts"
+      },
+      "campfire": {
+        "id": "8U9W747SicvQ",
+        "label": "Fire pit"
+      },
+      "radio-free": {
+        "id": "8PAP8l5Ua2BB",
+        "label": "Radio-free"
+      },
+      "dog-free": {
+        "id": "VZAgoBp5e7y8",
+        "label": "Dog-free"
+      },
+      "parking": {
+        "id": "7JOuHontlJ8Z",
+        "label": "Parking"
+      },
+      "toilets": {
+        "id": "BdTq6PHKWoXG",
+        "label": "Toilets"
+      },
+      "showers": {
+        "id": "8hIEIzvNqz9b",
+        "label": "Showers"
+      },
+      "drinking-water": {
+        "id": "uwaK1f40TDMg",
+        "label": "Drinking water"
+      },
+      "picnic-shelter": {
+        "id": "vj89iMrGJCRI",
+        "label": "Picnic shelter"
+      },
+      "visitor-centre": {
+        "id": "A21WjJlVSGoO",
+        "label": "Visitor centre"
+      },
+      "park-store": {
+        "id": "GuOROHDN3mQt",
+        "label": "Park store"
+      },
+      "boat-launch": {
+        "id": "vWco1H95hlEW",
+        "label": "Boat launch"
+      },
+      "dock": {
+        "id": "uh95hHRSirLe",
+        "label": "Dock"
+      },
+      "rentals": {
+        "id": "VYvOvJrZaC9T",
+        "label": "Rentals (bike, canoe, kayak)",
+        "standIn": true
+      },
+      "accessible": {
+        "id": "mzSrRrExRUWn",
+        "label": "All-terrain wheelchair"
+      },
+      "ev-charging": {
+        "id": "5XZRgEg2SRb9",
+        "label": "EV charging",
+        "standIn": true
+      },
+      "wifi": {
+        "id": "v7tOAXMgasm0",
+        "label": "Public Wi-Fi"
+      },
+      "laundry": {
+        "id": "nuFLBFhvsjuK",
+        "label": "Laundromat"
+      },
+      "playground": {
+        "id": "UHXECYVupoSY",
+        "label": "Playground"
+      },
+      "pets": {
+        "id": "THCqYbNIqWe8",
+        "label": "Dog beach / pet area"
+      },
+      "fish-cleaning": {
+        "id": "59n5849FEYbs",
+        "label": "Fish cleaning station",
+        "standIn": true
+      },
+      "dump-station": {
+        "id": "VIIZWNhpAM3w",
+        "label": "Trailer dump station",
+        "standIn": true
+      },
+      "gas": {
+        "id": "9JHIJk60xdLp",
+        "label": "Gas station"
+      },
+      "lighthouse": {
+        "id": "ONTrjPyb2zI6",
+        "label": "Lighthouse"
+      },
+      "historic": {
+        "id": "8rX8iVhY7PYG",
+        "label": "Historic site"
+      },
+      "museum": {
+        "id": "svF8ZHwtgbpX",
+        "label": "Museum"
+      },
+      "art-gallery": {
+        "id": "Segceu5oDSqd",
+        "label": "Art gallery"
+      },
+      "amphitheatre": {
+        "id": "cS2EKu8kKCRH",
+        "label": "Amphitheatre"
+      },
+      "mill": {
+        "id": "vy5JlGHJcHn9",
+        "label": "Historic mill",
+        "standIn": true
+      },
+      "bridge": {
+        "id": "pZX14QyxHwA1",
+        "label": "Bridge"
+      },
+      "ferry": {
+        "id": "6LBJ76d5Cka1",
+        "label": "Ferry"
+      },
+      "skiing": {
+        "id": "CI5wsCvZG0rY",
+        "label": "Cross-country skiing"
+      },
+      "snowshoeing": {
+        "id": "0bnWYA0ITAdD",
+        "label": "Snowshoeing",
+        "standIn": true
+      },
+      "skating": {
+        "id": "MPpoyzWsSLLt",
+        "label": "Ice skating"
+      },
+      "dogsledding": {
+        "id": "FXCZgLgKpBk6",
+        "label": "Dogsledding",
+        "standIn": true
+      }
+    },
+    "gaps": [
+      "cidery",
+      "mountain-biking",
+      "climbing",
+      "disc-golf",
+      "kayaking",
+      "whitewater",
+      "sup",
+      "snowmobiling",
+      "tobogganing"
+    ],
+    "note": "Tree and leaf icons are Canopy's own (src/lib/leafShapes.ts); every other place, activity and facility uses this pack."
+  }
+}
