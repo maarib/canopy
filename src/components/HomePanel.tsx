@@ -154,9 +154,7 @@ function RegionList({ regions, onSelect }: { regions: Region[]; onSelect: (r: Re
           return (
             <li key={r.id}>
               <button onClick={() => onSelect(r)} className={`${ROW} py-2.5`}>
-                <span className="shrink-0" style={{ color: phase.color }}>
-                  <TreeIcon id={signatureTree(r)} className="size-5" />
-                </span>
+                <TreeIcon id={signatureTree(r)} className="size-6 shrink-0" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{r.name}</span>
                   <span className="text-xs text-[var(--ink-soft)]">

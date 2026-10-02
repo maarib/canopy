@@ -53,7 +53,7 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
             const icon = treeIconFor(s)
             return (
               <li key={s} className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm">
-                {icon && <TreeIcon id={icon} className="size-4 text-pumpkin" />}
+                {icon && <TreeIcon id={icon} className="size-[18px]" />}
                 {s}
               </li>
             )

@@ -18,6 +18,8 @@
   --ink: #2a211c;
   --ink-soft: #6f625a;
   --line: #e7ddd1;
+  /* Stem and vein colour for the two-colour tree icons. */
+  --leaf-ink: #2d3550;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,6 +29,7 @@
     --ink: #f3ebe2;
     --ink-soft: #b3a69a;
     --line: #3a312a;
+    --leaf-ink: #f1e8dd;
   }
 }
 

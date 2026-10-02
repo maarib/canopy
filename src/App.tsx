@@ -193,12 +193,12 @@ export default function App() {
         const r = REGIONS.find((x) => x.id === id)
         if (!r) return null
         const color = PHASE_STYLE[peakPhase(r)].color
-        return { ref, kind, name: r.name, lng: r.lng, lat: r.lat, color, icon: <TreeIcon id={signatureTree(r)} className="size-4" />, detail: `${r.province} · Region` }
+        return { ref, kind, name: r.name, lng: r.lng, lat: r.lat, color, icon: <TreeIcon id={signatureTree(r)} tone="mono" className="size-4" />, detail: `${r.province} · Region` }
       }
       if (kind === 'park') {
         const p = parks.data?.parks.find((x) => x.id === id)
         if (!p) return null
-        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: STAGES[p.stage].color, icon: <TreeIcon id="maples" className="size-4" />, detail: `Provincial park · ${p.colourChange ?? 0}% colour` }
+        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: STAGES[p.stage].color, icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${p.colourChange ?? 0}% colour` }
       }
       if (kind === 'trail') {
         const t = exploreIndex.trailById.get(id)
@@ -466,7 +466,7 @@ export default function App() {
     <div className="flex h-full flex-col">
       <header className="relative z-30 flex items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)] px-5 py-3">
         <button onClick={goHome} className="flex items-center gap-2" aria-label="Canopy home">
-          <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-6" />
+          <TreeIcon id="maples" className="size-7" />
           <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         </button>
         <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Fall colours across Canada</span>
