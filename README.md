@@ -17,6 +17,10 @@
 - **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon.
 - **More layers:** Parks Canada trails, a NASA VIIRS satellite view with a date picker, and 3D terrain.
 
+### Park activities and facilities
+- **Every park page** lists what you can do there (hiking, canoeing, fishing, biking, swimming, camping types and more) and what's on site (campsites by type with counts, comfort stations, boat launches, docks, park store, visitor centre, rentals), taken from Ontario Parks' own park pages.
+- **Icons:** activities and facilities use the Icons8 *Windows 11 Color* set (locked in `icons8.json`); trees keep Canopy's own leaf icons.
+
 ### Places with their own pages
 - **Regions** (15, hand-picked): typical peak window, a 7-day colour outlook, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
 - **Ontario provincial parks:** the official report (colour %, leaf fall %, dominant colour, viewing tips), outlook, photos, directions and booking.
@@ -46,6 +50,7 @@
 | Data | How it arrives | Freshness |
 |---|---|---|
 | Ontario Parks reports | Snapshot `public/data/ontario-parks.json`, built by `scripts/scrape-ontario-parks.mjs` | Daily, Sept–Nov (GitHub Action) |
+| Park activities and facilities | Snapshot `public/data/park-facilities.json`, built by `scripts/scrape-park-facilities.mjs` from all ~340 Ontario Parks park pages (1 s between requests) | Weekly (GitHub Action) |
 | Trails and places (Explore) | Snapshot `public/data/explore/<area>.json`, built by `scripts/build-explore.mjs` | Weekly (GitHub Action) |
 | iNaturalist sightings | Live from API v2 (only the fields used), streamed page by page; cached on the device for 30 min | Live, last 14 days |
 | Nearby photos | Live from iNaturalist | Live |
@@ -86,6 +91,7 @@ npm run dev
 | `npm run lint` | oxlint |
 | `npm run data:ontario-parks` | Refresh the Ontario Parks snapshot |
 | `npm run data:explore [area]` | Rebuild trails and places (all areas, or one) |
+| `npm run data:park-facilities [slug…]` | Refresh park activities and facilities (all parks, or the ones named) |
 
 **Deploys:** the Pages build reads `VITE_MAPBOX_TOKEN` from a repository variable and serves the app under `/canopy/` (`BASE_PATH`).
 
@@ -96,10 +102,10 @@ src/
   App.tsx              routes → selection → panels + map
   components/          map (FoliageMap), panels (Home, Region, Park, Trail, Place),
                        search, bottom sheet, elevation chart, icons, skeletons
-  data/                regions, tree groups, tree icon ids
+  data/                regions, tree groups, tree icon ids, amenity icons (Icons8 ids)
   lib/                 data clients (iNaturalist, Ontario Parks, explore, trails, weather),
                        URL state, search, map style, hexbins, stages
-scripts/               data builders (Ontario Parks, explore areas)
+scripts/               data builders (Ontario Parks reports and facilities, explore areas)
 public/data/           built data snapshots
 docs/                  PRD, technical plan, Explore design, change log
 .github/workflows/     CI, deploy, daily parks data, weekly explore data
@@ -135,6 +141,8 @@ Tracked as epics and milestones on the [project board](https://github.com/users/
 
 - **Basemap:** © [Mapbox](https://www.mapbox.com/about/maps/) · © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
 - **Park reports:** [Ontario Parks Fall Colour Report](https://www.ontarioparks.ca/fallcolour)
+- **Park activities and facilities:** [Ontario Parks](https://www.ontarioparks.ca) park pages
+- **Activity and facility icons:** [Icons8](https://icons8.com) (Windows 11 Color)
 - **Trails (Ontario):** [Ontario Trail Network](https://data.ontario.ca/dataset/ontario-trail-network), Ministry of Natural Resources, Open Government Licence – Ontario
 - **Trails (national parks):** [Parks Canada](https://open.canada.ca/data/en/dataset/64a90e8d-5bc0-4027-8645-b5881b4068d4), Open Government Licence – Canada
 - **Waterfalls, lookouts, lakes, creeks:** © OpenStreetMap contributors (ODbL)

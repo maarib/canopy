@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "data:ontario-parks": "node scripts/scrape-ontario-parks.mjs",
-    "data:explore": "node scripts/build-explore.mjs"
+    "data:explore": "node scripts/build-explore.mjs",
+    "data:park-facilities": "node scripts/scrape-park-facilities.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.0",

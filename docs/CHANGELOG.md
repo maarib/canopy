@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | Park facilities PR |
 | 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
 | 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
@@ -17,6 +18,37 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-02 · Park activities and facilities
+
+**Ref:** Park facilities PR
+
+**Before.** A park page showed the fall colour report (colour change, leaf fall, best viewing), the forecast, nearby photos and links. Nothing said what you could do at the park or what was there: campsites, washrooms, boat launches, rentals.
+
+**Research.** Candidate sources for activities, facilities and other map markers, checked on 2026-10-02:
+
+| Source | What it offers | Access | Used here |
+|---|---|---|---|
+| Ontario Parks park pages | About 30 activities and 48 facilities per park, with counts and "Not available" flags, across all ~340 parks listed in the site map | No API; HTML pages. `robots.txt` allows crawling with a 1 s delay | Yes |
+| OpenStreetMap (Overpass) | Ontario counts: 377 orchards (25 tagged apple), 1,246 boat launches, 4,759 campsites, 3,898 toilets, 1,877 beaches, 1,067 waterfalls, 333 wineries/cideries/breweries, 334 lighthouses, 28 mazes | API, ODbL | Later |
+| Fish ON-Line / Fishing access points (MNRF) | 3,731 access points (shore, dock, boat launch) with parking and fee attributes; species and stocking for 20,000+ lakes | Download, OGL-Ontario | Later |
+| Parks Canada open data | Facilities, campsites, trails, points of interest for national parks and historic sites | Download, OGL-Canada | Later |
+| eBird API 2.0 | Birding hotspots for CA-ON | API, free key | Later |
+| Canadian Geographical Names | Official names for falls, rapids, lakes, creeks | API | Later |
+| Ontario Apple Growers | Pick-your-own farms and cideries | Website only, no API | Later (curated) |
+
+Ontario Parks came first because every park already on the map gains the data, and it is the richest per-park source.
+
+**After.**
+- **Scraper.** `scripts/scrape-park-facilities.mjs` reads the park list from the Ontario Parks site map, fetches each park page one second apart, and reads the `park-icon` images under the Facilities and Activities headings. The icon file name is the key (`boat_launches`, with `_inactive` when not offered) and the tooltip holds the label and count. It also records the park classification, year established and size. Output: `public/data/park-facilities.json` ({PARKS} parks, {SIZE} KB). The file is only rewritten when something changed.
+- **Weekly refresh.** `.github/workflows/park-facilities.yml` runs it on Mondays and commits changes.
+- **Park panel.** A new *Things to do* section lists activities as icon chips, ordered for fall visits (hiking and paddling first, winter activities last, with the first eight shown). A *Facilities* section groups what's on site into Camping (site types with counts), On site and Rentals, with the total campsite count.
+- **Icons.** Activities and facilities use Icons8 *Windows 11 Color* (pack `fluent`), locked in `icons8.json` with every chosen icon id. Tree and leaf icons stay Canopy's own. `src/data/amenityIcons.ts` maps each Ontario Parks key to a label and icon; keys we haven't mapped fall back to Ontario Parks' own label. Icons load as PNG from the Icons8 CDN with an attribution link.
+- **Icon gaps.** Windows 11 Color has no kayak, canoe, paddleboard, whitewater, mountain bike, rock climbing, snowmobile, toboggan or cidery icon. Paddling uses the dinghy, mountain biking the bicycle, snowmobiling a winter icon.
+
+**Why.** "What can I do there?" is the next question after "Is it at peak?", and the answer decides the trip: whether there's a trail, a canoe rental or a campsite with power.
 
 ---
 
