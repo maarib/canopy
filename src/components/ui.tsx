@@ -70,11 +70,11 @@ export function Meter({ label, value, color }: { label: string; value: number | 
   )
 }
 
-/** Native share sheet where available (phones), otherwise copy the link. */
-export function ShareButton({ title }: { title: string }) {
+/** Native share sheet where available (phones), otherwise copy the link. Shares the current page unless `url` is given. */
+export function ShareButton({ title, url: shareUrl, label = 'Share' }: { title: string; url?: string; label?: string }) {
   const [copied, setCopied] = useState(false)
   async function share() {
-    const url = window.location.href
+    const url = shareUrl ?? window.location.href
     if (navigator.share) {
       try {
         await navigator.share({ title, url })
@@ -98,7 +98,7 @@ export function ShareButton({ title }: { title: string }) {
       aria-live="polite"
     >
       {copied ? <Check className="size-4 text-spruce dark:text-[#a9cf8f]" /> : <Link className="size-4" />}
-      {copied ? 'Link copied' : 'Share'}
+      {copied ? 'Link copied' : label}
     </button>
   )
 }

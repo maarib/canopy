@@ -15,6 +15,7 @@ import { ElevationChart } from './ElevationChart'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { PlaceIcon } from './PlaceIcon'
+import { SaveButton } from './SaveButton'
 import { BackButton, Badge, LinkButton, ShareButton } from './ui'
 
 type Props = {
@@ -122,6 +123,7 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         <LinkButton primary href={directionsUrl(trail.trailhead[1], trail.trailhead[0])} icon={<LocationOn className="size-4" />}>
           Directions to trailhead
         </LinkButton>
+        <SaveButton stopRef={`trail:${trail.id}`} name={trail.name} />
         <ShareButton title={`${trail.name} · Canopy`} />
         <button
           onClick={() =>
