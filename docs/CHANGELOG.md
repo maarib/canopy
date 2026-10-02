@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | Trips PR |
+| 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
 | 2026-10-01 | [Explore Ontario: trail and place pages](#2026-10-01-explore-ontario-trail-and-place-pages) | [#80](https://github.com/maarib/canopy/pull/80) |
 | 2026-10-01 | [Map engine: MapLibre + OpenFreeMap → Mapbox](#2026-10-01-map-engine-maplibre--openfreemap--mapbox) | [#78](https://github.com/maarib/canopy/pull/78) |
@@ -21,7 +21,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-01 · Trips: save, plan by day, share
 
-**Ref:** Trips PR · Issues #46, #47, #26 · Epic #91
+**Ref:** [#97](https://github.com/maarib/canopy/pull/97) · Issues #46, #47, #26 · Epic #91
 
 **Before.**
 - No way to save anything. Planning a visit meant keeping a list elsewhere.
