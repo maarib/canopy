@@ -11,7 +11,9 @@ import { LayerControl, Legend, TreeFilter, type TreeFilterValue } from './compon
 import { PARK_FILTERS } from './data/amenityIcons'
 import { fetchParkFacilities, parkMatches } from './lib/parkFacilities'
 import { ParkPanel } from './components/ParkPanel'
+import { FishingPanel } from './components/FishingPanel'
 import { PlacePanel } from './components/PlacePanel'
+import { accessTitle, fetchFishingAccess, fishingIdFromSlug, fishingPath, type FishingAccess } from './lib/fishingAccess'
 import { TrailPanel } from './components/TrailPanel'
 import { TripPanel, TripsPanel, type StopInfo } from './components/TripPanels'
 import { PlaceIcon } from './components/PlaceIcon'
@@ -68,6 +70,7 @@ import {
 
 /** Stable empty list, so memoized children don't re-render while parks load. */
 const NO_PARKS: ParkReport[] = []
+const NO_FISHING: FishingAccess[] = []
 
 // The map engine (~500 KB gzipped) loads in parallel while the panels render.
 const FoliageMap = lazy(() => import('./components/FoliageMap').then((m) => ({ default: m.FoliageMap })))
@@ -78,6 +81,7 @@ type Selection =
   | { kind: 'loading' }
   | { kind: 'trail'; trail: Trail; area: ExploreArea }
   | { kind: 'place'; place: Place; area: ExploreArea }
+  | { kind: 'fishing'; access: FishingAccess }
   | { kind: 'trips' }
   | { kind: 'trip'; trip: Trip }
   | { kind: 'shared-trip'; trip: SharedTrip }
@@ -158,6 +162,15 @@ export default function App() {
   const parkMatch = matchPath('/park/:slug', location.pathname)
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
+  const fishingMatch = matchPath('/fishing/:slug', location.pathname)
+  // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
+  const fishing = useQuery({
+    queryKey: ['fishing-access'],
+    queryFn: fetchFishingAccess,
+    staleTime: Infinity,
+    enabled: layers.fishing || !!fishingMatch,
+  })
+  const fishingById = useMemo(() => new Map((fishing.data?.points ?? []).map((a) => [a.id, a] as const)), [fishing.data])
   const tripsMatch = matchPath('/trips', location.pathname)
   const tripMatch = matchPath('/trip/:id', location.pathname)
   const trips = useTrips()
@@ -182,6 +195,11 @@ export default function App() {
       const park = parks.data.parks.find((p) => p.id === id)
       return park ? { kind: 'park', park } : { kind: 'missing' }
     }
+    if (fishingMatch) {
+      if (!fishing.data) return fishing.isError ? { kind: 'missing' } : { kind: 'loading' }
+      const access = fishingById.get(fishingIdFromSlug(fishingMatch.params.slug ?? ''))
+      return access ? { kind: 'fishing', access } : { kind: 'missing' }
+    }
     if (trailMatch || placeMatch) {
       if (!explore.data) return explore.isError ? { kind: 'missing' } : { kind: 'loading' }
       if (trailMatch) {
@@ -192,7 +210,7 @@ export default function App() {
       return place ? { kind: 'place', place, area: exploreIndex.areaById.get(place.areaId)! } : { kind: 'missing' }
     }
     return null
-  }, [regionMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [regionMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, fishingMatch?.params.slug, fishing.data, fishing.isError, fishingById, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Turn a saved trip stop back into something to draw, list and open. */
   const resolveStop = useCallback(
@@ -240,6 +258,7 @@ export default function App() {
   )
   const selectTrail = useCallback((t: Trail) => go(trailPath(t)), [go])
   const selectPlace = useCallback((p: Place) => go(placePath(p)), [go])
+  const selectFishing = useCallback((a: FishingAccess) => go(fishingPath(a)), [go])
   const selectRegion = useCallback((r: Region) => go(regionPath(r.id)), [go])
   const selectPark = useCallback((p: ParkReport) => go(parkPath(p)), [go])
   const openTrip = useCallback((t: Trip) => go(`/trip/${t.id}`), [go])
@@ -270,6 +289,8 @@ export default function App() {
           ? `trail:${selection.trail.id}`
           : selection?.kind === 'place'
             ? `place:${selection.place.id}`
+            : selection?.kind === 'fishing'
+              ? `fishing:${selection.access.id}`
             : selection?.kind === 'trips'
               ? 'trips'
               : selection?.kind === 'trip'
@@ -297,6 +318,8 @@ export default function App() {
             ? selection.trail.name
             : selection?.kind === 'place'
               ? selection.place.name
+              : selection?.kind === 'fishing'
+                ? accessTitle(selection.access)
               : selection?.kind === 'trips'
                 ? 'Trips'
                 : selection?.kind === 'trip' || selection?.kind === 'shared-trip'
@@ -412,11 +435,15 @@ export default function App() {
       const { id, lng, lat } = selection.place
       return { id: `place:${id}`, lng, lat, zoom: 14 }
     }
+    if (selection?.kind === 'fishing') {
+      const { id, lng, lat } = selection.access
+      return { id: `fishing:${id}`, lng, lat, zoom: 13 }
+    }
     return null
   }, [selection, tripOnMap])
 
   // Unknown paths go home rather than showing a blank page.
-  if (!regionMatch && !parkMatch && !trailMatch && !placeMatch && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
+  if (!regionMatch && !parkMatch && !trailMatch && !placeMatch && !fishingMatch && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
 
   const panel =
     selection?.kind === 'region' ? (
@@ -440,6 +467,8 @@ export default function App() {
         onSelectPlace={selectPlace}
         onHoverPoint={setHoverPoint}
       />
+    ) : selection?.kind === 'fishing' ? (
+      <FishingPanel key={selection.access.id} access={selection.access} onBack={goBack} />
     ) : selection?.kind === 'place' ? (
       <PlacePanel
         key={selection.place.id}
@@ -558,6 +587,9 @@ export default function App() {
             onSelectPlace={selectPlace}
             trip={tripOnMap}
             onSelectTripStop={openStop}
+            fishing={fishing.data?.points ?? NO_FISHING}
+            selectedFishing={selection?.kind === 'fishing' ? selection.access : null}
+            onSelectFishing={selectFishing}
           />
           </Suspense>
 

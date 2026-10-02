@@ -33,6 +33,8 @@ import {
   type LightSetting,
 } from '../lib/mapStyle'
 import type { ParkReport } from '../lib/ontarioParks'
+import { amenityIconUrl } from '../data/amenityIcons'
+import { ACCESS_ICONS, type AccessType, type FishingAccess } from '../lib/fishingAccess'
 import { PHASE_STYLE, peakPhase } from '../lib/peak'
 import { STAGE_COLOR_EXPRESSION, STAGES } from '../lib/stage'
 import { fetchParksCanadaTrails, snapBounds, type Bounds } from '../lib/trails'
@@ -56,6 +58,7 @@ export type MapLayers = {
   trails: boolean
   satellite: boolean
   terrain3d: boolean
+  fishing: boolean
 }
 
 export type FlyTarget = {
@@ -93,6 +96,10 @@ type Props = {
   /** A trip being viewed: numbered stops and its trails' tracks. */
   trip: { stops: TripPin[]; trails: Trail[] } | null
   onSelectTripStop: (ref: string) => void
+  /** Ontario fishing access points (boat launches, shore access, docks). */
+  fishing: FishingAccess[]
+  selectedFishing: FishingAccess | null
+  onSelectFishing: (a: FishingAccess) => void
 }
 
 export type TripPin = { ref: string; n: number; lng: number; lat: number; color: string; name: string }
@@ -112,7 +119,37 @@ const COLOUR_BELT: [[number, number], [number, number]] = [
 /** Phones are too narrow for the whole belt; start on the east, where most of the colour is. */
 const EAST_BELT = { longitude: -73, latitude: 46.5, zoom: 3.4 }
 const TRAILS_MIN_ZOOM = 9
-const INTERACTIVE = ['explore-trails-hit', 'parks-circles', 'sightings-dots', 'hexes-fill']
+const INTERACTIVE = ['explore-trails-hit', 'parks-circles', 'sightings-dots', 'hexes-fill', 'fishing-pins']
+const FISHING_MIN_ZOOM = 8
+const FISHING_TEAL = '#1f6f74'
+
+/** A pin image for each access type: white disc, teal ring, Icons8 icon. Drawn at 2× for sharpness. */
+async function addFishingImages(map: { addImage: (id: string, img: ImageData, o: { pixelRatio: number }) => void; hasImage: (id: string) => boolean }) {
+  const px = 26 * 2
+  await Promise.all(
+    (Object.keys(ACCESS_ICONS) as AccessType[]).map(async (type) => {
+      const id = `fishing-${type}`
+      if (map.hasImage(id)) return
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.src = amenityIconUrl(ACCESS_ICONS[type], 16)
+      await img.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = canvas.height = px
+      const ctx = canvas.getContext('2d')!
+      ctx.beginPath()
+      ctx.arc(px / 2, px / 2, px / 2 - 3, 0, Math.PI * 2)
+      ctx.fillStyle = '#fff'
+      ctx.fill()
+      ctx.lineWidth = 4
+      ctx.strokeStyle = FISHING_TEAL
+      ctx.stroke()
+      const icon = 32
+      ctx.drawImage(img, (px - icon) / 2, (px - icon) / 2, icon, icon)
+      map.addImage(id, ctx.getImageData(0, 0, px, px), { pixelRatio: 2 })
+    }),
+  )
+}
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] }
 
 type PopupInfo = { lng: number; lat: number; title: string; lines: string[]; href?: string }
@@ -211,6 +248,23 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
     [props.sightings],
   )
 
+  const fishingPoints = useMemo<FeatureCollection<Point>>(
+    () => ({
+      type: 'FeatureCollection',
+      features: props.fishing.map((f) => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [f.lng, f.lat] },
+        properties: { id: f.id, type: f.type, named: !!f.name },
+      })),
+    }),
+    [props.fishing],
+  )
+  const selectedFishingPoint = useMemo<FeatureCollection>(() => {
+    const f = props.selectedFishing
+    return f
+      ? { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [f.lng, f.lat] }, properties: { type: f.type } }] }
+      : EMPTY
+  }, [props.selectedFishing])
   const parkPoints = useMemo<FeatureCollection<Point>>(
     () => ({
       type: 'FeatureCollection',
@@ -283,6 +337,10 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       const trail = props.explore.trails.find((t) => t.id === p.id)
       if (trail) props.onSelectTrail(trail)
       setPopup(null)
+    } else if (feature.layer?.id === 'fishing-pins') {
+      const access = props.fishing.find((a) => a.id === String(p.id))
+      if (access) props.onSelectFishing(access)
+      setPopup(null)
     } else if (feature.layer?.id === 'parks-circles') {
       const park = props.parks.find((x) => x.id === String(p.id))
       if (park) props.onSelectPark(park)
@@ -338,6 +396,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
         if (import.meta.env.DEV) Object.assign(window, { __canopyMap: e.target }) // for debugging in devtools
         updateView(false)
         setMapReady(true)
+        addFishingImages(e.target).catch(() => {}) // pins simply don't show if the icon CDN is unreachable
       }}
       onMoveEnd={(e) => {
         // Mapbox sets originalEvent only for user-driven moves (react-map-gl's type omits it).
@@ -531,6 +590,38 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
             'circle-stroke-width': 1,
             'circle-emissive-strength': 1,
           }}
+        />
+      </Source>
+
+      <Source id="fishing" type="geojson" data={fishingPoints}>
+        <Layer
+          id="fishing-pins"
+          type="symbol"
+          slot="top"
+          minzoom={FISHING_MIN_ZOOM}
+          layout={{
+            visibility: vis(layers.fishing),
+            'icon-image': ['concat', 'fishing-', ['get', 'type']],
+            'icon-size': ['interpolate', ['linear'], ['zoom'], FISHING_MIN_ZOOM, 0.75, 12, 1],
+            // Named points win when pins collide; Mapbox hides the rest until you zoom in.
+            'symbol-sort-key': ['case', ['get', 'named'], 0, 1],
+            'icon-padding': 1,
+          }}
+          paint={{ 'icon-emissive-strength': 1 }}
+        />
+      </Source>
+      <Source id="selected-fishing" type="geojson" data={selectedFishingPoint}>
+        <Layer
+          id="selected-fishing-pin"
+          type="symbol"
+          slot="top"
+          layout={{
+            'icon-image': ['concat', 'fishing-', ['get', 'type']],
+            'icon-size': 1.35,
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+          }}
+          paint={{ 'icon-emissive-strength': 1 }}
         />
       </Source>
 

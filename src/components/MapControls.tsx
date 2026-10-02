@@ -13,6 +13,7 @@ const LAYER_LABELS: [keyof MapLayers, string, string][] = [
   ['hexes', 'Colour sightings', 'iNaturalist, grouped by area'],
   ['sightings', 'Individual sightings', 'Shown when you zoom in'],
   ['trails', 'Parks Canada trails', 'Shown when you zoom in'],
+  ['fishing', 'Fishing access', 'Boat launches, shore access and docks · zoom in'],
   ['satellite', 'Satellite view', 'NASA VIIRS true colour'],
   ['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys'],
 ]
