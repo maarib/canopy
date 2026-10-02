@@ -4,6 +4,7 @@ import { directionsUrl } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { PlaceIcon } from './PlaceIcon'
+import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
 import { BackButton, LinkButton, ShareButton } from './ui'
 
@@ -79,6 +80,7 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
         <LinkButton primary href={directionsUrl(place.lat, place.lng)} icon={<LocationOn className="size-4" />}>
           Directions
         </LinkButton>
+        <SaveButton stopRef={`place:${place.id}`} name={place.name} />
         <ShareButton title={`${place.name} · Canopy`} />
         <LinkButton href={place.osm} external>
           OpenStreetMap

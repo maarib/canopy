@@ -6,6 +6,7 @@ import { CalendarToday, LocationOn, Star } from 'relume-icons'
 import { treeIconFor } from '../data/treeIcons'
 import { isPhotoSpot, PLACE_KINDS, type ExploreArea, type Place, type Trail } from '../lib/explore'
 import { PlaceIcon } from './PlaceIcon'
+import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
 import { TreeIcon } from './TreeIcon'
 import { BackButton, Badge, LinkButton, ShareButton, Skeleton } from './ui'
@@ -135,6 +136,7 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
         <LinkButton primary href={directionsUrl(region.lat, region.lng)} icon={<LocationOn className="size-4" />}>
           Directions
         </LinkButton>
+        <SaveButton stopRef={`region:${region.id}`} name={region.name} />
         <ShareButton title={`${region.name} fall colours · Canopy`} />
         {region.links.map((l) => (
           <LinkButton

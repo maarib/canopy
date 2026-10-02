@@ -3,6 +3,7 @@ import { directionsUrl } from '../lib/peak'
 import { STAGES } from '../lib/stage'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
+import { SaveButton } from './SaveButton'
 import { CalendarToday, LocationOn, Schedule } from 'relume-icons'
 import { BackButton, Badge, LinkButton, ShareButton, Meter } from './ui'
 
@@ -55,6 +56,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         <LinkButton primary href={directionsUrl(park.lat, park.lng)} icon={<LocationOn className="size-4" />}>
           Directions
         </LinkButton>
+        <SaveButton stopRef={`park:${park.id}`} name={parkTitle(park)} />
         <ShareButton title={`${parkTitle(park)} fall colours · Canopy`} />
         <LinkButton href="https://reservations.ontarioparks.ca/" icon={<CalendarToday className="size-4" />} external>
           Book

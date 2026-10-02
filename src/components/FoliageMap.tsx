@@ -90,7 +90,12 @@ type Props = {
   selectedPlace: Place | null
   onSelectTrail: (t: Trail) => void
   onSelectPlace: (p: Place) => void
+  /** A trip being viewed: numbered stops and its trails' tracks. */
+  trip: { stops: TripPin[]; trails: Trail[] } | null
+  onSelectTripStop: (ref: string) => void
 }
+
+export type TripPin = { ref: string; n: number; lng: number; lat: number; color: string; name: string }
 
 /** Room for the search bar on top and the sheet/panel elsewhere when fitting a trail. */
 function fitPadding(isDesktop: boolean) {
@@ -229,23 +234,27 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
     }),
     [props.explore.trails, props.selectedTrail?.id],
   )
+  // The highlighted tracks: the selected trail, or every trail in the trip being viewed.
+  const highlighted = props.selectedTrail ? [props.selectedTrail] : (props.trip?.trails ?? [])
   const selectedTrailData = useMemo<FeatureCollection>(
-    () =>
-      props.selectedTrail
-        ? { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: props.selectedTrail.geometry, properties: {} }] }
-        : EMPTY,
-    [props.selectedTrail],
+    () => ({
+      type: 'FeatureCollection',
+      features: highlighted.map((t) => ({ type: 'Feature', geometry: t.geometry, properties: {} })),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed by ids, not array identity
+    [highlighted.map((t) => t.id).join()],
   )
 
   // Which places get a pin: a selected trail's stops; otherwise photo spots and trailheads when zoomed in.
   const placePins = useMemo(() => {
     const byId = new globalThis.Map(props.explore.places.map((p) => [p.id, p]))
     if (props.selectedTrail) return props.selectedTrail.along.flatMap((a) => byId.get(a.poi) ?? [])
+    if (props.trip) return []
     const pins = zoom >= 9 ? props.explore.places.filter((p) => isPhotoSpot(p.kind)) : []
     if (props.selectedPlace && !pins.includes(props.selectedPlace)) pins.push(props.selectedPlace)
     return pins
-  }, [props.explore.places, props.selectedTrail, props.selectedPlace, zoom])
-  const trailheadPins = props.selectedTrail ? [props.selectedTrail] : zoom >= 9.5 ? props.explore.trails : []
+  }, [props.explore.places, props.selectedTrail, props.selectedPlace, props.trip, zoom])
+  const trailheadPins = props.selectedTrail ? [props.selectedTrail] : props.trip ? [] : zoom >= 9.5 ? props.explore.trails : []
 
   const trailBounds = layers.trails && zoom >= TRAILS_MIN_ZOOM && bounds ? snapBounds(bounds) : null
   const trails = useQuery({
@@ -592,6 +601,21 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
         </Marker>
       ))}
       <HoverMarker />
+      {props.trip?.stops.map((s) => (
+        <Marker key={`trip-${s.ref}`} longitude={s.lng} latitude={s.lat} anchor="center" onClick={(e) => {
+          e.originalEvent.stopPropagation()
+          props.onSelectTripStop(s.ref)
+        }}>
+          <button
+            title={`${s.n}. ${s.name}`}
+            aria-label={`Stop ${s.n}: ${s.name}`}
+            className="flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-white text-sm font-semibold text-white shadow-md transition-transform hover:scale-110"
+            style={{ background: s.color }}
+          >
+            {s.n}
+          </button>
+        </Marker>
+      ))}
 
       {popup && (
         <Popup longitude={popup.lng} latitude={popup.lat} onClose={() => setPopup(null)} closeButton={false} maxWidth="240px">

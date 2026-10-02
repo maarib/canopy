@@ -28,6 +28,12 @@
   - Directions to trailhead, Share and GPX download
 - **Waterfalls, lookouts, peaks, lakes, rivers and creeks:** each has its own icon, colour and page, with the trails that reach it.
 
+### Trips
+- **Save** any region, park, trail or place to one or more trips (bookmark button on every page).
+- **Plan by day:** set a start date and number of days, then reorder stops or move them between days. Totals show trail km and time on foot, and the map shows numbered stops with the trip's trails highlighted.
+- **Take it with you:** Google Maps route per day, GPX of every trail and stop, calendar (`.ics`) with one event per day, and a share link that opens a read-only copy anyone can save.
+- Trips are stored on the device; no account needed.
+
 ### Getting around
 - **Search:** regions, parks, trails, places and tree types, plus any town or landmark in Canada.
 - **Shareable links** for every place, filter, layer and map view, with working Back and Forward and a Share button.
@@ -111,7 +117,7 @@ docs/                  PRD, technical plan, Explore design, change log
 ## Roadmap
 
 Tracked as epics and milestones on the [project board](https://github.com/users/maarib/projects/2):
-- **Trips (in progress):** save trails and places, build a day-by-day plan, share it, export it
+- **Trips:** account sync, booking links for every park system (#48), trip suggestions
 - **Explore Ontario:** more areas (Killarney, Bon Echo, Frontenac, Arrowhead, Bruce Peninsula), pages for all 347 provincial parks, smaller parks and conservation areas
 - **When to go:** historical peak dates from satellite data, a forecast model and a season timeline
 - **Community:** colour reports with photos

@@ -192,7 +192,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | ID | Requirement | P | Status |
 |---|---|---|---|
 | PLACE-1 | Region and park pages with status, outlook, photos, links | P0 | ✅ |
-| PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | 🟡 Directions, Share, Book; Save in progress |
+| PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | 🟡 Directions, Save, Share, Book; AllTrails not yet |
 | PLACE-3 | Trail pages (length, elevation profile, along-the-trail stops, GPX). Ontario Trail Network + OSM; see [EXPLORE.md](EXPLORE.md) | P0 | 🟡 Algonquin |
 | PLACE-4 | Place pages with their own identity: waterfalls, lookouts, peaks, lakes, rivers, creeks (OSM + curated) | P0 | 🟡 Algonquin |
 | PLACE-5 | Curated content: "Top 5 things to do in X this fall" per region (editorial) | P1 | ⬜ |
@@ -227,10 +227,10 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 ### 9.8 Trips and planning
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| TRIP-1 | Save places/trails/POIs (works signed-out, local; syncs when signed in) | P0 | ⬜ |
-| TRIP-2 | Trips: group saves, order stops, day labels, notes | P1 | ⬜ |
-| TRIP-3 | Multi-stop Google Maps directions link | P0 | ⬜ |
-| TRIP-4 | Export: GPX (trails), .ics (dates), shareable trip link | P1 | 🟡 GPX per trail (#80) |
+| TRIP-1 | Save places/trails/POIs (works signed-out, local; syncs when signed in) | P0 | 🟡 Local saves ✅; sync needs accounts |
+| TRIP-2 | Trips: group saves, order stops, day labels, notes | P1 | 🟡 Groups, order, days ✅; notes not yet |
+| TRIP-3 | Multi-stop Google Maps directions link | P0 | ✅ Per day |
+| TRIP-4 | Export: GPX (trails), .ics (dates), shareable trip link | P1 | ✅ |
 | TRIP-5 | Booking deep links for every park system (Parks Canada, Ontario Parks, Sépaq, BC Parks, NS, NB…) | P0 | 🟡 |
 | TRIP-6 | AllTrails / Google Maps / Apple Maps hand-off buttons | P0 | 🟡 Google Maps directions |
 

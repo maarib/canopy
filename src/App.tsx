@@ -1,7 +1,7 @@
 import { experimental_streamedQuery as streamedQuery, useQuery } from '@tanstack/react-query'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
-import { ProgressActivity } from 'relume-icons'
+import { Bookmark, ProgressActivity } from 'relume-icons'
 import { BottomSheet, type SnapPoint } from './components/BottomSheet'
 import type { FlyTarget, MapLayers, MapView } from './components/FoliageMap'
 import { MapSkeleton } from './components/MapSkeleton'
@@ -10,10 +10,13 @@ import { LayerControl, Legend, TreeFilter, type TreeFilterValue } from './compon
 import { ParkPanel } from './components/ParkPanel'
 import { PlacePanel } from './components/PlacePanel'
 import { TrailPanel } from './components/TrailPanel'
+import { TripPanel, TripsPanel, type StopInfo } from './components/TripPanels'
+import { PlaceIcon } from './components/PlaceIcon'
+import { TreeIcon } from './components/TreeIcon'
 import { RegionPanel } from './components/RegionPanel'
 import { SearchBox } from './components/SearchBox'
 import { BackButton, PanelSkeleton, ProgressBar } from './components/ui'
-import { REGIONS, type Region } from './data/regions'
+import { REGIONS, signatureTree, type Region } from './data/regions'
 import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop } from './hooks'
 import {
@@ -22,6 +25,8 @@ import {
   placePath,
   trailIdFromSlug,
   trailPath,
+  formatDuration,
+  PLACE_KINDS,
   type ExploreArea,
   type Place,
   type Trail,
@@ -37,6 +42,9 @@ import {
 } from './lib/inaturalist'
 import { fetchOntarioParks, parkTitle, type ParkReport } from './lib/ontarioParks'
 import type { LightSetting } from './lib/mapStyle'
+import { PHASE_STYLE, peakPhase } from './lib/peak'
+import { STAGES } from './lib/stage'
+import { decodeTrip, tripActions, useTrips, type SharedTrip, type StopRef, type Trip } from './lib/trips'
 import type { SearchResult } from './lib/search'
 import {
   formatMapView,
@@ -65,6 +73,9 @@ type Selection =
   | { kind: 'loading' }
   | { kind: 'trail'; trail: Trail; area: ExploreArea }
   | { kind: 'place'; place: Place; area: ExploreArea }
+  | { kind: 'trips' }
+  | { kind: 'trip'; trip: Trip }
+  | { kind: 'shared-trip'; trip: SharedTrip }
   | { kind: 'missing' }
   | null
 
@@ -138,7 +149,20 @@ export default function App() {
   const parkMatch = matchPath('/park/:slug', location.pathname)
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
+  const tripsMatch = matchPath('/trips', location.pathname)
+  const tripMatch = matchPath('/trip/:id', location.pathname)
+  const trips = useTrips()
+  const onTripsPage = !!tripsMatch
   const selection: Selection = useMemo(() => {
+    if (onTripsPage) return { kind: 'trips' }
+    if (tripMatch) {
+      if (tripMatch.params.id === 'shared') {
+        const shared = decodeTrip(params.get('t') ?? '')
+        return shared ? { kind: 'shared-trip', trip: shared } : { kind: 'missing' }
+      }
+      const trip = trips.find((t) => t.id === tripMatch.params.id)
+      return trip ? { kind: 'trip', trip } : { kind: 'missing' }
+    }
     if (regionMatch) {
       const region = REGIONS.find((r) => r.id === regionMatch.params.id)
       return region ? { kind: 'region', region } : { kind: 'missing' }
@@ -159,7 +183,34 @@ export default function App() {
       return place ? { kind: 'place', place, area: exploreIndex.areaById.get(place.areaId)! } : { kind: 'missing' }
     }
     return null
-  }, [regionMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [regionMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** Turn a saved trip stop back into something to draw, list and open. */
+  const resolveStop = useCallback(
+    (ref: StopRef): StopInfo | null => {
+      const [kind, id] = ref.split(/:(.+)/) as [StopInfo['kind'], string]
+      if (kind === 'region') {
+        const r = REGIONS.find((x) => x.id === id)
+        if (!r) return null
+        const color = PHASE_STYLE[peakPhase(r)].color
+        return { ref, kind, name: r.name, lng: r.lng, lat: r.lat, color, icon: <TreeIcon id={signatureTree(r)} className="size-4" />, detail: `${r.province} · Region` }
+      }
+      if (kind === 'park') {
+        const p = parks.data?.parks.find((x) => x.id === id)
+        if (!p) return null
+        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: STAGES[p.stage].color, icon: <TreeIcon id="maples" className="size-4" />, detail: `Provincial park · ${p.colourChange ?? 0}% colour` }
+      }
+      if (kind === 'trail') {
+        const t = exploreIndex.trailById.get(id)
+        if (!t) return null
+        return { ref, kind, name: t.name, lng: t.trailhead[0], lat: t.trailhead[1], color: PLACE_KINDS.trail.color, icon: <PlaceIcon kind="trail" className="size-4" />, detail: `Trail · ${t.lengthKm} km · ${formatDuration(t.durationH)}`, trail: t }
+      }
+      const pl = exploreIndex.placeById.get(id)
+      if (!pl) return null
+      return { ref, kind: 'place', name: pl.name, lng: pl.lng, lat: pl.lat, color: PLACE_KINDS[pl.kind].color, icon: <PlaceIcon kind={pl.kind} className="size-4" />, detail: PLACE_KINDS[pl.kind].label }
+    },
+    [parks.data, exploreIndex],
+  )
 
   /** Navigate to a place (new history entry), keeping filters and layers. */
   // Stable callbacks, so the memoized map doesn't re-render when the app does.
@@ -167,6 +218,7 @@ export default function App() {
     (pathname: string) => {
       const next = new URLSearchParams(window.location.search)
       next.delete('map') // the place decides the view
+      next.delete('t') // a shared trip's payload belongs only to /trip/shared
       navigate({ pathname, search: next.toString() })
     },
     [navigate],
@@ -181,6 +233,24 @@ export default function App() {
   const selectPlace = useCallback((p: Place) => go(placePath(p)), [go])
   const selectRegion = useCallback((r: Region) => go(regionPath(r.id)), [go])
   const selectPark = useCallback((p: ParkReport) => go(parkPath(p)), [go])
+  const openTrip = useCallback((t: Trip) => go(`/trip/${t.id}`), [go])
+  const openStop = useCallback(
+    (ref: string) => {
+      const [kind, id] = ref.split(/:(.+)/)
+      if (kind === 'region') return go(regionPath(id))
+      if (kind === 'park') {
+        const p = parks.data?.parks.find((x) => x.id === id)
+        return p && go(parkPath(p))
+      }
+      if (kind === 'trail') {
+        const t = exploreIndex.trailById.get(id)
+        return t && go(trailPath(t))
+      }
+      const pl = exploreIndex.placeById.get(id)
+      return pl && go(placePath(pl))
+    },
+    [go, parks.data, exploreIndex],
+  )
 
   const selectionKey =
     selection?.kind === 'region'
@@ -191,7 +261,13 @@ export default function App() {
           ? `trail:${selection.trail.id}`
           : selection?.kind === 'place'
             ? `place:${selection.place.id}`
-            : 'home'
+            : selection?.kind === 'trips'
+              ? 'trips'
+              : selection?.kind === 'trip'
+                ? `trip:${selection.trip.id}`
+                : selection?.kind === 'shared-trip'
+                  ? 'shared-trip'
+                  : 'home'
 
   // Open the sheet halfway whenever a place is shown; collapse it at home.
   // (Adjusting state during render when the key changes, per React's guidance.)
@@ -212,7 +288,11 @@ export default function App() {
             ? selection.trail.name
             : selection?.kind === 'place'
               ? selection.place.name
-              : null
+              : selection?.kind === 'trips'
+                ? 'Trips'
+                : selection?.kind === 'trip' || selection?.kind === 'shared-trip'
+                  ? selection.trip.name
+                  : null
     document.title = name ? `${name} · Canopy` : 'Canopy · Fall colours across Canada'
   }, [selection])
 
@@ -258,7 +338,35 @@ export default function App() {
     [sightings.data],
   )
 
+  // The trip on screen, resolved for the map: numbered stops and its trails.
+  const tripOnMap = useMemo(() => {
+    if (selection?.kind !== 'trip' && selection?.kind !== 'shared-trip') return null
+    const t = selection.trip
+    const ordered = Array.from({ length: t.days }, (_, d) => t.items.filter((i) => i.day === d + 1)).flat()
+    const stops = ordered.flatMap((i) => resolveStop(i.ref) ?? [])
+    return {
+      stops: stops.map((s, k) => ({ ref: s.ref, n: k + 1, lng: s.lng, lat: s.lat, color: s.color, name: s.name })),
+      trails: stops.flatMap((s) => (s.trail ? [s.trail] : [])),
+    }
+  }, [selection, resolveStop])
+
   const target: FlyTarget = useMemo(() => {
+    if (tripOnMap?.stops.length) {
+      const pts = [
+        ...tripOnMap.stops.map((s) => [s.lng, s.lat]),
+        ...tripOnMap.trails.flatMap((t) => [
+          [t.bbox[0], t.bbox[1]],
+          [t.bbox[2], t.bbox[3]],
+        ]),
+      ]
+      const lngs = pts.map((p) => p[0])
+      const lats = pts.map((p) => p[1])
+      const [w, s, e, n] = [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)]
+      // Pad single-stop trips so the fit isn't a pinpoint.
+      const pad = Math.max(0.01, (e - w) * 0.05)
+      const key = tripOnMap.stops.map((x) => x.ref).join()
+      return { id: `trip:${key}`, lng: (w + e) / 2, lat: (s + n) / 2, zoom: 11, bounds: [w - pad, s - pad, e + pad, n + pad] }
+    }
     if (selection?.kind === 'region') {
       const { id, lng, lat } = selection.region
       return { id: `region:${id}`, lng, lat, zoom: 8 }
@@ -276,10 +384,10 @@ export default function App() {
       return { id: `place:${id}`, lng, lat, zoom: 14 }
     }
     return null
-  }, [selection])
+  }, [selection, tripOnMap])
 
   // Unknown paths go home rather than showing a blank page.
-  if (!regionMatch && !parkMatch && !trailMatch && !placeMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
+  if (!regionMatch && !parkMatch && !trailMatch && !placeMatch && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
 
   const panel =
     selection?.kind === 'region' ? (
@@ -313,6 +421,26 @@ export default function App() {
         onBack={goBack}
         onSelectTrail={selectTrail}
       />
+    ) : selection?.kind === 'trips' ? (
+      <TripsPanel trips={trips} resolve={resolveStop} onBack={goBack} onOpen={openTrip} />
+    ) : selection?.kind === 'trip' ? (
+      <TripPanel
+        key={selection.trip.id}
+        trip={selection.trip}
+        resolve={resolveStop}
+        onBack={goBack}
+        onOpenStop={openStop}
+        onDeleted={() => go('/trips')}
+      />
+    ) : selection?.kind === 'shared-trip' ? (
+      <TripPanel
+        trip={selection.trip}
+        shared
+        resolve={resolveStop}
+        onBack={goHome}
+        onOpenStop={openStop}
+        onSaveCopy={() => openTrip(tripActions.importShared(selection.trip))}
+      />
     ) : selection?.kind === 'park' ? (
       <ParkPanel key={selection.park.id} park={selection.park} onBack={goBack} />
     ) : selection?.kind === 'loading' ? (
@@ -342,9 +470,22 @@ export default function App() {
           <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         </button>
         <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Fall colours across Canada</span>
+        <button
+          onClick={() => go('/trips')}
+          className={`ml-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition hover:bg-[var(--surface-2)] ${
+            selection?.kind === 'trips' || selection?.kind === 'trip' ? 'bg-[var(--surface-2)] font-medium' : ''
+          }`}
+          aria-label={`Trips${trips.length ? ` (${trips.length})` : ''}`}
+        >
+          <Bookmark className="size-4" />
+          Trips
+          {trips.length > 0 && (
+            <span className="rounded-full bg-maple px-1.5 text-[11px] leading-[18px] font-semibold text-white">{trips.length}</span>
+          )}
+        </button>
         {sightingsLoading && (
           <>
-            <span className="ml-auto flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
+            <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
               <ProgressActivity className="size-4 animate-spin" />
               <span className="hidden sm:inline">Loading live sightings…</span>
             </span>
@@ -384,6 +525,8 @@ export default function App() {
             selectedPlace={selection?.kind === 'place' ? selection.place : null}
             onSelectTrail={selectTrail}
             onSelectPlace={selectPlace}
+            trip={tripOnMap}
+            onSelectTripStop={openStop}
           />
           </Suspense>
 

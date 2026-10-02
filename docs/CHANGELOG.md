@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | Trips PR |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
 | 2026-10-01 | [Explore Ontario: trail and place pages](#2026-10-01-explore-ontario-trail-and-place-pages) | [#80](https://github.com/maarib/canopy/pull/80) |
 | 2026-10-01 | [Map engine: MapLibre + OpenFreeMap → Mapbox](#2026-10-01-map-engine-maplibre--openfreemap--mapbox) | [#78](https://github.com/maarib/canopy/pull/78) |
@@ -15,6 +16,40 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-01 · Trips: save, plan by day, share
+
+**Ref:** Trips PR · Issues #46, #47, #26 · Epic #91
+
+**Before.**
+- No way to save anything. Planning a visit meant keeping a list elsewhere.
+- Directions, GPX and Share existed only for single places.
+
+**Research.**
+- **Airbnb wishlists:** save from anywhere into named lists, share a list, plan together.
+- **AllTrails lists:** saved trails grouped for a trip, with exports.
+- **Google Maps:** multi-stop directions links.
+
+**After.**
+- **Save** (bookmark) on every region, park, trail and place page. The first save creates "My trip"; after that a menu lets you tick trips or create a new one.
+- **Trips list** (`/trips`), opened from the header button with a count.
+- **Trip page** (`/trip/:id`):
+  - editable name, start date and days (1–14)
+  - stops grouped by day, with move up/down, a day picker and remove
+  - totals: number of trails, km, and estimated time on foot
+  - on the map: numbered stop pins and every trip trail highlighted
+- **Hand-offs:**
+  - **Route:** Google Maps directions through each day's stops, starting from the user's location
+  - **GPX:** every trail's track plus a waypoint per stop
+  - **Calendar (`.ics`):** one all-day event per day, listing its stops
+  - **Share trip:** a self-contained link (`/trip/shared?t=…`) that opens a read-only copy with "Save a copy"
+
+**Decisions and why.**
+- **Stored on the device** (`localStorage`, synced across tabs), so trips work without an account. Account sync comes with #55.
+- **The whole trip is encoded in the share link** (base64url JSON of names and stop references), so sharing needs no server. Links stay valid as long as the referenced places exist; stops that no longer resolve are hidden with a note.
+- **Input from shared links is validated:** names are capped at 80 characters, days at 1–14, and stop references must match `region|park|trail|place:<id>`. Malformed links show "Place not found".
 
 ---
 
