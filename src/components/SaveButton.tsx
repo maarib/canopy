@@ -70,7 +70,7 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
           id={menuId}
           role="menu"
           aria-label={`Save ${name} to a trip`}
-          className="absolute bottom-full left-0 z-30 mb-2 w-64 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl"
+          className="absolute top-full left-0 z-30 mt-2 w-64 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl"
         >
           <p className="px-2 pt-1 pb-2 text-xs font-semibold">Save to a trip</p>
           <ul className="max-h-56 overflow-y-auto">
@@ -118,7 +118,7 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
       )}
 
       {toast && (
-        <span role="status" className="absolute top-full left-0 z-30 mt-1.5 whitespace-nowrap rounded-full bg-[var(--ink)] px-3 py-1 text-xs text-[var(--surface)] shadow-lg">
+        <span role="status" className="absolute bottom-full left-0 z-30 mb-1.5 whitespace-nowrap rounded-full bg-[var(--ink)] px-3 py-1 text-xs text-[var(--surface)] shadow-lg">
           {toast}
         </span>
       )}

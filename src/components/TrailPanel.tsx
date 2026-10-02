@@ -57,6 +57,35 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         </div>
       </header>
 
+      <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
+        <LinkButton primary href={directionsUrl(trail.trailhead[1], trail.trailhead[0])} icon={<LocationOn className="size-4" />}>
+          Directions to trailhead
+        </LinkButton>
+        <SaveButton stopRef={`trail:${trail.id}`} name={trail.name} />
+        <ShareButton title={`${trail.name} · Canopy`} />
+        <button
+          onClick={() =>
+            downloadFile(
+              `${trail.name.replace(/[^\w]+/g, '-')}.gpx`,
+              trailGpx(
+                trail,
+                along.map((a) => a.place),
+              ),
+              'application/gpx+xml',
+            )
+          }
+          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm transition hover:bg-[var(--surface-2)] active:scale-[0.97] disabled:active:scale-100"
+        >
+          <Description className="size-4" />
+          Download GPX
+        </button>
+        {trail.website && (
+          <LinkButton href={trail.website} external icon={<CalendarToday className="size-4" />}>
+            Official trail info
+          </LinkButton>
+        )}
+      </section>
+
       <dl className="grid grid-cols-4 gap-2 text-center">
         {[
           ['Length', `${trail.lengthKm} km`],
@@ -120,35 +149,6 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
       <ForecastStrip lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
       <NearbyPhotos lat={trail.trailhead[1]} lng={trail.trailhead[0]} radiusKm={Math.max(3, Math.round(trail.lengthKm / 2))} />
 
-      <section className="flex flex-wrap gap-2">
-        <LinkButton primary href={directionsUrl(trail.trailhead[1], trail.trailhead[0])} icon={<LocationOn className="size-4" />}>
-          Directions to trailhead
-        </LinkButton>
-        <SaveButton stopRef={`trail:${trail.id}`} name={trail.name} />
-        <ShareButton title={`${trail.name} · Canopy`} />
-        <button
-          onClick={() =>
-            downloadFile(
-              `${trail.name.replace(/[^\w]+/g, '-')}.gpx`,
-              trailGpx(
-                trail,
-                along.map((a) => a.place),
-              ),
-              'application/gpx+xml',
-            )
-          }
-          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm transition hover:bg-[var(--surface-2)] active:scale-[0.97] disabled:active:scale-100"
-        >
-          <Description className="size-4" />
-          Download GPX
-        </button>
-        {trail.website && (
-          <LinkButton href={trail.website} external icon={<CalendarToday className="size-4" />}>
-            Official trail info
-          </LinkButton>
-        )}
-      </section>
-
       <p className="text-[11px] leading-relaxed text-[var(--ink-soft)]">
         Trail: Ontario Trail Network (Open Government Licence – Ontario). Places © OpenStreetMap contributors. Elevation:
         Terrarium/AWS. Times are estimates for a relaxed pace.
@@ -208,7 +208,7 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
   const difficulty = DIFFICULTY[trail.difficulty]
   const kinds = [...new Set(trail.along.map((a) => places.get(a.poi)?.kind).filter(Boolean))] as Place['kind'][]
   return (
-    <button onClick={onClick} className={`${ROW} py-2.5`}>
+    <button onClick={onClick} className={ROW}>
       <span
         className="flex size-10 shrink-0 items-center justify-center rounded-xl text-white"
         style={{ background: PLACE_KINDS.trail.color }}
