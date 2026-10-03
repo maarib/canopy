@@ -5,7 +5,7 @@ on:
   # Pushes made by the daily data workflow use GITHUB_TOKEN and don't trigger `push`,
   # so redeploy whenever that workflow finishes.
   workflow_run:
-    workflows: ['Ontario Parks fall colour data', 'Explore data (trails & places)']
+    workflows: ['Ontario Parks fall color data', 'Explore data (trails & places)']
     types: [completed]
   workflow_dispatch:
 

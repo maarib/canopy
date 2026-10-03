@@ -8,7 +8,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 
 const LAYER = 'https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open07/MapServer/15'
 const OUT = new URL('../public/data/fishing-access.json', import.meta.url)
-const UA = 'CanopyFallColours/0.1 (+https://github.com/maarib/canopy)'
+const UA = 'CanopyFallColors/0.1 (+https://github.com/maarib/canopy)'
 const PAGE = 2000
 
 const FIELDS = [

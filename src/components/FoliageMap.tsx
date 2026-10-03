@@ -115,12 +115,12 @@ function fitPadding(isDesktop: boolean) {
     : { top: 70, bottom: sheetHalf() + 16, left: 24, right: 24 }
 }
 
-/** Where nearly all of Canada's fall colour is: the southern band, BC to Newfoundland. */
-const COLOUR_BELT: [[number, number], [number, number]] = [
+/** Where nearly all of Canada's fall color is: the southern band, BC to Newfoundland. */
+const COLOR_BELT: [[number, number], [number, number]] = [
   [-128, 42],
   [-53, 57],
 ]
-/** Phones are too narrow for the whole belt; start on the east, where most of the colour is. */
+/** Phones are too narrow for the whole belt; start on the east, where most of the color is. */
 const EAST_BELT = { longitude: -73, latitude: 46.5, zoom: 3.4 }
 const TRAILS_MIN_ZOOM = 9
 const INTERACTIVE = ['explore-trails-hit', 'parks-circles', 'sightings-dots', 'hexes-fill', 'fishing-pins']
@@ -193,12 +193,12 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
         { padding: fitPadding(isDesktop), maxZoom: 15, duration: 1500 },
       )
     else if (target) map.flyTo({ center: [target.lng, target.lat], zoom: target.zoom, padding, duration: 1600, essential: true })
-    else if (isDesktop) map.fitBounds(COLOUR_BELT, { padding: 24, duration: 1200 })
+    else if (isDesktop) map.fitBounds(COLOR_BELT, { padding: 24, duration: 1200 })
     else map.flyTo({ center: [EAST_BELT.longitude, EAST_BELT.latitude], zoom: EAST_BELT.zoom, padding, duration: 1200 })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fly only when the target changes identity
   }, [target?.id, mapReady])
 
-  // Mapbox Standard is configured at runtime: theme, autumn colours, light preset.
+  // Mapbox Standard is configured at runtime: theme, autumn colors, light preset.
   const lightPreset = resolveLight(props.light, dark)
   useEffect(() => {
     const map = mapRef.current?.getMap()
@@ -369,7 +369,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
         lng: e.lngLat.lng,
         lat: e.lngLat.lat,
         title: String(p.species),
-        lines: [`${p.state === 'bare' ? 'Leaves down' : 'Colour change'} · ${p.observedOn}`],
+        lines: [`${p.state === 'bare' ? 'Leaves down' : 'Color change'} · ${p.observedOn}`],
         href: String(p.url),
       })
     } else {
@@ -397,7 +397,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           : props.initialView
             ? { longitude: props.initialView.lng, latitude: props.initialView.lat, zoom: props.initialView.zoom }
             : isDesktop
-              ? { bounds: COLOUR_BELT, fitBoundsOptions: { padding: 24 } }
+              ? { bounds: COLOR_BELT, fitBoundsOptions: { padding: 24 } }
               : EAST_BELT
       }
       mapboxAccessToken={MAPBOX_TOKEN}
@@ -580,7 +580,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
               10.5,
               ['interpolate', ['linear'], ['get', 'total'], 1, 0.08, 8, 0.18],
             ],
-            // Keep data colours true under every light preset.
+            // Keep data colors true under every light preset.
             'fill-emissive-strength': 1,
           }}
         />
@@ -774,7 +774,7 @@ function TreePin({ tree, color, active, small }: { tree: TreeIconId; color: stri
       className={`flex items-center justify-center rounded-full bg-white shadow-md transition-transform ${
         active ? 'size-10 scale-110 border-[3px]' : small ? 'size-6 border-2 hover:scale-125' : 'size-8 border-[2.5px] hover:scale-110'
       }`}
-      // Leaf keeps its tree's fall colour; the ring shows where the region is in its peak window.
+      // Leaf keeps its tree's fall color; the ring shows where the region is in its peak window.
       style={{ borderColor: color, ['--leaf-ink' as string]: '#2d3550' }}
     >
       <TreeIcon id={tree} className={active ? 'size-7' : small ? 'size-[18px]' : 'size-6'} />

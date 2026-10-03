@@ -9,12 +9,12 @@ import { TrailCard } from './TrailPanel'
 import { BackButton, LinkButton, ShareButton } from './ui'
 
 const BLURB: Record<Place['kind'], string> = {
-  waterfall: 'Falls are at their most dramatic after rain; fall colour on the banks peaks with the surrounding forest.',
-  viewpoint: 'A lookout over the canopy: one of the best places on the trail for fall-colour photos. Go early or late for soft light.',
+  waterfall: 'Falls are at their most dramatic after rain; fall color on the banks peaks with the surrounding forest.',
+  viewpoint: 'A lookout over the canopy: one of the best places on the trail for fall-color photos. Go early or late for soft light.',
   peak: 'A high point with views over the surrounding forest. Expect a climb.',
-  lake: 'Calm mornings bring mirror reflections of the fall colours on the shoreline.',
+  lake: 'Calm mornings bring mirror reflections of the fall colors on the shoreline.',
   river: 'River corridors are lined with red maples that turn early.',
-  creek: 'Creeks are lined with red maple and alder that colour early in the season.',
+  creek: 'Creeks are lined with red maple and alder that color early in the season.',
 }
 
 type Props = {

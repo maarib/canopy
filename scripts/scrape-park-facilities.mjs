@@ -13,7 +13,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 
 const SITE = 'https://www.ontarioparks.ca'
 const OUT = new URL('../public/data/park-facilities.json', import.meta.url)
-const UA = 'CanopyFallColours/0.1 (+https://github.com/maarib/canopy)'
+const UA = 'CanopyFallColors/0.1 (+https://github.com/maarib/canopy)'
 const DELAY_MS = 1100
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))

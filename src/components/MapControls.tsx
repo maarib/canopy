@@ -8,11 +8,11 @@ import type { MapLayers } from './FoliageMap'
 
 const LAYER_LABELS: [keyof MapLayers, string, string][] = [
   ['reports', 'Official park reports', 'Ontario Parks, updated daily'],
-  ['hexes', 'Colour sightings', 'iNaturalist, grouped by area'],
+  ['hexes', 'Color sightings', 'iNaturalist, grouped by area'],
   ['sightings', 'Individual sightings', 'Shown when you zoom in'],
   ['trails', 'Parks Canada trails', 'Shown when you zoom in'],
   ['fishing', 'Fishing access', 'Boat launches, shore access and docks · zoom in'],
-  ['satellite', 'Satellite view', 'NASA VIIRS true colour'],
+  ['satellite', 'Satellite view', 'NASA VIIRS true color'],
   ['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys'],
 ]
 
@@ -93,7 +93,7 @@ const LEGEND_STAGES: Stage[] = ['green', 'patchy', 'near', 'peak', 'past']
 export function Legend() {
   return (
     <div className="text-xs">
-      <div className="mb-1.5 font-semibold">Colour stage</div>
+      <div className="mb-1.5 font-semibold">Color stage</div>
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {LEGEND_STAGES.map((s) => (
           <span key={s} className="flex items-center gap-1">

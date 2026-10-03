@@ -71,7 +71,7 @@ export async function fetchExploreAreas(): Promise<ExploreArea[]> {
   )
 }
 
-// ── Identity: every kind of place has its own label, colour and icon ──
+// ── Identity: every kind of place has its own label, color and icon ──
 
 export const PLACE_KINDS: Record<PlaceKind | 'trail' | 'trailhead', { label: string; plural: string; color: string }> = {
   trail: { label: 'Trail', plural: 'Trails', color: '#2f5d3a' },

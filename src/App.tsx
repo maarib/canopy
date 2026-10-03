@@ -9,7 +9,7 @@ import { ActivityOptions } from './components/ActivityFilter'
 import { AccountMenu } from './components/AccountMenu'
 import { SideNav, TabBar, type Section } from './components/AppNav'
 import { TAB_BAR_HEIGHT } from './lib/styles'
-import { ColoursPanel } from './components/ColoursPanel'
+import { ColorsPanel } from './components/ColorsPanel'
 import { ExplorePanel, type ExploreQuery } from './components/ExplorePanel'
 import { LayerOptions, Legend, TreeOptions, type TreeFilterValue } from './components/MapControls'
 import { MapFilters } from './components/MapFilters'
@@ -93,7 +93,7 @@ type Selection =
   | { kind: 'fishing'; access: FishingAccess }
   | { kind: 'parks' }
   | { kind: 'trails' }
-  | { kind: 'colours' }
+  | { kind: 'colors' }
   | { kind: 'about' }
   | { kind: 'trips' }
   | { kind: 'trip'; trip: Trip }
@@ -177,7 +177,7 @@ export default function App() {
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
   const fishingMatch = matchPath('/fishing/:slug', location.pathname)
-  const sectionPath = (['/parks', '/trails', '/colours', '/about'] as const).find((p) => location.pathname === p)
+  const sectionPath = (['/parks', '/trails', '/colors', '/about'] as const).find((p) => location.pathname === p)
   // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
   const fishing = useQuery({
     queryKey: ['fishing-access'],
@@ -192,7 +192,7 @@ export default function App() {
   const onTripsPage = !!tripsMatch
   const selection: Selection = useMemo(() => {
     if (onTripsPage) return { kind: 'trips' }
-    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'colours' | 'about' }
+    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'colors' | 'about' }
     if (tripMatch) {
       if (tripMatch.params.id === 'shared') {
         const shared = decodeTrip(params.get('t') ?? '')
@@ -241,7 +241,7 @@ export default function App() {
       if (kind === 'park') {
         const p = parks.data?.parks.find((x) => x.id === id)
         if (!p) return null
-        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: STAGES[p.stage].color, icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${p.colourChange ?? 0}% colour` }
+        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: STAGES[p.stage].color, icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${p.colorChange ?? 0}% color` }
       }
       if (kind === 'trail') {
         const t = exploreIndex.trailById.get(id)
@@ -307,7 +307,7 @@ export default function App() {
             ? `place:${selection.place.id}`
             : selection?.kind === 'fishing'
               ? `fishing:${selection.access.id}`
-            : selection?.kind === 'parks' || selection?.kind === 'trails' || selection?.kind === 'colours' || selection?.kind === 'about'
+            : selection?.kind === 'parks' || selection?.kind === 'trails' || selection?.kind === 'colors' || selection?.kind === 'about'
               ? selection.kind
             : selection?.kind === 'trips'
               ? 'trips'
@@ -342,8 +342,8 @@ export default function App() {
                 ? 'Parks'
               : selection?.kind === 'trails'
                 ? 'Trails'
-              : selection?.kind === 'colours'
-                ? 'Fall colours'
+              : selection?.kind === 'colors'
+                ? 'Fall colors'
               : selection?.kind === 'about'
                 ? 'About'
               : selection?.kind === 'trips'
@@ -351,7 +351,7 @@ export default function App() {
                 : selection?.kind === 'trip' || selection?.kind === 'shared-trip'
                   ? selection.trip.name
                   : null
-    document.title = name ? `${name} · Canopy` : 'Canopy · Fall colours across Canada'
+    document.title = name ? `${name} · Canopy` : 'Canopy · Fall colors across Canada'
   }, [selection])
 
   // Written straight to history rather than through the router, so panning the map doesn't
@@ -359,7 +359,7 @@ export default function App() {
   const onViewChange = useCallback(
     (view: MapView) => {
       // Lists keep the map where you left it; detail pages fly to their place.
-      if (!['home', 'parks', 'trails', 'colours'].includes(selectionKey)) return
+      if (!['home', 'parks', 'trails', 'colors'].includes(selectionKey)) return
       const url = new URL(window.location.href)
       url.searchParams.set('map', formatMapView(view))
       window.history.replaceState(window.history.state, '', url)
@@ -389,7 +389,7 @@ export default function App() {
     const { bounds } = PROVINCE_BY_CODE.get(q.province)!
     exploreSeq.current += 1 // a new id each time, so searching the same province again re-frames it
     setFocus({ id: `province:${q.province}:${exploreSeq.current}`, lng: (bounds[0] + bounds[2]) / 2, lat: (bounds[1] + bounds[3]) / 2, zoom: 6, bounds })
-    if (q.what === 'colours') openSection('/colours', (p) => writeTree(p, q.tree))
+    if (q.what === 'colors') openSection('/colors', (p) => writeTree(p, q.tree))
     else if (q.what === 'parks') openSection('/parks')
     else if (q.what === 'trails') openSection('/trails')
     else if (q.what === 'places') openSection('/trails?show=waterfall')
@@ -404,8 +404,8 @@ export default function App() {
         ? 'parks'
         : selection.kind === 'trails' || selection.kind === 'trail' || selection.kind === 'place'
           ? 'trails'
-          : selection.kind === 'colours' || selection.kind === 'region'
-            ? 'colours'
+          : selection.kind === 'colors' || selection.kind === 'region'
+            ? 'colors'
             : selection.kind === 'trips' || selection.kind === 'trip' || selection.kind === 'shared-trip'
               ? 'trips'
               : null
@@ -456,7 +456,7 @@ export default function App() {
       ),
     [sightings.data, treeFilter],
   )
-  const treeColourSightings = useMemo(
+  const treeColorSightings = useMemo(
     () => sightings.data?.items.filter((o) => o.state === 'colored' && TREE_GROUP_IDS.has(o.group ?? '')).length,
     [sightings.data],
   )
@@ -588,14 +588,14 @@ export default function App() {
         onSelectTrail={selectTrail}
         onSelectPlace={selectPlace}
       />
-    ) : selection?.kind === 'colours' ? (
-      <ColoursPanel
+    ) : selection?.kind === 'colors' ? (
+      <ColorsPanel
         regions={REGIONS}
         parks={parks.data?.parks}
         listParks={filteredParks}
         activityFilter={activities.length ? { labels: activityLabels, onClear: () => setActivities([]) } : undefined}
         parksFetchedAt={parks.data?.fetchedAt}
-        treeColourSightings={sightings.data?.loaded ? treeColourSightings : undefined}
+        treeColorSightings={sightings.data?.loaded ? treeColorSightings : undefined}
         onSelectRegion={selectRegion}
         onSelectPark={selectPark}
         tree={treeFilter}

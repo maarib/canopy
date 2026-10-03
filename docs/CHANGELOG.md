@@ -9,7 +9,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
 | 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | [#101](https://github.com/maarib/canopy/pull/101) |
 | 2026-10-02 | [Park activities and facilities](#2026-10-02-park-activities-and-facilities) | [#100](https://github.com/maarib/canopy/pull/100) |
-| 2026-10-01 | [Two-colour leaf icon set](#2026-10-01-two-colour-leaf-icon-set) | [#99](https://github.com/maarib/canopy/pull/99) |
+| 2026-10-01 | [Two-color leaf icon set](#2026-10-01-two-color-leaf-icon-set) | [#99](https://github.com/maarib/canopy/pull/99) |
 | 2026-10-01 | [Usability: cursors, hover states, action copy](#2026-10-01-usability-cursors-hover-states-action-copy) | [#98](https://github.com/maarib/canopy/pull/98) |
 | 2026-10-01 | [Trips: save, plan by day, share](#2026-10-01-trips-save-plan-by-day-share) | [#97](https://github.com/maarib/canopy/pull/97) |
 | 2026-10-01 | [Performance and loading states](#2026-10-01-performance-and-loading-states) | [#81](https://github.com/maarib/canopy/pull/81) |
@@ -20,7 +20,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Relume icons for UI controls](#2026-09-30-relume-icons-for-ui-controls) | `e0e1e38` |
 | 2026-09-30 | [Typography: Inter → Londrina Solid + Livvic](#2026-09-30-typography-inter--londrina-solid--livvic) | `276a210` |
 | 2026-09-30 | [Product requirements and project tracking](#2026-09-30-product-requirements-and-project-tracking) | `74ed32b` |
-| 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
+| 2026-09-30 | [Milestone 1: the live color map](#2026-09-30-milestone-1-the-live-color-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
@@ -31,8 +31,8 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 **Ref:** [#104](https://github.com/maarib/canopy/pull/104)
 
 **Before.**
-- Everything started on the map. The home panel showed colour stats with Park reports / When to go tabs; the search box, an Activities button, a Layers button and a row of every tree group sat on top of the map.
-- No navigation between kinds of things (parks, trails, colour); Trips was a header button.
+- Everything started on the map. The home panel showed color stats with Park reports / When to go tabs; the search box, an Activities button, a Layers button and a row of every tree group sat on top of the map.
+- No navigation between kinds of things (parks, trails, color); Trips was a header button.
 - The footer listed every data source and licence inline.
 
 **Research.** Airbnb's and AllTrails' current web home pages (checked 2026-10-03):
@@ -41,18 +41,18 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 - Both use a bottom tab bar on phones for their main sections.
 
 **After.**
-- **Explore (home) is a search.** A heading and a search card: the existing park/trail/lake/town search, then **Where** (province; Ontario first, other provinces offer fall colour only) and **Looking for** (Everything, Fall colours, Parks, Trails, Lakes & waterfalls). Choosing Fall colours adds a **Trees** dropdown instead of showing every tree up front. The button frames the province on the map and opens the matching section. Below: parks peaking now, short fall hikes, and quick links to waterfalls, lookouts and lakes.
-- **Sections.** Explore, Parks, Trails, Fall colours and Trips. Desktop: a slim rail left of the panel. Phones: a bottom tab bar; the sheet sits above it and opens half way on every page. Detail pages highlight their section (a park under Parks, a trail or waterfall under Trails, a region under Fall colours).
-  - **Parks** (`/parks`): find by name, activity filter inline, sort by best colour or A–Z.
+- **Explore (home) is a search.** A heading and a search card: the existing park/trail/lake/town search, then **Where** (province; Ontario first, other provinces offer fall color only) and **Looking for** (Everything, Fall colors, Parks, Trails, Lakes & waterfalls). Choosing Fall colors adds a **Trees** dropdown instead of showing every tree up front. The button frames the province on the map and opens the matching section. Below: parks peaking now, short fall hikes, and quick links to waterfalls, lookouts and lakes.
+- **Sections.** Explore, Parks, Trails, Fall colors and Trips. Desktop: a slim rail left of the panel. Phones: a bottom tab bar; the sheet sits above it and opens half way on every page. Detail pages highlight their section (a park under Parks, a trail or waterfall under Trails, a region under Fall colors).
+  - **Parks** (`/parks`): find by name, activity filter inline, sort by best color or A–Z.
   - **Trails** (`/trails`): trails by difficulty (shortest first) and tabs for waterfalls, lookouts, lakes, peaks, rivers and creeks (`?show=`).
-  - **Fall colours** (`/colours`): the previous home content (stats, Park reports / When to go) with a tree dropdown.
+  - **Fall colors** (`/colors`): the previous home content (stats, Park reports / When to go) with a tree dropdown.
 - **One Filters button on the map** replaces the tree chip row, the Activities button and the Layers button, with Trees, Activities and Layers tabs and a count of what's set.
 - **Account menu.** Avatar and dropdown at the top right: a guest card ("your trips are saved on this device"), Trips, About & data sources, Send feedback, and "Sign in or create account" marked as coming soon, since Canopy has no accounts yet.
 - **Footer** is one line: © Canopy, About & data sources, maaribs.com. The full credits moved to **About** (`/about`) as a table of source, what it provides, licence and refresh rate.
 - **Fixes along the way.** On the globe at low zoom Mapbox's `getBounds()` can throw (`Invalid LngLat (NaN, NaN)`) when the viewport corners fall off the planet; the map now skips bounds there instead of erroring. Map padding on phones accounts for the tab bar once.
-- **Unchanged:** colours, type, icons, chips, rows and every detail page.
+- **Unchanged:** colors, type, icons, chips, rows and every detail page.
 
-**Why.** Canopy is meant to be a one-stop shop for nature lovers, and people arrive with an intent ("somewhere with colour and a canoe this weekend"). Starting from a search and giving parks, trails and colour their own places makes that intent the first step, while the map stays one glance away.
+**Why.** Canopy is meant to be a one-stop shop for nature lovers, and people arrive with an intent ("somewhere with color and a canoe this weekend"). Starting from a search and giving parks, trails and color their own places makes that intent the first step, while the map stays one glance away.
 
 ---
 
@@ -66,7 +66,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 - No footer: data credits were scattered across panels.
 
 **After.**
-- **Actions first.** On every detail page the buttons sit directly under the status line (colour stage and report date, or the type line), so directions and save are reachable without scrolling. The Save menu now opens downward to fit its new position.
+- **Actions first.** On every detail page the buttons sit directly under the status line (color stage and report date, or the type line), so directions and save are reachable without scrolling. The Save menu now opens downward to fit its new position.
 - **One row style.** `src/lib/styles.ts` defines the app's row: at least 56 px tall with a 40 px icon tile (`ROW` for tappable rows, `INFO_ROW` for facts, `ICON_TILE`, `LIST`). A shared `InfoRow` component renders icon, label and a right-aligned value. Park activities and facilities and fishing access facts now use full-width rows (activities show six, then "Show more"); park, region, trail and trip lists use the same height.
 - **Footer** at the end of every panel: © Canopy, a link to maaribs.com, and credits for every source (Ontario Parks, iNaturalist, Ontario Ministry of Natural Resources, Parks Canada, NASA GIBS, Open-Meteo, OpenStreetMap contributors, Mapbox) with their licences, and Icons8 for icons.
 
@@ -91,7 +91,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 - **Map layer.** A Mapbox symbol layer from zoom 8, so 2,400 points cost nothing at country scale. Each pin is drawn once on a canvas when the map loads (white disc, teal ring, Windows 11 Color icon: boat launch, fishing rod or wharf). Overlapping pins are hidden automatically, named sites first. The selected point is drawn larger on top. The data loads only while the layer is on or a fishing link is opened. *Layers → Fishing access* toggles it.
 - **Access point page** (`/fishing/:id-name`): type, name, and only the attributes that are known (parking, fee, wheelchair access, surface, owner, year last checked), the 7-day outlook (wind matters on the water), licence reminder, directions, share, and links to Fish ON-Line (species, stocking, depth charts) and the Ontario fishing regulations summary.
 
-**Why.** Fall is prime fishing season in Ontario and a paddle on a lake is one of the best ways to see shoreline colour. Launches and shore access answer "where can I get on the water near the colour?"
+**Why.** Fall is prime fishing season in Ontario and a paddle on a lake is one of the best ways to see shoreline color. Launches and shore access answer "where can I get on the water near the color?"
 
 ---
 
@@ -108,7 +108,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 - **Shareable.** The selection lives in the URL (`?do=hiking,canoe-rental`), like the tree filter and layers.
 - **Data.** Uses the weekly Ontario Parks snapshot from #100 (`public/data/park-facilities.json`); filter definitions live in `src/data/amenityIcons.ts` (`PARK_FILTER_GROUPS`).
 
-**Why.** Planning starts from what you want to do. "Where can I rent a canoe and hike this weekend while the colours peak?" is now one tap instead of a dozen park pages.
+**Why.** Planning starts from what you want to do. "Where can I rent a canoe and hike this weekend while the colors peak?" is now one tap instead of a dozen park pages.
 
 ---
 
@@ -116,7 +116,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 **Ref:** [#100](https://github.com/maarib/canopy/pull/100)
 
-**Before.** A park page showed the fall colour report (colour change, leaf fall, best viewing), the forecast, nearby photos and links. Nothing said what you could do at the park or what was there: campsites, washrooms, boat launches, rentals.
+**Before.** A park page showed the fall color report (color change, leaf fall, best viewing), the forecast, nearby photos and links. Nothing said what you could do at the park or what was there: campsites, washrooms, boat launches, rentals.
 
 **Research.** Candidate sources for activities, facilities and other map markers, checked on 2026-10-02:
 
@@ -144,24 +144,24 @@ Ontario Parks came first because every park already on the map gains the data, a
 
 ---
 
-## 2026-10-01 · Two-colour leaf icon set
+## 2026-10-01 · Two-color leaf icon set
 
 **Ref:** [#99](https://github.com/maarib/canopy/pull/99)
 
-**Before.** Thirteen minimal, geometric tree icons on a 24×24 grid, built from circles, ellipses and straight slits and tinted with a single colour. They were crisp but mechanical, and several were hard to tell apart (birch, aspen and elm were all similar ovals).
+**Before.** Thirteen minimal, geometric tree icons on a 24×24 grid, built from circles, ellipses and straight slits and tinted with a single color. They were crisp but mechanical, and several were hard to tell apart (birch, aspen and elm were all similar ovals).
 
-**Reference.** A flat, two-colour leaf illustration:
+**Reference.** A flat, two-color leaf illustration:
 - smooth, rounded silhouettes
-- the leaf filled in its own colour
+- the leaf filled in its own color
 - the stem and veins drawn as rounded strokes in a single dark ink
 
 No shapes were traced or copied. Every leaf is drawn from scratch so the project owns the set outright (the repository is public).
 
 **After.**
-- **Two colours per icon.** Each leaf is filled with its tree's typical fall colour; the stem and main veins use one ink colour from the `--leaf-ink` token (dark navy `#2d3550` in light mode, warm off-white `#f1e8dd` in dark mode). Cherries add a second fill for the fruit.
+- **Two colors per icon.** Each leaf is filled with its tree's typical fall color; the stem and main veins use one ink color from the `--leaf-ink` token (dark navy `#2d3550` in light mode, warm off-white `#f1e8dd` in dark mode). Cherries add a second fill for the fruit.
 - **Botanical shapes.** Each silhouette follows the tree's real leaf structure (lobing, margin, tip, base and leaf arrangement), checked against field-guide descriptions and photographs:
 
-  | Group | Shape | Fall colour |
+  | Group | Shape | Fall color |
   |---|---|---|
   | Maples | sugar maple: five lobes, rounded sinuses, a few large points | orange-red `#e2602a` |
   | Oaks | white oak: rounded lobes, alternating sides | russet `#9c3a22` |
@@ -178,16 +178,16 @@ No shapes were traced or copied. Every leaf is drawn from scratch so the project
   | Sumacs, shrubs & vines | pinnate, narrow leaflets | scarlet `#d42a1f` |
 
 - **How the shapes are built.** `src/lib/leafShapes.ts` generates each outline from parameters (Gaussian lobes for palmate leaves, a width profile along the midrib for pinnate leaves, individual leaflets for compound leaves), rounds corners with Chaikin corner cutting and smooths the result with a closed Catmull–Rom spline. The maple and oak outlines are hand-placed points smoothed the same way.
-- **One component, two tones.** `<TreeIcon>` draws the two-colour version by default. `tone="mono"` draws everything in `currentColor` for places where the icon sits on a coloured background (trip stop avatars).
+- **One component, two tones.** `<TreeIcon>` draws the two-color version by default. `tone="mono"` draws everything in `currentColor` for places where the icon sits on a colored background (trip stop avatars).
 - **Where they appear.**
-  - **Map pins:** a coloured leaf on a white disc; the disc's ring shows the region's peak phase.
-  - **Tree filter chips:** the icon carries its own colour; the active chip switches the ink to stay visible.
-  - **Region lists, "Trees to look for" and the map loading state:** use the coloured icons directly.
+  - **Map pins:** a colored leaf on a white disc; the disc's ring shows the region's peak phase.
+  - **Tree filter chips:** the icon carries its own color; the active chip switches the ink to stay visible.
+  - **Region lists, "Trees to look for" and the map loading state:** use the colored icons directly.
   - **Header logo:** now rendered inline, so its ink follows the app's light/dark theme.
-  - **Favicon:** regenerated from the new maple; its ink switches with the system colour scheme.
-- **Dev preview:** `/?icons` shows the set at 96, 48, 24 and 16 px and in the single-colour tone.
+  - **Favicon:** regenerated from the new maple; its ink switches with the system color scheme.
+- **Dev preview:** `/?icons` shows the set at 96, 48, 24 and 16 px and in the single-color tone.
 
-**Why.** A fall-colour app should show fall colour: each tree's icon now tells you what its leaves turn, as well as what they look like. The shapes are also easier to tell apart at chip and pin sizes.
+**Why.** A fall-color app should show fall color: each tree's icon now tells you what its leaves turn, as well as what they look like. The shapes are also easier to tell apart at chip and pin sizes.
 
 ---
 
@@ -208,7 +208,7 @@ No shapes were traced or copied. Every leaf is drawn from scratch so the project
   - one base rule gives the hand cursor to buttons, links, tabs, options, radios, menu items, selects, checkboxes, date inputs and labels wrapping inputs
   - disabled controls show "not-allowed"
   - 106 of 107 interactive elements on the home screen now show the hand. The exception is Mapbox's compass, which keeps its grab cursor because it's dragged to rotate the map.
-- **Focus:** a visible focus ring in the brand colour for keyboard users.
+- **Focus:** a visible focus ring in the brand color for keyboard users.
 - **Hover and press:**
   - list rows get a full-width rounded highlight on hover and a darker press state (shared `ROW` style)
   - pill buttons scale down slightly when pressed
@@ -237,7 +237,7 @@ No shapes were traced or copied. Every leaf is drawn from scratch so the project
   | Free day. Move a stop here with its day picker. | Nothing planned yet. Move a stop here from its day menu. |
   | Someone shared this trip with you. | This trip was shared with you. Save it to make changes. |
   | Visible when zoomed in | Shown when you zoom in |
-  | x colour · y bare (map popup) | x turning · y leafless |
+  | x color · y bare (map popup) | x turning · y leafless |
 
 - **Error recovery:** the forecast shows "Try again" when it fails to load.
 - **Visible hints:** trips without a start date say "Set a start date to add this trip to your calendar." (previously only a hover tooltip, which phones never show).
@@ -304,7 +304,7 @@ No shapes were traced or copied. Every leaf is drawn from scratch so the project
 | 30 elevation-chart pointer moves | 30 whole-app renders | 11 ms total; only the map dot re-renders |
 
 - **iNaturalist API v2 with `fields`** requests only the 11 fields the app uses. Nearby-photo queries dropped to ~8 KB.
-- **Streaming.** The first page of coloured and of leafless sightings load in parallel and render immediately; the rest follow one page at a time, ~1 request/second as iNaturalist asks (TanStack Query `streamedQuery`).
+- **Streaming.** The first page of colored and of leafless sightings load in parallel and render immediately; the rest follow one page at a time, ~1 request/second as iNaturalist asks (TanStack Query `streamedQuery`).
 - **Device cache.** Completed sightings are kept in `localStorage` for 30 minutes. Refreshes keep showing the old data until new data is complete.
 - **Lazy map engine.** `FoliageMap` and Mapbox load as their own chunks in parallel with the panels. The map is memoized with stable callbacks.
 - **Map view is written with `history.replaceState`**, not the router, so panning doesn't re-render the app. Only user-driven or search-driven moves are recorded, so a freshly opened home page keeps a clean URL.
@@ -357,9 +357,9 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
   - stats, difficulty and loop status
   - a draggable elevation chart that moves a marker on the map
   - an "Along the trail" timeline
-  - the official description, colour outlook and photos
+  - the official description, color outlook and photos
   - Directions to trailhead, Share and GPX
-- **Place pages** (`/place/:id`): each kind has its own label, colour and icon (waterfall, lookout/"photo spot", peak, lake, river, creek). Each shows tips and the trails that reach it.
+- **Place pages** (`/place/:id`): each kind has its own label, color and icon (waterfall, lookout/"photo spot", peak, lake, river, creek). Each shows tips and the trails that reach it.
 - **Map:** trails drawn and tappable, with trailhead and photo-spot pins. Region pages list trails and waterfalls & lookouts, and search finds trails and places.
 
 **Decisions and why.**
@@ -392,17 +392,17 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 **Ref:** [#78](https://github.com/maarib/canopy/pull/78)
 
-**Before.** MapLibre GL 6 with OpenFreeMap vector styles, recoloured at runtime with an autumn palette, plus Terrarium hillshade and terrain. Free, no key.
+**Before.** MapLibre GL 6 with OpenFreeMap vector styles, recolored at runtime with an autumn palette, plus Terrarium hillshade and terrain. Free, no key.
 
 **After.**
 - **Mapbox GL JS v3 with the Mapbox Standard style**, configured at runtime:
   - faded theme
-  - autumn land, greenspace and water colours
+  - autumn land, greenspace and water colors
   - point-of-interest and transit labels and pedestrian paths hidden
   - 3D trees and landmarks
   - globe at low zoom
 - **Light presets** (dawn, day, dusk, night, auto) in the Layers menu, saved in the URL. **Dusk is the default.**
-- **Layers placed in Standard's slots** (`bottom`, `middle`, `top`). Emissive strength keeps data colours true under every light preset.
+- **Layers placed in Standard's slots** (`bottom`, `middle`, `top`). Emissive strength keeps data colors true under every light preset.
 - **Terrain** comes from the Mapbox DEM.
 - **The token** is read from `VITE_MAPBOX_TOKEN` (a repository variable for Pages builds).
 - **Park report headers** show only a clock and the date; "Official report" remains as screen-reader text.
@@ -445,7 +445,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 **Before.**
 - A single detailed maple leaf served as the logo, favicon and every region pin.
-- Tree filter chips used coloured dots.
+- Tree filter chips used colored dots.
 - The site was not deployed.
 
 **After.**
@@ -508,7 +508,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-09-30 · Milestone 1: the live colour map
+## 2026-09-30 · Milestone 1: the live color map
 
 **Ref:** `2d0dfdc`
 
@@ -517,7 +517,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 **After.**
 - **Map style:** an autumn-tinted basemap (light/dark), hillshade and optional 3D terrain.
 - **Official reports:** an Ontario Parks scraper writes `public/data/ontario-parks.json` (70 report locations, 64 park-level) and runs daily in season.
-- **Report pages:** park reports are drawn by colour stage, each with a park page showing colour %, leaf fall %, dominant colour and viewing tips.
+- **Report pages:** park reports are drawn by color stage, each with a park page showing color %, leaf fall %, dominant color and viewing tips.
 - **Sightings:** iNaturalist sightings are grouped into zoom-adaptive hexagons, then individual dots when zoomed in.
 - **A tree filter** groups observations by genus.
 - **Other layers:** Parks Canada trails when zoomed in, and a NASA GIBS VIIRS satellite layer with a date picker.
@@ -525,12 +525,12 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 **Decisions and why.**
 - **Scrape Ontario Parks.** It has no API, but its report page embeds the data as a JSON array, which is read directly.
-- **Group by tree genus.** The raw most-common "species" in coloured-leaf sightings were often not trees (fireweed, poison ivy, roses).
+- **Group by tree genus.** The raw most-common "species" in colored-leaf sightings were often not trees (fireweed, poison ivy, roses).
 - **Fixes:**
   - The hex opacity expression nested `zoom` inside another expression, which Mapbox/MapLibre reject; the layer failed, and so did the layers ordered after it.
   - The satellite default date used UTC, which in Eastern evenings meant "today", before that day's pass was complete. It now uses yesterday in local time.
 
-**Caveat.** iNaturalist's leaf annotation is mostly used for coloured leaves (766 coloured vs 64 leafless in Canada over 14 days at the time). Hexagons therefore show where colour is being reported, not a percentage of change. A real percentage needs green-leaf counts per area (issue #29).
+**Caveat.** iNaturalist's leaf annotation is mostly used for colored leaves (766 colored vs 64 leafless in Canada over 14 days at the time). Hexagons therefore show where color is being reported, not a percentage of change. A real percentage needs green-leaf counts per area (issue #29).
 
 ---
 
@@ -558,5 +558,5 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
   - Open-Meteo and Environment Canada GeoMet weather
   - Parks Canada trails and OpenStreetMap
   - Google Maps Platform APIs and pricing
-- **App:** Vite, React 19, TypeScript, Tailwind v4 and TanStack Query. 15 curated regions with typical peak windows, live coloured-leaf sightings, and a region panel with a 7-day colour outlook (vivid / leaf-drop / frost) from Open-Meteo.
+- **App:** Vite, React 19, TypeScript, Tailwind v4 and TanStack Query. 15 curated regions with typical peak windows, live colored-leaf sightings, and a region panel with a 7-day color outlook (vivid / leaf-drop / frost) from Open-Meteo.
 - **CI:** lint and build on pushes to `main` and on pull requests.

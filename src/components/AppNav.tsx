@@ -6,7 +6,7 @@ import { TAB_BAR_HEIGHT } from '../lib/styles'
 // The app's sections. Desktop: a slim rail left of the panel. Phones: a bottom tab bar
 // (the pattern Airbnb and AllTrails both use), with the sheet sitting above it.
 
-export type Section = 'explore' | 'parks' | 'trails' | 'colours' | 'trips'
+export type Section = 'explore' | 'parks' | 'trails' | 'colors' | 'trips'
 
 // Nav icons share Relume's outline weight (~1.7px at 24px). The selected section shows a
 // filled version. Search has no solid form, so it gets a heavier stroke instead.
@@ -40,7 +40,7 @@ const ICONS: Record<Section, (active: boolean) => ReactNode> = {
         <path d="M12 11.9H5.9l-2.15 2.4 2.15 2.4H12Z" {...STROKE} fill={active ? 'currentColor' : 'none'} />
       </>,
     ),
-  colours: (active) =>
+  colors: (active) =>
     svg(
       <>
         <path d={MAPLE} fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={7} strokeLinejoin="round" />
@@ -56,7 +56,7 @@ const SECTIONS: { id: Section; path: string; label: string }[] = [
   { id: 'explore', path: '/', label: 'Explore' },
   { id: 'parks', path: '/parks', label: 'Parks' },
   { id: 'trails', path: '/trails', label: 'Trails' },
-  { id: 'colours', path: '/colours', label: 'Fall colours' },
+  { id: 'colors', path: '/colors', label: 'Fall colors' },
   { id: 'trips', path: '/trips', label: 'Trips' },
 ]
 

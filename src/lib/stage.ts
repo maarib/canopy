@@ -1,4 +1,4 @@
-// Fall colour stages, shared by official reports and the legend.
+// Fall color stages, shared by official reports and the legend.
 
 export type Stage = 'green' | 'patchy' | 'near' | 'peak' | 'past' | 'bare'
 
@@ -13,14 +13,14 @@ export const STAGES: Record<Stage, { label: string; color: string }> = {
 
 export const STAGE_ORDER: Stage[] = ['peak', 'near', 'past', 'patchy', 'green', 'bare']
 
-export function stageFor(colourChange: number | null, leafFall: number | null): Stage {
-  const colour = colourChange ?? 0
+export function stageFor(colorChange: number | null, leafFall: number | null): Stage {
+  const color = colorChange ?? 0
   const fall = leafFall ?? 0
   if (fall >= 85) return 'bare'
   if (fall >= 50) return 'past'
-  if (colour >= 80) return 'peak'
-  if (colour >= 50) return 'near'
-  if (colour >= 20) return 'patchy'
+  if (color >= 80) return 'peak'
+  if (color >= 50) return 'near'
+  if (color >= 20) return 'patchy'
   return 'green'
 }
 

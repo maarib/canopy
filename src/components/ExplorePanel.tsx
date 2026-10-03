@@ -16,12 +16,12 @@ import { TreeIcon } from './TreeIcon'
 // The home page is a search, Airbnb-style: pick where (province) and what you're after, or
 // type a name. Discovery (what's peaking, popular trails) sits underneath as secondary help.
 
-export type LookingFor = 'everything' | 'colours' | 'parks' | 'trails' | 'places'
+export type LookingFor = 'everything' | 'colors' | 'parks' | 'trails' | 'places'
 
 const WHAT: { id: LookingFor; label: string; hint: string; icon: ReactNode; ontarioOnly?: boolean }[] = [
   { id: 'everything', label: 'Everything', hint: 'Show it all on the map', icon: <Search className="size-5" /> },
-  { id: 'colours', label: 'Fall colours', hint: 'Peak timing, reports and tree sightings', icon: <TreeIcon id="maples" className="size-5" /> },
-  { id: 'parks', label: 'Parks', hint: 'Provincial parks with colour reports', icon: <PlaceIcon kind="peak" className="size-5" />, ontarioOnly: true },
+  { id: 'colors', label: 'Fall colors', hint: 'Peak timing, reports and tree sightings', icon: <TreeIcon id="maples" className="size-5" /> },
+  { id: 'parks', label: 'Parks', hint: 'Provincial parks with color reports', icon: <PlaceIcon kind="peak" className="size-5" />, ontarioOnly: true },
   { id: 'trails', label: 'Trails', hint: 'Day hikes and backpacking routes', icon: <PlaceIcon kind="trail" className="size-5" />, ontarioOnly: true },
   { id: 'places', label: 'Lakes & waterfalls', hint: 'Falls, lookouts, lakes and peaks', icon: <PlaceIcon kind="waterfall" className="size-5" />, ontarioOnly: true },
 ]
@@ -115,7 +115,7 @@ export function ExplorePanel(props: Props) {
 
   const peaking = props.parks
     .filter((p) => p.main && (p.stage === 'peak' || p.stage === 'near'))
-    .sort((a, b) => (b.colourChange ?? 0) - (a.colourChange ?? 0))
+    .sort((a, b) => (b.colorChange ?? 0) - (a.colorChange ?? 0))
     .slice(0, 5)
   const popular = [...props.trails].sort((a, b) => a.lengthKm - b.lengthKm).filter((t) => t.difficulty !== 'backpacking').slice(0, 3)
   const places = new Map(props.places.map((p) => [p.id, p] as const))
@@ -124,7 +124,7 @@ export function ExplorePanel(props: Props) {
     <div className="space-y-7 p-5">
       <header>
         <h2 className="text-4xl leading-none">Find your next fall adventure</h2>
-        <p className="mt-2 text-sm text-[var(--ink-soft)]">Parks, trails, lakes and peak colour across Ontario, with fall colour across Canada.</p>
+        <p className="mt-2 text-sm text-[var(--ink-soft)]">Parks, trails, lakes and peak color across Ontario, with fall color across Canada.</p>
       </header>
 
       <section aria-label="Search" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-md">
@@ -139,10 +139,10 @@ export function ExplorePanel(props: Props) {
                   key={p.code}
                   selected={p.code === province}
                   label={p.name}
-                  hint={p.full ? 'Parks, trails, fishing and fall colour' : 'Fall colour regions and sightings'}
+                  hint={p.full ? 'Parks, trails, fishing and fall color' : 'Fall color regions and sightings'}
                   onClick={() => {
                     setProvince(p.code)
-                    if (!p.full && WHAT.find((w) => w.id === what)?.ontarioOnly) setWhat('colours')
+                    if (!p.full && WHAT.find((w) => w.id === what)?.ontarioOnly) setWhat('colors')
                     close()
                   }}
                 />
@@ -169,7 +169,7 @@ export function ExplorePanel(props: Props) {
             }
           </Field>
         </div>
-        {what === 'colours' && (
+        {what === 'colors' && (
           <div className="relative flex border-t border-[var(--line)] pt-1">
             <Field
               label="Trees"
@@ -207,7 +207,7 @@ export function ExplorePanel(props: Props) {
         <section>
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg">Peaking now in Ontario</h3>
-            <button onClick={() => props.onNavigate('/colours')} className="text-sm font-medium text-maple hover:underline">
+            <button onClick={() => props.onNavigate('/colors')} className="text-sm font-medium text-maple hover:underline">
               All reports
             </button>
           </div>
@@ -221,7 +221,7 @@ export function ExplorePanel(props: Props) {
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{parkTitle(p)}</span>
                     <span className="text-xs text-[var(--ink-soft)]">
-                      {p.colourChange ?? 0}% colour · {p.dominantColour}
+                      {p.colorChange ?? 0}% color · {p.dominantColor}
                     </span>
                   </span>
                   <span className="shrink-0 text-xs font-medium" style={{ color: STAGES[p.stage].color }}>

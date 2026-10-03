@@ -1,7 +1,7 @@
 import type { TreeIconId } from '../data/treeIcons'
 
-// Tree icons on a 100×100 grid, in a two-colour style: smooth, chunky leaf blades in each
-// tree's fall colour, with the stem, stalk and veins drawn on top in one dark ink colour.
+// Tree icons on a 100×100 grid, in a two-color style: smooth, chunky leaf blades in each
+// tree's fall color, with the stem, stalk and veins drawn on top in one dark ink color.
 // Shapes follow each group's main Ontario species (see docs/CHANGELOG.md for sources):
 // e.g. sugar maple's rounded U-shaped sinuses, shagbark hickory's five leaflets, white ash's seven.
 
@@ -9,11 +9,11 @@ type Pt = [number, number]
 type Stroke = { d: string; width: number }
 
 export type LeafShape = {
-  /** Filled shapes: 'leaf' uses the tree's fall colour, 'accent' a second colour (fruit), 'ink' the stem colour. */
+  /** Filled shapes: 'leaf' uses the tree's fall color, 'accent' a second color (fruit), 'ink' the stem color. */
   blades: { d: string; tone?: 'leaf' | 'accent' | 'ink' }[]
-  /** Strokes in the leaf colour (larch needles). */
+  /** Strokes in the leaf color (larch needles). */
   needles?: Stroke[]
-  /** Stem, stalk and veins, in the ink colour, drawn on top. */
+  /** Stem, stalk and veins, in the ink color, drawn on top. */
   ink: Stroke[]
 }
 
@@ -363,8 +363,8 @@ export const LEAF_SHAPES: Record<TreeIconId, LeafShape> = {
   shrubs: sumac(),
 }
 
-/** Each group's fall colour (leaf) and, for fruit, a second colour. */
-export const LEAF_COLOURS: Record<TreeIconId, { leaf: string; accent?: string }> = {
+/** Each group's fall color (leaf) and, for fruit, a second color. */
+export const LEAF_COLORS: Record<TreeIconId, { leaf: string; accent?: string }> = {
   maples: { leaf: '#e2602a' }, // sugar maple: yellow, burnt orange and red together
   oaks: { leaf: '#9c3a22' }, // red oak: dark red to russet
   birches: { leaf: '#f2c230' }, // paper birch: bright yellow

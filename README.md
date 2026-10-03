@@ -1,6 +1,6 @@
 # 🍁 Canopy
 
-**Fall colours across Canada, and everything worth exploring in Ontario.** Canopy shows where the leaves are turning right now, when to go, and what to do when you get there: trails, waterfalls, lookouts, lakes and creeks.
+**Fall colors across Canada, and everything worth exploring in Ontario.** Canopy shows where the leaves are turning right now, when to go, and what to do when you get there: trails, waterfalls, lookouts, lakes and creeks.
 
 **Live:** https://maarib.github.io/canopy/ · **Board:** [Canopy roadmap](https://github.com/users/maarib/projects/2) · **Issues:** [maarib/canopy/issues](https://github.com/maarib/canopy/issues)
 
@@ -11,17 +11,17 @@
 ## What it does today
 
 ### Search-first home and sections
-- **Explore (home)** is a search, in the spirit of Airbnb and AllTrails: type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall colour) and **Looking for** (everything, fall colours with a tree dropdown, parks, trails, lakes & waterfalls). Below the search: parks peaking now and short fall hikes.
-- **Sections:** Explore, **Parks** (search, activity filter, sort by colour or A–Z), **Trails** (trails by difficulty, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Fall colours** (official reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
+- **Explore (home)** is a search, in the spirit of Airbnb and AllTrails: type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall color) and **Looking for** (everything, fall colors with a tree dropdown, parks, trails, lakes & waterfalls). Below the search: parks peaking now and short fall hikes.
+- **Sections:** Explore, **Parks** (search, activity filter, sort by color or A–Z), **Trails** (trails by difficulty, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Fall colors** (official reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
 - **One Filters button on the map** with three tabs: Trees, park Activities and map Layers (including light).
 - **Account menu** (avatar, top right): trips, About & data sources, feedback. Accounts aren't built yet, so trips are saved on the device and sign-in is marked as coming soon.
 - **About & data sources** (`/about`) lists every source with what it provides, its licence and how often it refreshes; the footer links to it.
 
-### Live colour map
-- **Basemap:** Mapbox Standard on a globe, with autumn colours and **dusk lighting** by default. Dawn, day, night and auto are under Filters → Layers.
-- **Official park reports:** Ontario Parks' colour % and leaf fall % for about 64 parks, coloured by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
-- **Live sightings:** iNaturalist coloured-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
-- **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Fall colours page).
+### Live color map
+- **Basemap:** Mapbox Standard on a globe, with autumn colors and **dusk lighting** by default. Dawn, day, night and auto are under Filters → Layers.
+- **Official park reports:** Ontario Parks' color % and leaf fall % for about 64 parks, colored by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
+- **Live sightings:** iNaturalist colored-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
+- **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Fall colors page).
 - **More layers:** Parks Canada trails, a NASA VIIRS satellite view with a date picker, and 3D terrain.
 
 ### Park activities and facilities
@@ -35,15 +35,15 @@
 - **Layers → Fishing access** turns them off.
 
 ### Places with their own pages
-- **Regions** (15, hand-picked): typical peak window, a 7-day colour outlook, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
-- **Ontario provincial parks:** the official report (colour %, leaf fall %, dominant colour, viewing tips), outlook, photos, directions and booking.
+- **Regions** (15, hand-picked): typical peak window, a 7-day color outlook, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
+- **Ontario provincial parks:** the official report (color %, leaf fall %, dominant color, viewing tips), outlook, photos, directions and booking.
 - **Trails** (Algonquin Highway 60 corridor, 17 trails):
   - the track plotted on the map
   - length, estimated time, climb, high point, difficulty, and loop or point to point
   - a draggable elevation chart linked to the map
   - an **"Along the trail"** timeline of waterfalls, lookouts (photo spots), lakes, rivers and creeks, each with its km
   - Directions to trailhead, Share and GPX download
-- **Waterfalls, lookouts, peaks, lakes, rivers and creeks:** each has its own icon, colour and page, with the trails that reach it.
+- **Waterfalls, lookouts, peaks, lakes, rivers and creeks:** each has its own icon, color and page, with the trails that reach it.
 
 ### Trips
 - **Save** any region, park, trail or place to one or more trips (bookmark button on every page).
@@ -141,14 +141,14 @@ Tracked as epics and milestones on the [project board](https://github.com/users/
 - **Trips:** account sync, booking links for every park system (#48), trip suggestions
 - **Explore Ontario:** more areas (Killarney, Bon Echo, Frontenac, Arrowhead, Bruce Peninsula), pages for all 347 provincial parks, smaller parks and conservation areas
 - **When to go:** historical peak dates from satellite data, a forecast model and a season timeline
-- **Community:** colour reports with photos
+- **Community:** color reports with photos
 - **Launch readiness:** French, accessibility, offline use, notifications and SEO
 
 ## Known limitations
 
 - Trail and place pages cover the Algonquin Highway 60 corridor only so far.
-- Official colour reports are Ontario-only. Other provinces rely on sightings and typical windows.
-- Hexagons show where colour is being *reported*, not a percentage of trees changed (see [#29](https://github.com/maarib/canopy/issues/29)).
+- Official color reports are Ontario-only. Other provinces rely on sightings and typical windows.
+- Hexagons show where color is being *reported*, not a percentage of trees changed (see [#29](https://github.com/maarib/canopy/issues/29)).
 - The Mapbox account is on demo access: it can't be charged, but usage caps are low. Moving to standard access before launch is [#79](https://github.com/maarib/canopy/issues/79).
 - The 7-day outlook uses Open-Meteo's free tier, which is for non-commercial use. A switch to Environment Canada GeoMet is planned ([#36](https://github.com/maarib/canopy/issues/36)).
 

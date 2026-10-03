@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from './ui'
-import { colourOutlook, fetchForecast, weatherEmoji, type ColourOutlook } from '../lib/weather'
+import { colorOutlook, fetchForecast, weatherEmoji, type ColorOutlook } from '../lib/weather'
 
-const OUTLOOK_DOT: Record<ColourOutlook, { label: string; cls: string } | null> = {
-  vivid: { label: 'Vivid colour', cls: 'bg-maple' },
+const OUTLOOK_DOT: Record<ColorOutlook, { label: string; cls: string } | null> = {
+  vivid: { label: 'Vivid color', cls: 'bg-maple' },
   'leaf-drop': { label: 'Leaf-drop risk', cls: 'bg-bark dark:bg-[#a08672]' },
   frost: { label: 'Hard frost', cls: 'bg-sky-500' },
   neutral: null,
@@ -17,7 +17,7 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
 
   return (
     <section>
-      <h3 className="mb-2 text-lg">7-day colour outlook</h3>
+      <h3 className="mb-2 text-lg">7-day color outlook</h3>
       {forecast.isPending && (
         <div className="grid grid-cols-7 gap-1" role="status" aria-label="Loading forecast">
           {Array.from({ length: 7 }, (_, i) => (
@@ -36,7 +36,7 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
       {forecast.data && (
         <ol className="grid grid-cols-7 gap-1 text-center text-xs">
           {forecast.data.map((d) => {
-            const outlook = OUTLOOK_DOT[colourOutlook(d)]
+            const outlook = OUTLOOK_DOT[colorOutlook(d)]
             return (
               <li key={d.date} className="rounded-lg bg-[var(--surface-2)] px-0.5 py-2" title={outlook?.label}>
                 <div className="text-[var(--ink-soft)]">

@@ -8,10 +8,10 @@ export const MAPBOX_DEM = 'mapbox://mapbox.mapbox-terrain-dem-v1'
 
 export const LIGHT_PRESETS = ['dawn', 'day', 'dusk', 'night'] as const
 export type LightPreset = (typeof LIGHT_PRESETS)[number]
-/** 'auto' follows the system colour scheme (night in dark mode, day otherwise). */
+/** 'auto' follows the system color scheme (night in dark mode, day otherwise). */
 export type LightSetting = LightPreset | 'auto'
 
-/** Dusk: warm low light that flatters fall colour, and reads well in light and dark UI. */
+/** Dusk: warm low light that flatters fall color, and reads well in light and dark UI. */
 export const DEFAULT_LIGHT: LightSetting = 'dusk'
 
 export function resolveLight(setting: LightSetting, dark: boolean): LightPreset {
@@ -32,7 +32,7 @@ export function standardConfig(light: LightPreset): Record<string, string | bool
   }
 }
 
-/** NASA GIBS daily VIIRS true-colour mosaic for a given date (YYYY-MM-DD). */
+/** NASA GIBS daily VIIRS true-color mosaic for a given date (YYYY-MM-DD). */
 export const satelliteTiles = (date: string) =>
   `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`
 

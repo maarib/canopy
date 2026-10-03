@@ -4,8 +4,8 @@ export type ProvinceCode = Region['province']
 
 /**
  * Provinces in the search's "Where". Ontario has the full experience (parks, trails, fishing);
- * the others have fall colour regions and sightings for now. Bounds frame the southern band
- * where the colour is, as [west, south, east, north].
+ * the others have fall color regions and sightings for now. Bounds frame the southern band
+ * where the color is, as [west, south, east, north].
  */
 export const PROVINCES: { code: ProvinceCode; name: string; full: boolean; bounds: [number, number, number, number] }[] = [
   { code: 'ON', name: 'Ontario', full: true, bounds: [-91, 41.7, -74.3, 50] },

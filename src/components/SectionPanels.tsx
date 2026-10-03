@@ -54,7 +54,7 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
 
 // ── Parks ──────────────────────────────────────────────────
 
-type ParkSort = 'colour' | 'name'
+type ParkSort = 'color' | 'name'
 
 export function ParksPanel({
   parks,
@@ -73,7 +73,7 @@ export function ParksPanel({
   onSelectPark: (p: ParkReport) => void
 }) {
   const [query, setQuery] = useState('')
-  const [sort, setSort] = useState<ParkSort>('colour')
+  const [sort, setSort] = useState<ParkSort>('color')
   const [showFilters, setShowFilters] = useState(activities.length > 0)
 
   const list = useMemo(() => {
@@ -83,13 +83,13 @@ export function ParksPanel({
       .sort((a, b) =>
         sort === 'name'
           ? parkTitle(a).localeCompare(parkTitle(b))
-          : STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colourChange ?? 0) - (a.colourChange ?? 0),
+          : STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0),
       )
   }, [parks, query, sort])
 
   return (
     <div className="space-y-4 p-5">
-      <PageHeader title="Parks" subtitle="Ontario Parks with fall colour reports, facilities and activities" />
+      <PageHeader title="Parks" subtitle="Ontario Parks with fall color reports, facilities and activities" />
       <FilterInput value={query} onChange={setQuery} placeholder="Find a park" />
 
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -97,8 +97,8 @@ export function ParksPanel({
           <FilterList className="size-4" />
           Activities{activities.length > 0 && ` · ${activities.length}`}
         </Chip>
-        <Chip on={sort === 'colour'} onClick={() => setSort('colour')}>
-          Best colour first
+        <Chip on={sort === 'color'} onClick={() => setSort('color')}>
+          Best color first
         </Chip>
         <Chip on={sort === 'name'} onClick={() => setSort('name')}>
           A–Z
@@ -130,7 +130,7 @@ export function ParksPanel({
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium">{parkTitle(p)}</span>
                 <span className="text-xs text-[var(--ink-soft)]">
-                  {p.region} · {p.colourChange ?? 0}% colour
+                  {p.region} · {p.colorChange ?? 0}% color
                 </span>
               </span>
               <span className="shrink-0 text-xs font-medium" style={{ color: STAGES[p.stage].color }}>
@@ -143,7 +143,7 @@ export function ParksPanel({
       </ul>
       {parks && !list.length && <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No parks match. Try fewer activities or another name.</p>}
       <p className="text-[11px] text-[var(--ink-soft)]">
-        All 340 Ontario Parks have facility data; the ones with fall colour reports are shown here and on the map. The rest are coming.
+        All 340 Ontario Parks have facility data; the ones with fall color reports are shown here and on the map. The rest are coming.
       </p>
     </div>
   )
@@ -256,7 +256,7 @@ export function TrailsPanel({
 // ── About & data sources ───────────────────────────────────
 
 const SOURCES: { name: string; url: string; what: string; licence: string; refresh: string }[] = [
-  { name: 'Ontario Parks', url: 'https://www.ontarioparks.ca/fallcolour', what: 'Fall colour reports, park activities and facilities', licence: 'Ontario Parks website', refresh: 'Daily · weekly' },
+  { name: 'Ontario Parks', url: 'https://www.ontarioparks.ca/fallcolour', what: 'Fall color reports, park activities and facilities', licence: 'Ontario Parks website', refresh: 'Daily · weekly' },
   { name: 'iNaturalist', url: 'https://www.inaturalist.org', what: 'Tree sightings and nearby photos', licence: "Observers' CC licences", refresh: 'Live' },
   { name: 'Ontario Ministry of Natural Resources', url: 'https://data.ontario.ca/dataset/fishing-access-points', what: 'Fishing access points (Fish ON-Line), Ontario Trail Network', licence: 'Open Government Licence – Ontario', refresh: 'Monthly · weekly' },
   { name: 'Parks Canada', url: 'https://open.canada.ca/data/en/organization/pc', what: 'National park trails', licence: 'Open Government Licence – Canada', refresh: 'Live' },
@@ -271,8 +271,8 @@ export function AboutPanel() {
     <div className="space-y-6 p-5">
       <PageHeader title="About Canopy" subtitle="A one-stop shop for nature lovers and explorers" />
       <p className="text-sm leading-relaxed">
-        Canopy brings together fall colour, parks, trails, lakes and fishing spots so you can plan a day outside in one place. It starts
-        with Ontario, with fall colour across Canada, and will grow from there.
+        Canopy brings together fall color, parks, trails, lakes and fishing spots so you can plan a day outside in one place. It starts
+        with Ontario, with fall color across Canada, and will grow from there.
       </p>
       <section>
         <h3 className="text-lg">Data sources</h3>
