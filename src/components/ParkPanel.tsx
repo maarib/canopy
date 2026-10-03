@@ -1,5 +1,6 @@
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { ForestCover } from './ForestCover'
+import { parkCover } from '../lib/coverSpec'
 import { directionsUrl } from '../lib/peak'
 import { STAGES } from '../lib/stage'
 import { ForecastStrip } from './ForecastStrip'
@@ -19,7 +20,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
 
-      <ForestCover lat={park.lat} lng={park.lng} name={parkTitle(park)} park={park} boundary={park.shortname} />
+      <ForestCover spec={parkCover(park)} name={parkTitle(park)} />
 
       <header>
         <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">

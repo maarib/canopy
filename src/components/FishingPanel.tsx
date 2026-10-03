@@ -1,5 +1,6 @@
 import { LocationOn } from 'relume-icons'
 import { ForestCover } from './ForestCover'
+import { fishingCover } from '../lib/coverSpec'
 import { ACCESS_ICONS, ACCESS_TYPES, accessTitle, FISH_ONLINE, type AccessType, type FishingAccess } from '../lib/fishingAccess'
 import { directionsUrl } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
@@ -32,7 +33,7 @@ export function FishingPanel({ access, onBack }: { access: FishingAccess; onBack
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
 
-      <ForestCover lat={access.lat} lng={access.lng} name={access.name ?? type.label} radiusKm={2} />
+      <ForestCover spec={fishingCover(access)} name={access.name ?? type.label} />
 
       <header className="flex items-start gap-4">
         <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--surface-2)]">

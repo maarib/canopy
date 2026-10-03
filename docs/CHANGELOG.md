@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-03 | [Pre-drawn covers and list thumbnails](#2026-10-03-pre-drawn-covers-and-list-thumbnails) | [#109](https://github.com/maarib/canopy/pull/109) |
 | 2026-10-03 | [Map styles, Layers button and forest covers](#2026-10-03-map-styles-layers-button-and-forest-covers) | [#108](https://github.com/maarib/canopy/pull/108) |
 | 2026-10-03 | [Park boundaries](#2026-10-03-park-boundaries) | [#107](https://github.com/maarib/canopy/pull/107) |
 | 2026-10-03 | [Motion across panels, menus and the map](#2026-10-03-motion-across-panels-menus-and-the-map) | [#106](https://github.com/maarib/canopy/pull/106) |
@@ -27,6 +28,27 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live color map](#2026-09-30-milestone-1-the-live-color-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-03 · Pre-drawn covers and list thumbnails
+
+**Ref:** [#109](https://github.com/maarib/canopy/pull/109)
+
+**Before.** Every cover was drawn in the visitor's browser by a hidden map: a few seconds of shimmer on first view, and GPU work while the visitor was using the app. Lists showed plain icons.
+
+**After.**
+- **Pre-drawn at deploy time.** Covers for every fall-report park (70), region (15) and trail (17) are drawn during the deploy, in that day's colors, and served as plain WebP images (up to about 70 KB). Those pages show their cover as soon as the image loads, with no map, models or WebGL in the browser. Any other cover (places, fishing spots), or one whose colors changed since the deploy, is still drawn in the browser as before.
+- **Island thumbnails in lists.** Park list rows and trail rows (the Trails page and region pages) show a 96 px island thumbnail (about 4 KB, lazy-loaded) in place of their icon tile, at the same 40 px tile size. Lists only ever use pre-drawn thumbnails and fall back to their usual icon, so scrolling never triggers drawing.
+
+**How.**
+- `src/lib/coverSpec.ts` holds what each page's cover shows (shape, track, island size) and its key (shape plus foliage mix), shared by the app and the pre-render so both agree.
+- `scripts/build-covers.mjs` starts Vite and opens `scripts/covers/render.html` in headless Chromium (software WebGL, 2× pixel ratio). The page draws each cover with the app's own `forestCover` and makes a thumbnail. The script writes `dist/covers/<shape>-<hash>.webp`, `…-thumb.webp` and `index.json` (15 KB).
+- **Incremental:** with `--reuse`, covers whose key is unchanged are copied from the previous run instead of drawn. A fingerprint of the drawing code (`version.txt`) invalidates everything when the drawing changes. A full run of 101 covers took 3 min 20 s locally; an unchanged run took 2 s.
+- **Deploy:** `.github/workflows/deploy.yml` installs Chromium, restores the previous covers from the Actions cache, runs the script after the build, and saves the new set back to the cache. The step may fail without failing the deploy; the app then draws covers itself. Covers are never committed, so the repo doesn't grow daily.
+- `src/lib/coverIndex.ts` loads the index once; `ForestCover` uses a matching pre-drawn cover and otherwise draws; `CoverThumb` shows thumbnails in rows.
+
+**Why.** A fast, smooth app comes first. Drawing ahead of time takes the work off visitors' devices for the pages people open most, and makes the covers usable in lists.
 
 ---
 

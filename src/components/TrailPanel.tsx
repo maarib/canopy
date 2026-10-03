@@ -1,5 +1,6 @@
 import { CalendarToday, ChevronRight, Description, LocationOn } from 'relume-icons'
-import { ForestCover } from './ForestCover'
+import { CoverThumb, ForestCover } from './ForestCover'
+import { trailCover } from '../lib/coverSpec'
 import {
   DIFFICULTY,
   downloadFile,
@@ -41,7 +42,7 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
 
-      <ForestCover {...trailCover(trail)} name={trail.name} path={trail.geometry} />
+      <ForestCover spec={trailCover(trail)} name={trail.name} />
 
       <header>
         <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase" style={{ color: PLACE_KINDS.trail.color }}>
@@ -212,12 +213,14 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
   const kinds = [...new Set(trail.along.map((a) => places.get(a.poi)?.kind).filter(Boolean))] as Place['kind'][]
   return (
     <button onClick={onClick} className={ROW}>
-      <span
-        className="flex size-10 shrink-0 items-center justify-center rounded-xl text-white"
-        style={{ background: PLACE_KINDS.trail.color }}
-      >
-        <PlaceIcon kind="trail" className="size-5" />
-      </span>
+      <CoverThumb
+        spec={trailCover(trail)}
+        fallback={
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl text-white" style={{ background: PLACE_KINDS.trail.color }}>
+            <PlaceIcon kind="trail" className="size-5" />
+          </span>
+        }
+      />
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium">{trail.name}</span>
         <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
@@ -235,12 +238,4 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
       <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
     </button>
   )
-}
-
-/** A trail's cover: an island around the whole track, a little wider than it. */
-function trailCover(t: Trail) {
-  const [w, s, e, n] = t.bbox
-  const lat = (s + n) / 2
-  const halfDiagKm = Math.hypot((e - w) * 111.32 * Math.cos((lat * Math.PI) / 180), (n - s) * 111.32) / 2
-  return { lat, lng: (w + e) / 2, radiusKm: Math.max(0.3, halfDiagKm * 1.3) }
 }

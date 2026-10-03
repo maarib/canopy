@@ -12,7 +12,8 @@
     "data:explore": "node scripts/build-explore.mjs",
     "data:park-facilities": "node scripts/scrape-park-facilities.mjs",
     "data:fishing": "node scripts/build-fishing-access.mjs",
-    "data:park-boundaries": "node scripts/build-park-boundaries.mjs"
+    "data:park-boundaries": "node scripts/build-park-boundaries.mjs",
+    "covers": "node scripts/build-covers.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.0",
@@ -31,6 +32,7 @@
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.81.0",
+    "playwright": "^1.63.0",
     "pngjs": "^7.0.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
