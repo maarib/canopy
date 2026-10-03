@@ -1,22 +1,26 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { amenityIconUrl, type AmenityIcon as AmenityIconId } from '../data/amenityIcons'
+import { AMENITY_ICONS, COMPOSED_ICONS, icons8Url, type AmenityIcon as AmenityIconId } from '../data/amenityIcons'
 import { amenitiesFor, fetchParkFacilities, type Amenity } from '../lib/parkFacilities'
 import { LIST } from '../lib/styles'
 import { InfoRow, Skeleton } from './ui'
 
+/** A place, activity or facility icon: one pack icon, a composed pair, or one drawn for Canopy. */
 export function AmenityIcon({ icon, size = 24, className = '' }: { icon: AmenityIconId; size?: number; className?: string }) {
-  return (
-    <img
-      src={amenityIconUrl(icon, size)}
-      width={size}
-      height={size}
-      alt=""
-      loading="lazy"
-      decoding="async"
-      className={`shrink-0 ${className}`}
-    />
-  )
+  const img = (src: string, px: number, cls = '') => <img src={src} width={px} height={px} alt="" loading="lazy" decoding="async" className={cls} />
+  if (icon in COMPOSED_ICONS) {
+    const { main, badge } = COMPOSED_ICONS[icon as keyof typeof COMPOSED_ICONS]
+    const b = Math.round(size * 0.62)
+    // The badge sits on the lower right with a thin halo, as in the pack's own composed icons.
+    return (
+      <span className={`relative inline-block shrink-0 ${className}`} style={{ width: size, height: size }}>
+        {img(icons8Url(main, size), size)}
+        {img(icons8Url(badge, b), b, 'absolute -right-[12%] -bottom-[12%] drop-shadow-[0_0_1px_var(--surface)]')}
+      </span>
+    )
+  }
+  const src = icon in AMENITY_ICONS ? icons8Url(AMENITY_ICONS[icon as keyof typeof AMENITY_ICONS], size) : `${import.meta.env.BASE_URL}icons/${icon}.svg`
+  return img(src, size, `shrink-0 ${className}`)
 }
 
 const PREVIEW = 6

@@ -28,7 +28,7 @@
 - **Every park page** lists what you can do there (hiking, canoeing, fishing, biking, swimming, camping types and more) and what's on site (campsites by type with counts, comfort stations, boat launches, docks, park store, visitor centre, rentals), taken from Ontario Parks' own park pages.
 - **Filter the map by activity:** Filters → Activities (or the Parks page) shows only the Ontario Parks that offer everything you pick (hiking, canoeing, fishing, car camping, cabins, canoe rentals, showers and more). Each option shows how many parks would remain, and the park list follows the same filter.
 - **Park boundaries:** opening a park outlines its regulated boundary on the map (a red-and-white dashed edge over a light wash, islands and separate parcels included) and fits the map to the whole park. Outlines come from the Ministry of Natural Resources for all 347 provincial parks.
-- **Icons:** activities and facilities use the Icons8 *Windows 11 Color* set (locked in `icons8.json`); trees keep Canopy's own leaf icons.
+- **Icons:** activities and facilities use the Icons8 *Windows 11 Color* set (locked in `icons8.json`); trees keep Canopy's own leaf icons. Where the set has no icon, Canopy composes one from two of its icons (main plus corner badge: mountain biking, rock climbing, disc golf, whitewater, snowmobiling, cidery) or draws one in its style (kayaking, paddleboarding, in `public/icons/`).
 
 ### Fishing access
 - **2,427 public fishing access points** across Ontario (boat launches, shoreline access, docks and piers) from the Ministry of Natural Resources, the data behind Fish ON-Line. They appear on the map from zoom 8; overlapping pins thin out automatically, named sites first.

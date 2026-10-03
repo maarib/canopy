@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Canopy-drawn in the style of Icons8 "Windows 11 Color" (the pack has no paddleboard). -->
+  <defs>
+    <linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fc0f7"/><stop offset="1" stop-color="#1f6fd6"/></linearGradient>
+    <linearGradient id="h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd25a"/><stop offset="1" stop-color="#f29a1d"/></linearGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dccff"/><stop offset="1" stop-color="#3a96e6"/></linearGradient>
+    <linearGradient id="l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f6fc4"/><stop offset="1" stop-color="#27488f"/></linearGradient>
+    <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf8a"/><stop offset="1" stop-color="#f5a95b"/></linearGradient>
+    <linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef5a46"/><stop offset="1" stop-color="#c8202f"/></linearGradient>
+  </defs>
+  <rect x="2" y="35" width="44" height="10" rx="2.5" fill="url(#w)"/>
+  <path d="M2 36.2c3.7 0 3.7-1.4 7.3-1.4s3.7 1.4 7.3 1.4 3.7-1.4 7.4-1.4 3.7 1.4 7.3 1.4 3.7-1.4 7.4-1.4 3.6 1.4 7.3 1.4" fill="none" stroke="#a9e2ff" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M4 33.2C9 31.6 39 31.6 44 33.2c-4.6 2.2-35.4 2.2-40 0z" fill="url(#h)"/>
+  <path d="M18.6 32.2l1.6-10h2.4l-1 10zM25.4 32.2l-1-10h2.4l1.6 10z" fill="url(#l)"/>
+  <path d="M18.6 23.2c-.4-5.4 1.4-9.4 4.4-9.4s4.8 4 4.4 9.4z" fill="url(#b)"/>
+  <circle cx="23" cy="8.6" r="4" fill="url(#s)"/>
+  <path d="M26.4 16.6l5 1.4M20.2 17.6l9.2 5" stroke="#3a96e6" stroke-width="2.3" stroke-linecap="round"/>
+  <path d="M33 10.5L29.6 34" stroke="#4b5563" stroke-width="1.7" stroke-linecap="round"/>
+  <path d="M31.4 9.4h3.4" stroke="#4b5563" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M28.2 33.2l2.8.4-.6 6.2c-.2 1.4-2.6 1.1-2.6-.3z" fill="url(#p)"/>
+</svg>
