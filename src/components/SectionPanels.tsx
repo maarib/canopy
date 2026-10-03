@@ -309,6 +309,15 @@ export function AboutPanel() {
           ; interface icons by Relume. Type: Londrina Solid and Livvic.
         </p>
       </section>
+      <p className="text-[11px] text-[var(--ink-soft)]">
+        Canopy v{VERSION} ·{' '}
+        <a href={`https://github.com/maarib/canopy/releases/tag/v${__APP_VERSION__}`} target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
+          What's new
+        </a>
+      </p>
     </div>
   )
 }
+
+/** "1.1.0" → "1.1"; a patch release keeps its last number ("1.1.2"). */
+const VERSION = __APP_VERSION__.replace(/\.0$/, '')

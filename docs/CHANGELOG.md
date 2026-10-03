@@ -2,6 +2,17 @@
 
 What changed, what was there before, what it changed to, and why. Newest first. Each entry links the commit or pull request that made the change. Research behind the product lives in [PRD.md](PRD.md), [PLAN.md](PLAN.md) and [EXPLORE.md](EXPLORE.md).
 
+## Releases
+
+Each release is a git tag and a GitHub Release. The live site is always the latest; earlier releases can be checked out from their tags.
+
+| Version | Date | What's in it |
+|---|---|---|
+| [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
+| [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | 2026-10-03 | The first release: everything up to [#108](https://github.com/maarib/canopy/pull/108) |
+
+## All changes
+
 | Date | Change | Ref |
 |---|---|---|
 | 2026-10-03 | [Pre-drawn covers and list thumbnails](#2026-10-03-pre-drawn-covers-and-list-thumbnails) | [#109](https://github.com/maarib/canopy/pull/109) |
@@ -31,7 +42,9 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-03 · Pre-drawn covers and list thumbnails
+## v1.1
+
+### 2026-10-03 · Pre-drawn covers and list thumbnails
 
 **Ref:** [#109](https://github.com/maarib/canopy/pull/109)
 
@@ -52,7 +65,9 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-03 · Map styles, Layers button and forest covers
+## v1.0
+
+### 2026-10-03 · Map styles, Layers button and forest covers
 
 **Ref:** [#108](https://github.com/maarib/canopy/pull/108)
 
@@ -95,7 +110,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-03 · Park boundaries
+### 2026-10-03 · Park boundaries
 
 **Ref:** [#107](https://github.com/maarib/canopy/pull/107)
 
@@ -117,7 +132,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-03 · Motion across panels, menus and the map
+### 2026-10-03 · Motion across panels, menus and the map
 
 **Ref:** [#106](https://github.com/maarib/canopy/pull/106)
 
@@ -137,7 +152,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-03 · Map performance and floating pins
+### 2026-10-03 · Map performance and floating pins
 
 **Ref:** [#105](https://github.com/maarib/canopy/pull/105)
 
@@ -160,7 +175,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-03 · Search-first home, sections and account menu
+### 2026-10-03 · Search-first home, sections and account menu
 
 **Ref:** [#104](https://github.com/maarib/canopy/pull/104)
 
@@ -190,7 +205,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-02 · Detail page layout, list rows, footer
+### 2026-10-02 · Detail page layout, list rows, footer
 
 **Ref:** [#103](https://github.com/maarib/canopy/pull/103)
 
@@ -208,7 +223,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-02 · Fishing access points
+### 2026-10-02 · Fishing access points
 
 **Ref:** [#102](https://github.com/maarib/canopy/pull/102)
 
@@ -229,7 +244,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-02 · Filter parks by activity
+### 2026-10-02 · Filter parks by activity
 
 **Ref:** [#101](https://github.com/maarib/canopy/pull/101)
 
@@ -246,7 +261,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-02 · Park activities and facilities
+### 2026-10-02 · Park activities and facilities
 
 **Ref:** [#100](https://github.com/maarib/canopy/pull/100)
 
@@ -278,7 +293,7 @@ Ontario Parks came first because every park already on the map gains the data, a
 
 ---
 
-## 2026-10-01 · Two-color leaf icon set
+### 2026-10-01 · Two-color leaf icon set
 
 **Ref:** [#99](https://github.com/maarib/canopy/pull/99)
 
@@ -325,7 +340,7 @@ No shapes were traced or copied. Every leaf is drawn from scratch so the project
 
 ---
 
-## 2026-10-01 · Usability: cursors, hover states, action copy
+### 2026-10-01 · Usability: cursors, hover states, action copy
 
 **Ref:** [#98](https://github.com/maarib/canopy/pull/98)
 
@@ -380,7 +395,7 @@ No shapes were traced or copied. Every leaf is drawn from scratch so the project
 
 ---
 
-## 2026-10-01 · Trips: save, plan by day, share
+### 2026-10-01 · Trips: save, plan by day, share
 
 **Ref:** [#97](https://github.com/maarib/canopy/pull/97) · Issues #46, #47, #26 · Epic #91
 
@@ -414,7 +429,7 @@ No shapes were traced or copied. Every leaf is drawn from scratch so the project
 
 ---
 
-## 2026-10-01 · Performance and loading states
+### 2026-10-01 · Performance and loading states
 
 **Ref:** [#81](https://github.com/maarib/canopy/pull/81)
 
@@ -454,7 +469,7 @@ No shapes were traced or copied. Every leaf is drawn from scratch so the project
 
 ---
 
-## 2026-10-01 · Explore Ontario: trail and place pages
+### 2026-10-01 · Explore Ontario: trail and place pages
 
 **Ref:** [#80](https://github.com/maarib/canopy/pull/80) · Design notes: [EXPLORE.md](EXPLORE.md)
 
@@ -522,7 +537,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-10-01 · Map engine: MapLibre + OpenFreeMap → Mapbox
+### 2026-10-01 · Map engine: MapLibre + OpenFreeMap → Mapbox
 
 **Ref:** [#78](https://github.com/maarib/canopy/pull/78)
 
@@ -551,7 +566,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-10-01 · Shareable links, search, maple icon fix
+### 2026-10-01 · Shareable links, search, maple icon fix
 
 **Ref:** [#77](https://github.com/maarib/canopy/pull/77)
 
@@ -573,7 +588,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-10-01 · Tree icon set and GitHub Pages deploy
+### 2026-10-01 · Tree icon set and GitHub Pages deploy
 
 **Ref:** [#76](https://github.com/maarib/canopy/pull/76)
 
@@ -595,7 +610,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-09-30 · Relume icons for UI controls
+### 2026-09-30 · Relume icons for UI controls
 
 **Ref:** `e0e1e38`
 
@@ -613,7 +628,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-09-30 · Typography: Inter → Londrina Solid + Livvic
+### 2026-09-30 · Typography: Inter → Londrina Solid + Livvic
 
 **Ref:** `276a210`
 
@@ -629,7 +644,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-09-30 · Product requirements and project tracking
+### 2026-09-30 · Product requirements and project tracking
 
 **Ref:** `74ed32b`, `0bd266d`
 
@@ -642,7 +657,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-09-30 · Milestone 1: the live color map
+### 2026-09-30 · Milestone 1: the live color map
 
 **Ref:** `2d0dfdc`
 
@@ -668,7 +683,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-09-30 · Map engine: Google Maps → MapLibre + OpenFreeMap
+### 2026-09-30 · Map engine: Google Maps → MapLibre + OpenFreeMap
 
 **Ref:** `34c03de`
 
@@ -680,7 +695,7 @@ MNRF's separate Trail Segment dataset requires a request form, so it isn't used.
 
 ---
 
-## 2026-09-30 · Initial scaffold and research
+### 2026-09-30 · Initial scaffold and research
 
 **Ref:** `6d75d8e`
 

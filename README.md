@@ -147,6 +147,15 @@ docs/                  PRD, technical plan, Explore design, change log
 | [docs/EXPLORE.md](docs/EXPLORE.md) | Trails and places: research (AllTrails, Tripadvisor, Airbnb), identity system, data pipeline, roadmap |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Every change: before, after and why, with measurements |
 
+## Releases
+
+Each release is a git tag and a [GitHub Release](https://github.com/maarib/canopy/releases); the About page shows the live version. Minor versions (1.1, 1.2) bring new features, patch versions (1.1.1) only fixes, and a major version (2.0) a fundamental change. The version lives in `package.json`, and [docs/CHANGELOG.md](docs/CHANGELOG.md) groups changes by release.
+
+| Version | What's in it |
+|---|---|
+| [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | Pre-drawn covers and island thumbnails in lists |
+| [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | The first release |
+
 ## Roadmap
 
 Tracked as epics and milestones on the [project board](https://github.com/users/maarib/projects/2):
