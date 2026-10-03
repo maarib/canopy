@@ -60,6 +60,8 @@ What changed, what was there before, what it changed to, and why. Newest first. 
   - **Never cropped:** the cover is drawn with a 48 px margin around its frame and allowed to overflow it, so treetops rising past the frame stay visible. Only sideways overflow is clipped, at the panel's padding, so the panel never scrolls sideways.
   - **Credit:** a small centered "© Mapbox © OpenStreetMap" pill sits under the island.
 
+- **Detail page top bar.** The plain "← Back" link at the top of each detail and trip page is now a slim bar pinned to the top of the panel, with a round back button. It's clear at the top of the page, so the cover shows through. Once you scroll, it turns solid with a hairline border and the page's name fades into it once the heading has scrolled under it (`BackButton` in `ui.tsx`).
+
 **How.**
 - `src/lib/lowPolyTrees.ts` generates the tree models as tiny glTF files in the browser: a conifer and a leafy tree in each color, in two sizes. It also plants trees on a jittered grid, so the same place always gets the same trees.
 - `src/lib/diorama.ts` builds the shapes: park outlines, seeded islands, normalizing, Douglas–Peucker simplification and the path quads.

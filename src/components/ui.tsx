@@ -1,13 +1,63 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ArrowBack, ArrowForward, Check, Link } from 'relume-icons'
 import { ICON_TILE, INFO_ROW } from '../lib/styles'
 
+/** The nearest ancestor that scrolls (the desktop panel or the phone sheet). */
+function scrollParent(el: HTMLElement | null): HTMLElement | null {
+  for (let p = el?.parentElement; p; p = p.parentElement) if (/(auto|scroll)/.test(getComputedStyle(p).overflowY)) return p
+  return null
+}
+
+/**
+ * The top bar of a detail page, pinned to the top of the panel: a round back button, and the
+ * page's title, which fades in once the page's own heading has scrolled under the bar. Clear while
+ * the page is at the top, so the cover shows through; solid once it scrolls.
+ */
 export function BackButton({ onClick }: { onClick: () => void }) {
+  const bar = useRef<HTMLDivElement>(null)
+  const [scrolled, setScrolled] = useState(false)
+  const [title, setTitle] = useState<string | null>(null)
+
+  useEffect(() => {
+    const el = bar.current
+    const scroller = scrollParent(el)
+    const heading = el?.parentElement?.querySelector('h2')
+    if (!el || !scroller) return
+    const onScroll = () => setScrolled(scroller.scrollTop > 4)
+    onScroll()
+    scroller.addEventListener('scroll', onScroll, { passive: true })
+    let io: IntersectionObserver | undefined
+    if (heading) {
+      io = new IntersectionObserver(
+        ([e]) => setTitle(!e.isIntersecting && e.boundingClientRect.top < (e.rootBounds?.top ?? 0) + el.offsetHeight ? (heading.textContent ?? null) : null),
+        { root: scroller, rootMargin: `-${el.offsetHeight}px 0px 0px 0px` },
+      )
+      io.observe(heading)
+    }
+    return () => {
+      scroller.removeEventListener('scroll', onScroll)
+      io?.disconnect()
+    }
+  }, [])
+
   return (
-    <button onClick={onClick} className="-ml-1 flex items-center gap-1 text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">
-      <ArrowBack className="size-4" />
-      Back
-    </button>
+    <div
+      ref={bar}
+      className={`sticky top-0 z-20 -mx-5 -mt-5 -mb-2 flex h-14 items-center gap-3 border-b px-4 transition-colors duration-200 ${
+        scrolled ? 'border-[var(--line)] bg-[var(--surface)]' : 'border-transparent'
+      }`}
+    >
+      <button
+        onClick={onClick}
+        aria-label="Back"
+        className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)] shadow-sm transition-[background-color,transform] hover:bg-[var(--surface-2)] active:scale-95"
+      >
+        <ArrowBack className="size-5" />
+      </button>
+      <span aria-hidden className={`min-w-0 truncate font-display text-xl leading-none transition-opacity duration-200 ${title ? 'opacity-100' : 'opacity-0'}`}>
+        {title}
+      </span>
+    </div>
   )
 }
 
