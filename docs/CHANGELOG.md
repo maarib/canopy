@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-03 | [Map performance, floating pins and glass controls](#2026-10-03-map-performance-floating-pins-and-glass-controls) | Map performance PR |
+| 2026-10-03 | [Map performance, floating pins and glass controls](#2026-10-03-map-performance-floating-pins-and-glass-controls) | [#105](https://github.com/maarib/canopy/pull/105) |
 | 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | [#104](https://github.com/maarib/canopy/pull/104) |
 | 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | [#103](https://github.com/maarib/canopy/pull/103) |
 | 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
@@ -29,7 +29,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-03 · Map performance, floating pins and glass controls
 
-**Ref:** Map performance PR
+**Ref:** [#105](https://github.com/maarib/canopy/pull/105)
 
 **Before.** Panning and zooming could stutter, most on slower devices. Measured on the development machine with a scripted fly-and-zoom: 59 fps, worst frames 34–50 ms. Three causes:
 - **3D terrain was always on.** Mapbox Standard enables terrain between zoom 6 and 13.7 by default, even with Canopy's 3D toggle off. Draping every layer over the terrain mesh is the most expensive thing the map draws.
