@@ -31,6 +31,7 @@ import {
   type LightSetting,
 } from '../lib/mapStyle'
 import type { ParkReport } from '../lib/ontarioParks'
+import type { ParkBoundary } from '../lib/parkBoundaries'
 import { amenityIconUrl } from '../data/amenityIcons'
 import { ACCESS_ICONS, type AccessType, type FishingAccess } from '../lib/fishingAccess'
 import { addPins, drawIconPins, drawPlacePins, drawRegionPins, PIN_SIZES, placePinId, regionPinId, sized, type PinImage } from '../lib/mapPins'
@@ -71,6 +72,8 @@ export type FlyTarget = {
   zoom: number
   /** Fit these bounds instead of flying to a point (e.g. a whole trail). */
   bounds?: [number, number, number, number]
+  /** Hold still: the real target follows once its data loads (e.g. a park's outline). */
+  wait?: boolean
 } | null
 export type MapView = { lat: number; lng: number; zoom: number }
 
@@ -103,6 +106,8 @@ type Props = {
   fishing: FishingAccess[]
   selectedFishing: FishingAccess | null
   onSelectFishing: (a: FishingAccess) => void
+  /** The open park's regulated boundary. */
+  parkBoundary: ParkBoundary | null
 }
 
 export type TripPin = { ref: string; n: number; lng: number; lat: number; color: string; name: string }
@@ -180,6 +185,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       firstRun.current = false
       if (!target) return
     }
+    if (target?.wait) return
     const padding = sheetPadding(isDesktop, !!target)
     if (target?.bounds)
       map.fitBounds(
@@ -210,8 +216,16 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
   useEffect(() => {
     const map = mapRef.current?.getMap()
     if (!map || !mapReady || layers.terrain3d) return
+    // Clearing terrain fires styledata itself; never re-enter, or a map in a bad state loops forever.
+    let clearing = false
     const clear = () => {
-      if (map.getTerrain()) map.setTerrain(null)
+      if (clearing || !map.getTerrain()) return
+      clearing = true
+      try {
+        map.setTerrain(null)
+      } finally {
+        clearing = false
+      }
     }
     clear()
     map.on('styledata', clear)
@@ -631,6 +645,35 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
             'circle-stroke-color': '#fff',
             'circle-stroke-width': 1,
             'circle-emissive-strength': 1,
+          }}
+        />
+      </Source>
+
+      {/* The open park's boundary: a light wash inside a red-and-white dashed edge. */}
+      <Source id="park-boundary" type="geojson" data={props.parkBoundary ?? EMPTY}>
+        <Layer
+          id="park-boundary-fill"
+          type="fill"
+          slot="middle"
+          paint={{ 'fill-color': '#c8102e', 'fill-opacity': 0.07, 'fill-emissive-strength': 1 }}
+        />
+        <Layer
+          id="park-boundary-casing"
+          type="line"
+          slot="middle"
+          layout={{ 'line-join': 'round' }}
+          paint={{ 'line-color': '#fff', 'line-width': ['interpolate', ['linear'], ['zoom'], 6, 2, 14, 4], 'line-emissive-strength': 1 }}
+        />
+        <Layer
+          id="park-boundary-line"
+          type="line"
+          slot="middle"
+          layout={{ 'line-join': 'round' }}
+          paint={{
+            'line-color': '#c8102e',
+            'line-width': ['interpolate', ['linear'], ['zoom'], 6, 2, 14, 4],
+            'line-dasharray': [2, 1.5],
+            'line-emissive-strength': 1,
           }}
         />
       </Source>

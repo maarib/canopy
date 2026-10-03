@@ -55,6 +55,7 @@ import {
   writeCachedSightings,
 } from './lib/inaturalist'
 import { fetchOntarioParks, parkTitle, type ParkReport } from './lib/ontarioParks'
+import { fetchParkBoundary } from './lib/parkBoundaries'
 import type { LightSetting } from './lib/mapStyle'
 import { PHASE_STYLE, peakPhase } from './lib/peak'
 import { STAGES } from './lib/stage'
@@ -475,6 +476,17 @@ export default function App() {
     }
   }, [selection, resolveStop])
 
+  // The open park's regulated boundary, outlined on the map.
+  const parkShortname = selection?.kind === 'park' ? selection.park.shortname : null
+  const boundary = useQuery({
+    queryKey: ['park-boundary', parkShortname],
+    queryFn: () => fetchParkBoundary(parkShortname!),
+    enabled: !!parkShortname,
+    staleTime: Infinity,
+  })
+  const parkBoundary = parkShortname ? (boundary.data ?? null) : null
+  const boundaryPending = !!parkShortname && boundary.isPending
+
   const target: FlyTarget = useMemo(() => {
     if (tripOnMap?.stops.length) {
       const pts = [
@@ -498,7 +510,9 @@ export default function App() {
     }
     if (selection?.kind === 'park') {
       const { id, lng, lat } = selection.park
-      return { id: `park:${id}`, lng, lat, zoom: 10 }
+      // Wait for the outline so the map moves once, then fit the whole park.
+      if (boundaryPending) return { id: `park:${id}:waiting`, lng, lat, zoom: 10, wait: true }
+      return { id: `park:${id}`, lng, lat, zoom: 10, bounds: parkBoundary?.bbox }
     }
     if (selection?.kind === 'trail') {
       const { id, trailhead, bbox } = selection.trail
@@ -513,7 +527,7 @@ export default function App() {
       return { id: `fishing:${id}`, lng, lat, zoom: 13 }
     }
     return null
-  }, [selection, tripOnMap])
+  }, [selection, tripOnMap, boundaryPending, parkBoundary])
 
   // Unknown paths go home rather than showing a blank page.
   if (!regionMatch && !parkMatch && !trailMatch && !placeMatch && !fishingMatch && !sectionPath && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
@@ -685,6 +699,7 @@ export default function App() {
             focus={focus}
             initialView={initialView}
             onViewChange={onViewChange}
+            parkBoundary={parkBoundary}
             selectedId={selection?.kind === 'park' ? selection.park.id : selection?.kind === 'region' ? selection.region.id : null}
             onSelectRegion={selectRegion}
             onSelectPark={selectPark}

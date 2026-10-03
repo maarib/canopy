@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-03 | [Park boundaries](#2026-10-03-park-boundaries) | [#107](https://github.com/maarib/canopy/pull/107) |
 | 2026-10-03 | [Motion across panels, menus and the map](#2026-10-03-motion-across-panels-menus-and-the-map) | [#106](https://github.com/maarib/canopy/pull/106) |
 | 2026-10-03 | [Map performance and floating pins](#2026-10-03-map-performance-and-floating-pins) | [#105](https://github.com/maarib/canopy/pull/105) |
 | 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | [#104](https://github.com/maarib/canopy/pull/104) |
@@ -25,6 +26,28 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live color map](#2026-09-30-milestone-1-the-live-color-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-03 · Park boundaries
+
+**Ref:** [#107](https://github.com/maarib/canopy/pull/107)
+
+**Before.** A park page flew the map to the park's report point at a fixed zoom. Nothing showed where the park began or ended, so a small park like Awenda and one the size of Algonquin looked the same: a dot.
+
+**After.** Opening a park outlines its regulated boundary and fits the map to it.
+- **Style:** a red-and-white dashed edge (Canopy's maple red over a white casing) around a light 7% maple wash, drawn under the pins. Islands and separate parcels are included (Awenda's Giant's Tomb Island, for example).
+- **One move:** the map waits for the outline (a single small file), then fits the whole park in one move, above the half-open sheet on phones. If a park has no outline, it flies to the report point as before. Every park page fits the whole park, including parks whose only report comes from one spot inside them (Algonquin's is the Art Gallery).
+- **Back** clears the outline.
+
+**Source.** Ontario Ministry of Natural Resources "Provincial Park Regulated" layer on Land Information Ontario (`LIO_Open03/MapServer/4`). Open Government Licence – Ontario. Checked 2026-10-03: 347 parks, matched to Ontario Parks shortnames by name (six differ and are mapped by hand, and accents are dropped). All 340 parks in the facilities data and all 69 parks in the fall report have an outline.
+
+**How.**
+- **Build script** `scripts/build-park-boundaries.mjs` asks the service for GeoJSON, simplified by the server: about 5 m for parks under 1,000 ha and 20 m for larger ones. It writes one file per park to `public/data/park-boundaries/<shortname>.json` with the outline and its bounding box (4.4 MB in all; 10 KB typical, 190 KB for the largest). A file is only rewritten when its outline changed, and outlines for parks dropped from the layer are removed. Refreshed monthly by `.github/workflows/park-boundaries.yml`.
+- **App:** `src/lib/parkBoundaries.ts` loads the open park's file. The map draws it as a fill and two lines in the `middle` slot, below the park dots and pins.
+- **Fix:** clearing Standard's default terrain fires a style event itself, so the handler now ignores re-entry instead of being able to loop.
+
+**Why.** Knowing a park's extent answers "is this lake or trail inside the park?" and shows how big a place is before you go. It's the outline people expect from Google Maps.
 
 ---
 
