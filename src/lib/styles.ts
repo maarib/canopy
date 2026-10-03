@@ -13,3 +13,6 @@ export const ICON_TILE = 'flex size-10 shrink-0 items-center justify-center roun
 
 /** A divided list of rows. */
 export const LIST = 'divide-y divide-[var(--line)]'
+
+/** Phones: height of the bottom tab bar (AppNav), which the sheet and map sit above. */
+export const TAB_BAR_HEIGHT = 64

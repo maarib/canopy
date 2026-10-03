@@ -49,7 +49,7 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
           Get directions
         </LinkButton>
         <SaveButton stopRef={`region:${region.id}`} name={region.name} />
-        <ShareButton title={`${region.name} fall colours · Canopy`} />
+        <ShareButton title={`${region.name} fall colors · Canopy`} />
         {region.links.map((l) => (
           <LinkButton
             key={l.url}

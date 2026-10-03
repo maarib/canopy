@@ -40,7 +40,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
           Get directions
         </LinkButton>
         <SaveButton stopRef={`park:${park.id}`} name={parkTitle(park)} />
-        <ShareButton title={`${parkTitle(park)} fall colours · Canopy`} />
+        <ShareButton title={`${parkTitle(park)} fall colors · Canopy`} />
         <LinkButton href="https://reservations.ontarioparks.ca/" icon={<CalendarToday className="size-4" />} external>
           Reserve a site
         </LinkButton>
@@ -50,10 +50,10 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
       </section>
 
       <section className="space-y-3">
-        <Meter label="Colour change" value={park.colourChange} color={stage.color} />
+        <Meter label="Color change" value={park.colorChange} color={stage.color} />
         <Meter label="Leaf fall" value={park.leafFall} color={STAGES.past.color} />
         <p className="text-sm">
-          <span className="text-[var(--ink-soft)]">Dominant colour:</span> <strong>{park.dominantColour}</strong>
+          <span className="text-[var(--ink-soft)]">Dominant color:</span> <strong>{park.dominantColor}</strong>
         </p>
       </section>
 
@@ -70,7 +70,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
       <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} />
 
       <p className="text-[11px] text-[var(--ink-soft)]">
-        Colour data from the{' '}
+        Color data from the{' '}
         <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
           Ontario Parks Fall Colour Report
         </a>

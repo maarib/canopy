@@ -9,8 +9,8 @@ import { BackButton, InfoRow, LinkButton, ShareButton } from './ui'
 const REGULATIONS = 'https://www.ontario.ca/document/ontario-fishing-regulations-summary'
 
 const BLURB: Record<AccessType, string> = {
-  launch: 'A public place to put a boat or canoe in the water. Fall is a quiet season on the water, with colour on the shoreline and fewer boats.',
-  shore: 'Fish from the shore here. Fall brings cooling water and active fish, and the shoreline colours peak with the surrounding forest.',
+  launch: 'A public place to put a boat or canoe in the water. Fall is a quiet season on the water, with color on the shoreline and fewer boats.',
+  shore: 'Fish from the shore here. Fall brings cooling water and active fish, and the shoreline colors peak with the surrounding forest.',
   pier: 'A dock or pier for fishing from or tying up. Fall brings cooling water and active fish.',
 }
 

@@ -21,7 +21,7 @@ const AREAS = [
   },
 ]
 
-const UA = 'CanopyFallColours/0.1 (+https://github.com/maarib/canopy)'
+const UA = 'CanopyFallColors/0.1 (+https://github.com/maarib/canopy)'
 const OTN = 'https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open04/MapServer'
 const OVERPASS = [
   'https://overpass-api.de/api/interpreter',

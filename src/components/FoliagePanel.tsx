@@ -7,6 +7,8 @@ import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/pea
 import { STAGE_ORDER, STAGES } from '../lib/stage'
 import { ROW } from '../lib/styles'
 import { Skeleton } from './ui'
+import { TreePicker } from './TreePicker'
+import type { TreeFilterValue } from './MapControls'
 
 type Tab = 'reports' | 'regions'
 const PHASE_ORDER: PeakPhase[] = ['peak', 'approaching', 'early', 'past']
@@ -18,17 +20,29 @@ type Props = {
   listParks: ParkReport[] | undefined
   activityFilter?: { labels: string[]; onClear: () => void }
   parksFetchedAt: string | undefined
-  treeColourSightings: number | undefined
+  treeColorSightings: number | undefined
   onSelectRegion: (r: Region) => void
   onSelectPark: (p: ParkReport) => void
+  /** Which trees' sightings the map shows; a dropdown rather than every tree at once. */
+  tree: TreeFilterValue
+  treeCounts: Map<string, number>
+  onTree: (v: TreeFilterValue) => void
 }
 
-export function HomePanel(props: Props) {
+/** Foliage: official fall color reports, when each region peaks, and which trees are showing. */
+export function FoliagePanel(props: Props) {
   const [tab, setTab] = useState<Tab>('reports')
 
   return (
     <div className="p-5">
-      <SightingsSummary treeColourSightings={props.treeColourSightings} parks={props.parks} />
+      <header className="mb-4 flex items-end justify-between gap-3">
+        <div>
+          <h2 className="text-3xl leading-tight">Foliage</h2>
+          <p className="text-sm text-[var(--ink-soft)]">Fall color reports, peak timing and live tree sightings</p>
+        </div>
+        <TreePicker value={props.tree} counts={props.treeCounts} onChange={props.onTree} />
+      </header>
+      <SightingsSummary treeColorSightings={props.treeColorSightings} parks={props.parks} />
 
       <div role="tablist" className="mb-2 flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-sm">
         {(
@@ -75,12 +89,12 @@ export function HomePanel(props: Props) {
   )
 }
 
-function SightingsSummary({ treeColourSightings, parks }: Pick<Props, 'treeColourSightings' | 'parks'>) {
+function SightingsSummary({ treeColorSightings, parks }: Pick<Props, 'treeColorSightings' | 'parks'>) {
   const atPeak = parks?.filter((p) => p.main && p.stage === 'peak').length
   return (
     <div className="mb-4 grid grid-cols-2 gap-2">
       <Stat value={atPeak} label="Ontario parks at peak" dot={STAGES.peak.color} />
-      <Stat value={treeColourSightings} label="trees seen turning in the last 14 days" dot="#e8730c" />
+      <Stat value={treeColorSightings} label="trees seen turning in the last 14 days" dot="#e8730c" />
     </div>
   )
 }
@@ -97,7 +111,7 @@ function Stat({ value, label, dot }: { value: number | undefined; label: string;
   )
 }
 
-function ParkList({
+export function ParkList({
   parks,
   fetchedAt,
   onSelect,
@@ -126,7 +140,7 @@ function ParkList({
     .filter((p) => p.main)
     .sort(
       (a, b) =>
-        STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colourChange ?? 0) - (a.colourChange ?? 0),
+        STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0),
     )
   return (
     <>
@@ -143,7 +157,7 @@ function ParkList({
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{parkTitle(p)}</span>
                   <span className="text-xs text-[var(--ink-soft)]">
-                    {p.colourChange ?? 0}% colour · {p.leafFall ?? 0}% fallen · {p.dominantColour}
+                    {p.colorChange ?? 0}% color · {p.leafFall ?? 0}% fallen · {p.dominantColor}
                   </span>
                 </span>
                 <span className="shrink-0 text-xs font-medium" style={{ color: stage.color }}>

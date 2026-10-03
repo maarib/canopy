@@ -5,7 +5,7 @@ import { TREE_ICON_IDS } from '../data/treeIcons'
 // Dev-only icon preview: open /?icons while running `npm run dev`.
 export default function IconSheet() {
   const label = (id: string) => TREE_GROUPS.find((g) => g.id === id)?.label ?? id
-  const row = (px: number, tone: 'colour' | 'mono' = 'colour') => (
+  const row = (px: number, tone: 'color' | 'mono' = 'color') => (
     <div className="grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-7">
       {TREE_ICON_IDS.map((id) => (
         <figure key={id} className="flex flex-col items-center gap-1.5 text-center text-[11px] text-[var(--ink-soft)]">
@@ -35,7 +35,7 @@ export default function IconSheet() {
         </section>
       ))}
       <section>
-        <h2 className="mb-3 text-lg">Single colour (tone="mono") · 24px</h2>
+        <h2 className="mb-3 text-lg">Single color (tone="mono") · 24px</h2>
         {row(24, 'mono')}
       </section>
     </div>

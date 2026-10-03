@@ -1,8 +1,8 @@
 import type { TreeIconId } from '../data/treeIcons'
-import { LEAF_COLOURS, LEAF_SHAPES } from '../lib/leafShapes'
+import { LEAF_COLORS, LEAF_SHAPES } from '../lib/leafShapes'
 
-// Two-colour tree icons (shapes and fall colours in src/lib/leafShapes.ts): the leaf in its
-// tree's fall colour, the stem and veins in ink. Ink comes from --leaf-ink so it adapts to
+// Two-color tree icons (shapes and fall colors in src/lib/leafShapes.ts): the leaf in its
+// tree's fall color, the stem and veins in ink. Ink comes from --leaf-ink so it adapts to
 // light and dark backgrounds. `tone="mono"` draws everything in currentColor instead.
 // Preview them all in dev at /?icons.
 
@@ -10,17 +10,17 @@ export function TreeIcon({
   id,
   className = 'size-4',
   title,
-  tone = 'colour',
+  tone = 'color',
 }: {
   id: TreeIconId
   className?: string
   title?: string
-  tone?: 'colour' | 'mono'
+  tone?: 'color' | 'mono'
 }) {
   const shape = LEAF_SHAPES[id]
   const mono = tone === 'mono'
-  const leaf = mono ? 'currentColor' : LEAF_COLOURS[id].leaf
-  const accent = mono ? 'currentColor' : (LEAF_COLOURS[id].accent ?? leaf)
+  const leaf = mono ? 'currentColor' : LEAF_COLORS[id].leaf
+  const accent = mono ? 'currentColor' : (LEAF_COLORS[id].accent ?? leaf)
   const ink = mono ? 'currentColor' : 'var(--leaf-ink)'
   const fillFor = (t?: 'leaf' | 'accent' | 'ink') => (t === 'accent' ? accent : t === 'ink' ? ink : leaf)
 

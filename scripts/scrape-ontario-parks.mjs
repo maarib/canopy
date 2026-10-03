@@ -1,4 +1,4 @@
-// Pulls the Ontario Parks fall colour report into public/data/ontario-parks.json.
+// Pulls the Ontario Parks fall color report into public/data/ontario-parks.json.
 // The report page embeds its data as `var data = [...]`; we read that array
 // rather than parsing HTML. Runs daily via .github/workflows/ontario-parks.yml.
 // Source: https://www.ontarioparks.ca/fallcolour (please credit Ontario Parks).
@@ -28,7 +28,7 @@ function extractArray(html) {
 
 const toNumber = (v) => (v === null || v === undefined || v === '' ? null : Number(v))
 
-const res = await fetch(SOURCE, { headers: { 'User-Agent': 'CanopyFallColours/0.1 (+https://github.com/maarib/canopy)' } })
+const res = await fetch(SOURCE, { headers: { 'User-Agent': 'CanopyFallColors/0.1 (+https://github.com/maarib/canopy)' } })
 if (!res.ok) throw new Error(`Ontario Parks responded ${res.status}`)
 const raw = extractArray(await res.text())
 
@@ -41,8 +41,8 @@ const parks = raw
     location: p.location_name && p.location_name !== 'empty' ? p.location_name : null,
     main: p.main_marker === 'yes',
     region: p.region,
-    dominantColour: p.dominant_colour,
-    colourChange: toNumber(p.colour_change),
+    dominantColor: p.dominant_colour,
+    colorChange: toNumber(p.colour_change),
     leafFall: toNumber(p.leaf_fall),
     viewing: p.viewing,
     reportedAt: p.report_date ? new Date(Number(p.report_date) * 1000).toISOString() : null,

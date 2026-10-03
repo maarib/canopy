@@ -14,16 +14,16 @@ The planning loop: **area → trails and places → trail detail (track + stops)
 | App | Pattern | What Canopy does with it |
 |---|---|---|
 | **AllTrails** | Trail page: length, est. time, elevation gain and route type up top; interactive elevation chart you drag to see the point on the map; waypoints (trailheads, attractions); geotagged photos along the route; recent conditions with timestamps | ✅ Stats row, draggable elevation chart linked to a map marker, "Along the trail" timeline with km, GPX download. Next: photos pinned along the route, condition reports. |
-| **Tripadvisor** | Every attraction has its own page with a strong identity, "things to do nearby", and how to get there | ✅ Every waterfall, lookout, peak, lake, river and creek has its own page, icon and colour, plus "Reach it on" (the trails that pass it), directions and weather. Next: "nearby" rail, rankings. |
+| **Tripadvisor** | Every attraction has its own page with a strong identity, "things to do nearby", and how to get there | ✅ Every waterfall, lookout, peak, lake, river and creek has its own page, icon and color, plus "Reach it on" (the trails that pass it), directions and weather. Next: "nearby" rail, rankings. |
 | **Airbnb** | Split list + map; map pins that stay in sync with the list; wishlists for collaborative planning; neighbourhood guides | ✅ Region page lists trails and photo spots over the map. Next: desktop split view, **wishlists → trips** (save trails and places, share a plan), area guides. |
 
 Sources: [AllTrails trail page update](https://www.alltrails.com/press/alltrails-reveals-major-update) · [AllTrails map layers](https://support.alltrails.com/hc/en-us/articles/37228180990228-AllTrails-map-types-overlays-and-extras) · [Baymard: split-view search results](https://baymard.com/blog/accommodations-split-view) · [Airbnb map platform](https://adamshutsa.com/map-platform/) · [Airbnb UX observations](https://takuma-kakehi.medium.com/airbnb-ux-design-observations-49d191807294)
 
 ## Identity system
 
-Each kind of place has a label, colour, icon and page template (`src/lib/explore.ts`, `src/components/PlaceIcon.tsx`).
+Each kind of place has a label, color, icon and page template (`src/lib/explore.ts`, `src/components/PlaceIcon.tsx`).
 
-| Kind | Colour | Icon | Page highlights |
+| Kind | Color | Icon | Page highlights |
 |---|---|---|---|
 | Trail / trailhead | spruce `#2f5d3a` | signpost | Track on map, stats, elevation chart, along-the-trail timeline, GPX |
 | Waterfall | blue `#2b7bbf` | falls | Photo spot, trails that reach it |
@@ -32,7 +32,7 @@ Each kind of place has a label, colour, icon and page template (`src/lib/explore
 | Lake | teal `#2a8a8f` | waves | Trails along the shore |
 | River / creek | blue `#4a90b8` / `#5ba6c9` | winding line | Trails that cross or follow it |
 
-Provincial parks keep their colour-stage identity (official report pages).
+Provincial parks keep their color-stage identity (official report pages).
 
 ## Data
 
@@ -62,5 +62,5 @@ Per trail the script computes length, loop vs point-to-point (official geometry 
 3. **Park pages from official boundaries** for all 347 provincial parks, with their trails and places.
 4. **Trips (Airbnb wishlists):** save trails and places, order them by day, share a plan, export GPX/ICS.
 5. **Photos along the route:** iNaturalist and Wikimedia Commons geotagged photos pinned on the track.
-6. **Conditions and reviews:** dated community reports (mud, closures, colour).
+6. **Conditions and reviews:** dated community reports (mud, closures, color).
 7. **3D flyover** of a trail using Mapbox terrain.

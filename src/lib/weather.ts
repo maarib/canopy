@@ -10,7 +10,7 @@ export type DayForecast = {
   weatherCode: number
 }
 
-export type ColourOutlook = 'vivid' | 'leaf-drop' | 'frost' | 'neutral'
+export type ColorOutlook = 'vivid' | 'leaf-drop' | 'frost' | 'neutral'
 
 export async function fetchForecast(lat: number, lng: number): Promise<DayForecast[]> {
   const params = new URLSearchParams({
@@ -37,7 +37,7 @@ export async function fetchForecast(lat: number, lng: number): Promise<DayForeca
  * Rule of thumb: cool (not freezing) nights plus dry, mild days give the
  * brightest reds; strong wind or heavy rain strips leaves; a hard frost dulls them.
  */
-export function colourOutlook(day: DayForecast): ColourOutlook {
+export function colorOutlook(day: DayForecast): ColorOutlook {
   if (day.gustKmh >= 50 || day.precipMm >= 15) return 'leaf-drop'
   if (day.tMin <= -2) return 'frost'
   if (day.tMin > 0 && day.tMin <= 8 && day.tMax >= 12 && day.precipMm < 2) return 'vivid'

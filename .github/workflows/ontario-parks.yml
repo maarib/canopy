@@ -1,7 +1,7 @@
-name: Ontario Parks fall colour data
+name: Ontario Parks fall color data
 on:
   schedule:
-    # Daily at 15:00 UTC (11:00 Eastern) during fall colour season, Sept–Nov
+    # Daily at 15:00 UTC (11:00 Eastern) during fall color season, Sept–Nov
     - cron: '0 15 * 9-11 *'
   workflow_dispatch:
 
@@ -23,6 +23,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/data/ontario-parks.json
           if ! git diff --cached --quiet; then
-            git commit -m "Update Ontario Parks fall colour data"
+            git commit -m "Update Ontario Parks fall color data"
             git push
           fi

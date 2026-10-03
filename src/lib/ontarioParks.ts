@@ -7,8 +7,8 @@ export type ParkReport = {
   location: string | null
   main: boolean
   region: string
-  dominantColour: string
-  colourChange: number | null
+  dominantColor: string
+  colorChange: number | null
   leafFall: number | null
   viewing: string
   reportedAt: string | null
@@ -28,7 +28,7 @@ export async function fetchOntarioParks(): Promise<ParkReportFeed> {
   const feed = (await res.json()) as ParkReportFeed
   return {
     ...feed,
-    parks: feed.parks.map((p) => ({ ...p, viewing: p.viewing.trim(), stage: stageFor(p.colourChange, p.leafFall) })),
+    parks: feed.parks.map((p) => ({ ...p, viewing: p.viewing.trim(), stage: stageFor(p.colorChange, p.leafFall) })),
   }
 }
 

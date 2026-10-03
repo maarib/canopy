@@ -33,7 +33,7 @@ export const REGIONS: Region[] = [
     species: ['Sugar maple', 'Red maple', 'Yellow birch', 'Tamarack'],
     highlights: ['Lookout Trail', 'Track and Tower Trail', 'Highway 60 corridor', 'Centennial Ridges'],
     links: [
-      { label: 'Fall colour report', url: 'https://www.algonquinpark.on.ca/visit/general_park_info/fall-colour-report.php' },
+      { label: 'Fall color report', url: 'https://www.algonquinpark.on.ca/visit/general_park_info/fall-colour-report.php' },
       { label: 'Book with Ontario Parks', url: 'https://reservations.ontarioparks.ca/' },
     ],
   },
@@ -46,7 +46,7 @@ export const REGIONS: Region[] = [
     typicalPeak: { start: '09-28', end: '10-12' },
     species: ['Sugar maple', 'Red maple', 'Red oak'],
     highlights: ['Dorset Lookout Tower', 'Lions Lookout, Huntsville', 'Arrowhead Provincial Park'],
-    links: [{ label: 'Ontario Parks fall colours', url: 'https://www.ontarioparks.ca/fallcolour' }],
+    links: [{ label: 'Ontario Parks fall colors', url: 'https://www.ontarioparks.ca/fallcolour' }],
   },
   {
     id: 'algoma',
@@ -57,7 +57,7 @@ export const REGIONS: Region[] = [
     typicalPeak: { start: '09-18', end: '10-02' },
     species: ['Sugar maple', 'Trembling aspen', 'White birch'],
     highlights: ['Agawa Canyon tour train', 'Lake Superior Provincial Park', 'Orphan Lake Trail'],
-    links: [{ label: 'Ontario Parks fall colours', url: 'https://www.ontarioparks.ca/fallcolour' }],
+    links: [{ label: 'Ontario Parks fall colors', url: 'https://www.ontarioparks.ca/fallcolour' }],
   },
   {
     id: 'bruce',
@@ -112,7 +112,7 @@ export const REGIONS: Region[] = [
     typicalPeak: { start: '09-28', end: '10-12' },
     species: ['Sugar maple', 'Red maple', 'Red oak'],
     highlights: ['Mont Orford', 'Mont Ham', 'Memphremagog lake drive'],
-    links: [{ label: 'Colour evolution', url: 'https://www.easterntownships.org/article/728/fall-colour-evolution-in-the-eastern-townships' }],
+    links: [{ label: 'Color evolution', url: 'https://www.easterntownships.org/article/728/fall-colour-evolution-in-the-eastern-townships' }],
   },
   {
     id: 'cabot',

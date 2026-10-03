@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Product** | Canopy: fall colours across Canada (responsive web app / PWA) |
+| **Product** | Canopy: fall colors across Canada (responsive web app / PWA) |
 | **Owner** | @maarib |
 | **Status** | v1.1 · updated 2026-10-01 |
 | **Related** | [Technical plan](PLAN.md) · [Explore Ontario](EXPLORE.md) · [Change log](CHANGELOG.md) · [Issues](https://github.com/maarib/canopy/issues) · [Project board](https://github.com/users/maarib/projects/2) |
@@ -11,11 +11,11 @@
 
 ## 1. Summary
 
-Every fall, millions of Canadians and visitors try to answer the same three questions: **Where are the colours right now? When will they peak where I want to go? What should I do when I get there?** The answers are scattered across provincial park reports, tourism PDFs, social media and guesswork, and most of the country isn't covered by anyone.
+Every fall, millions of Canadians and visitors try to answer the same three questions: **Where are the colors right now? When will they peak where I want to go? What should I do when I get there?** The answers are scattered across provincial park reports, tourism PDFs, social media and guesswork, and most of the country isn't covered by anyone.
 
 Canopy is one map-first app that answers all three for all of Canada. It covers every tree type, every park and the trails, with live conditions, forecasts and a trip plan you can take with you.
 
-**What exists today (2026-10-01):** a live colour map on Mapbox (globe, light presets, 3D terrain); Ontario Parks official reports refreshed daily; iNaturalist colour sightings with a tree-type filter; region, park, trail and place pages; Algonquin trails with plotted tracks, elevation profiles and the waterfalls, lookouts, lakes and creeks along them; search; shareable links; skeleton loading states. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
+**What exists today (2026-10-01):** a live color map on Mapbox (globe, light presets, 3D terrain); Ontario Parks official reports refreshed daily; iNaturalist color sightings with a tree-type filter; region, park, trail and place pages; Algonquin trails with plotted tracks, elevation profiles and the waterfalls, lookouts, lakes and creeks along them; search; shareable links; skeleton loading states. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
 
 ---
 
@@ -25,7 +25,7 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 |---|---|
 | **Data is fragmented by province** | Ontario Parks publishes per-park %s; Bonjour Québec a weekly regional map; Nova Scotia a PDF; most provinces nothing. |
 | **"Peak" is a moving target** | Peak varies by 2–3 weeks year to year with temperature and rain. Static "best time to visit" articles are often wrong. |
-| **Timing and planning are separate jobs** | People find colour in one place, check weather in another, find trails in AllTrails, then book on a park site. |
+| **Timing and planning are separate jobs** | People find color in one place, check weather in another, find trails in AllTrails, then book on a park site. |
 | **No national picture** | The best-known US tool (SmokyMountains.com's prediction map) is US-only. Nothing equivalent exists for Canada. |
 | **Trees ≠ "foliage"** | Larch gold in the Rockies (mid-Sept), aspens on the Prairies, sugar maples in Ontario/Québec and blueberry barrens in Nova Scotia peak at different times. Nobody lets you track by tree. |
 
@@ -34,9 +34,9 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 ## 3. Goals, non-goals and success metrics
 
 ### Goals
-1. **Answer "where is it colourful now?" in under 5 seconds** on any device.
+1. **Answer "where is it colorful now?" in under 5 seconds** on any device.
 2. **Predict peak timing per area** with a stated confidence and a "best week to go" recommendation.
-3. **Turn a colourful place into a plan:** trails, viewpoints, waterfalls, weather, directions and booking within 2 taps.
+3. **Turn a colorful place into a plan:** trails, viewpoints, waterfalls, weather, directions and booking within 2 taps.
 4. **Cover all of Canada** by combining official, crowd and satellite sources, and be transparent about which is which.
 5. **Build a community of reporters** who keep the map fresh.
 
@@ -53,7 +53,7 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 | Map → place page tap-through | ≥ 40% of sessions |
 | Place page → outbound action (directions / book / trail) | ≥ 20% |
 | Saved places per returning user | ≥ 3 |
-| Community colour reports / week at peak | 1,000+ |
+| Community color reports / week at peak | 1,000+ |
 | % of populated Canada (by area) with a status ≤ 7 days old | ≥ 80% |
 | Peak forecast error (median, vs official reports) | ≤ 5 days |
 | Core Web Vitals (mobile, p75) | LCP < 2.5 s, INP < 200 ms, CLS < 0.1 |
@@ -64,21 +64,21 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 
 | Persona | Who | Primary job | Key needs |
 |---|---|---|---|
-| **The weekend planner** (primary) | 28–55, drives 1–4 h from a city (Toronto, Montréal, Ottawa, Halifax, Calgary, Vancouver) | "Pick the best weekend and place for colour" | Peak forecast, drive time, weather, crowds, trails, booking |
-| **The spontaneous local** | Lives near colour, decides same day | "Is it good near me today?" | Near-me status, today's weather, short walks, photos |
+| **The weekend planner** (primary) | 28–55, drives 1–4 h from a city (Toronto, Montréal, Ottawa, Halifax, Calgary, Vancouver) | "Pick the best weekend and place for color" | Peak forecast, drive time, weather, crowds, trails, booking |
+| **The spontaneous local** | Lives near color, decides same day | "Is it good near me today?" | Near-me status, today's weather, short walks, photos |
 | **The visitor** | Out-of-province or international tourist planning weeks ahead | "When should I come and where should I go?" | Historical peak windows, regions overview, itineraries, EN/FR |
-| **The photographer** | Hobbyist/pro chasing light and colour | "Where's peak + good light + good weather this week?" | Satellite view, viewpoints, sunrise/sunset, cloud forecast, recent photos |
+| **The photographer** | Hobbyist/pro chasing light and color | "Where's peak + good light + good weather this week?" | Satellite view, viewpoints, sunrise/sunset, cloud forecast, recent photos |
 | **The naturalist / contributor** | Tree enthusiast, iNat user, park staff | "Share what I'm seeing; learn trees" | Fast reporting, species ID help, recognition |
 
 ---
 
 ## 5. Key user journeys
 
-1. **Glance:** open app → map centred on my area → colour stages visible → tap a hotspot → see status, photos and outlook. *(P0)*
+1. **Glance:** open app → map centred on my area → color stages visible → tap a hotspot → see status, photos and outlook. *(P0)*
 2. **Plan a weekend:** set "this weekend" + "within 3 h of me" → ranked list of places near peak with good weather → open a park → pick 2 trails + a lookout → save to a trip → get directions/booking. *(P0/P1)*
 3. **When to visit:** pick a region → see typical peak window, this year's forecast and a week-by-week chart → set an alert. *(P1)*
 4. **Follow a tree:** filter "Larches" → see where they're gold now → species page with ID tips and best places. *(P1)*
-5. **Report:** at a spot → "Report colour" → photo → auto location → two sliders (colour %, leaf fall %) → tree chips → submit in under 30 s. *(P1)*
+5. **Report:** at a spot → "Report color" → photo → auto location → two sliders (color %, leaf fall %) → tree chips → submit in under 30 s. *(P1)*
 6. **Get told:** follow places → get "Algonquin is at peak" or "wind storm Friday: go before" notifications. *(P2)*
 
 ---
@@ -91,12 +91,12 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 | **Leaf Peepr** (Yankee Magazine, New England) | Community reports with photos and ratings | Regional; dated UX. → *Our reporting flow.* |
 | **ExploreFall** | Simple prediction map | US-only, no depth |
 | **Ontario Parks Fall Colour Report** | Authoritative %s per park, viewing tips | Ontario only; basic map. → *Our ingested data.* |
-| **Bonjour Québec colour map** | Weekly regional stages | Québec only; not mobile-first |
-| **AllTrails** | Trail discovery, conditions, photos, offline maps, lists | No colour/peak intelligence. → *Hand off to them; borrow trail card and conditions patterns.* |
+| **Bonjour Québec color map** | Weekly regional stages | Québec only; not mobile-first |
+| **AllTrails** | Trail discovery, conditions, photos, offline maps, lists | No color/peak intelligence. → *Hand off to them; borrow trail card and conditions patterns.* |
 | **Windy / Ventusky** | Beautiful animated weather layers and timeline | Not foliage-aware. → *Timeline scrubber and layer UX.* |
 | **Google / Apple Maps** | Place cards, bottom sheets, directions | Not seasonal. → *Sheet and place-card patterns; directions hand-off.* |
 
-**Positioning:** *"The fall colour forecast for Canada: live, local, and ready to plan."*
+**Positioning:** *"The fall color forecast for Canada: live, local, and ready to plan."*
 
 ---
 
@@ -107,24 +107,24 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 | Pattern | Inspiration | How Canopy uses it |
 |---|---|---|
 | **Persistent, resizable bottom sheet** (peek / half / full) over a live map | Google Maps, Apple Maps, AllTrails | ✅ Built. Add a search bar in the sheet header (Apple Maps style) and keep context while expanded. |
-| **Place card** (hero photo, status chips, quick actions row: Directions · Save · Share · Book) | Google Maps place sheet, AllTrails trail card | Park/region/trail pages lead with the colour stage chip plus a quick-action row. |
+| **Place card** (hero photo, status chips, quick actions row: Directions · Save · Share · Book) | Google Maps place sheet, AllTrails trail card | Park/region/trail pages lead with the color stage chip plus a quick-action row. |
 | **Filter chips over the map** | Google Maps category chips, Airbnb | ✅ Tree filter. Add "This weekend", "Near me", "Peak only", drive time. |
 | **Layer picker with thumbnails** | Apple Maps, AllTrails, Gaia | Upgrade the Layers popover into a sheet with map-type thumbnails (Standard / Satellite / Terrain) and overlay toggles. |
 | **Timeline scrubber** for time-based data | Windy, Ventusky, SmokyMountains slider | Season scrubber Sept → Nov: animate history and forecast. **Signature interaction.** |
 | **Split list + map (desktop)** | Airbnb web, Zillow | Desktop Explore: ranked list on the left, map syncs on hover. |
-| **Conditions module** | AllTrails conditions, Apple Weather, Carrot | "Colour outlook" card: 7-day strip, frost/wind alerts, sunrise/sunset, AQ/smoke. |
+| **Conditions module** | AllTrails conditions, Apple Weather, Carrot | "Color outlook" card: 7-day strip, frost/wind alerts, sunrise/sunset, AQ/smoke. |
 | **Collections / lists** | AllTrails lists, Google Maps saved lists, Pinterest | "Trips": saved places grouped into an itinerary with an order and day labels. |
 | **Lightweight UGC submission** | Leaf Peepr, Waze report, iNaturalist | Under-30-second report flow with sliders and chips; photo optional. |
-| **Story-style photo feed** | Instagram stories, AllTrails photos | "Colour now" feed per region: recent photos, swipeable. |
+| **Story-style photo feed** | Instagram stories, AllTrails photos | "Color now" feed per region: recent photos, swipeable. |
 | **Onboarding with personalization** | Duolingo, AllTrails | 3 steps: home area → favourite trees → notification opt-in. Skippable. |
 | **Map styling** | Felt, Mapbox Standard, onX | Calm warm basemap; data is the hero; 3D terrain for mountain parks. |
 
 ### Visual language
-- **Palette:** maple `#c8102e`, pumpkin `#e8730c`, birch `#e9b824`, spruce `#2f5d3a`, bark `#3b2f2a`, mist `#f6f1ea`. The stage scale runs green → gold → orange → red → brown and stays colour-blind safe (checked with simulators; paired with labels/icons).
+- **Palette:** maple `#c8102e`, pumpkin `#e8730c`, birch `#e9b824`, spruce `#2f5d3a`, bark `#3b2f2a`, mist `#f6f1ea`. The stage scale runs green → gold → orange → red → brown and stays color-blind safe (checked with simulators; paired with labels/icons).
 - **Type:** **Londrina Solid** for display titles and headings (400; 900 for the wordmark) and **Livvic** for everything else: body, labels, captions (400–700).
 - **Icons:** [Relume icons](https://www.npmjs.com/package/relume-icons) (MIT, rounded outline style, tree-shaken) for UI controls and actions. Weather keeps its emoji, and the maple-leaf pins stay as the brand mark. The package has 60 icons and no outdoor/POI set, so POI icons (waterfall, lookout, trailhead…) are custom (D-05).
 - **Motion:** sheet springs, fly-to camera moves, and a falling-leaf micro-animation reserved for "peak" moments only.
-- **Tone:** warm, local, precise. "Algonquin is at peak, about 90% colour. Go before Friday's wind."
+- **Tone:** warm, local, precise. "Algonquin is at peak, about 90% color. Go before Friday's wind."
 
 ---
 
@@ -135,13 +135,13 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 
 | Screen | Purpose |
 |---|---|
-| **Map (home)** | Live colour map, filters, layers, timeline scrubber, sheet with context |
+| **Map (home)** | Live color map, filters, layers, timeline scrubber, sheet with context |
 | **Explore** | Ranked "best now / this weekend" list with filters (drive time, tree type, activity) |
 | **Region page** | Overview: stage, forecast, typical window, top parks/trails/viewpoints, photos, weather |
-| **Park page** | Official report, colour outlook, trails, POIs, booking, photos |
-| **Trail page** | Map preview, length/elevation, scenic score, colour along the trail, AllTrails link, GPX |
+| **Park page** | Official report, color outlook, trails, POIs, booking, photos |
+| **Trail page** | Map preview, length/elevation, scenic score, color along the trail, AllTrails link, GPX |
 | **POI page** | Waterfall / lookout / lake / scenic drive with photos and best time of day |
-| **Tree type page** | Colour, timing, ID tips, where it's turning now |
+| **Tree type page** | Color, timing, ID tips, where it's turning now |
 | **Trips** | Saved places → itinerary → directions/export/share |
 | **Report flow** | Photo → location → sliders → trees → submit |
 | **Me** | Account, followed places, notifications, my reports, settings (units, language, theme) |
@@ -153,15 +153,15 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 Priority: **P0** = must for season-2027 launch · **P1** = should · **P2** = later.
 Status: ✅ done · 🟡 partial · ⬜ not started.
 
-### 9.1 Live colour map
+### 9.1 Live color map
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| MAP-1 | Map of Canada with official reports styled by colour stage | P0 | ✅ |
+| MAP-1 | Map of Canada with official reports styled by color stage | P0 | ✅ |
 | MAP-2 | Crowd sightings (iNat + ours) as hexes that turn into points when zoomed in | P0 | ✅ |
 | MAP-3 | Tree-type filter | P0 | ✅ |
 | MAP-4 | Layers sheet with map-type thumbnails + overlays (satellite, terrain, trails, weather, smoke) | P1 | 🟡 Layers popover (reports, sightings, trails, satellite, 3D terrain, light presets); no thumbnails yet |
 | MAP-5 | **Season timeline scrubber** (history → today → forecast), animated playback | P0 | ⬜ |
-| MAP-6 | Unified **colour status surface**: a continuous % colour / % fallen field from blended sources, with confidence | P0 | ⬜ |
+| MAP-6 | Unified **color status surface**: a continuous % color / % fallen field from blended sources, with confidence | P0 | ⬜ |
 | MAP-7 | "Near me" locate button and first-load centring on the user's region (with permission) | P0 | ⬜ |
 | MAP-8 | Search places (parks, towns, trails) with autocomplete | P0 | ✅ #77, #80 |
 | MAP-9 | Map performance: 60 fps pan on mid-range phones; vector data in PMTiles for national layers | P1 | 🟡 Performance pass #81; PMTiles not started |
@@ -172,7 +172,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | DATA-1 | Ontario Parks daily ingest | P0 | ✅ |
 | DATA-2 | Québec (Bonjour Québec regional stages, Sépaq parks) ingest | P0 | ⬜ |
 | DATA-3 | Atlantic (NS, NB, PEI, NL) + Prairies + BC sources or curated weekly updates | P1 | ⬜ |
-| DATA-4 | iNat green/coloured/bare **counts per grid cell** (UTFGrid or count queries) for a real % | P0 | ⬜ |
+| DATA-4 | iNat green/colored/bare **counts per grid cell** (UTFGrid or count queries) for a real % | P0 | ⬜ |
 | DATA-5 | Historical peak dates per cell from VIIRS/MODIS phenology (2012–2025) | P0 | ⬜ |
 | DATA-6 | Forecast model: historical peak ± temperature anomaly (ECCC/Open-Meteo) → peak date + confidence | P0 | ⬜ |
 | DATA-7 | Tree species distribution per region from SCANFI/NFI | P1 | ⬜ |
@@ -185,7 +185,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 |---|---|---|---|
 | WHEN-1 | Per-place typical peak window (historical) | P0 | 🟡 curated |
 | WHEN-2 | This year's forecast peak + "best week to go" badge | P0 | ⬜ |
-| WHEN-3 | Week-by-week colour curve chart per place (history band + this year) | P1 | ⬜ |
+| WHEN-3 | Week-by-week color curve chart per place (history band + this year) | P1 | ⬜ |
 | WHEN-4 | "Plan a future trip": pick dates → best places for those dates | P1 | ⬜ |
 
 ### 9.4 Places: regions, parks, trails, points of interest
@@ -202,14 +202,14 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 ### 9.5 Trees and species
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| TREE-1 | Tree type pages (colours, timing, ID tips, photos, where turning now) | P1 | ⬜ |
+| TREE-1 | Tree type pages (colors, timing, ID tips, photos, where turning now) | P1 | ⬜ |
 | TREE-2 | "What tree is this?" helper linking to iNat ID | P2 | ⬜ |
 | TREE-3 | Species mix per region ("Mostly sugar maple + yellow birch") | P1 | ⬜ |
 
 ### 9.6 Weather and climate
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| WX-1 | 7-day colour outlook (vivid / leaf-drop / frost) | P0 | ✅ |
+| WX-1 | 7-day color outlook (vivid / leaf-drop / frost) | P0 | ✅ |
 | WX-2 | Switch weather source to ECCC GeoMet for commercial safety (Open-Meteo fallback) | P0 | ⬜ |
 | WX-3 | Leaf-drop risk alerts (wind gusts, heavy rain) on place pages and map | P1 | ⬜ |
 | WX-4 | Sunrise/sunset, golden hour, cloud cover (photographer mode) | P1 | ⬜ |
@@ -237,10 +237,10 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 ### 9.9 Community
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| COM-1 | Report flow: photo (optional), location, colour %, leaf fall %, trees, note | P0 | ⬜ |
+| COM-1 | Report flow: photo (optional), location, color %, leaf fall %, trees, note | P0 | ⬜ |
 | COM-2 | Photo storage, EXIF location/time, image resizing, content moderation | P0 | ⬜ |
 | COM-3 | Report weighting: freshness, reporter reputation, agreement with neighbours | P1 | ⬜ |
-| COM-4 | "Colour now" photo feed per region | P1 | ⬜ |
+| COM-4 | "Color now" photo feed per region | P1 | ⬜ |
 | COM-5 | Reporter profile, badges, streaks | P2 | ⬜ |
 | COM-6 | Optional cross-post to iNaturalist | P2 | ⬜ |
 

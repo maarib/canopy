@@ -1,13 +1,21 @@
 import { experimental_streamedQuery as streamedQuery, useQuery } from '@tanstack/react-query'
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
-import { Bookmark, ProgressActivity } from 'relume-icons'
+import { ProgressActivity } from 'relume-icons'
 import { BottomSheet, type SnapPoint } from './components/BottomSheet'
 import type { FlyTarget, MapLayers, MapView } from './components/FoliageMap'
 import { MapSkeleton } from './components/MapSkeleton'
-import { HomePanel } from './components/HomePanel'
-import { ActivityFilter } from './components/ActivityFilter'
-import { LayerControl, Legend, TreeFilter, type TreeFilterValue } from './components/MapControls'
+import { ActivityOptions } from './components/ActivityFilter'
+import { AccountMenu } from './components/AccountMenu'
+import { SideNav, TabBar, type Section } from './components/AppNav'
+import { TAB_BAR_HEIGHT } from './lib/styles'
+import { FoliagePanel } from './components/FoliagePanel'
+import { ExplorePanel, type ExploreQuery } from './components/ExplorePanel'
+import { LayerOptions, Legend, TreeOptions, type TreeFilterValue } from './components/MapControls'
+import { MapFilters } from './components/MapFilters'
+import { AboutPanel, ParksPanel, TrailsPanel } from './components/SectionPanels'
+import { PROVINCE_BY_CODE } from './data/provinces'
+import { DEFAULT_LAYERS } from './lib/urlState'
 import { PARK_FILTERS } from './data/amenityIcons'
 import { fetchParkFacilities, parkMatches } from './lib/parkFacilities'
 import { ParkPanel } from './components/ParkPanel'
@@ -20,7 +28,6 @@ import { TripPanel, TripsPanel, type StopInfo } from './components/TripPanels'
 import { PlaceIcon } from './components/PlaceIcon'
 import { TreeIcon } from './components/TreeIcon'
 import { RegionPanel } from './components/RegionPanel'
-import { SearchBox } from './components/SearchBox'
 import { BackButton, PanelSkeleton, ProgressBar } from './components/ui'
 import { REGIONS, signatureTree, type Region } from './data/regions'
 import { TREE_GROUP_IDS } from './data/treeGroups'
@@ -33,6 +40,7 @@ import {
   trailPath,
   formatDuration,
   PLACE_KINDS,
+  type PlaceKind,
   type ExploreArea,
   type Place,
   type Trail,
@@ -83,6 +91,10 @@ type Selection =
   | { kind: 'trail'; trail: Trail; area: ExploreArea }
   | { kind: 'place'; place: Place; area: ExploreArea }
   | { kind: 'fishing'; access: FishingAccess }
+  | { kind: 'parks' }
+  | { kind: 'trails' }
+  | { kind: 'foliage' }
+  | { kind: 'about' }
   | { kind: 'trips' }
   | { kind: 'trip'; trip: Trip }
   | { kind: 'shared-trip'; trip: SharedTrip }
@@ -94,7 +106,8 @@ export default function App() {
   const location = useLocation()
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
-  const [sheet, setSheet] = useState<SnapPoint>('peek')
+  // Phones open on Explore's search, so the sheet starts half open.
+  const [sheet, setSheet] = useState<SnapPoint>('half')
   const [focus, setFocus] = useState<FlyTarget>(null)
 
   // Sightings stream in page by page; a recent copy on the device makes reopening instant.
@@ -164,6 +177,7 @@ export default function App() {
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
   const fishingMatch = matchPath('/fishing/:slug', location.pathname)
+  const sectionPath = (['/parks', '/trails', '/foliage', '/about'] as const).find((p) => location.pathname === p)
   // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
   const fishing = useQuery({
     queryKey: ['fishing-access'],
@@ -178,6 +192,7 @@ export default function App() {
   const onTripsPage = !!tripsMatch
   const selection: Selection = useMemo(() => {
     if (onTripsPage) return { kind: 'trips' }
+    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'foliage' | 'about' }
     if (tripMatch) {
       if (tripMatch.params.id === 'shared') {
         const shared = decodeTrip(params.get('t') ?? '')
@@ -211,7 +226,7 @@ export default function App() {
       return place ? { kind: 'place', place, area: exploreIndex.areaById.get(place.areaId)! } : { kind: 'missing' }
     }
     return null
-  }, [regionMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, fishingMatch?.params.slug, fishing.data, fishing.isError, fishingById, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [regionMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, fishingMatch?.params.slug, sectionPath, fishing.data, fishing.isError, fishingById, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Turn a saved trip stop back into something to draw, list and open. */
   const resolveStop = useCallback(
@@ -226,7 +241,7 @@ export default function App() {
       if (kind === 'park') {
         const p = parks.data?.parks.find((x) => x.id === id)
         if (!p) return null
-        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: STAGES[p.stage].color, icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${p.colourChange ?? 0}% colour` }
+        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: STAGES[p.stage].color, icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${p.colorChange ?? 0}% color` }
       }
       if (kind === 'trail') {
         const t = exploreIndex.trailById.get(id)
@@ -292,6 +307,8 @@ export default function App() {
             ? `place:${selection.place.id}`
             : selection?.kind === 'fishing'
               ? `fishing:${selection.access.id}`
+            : selection?.kind === 'parks' || selection?.kind === 'trails' || selection?.kind === 'foliage' || selection?.kind === 'about'
+              ? selection.kind
             : selection?.kind === 'trips'
               ? 'trips'
               : selection?.kind === 'trip'
@@ -300,12 +317,12 @@ export default function App() {
                   ? 'shared-trip'
                   : 'home'
 
-  // Open the sheet halfway whenever a place is shown; collapse it at home.
+  // Open the sheet halfway whenever the page changes, so its content (search, list, place) shows.
   // (Adjusting state during render when the key changes, per React's guidance.)
   const [sheetFor, setSheetFor] = useState(selectionKey)
   if (sheetFor !== selectionKey) {
     setSheetFor(selectionKey)
-    setSheet(selectionKey === 'home' ? 'peek' : 'half')
+    setSheet('half')
   }
 
   // Tab titles make shared links and history readable.
@@ -321,19 +338,28 @@ export default function App() {
               ? selection.place.name
               : selection?.kind === 'fishing'
                 ? accessTitle(selection.access)
+              : selection?.kind === 'parks'
+                ? 'Parks'
+              : selection?.kind === 'trails'
+                ? 'Trails'
+              : selection?.kind === 'foliage'
+                ? 'Foliage'
+              : selection?.kind === 'about'
+                ? 'About'
               : selection?.kind === 'trips'
                 ? 'Trips'
                 : selection?.kind === 'trip' || selection?.kind === 'shared-trip'
                   ? selection.trip.name
                   : null
-    document.title = name ? `${name} · Canopy` : 'Canopy · Fall colours across Canada'
+    document.title = name ? `${name} · Canopy` : 'Canopy · Fall colors across Canada'
   }, [selection])
 
   // Written straight to history rather than through the router, so panning the map doesn't
   // re-render the whole app on every move. Keeps the router's state object intact.
   const onViewChange = useCallback(
     (view: MapView) => {
-      if (selectionKey !== 'home') return
+      // Lists keep the map where you left it; detail pages fly to their place.
+      if (!['home', 'parks', 'trails', 'foliage'].includes(selectionKey)) return
       const url = new URL(window.location.href)
       url.searchParams.set('map', formatMapView(view))
       window.history.replaceState(window.history.state, '', url)
@@ -356,6 +382,50 @@ export default function App() {
       setSheet('peek')
     }
   }
+
+  const exploreSeq = useRef(0)
+  /** The Explore search: frame the province on the map, then open the section that fits. */
+  function onExplore(q: ExploreQuery) {
+    const { bounds } = PROVINCE_BY_CODE.get(q.province)!
+    exploreSeq.current += 1 // a new id each time, so searching the same province again re-frames it
+    setFocus({ id: `province:${q.province}:${exploreSeq.current}`, lng: (bounds[0] + bounds[2]) / 2, lat: (bounds[1] + bounds[3]) / 2, zoom: 6, bounds })
+    if (q.what === 'colors') openSection('/foliage', (p) => writeTree(p, q.tree))
+    else if (q.what === 'parks') openSection('/parks')
+    else if (q.what === 'trails') openSection('/trails')
+    else if (q.what === 'places') openSection('/trails?show=waterfall')
+    else setSheet('peek')
+  }
+
+  /** Which nav item a page belongs to. */
+  const section: Section | null =
+    selection === null || selection.kind === 'fishing'
+      ? 'explore'
+      : selection.kind === 'parks' || selection.kind === 'park'
+        ? 'parks'
+        : selection.kind === 'trails' || selection.kind === 'trail' || selection.kind === 'place'
+          ? 'trails'
+          : selection.kind === 'foliage' || selection.kind === 'region'
+            ? 'foliage'
+            : selection.kind === 'trips' || selection.kind === 'trip' || selection.kind === 'shared-trip'
+              ? 'trips'
+              : null
+  /** Sections keep filters and layers in the URL, like the rest of the app. */
+  const openSection = useCallback(
+    (path: string, change?: (p: URLSearchParams) => void) => {
+      const [pathname, query] = path.split('?')
+      const next = new URLSearchParams(window.location.search)
+      next.delete('show')
+      next.delete('t')
+      new URLSearchParams(query).forEach((v, k) => next.set(k, v))
+      change?.(next)
+      navigate({ pathname, search: next.toString() ? `?${next}` : '' })
+    },
+    [navigate],
+  )
+  const trailsShow = (() => {
+    const s = params.get('show')
+    return s && s in PLACE_KINDS && s !== 'trail' && s !== 'trailhead' ? (s as PlaceKind) : 'trails'
+  })()
 
   // ── Derived data ───────────────────────────────────────────
   const groupCounts = useMemo(() => countByGroup(sightings.data?.items ?? []), [sightings.data])
@@ -386,7 +456,7 @@ export default function App() {
       ),
     [sightings.data, treeFilter],
   )
-  const treeColourSightings = useMemo(
+  const treeColorSightings = useMemo(
     () => sightings.data?.items.filter((o) => o.state === 'colored' && TREE_GROUP_IDS.has(o.group ?? '')).length,
     [sightings.data],
   )
@@ -444,7 +514,7 @@ export default function App() {
   }, [selection, tripOnMap])
 
   // Unknown paths go home rather than showing a blank page.
-  if (!regionMatch && !parkMatch && !trailMatch && !placeMatch && !fishingMatch && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
+  if (!regionMatch && !parkMatch && !trailMatch && !placeMatch && !fishingMatch && !sectionPath && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
 
   const panel =
     selection?.kind === 'region' ? (
@@ -500,6 +570,40 @@ export default function App() {
         onOpenStop={openStop}
         onSaveCopy={() => openTrip(tripActions.importShared(selection.trip))}
       />
+    ) : selection?.kind === 'parks' ? (
+      <ParksPanel
+        parks={filteredParks}
+        activities={activities}
+        onActivities={setActivities}
+        countWith={countParksWith}
+        facilitiesReady={!!facilities.data && !!parks.data}
+        onSelectPark={selectPark}
+      />
+    ) : selection?.kind === 'trails' ? (
+      <TrailsPanel
+        trails={exploreIndex.trails}
+        places={exploreIndex.places}
+        show={trailsShow}
+        onShow={(v) => updateParams((p) => (v === 'trails' ? p.delete('show') : p.set('show', v)))}
+        onSelectTrail={selectTrail}
+        onSelectPlace={selectPlace}
+      />
+    ) : selection?.kind === 'foliage' ? (
+      <FoliagePanel
+        regions={REGIONS}
+        parks={parks.data?.parks}
+        listParks={filteredParks}
+        activityFilter={activities.length ? { labels: activityLabels, onClear: () => setActivities([]) } : undefined}
+        parksFetchedAt={parks.data?.fetchedAt}
+        treeColorSightings={sightings.data?.loaded ? treeColorSightings : undefined}
+        onSelectRegion={selectRegion}
+        onSelectPark={selectPark}
+        tree={treeFilter}
+        treeCounts={groupCounts}
+        onTree={setTreeFilter}
+      />
+    ) : selection?.kind === 'about' ? (
+      <AboutPanel />
     ) : selection?.kind === 'park' ? (
       <ParkPanel key={selection.park.id} park={selection.park} onBack={goBack} />
     ) : selection?.kind === 'loading' ? (
@@ -511,64 +615,59 @@ export default function App() {
         <p className="text-sm text-[var(--ink-soft)]">This link may be out of date. Try searching for the place instead.</p>
       </div>
     ) : (
-      <HomePanel
-        regions={REGIONS}
-        parks={parks.data?.parks}
-        listParks={filteredParks}
-        activityFilter={activities.length ? { labels: activityLabels, onClear: () => setActivities([]) } : undefined}
-        parksFetchedAt={parks.data?.fetchedAt}
-        treeColourSightings={sightings.data?.loaded ? treeColourSightings : undefined}
-        onSelectRegion={selectRegion}
+      <ExplorePanel
+        parks={parks.data?.parks ?? NO_PARKS}
+        trails={exploreIndex.trails}
+        places={exploreIndex.places}
+        treeCounts={groupCounts}
+        onSearchSelect={onSearch}
+        onSubmit={onExplore}
         onSelectPark={selectPark}
+        onSelectTrail={selectTrail}
+        onNavigate={openSection}
       />
     )
 
+  const footer = <SiteFooter onAbout={() => openSection('/about')} />
+  const treeCount = treeFilter === 'trees' ? 0 : 1
+  const layerCount = (Object.keys(DEFAULT_LAYERS) as (keyof MapLayers)[]).filter((k) => layers[k] !== DEFAULT_LAYERS[k]).length
+
   return (
     <div className="flex h-full flex-col">
-      <header className="relative z-30 flex items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)] px-5 py-3">
+      <header className="relative z-30 flex items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)] px-5 py-2.5">
         <button onClick={goHome} className="flex items-center gap-2" aria-label="Canopy home">
           <TreeIcon id="maples" className="size-7" />
           <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         </button>
-        <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Fall colours across Canada</span>
-        <button
-          onClick={() => go('/trips')}
-          className={`ml-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition hover:bg-[var(--surface-2)] ${
-            selection?.kind === 'trips' || selection?.kind === 'trip' ? 'bg-[var(--surface-2)] font-medium' : ''
-          }`}
-          aria-label={`Trips${trips.length ? ` (${trips.length})` : ''}`}
-        >
-          <Bookmark className="size-4" />
-          Trips
-          {trips.length > 0 && (
-            <span className="rounded-full bg-maple px-1.5 text-[11px] leading-[18px] font-semibold text-white">{trips.length}</span>
-          )}
-        </button>
-        {sightingsLoading && (
-          <>
+        <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Explore Ontario's outdoors</span>
+        <div className="ml-auto flex items-center gap-3">
+          {sightingsLoading && (
             <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
               <ProgressActivity className="size-4 animate-spin" />
               <span className="hidden sm:inline">Loading live sightings…</span>
             </span>
-            <div className="absolute inset-x-0 -bottom-px">
-              <ProgressBar
-                value={(sightings.data?.loaded ?? 0) / (sightings.data?.expected || 1)}
-                label="Loading live sightings"
-              />
-            </div>
-          </>
+          )}
+          <AccountMenu tripCount={trips.length} onNavigate={openSection} />
+        </div>
+        {sightingsLoading && (
+          <div className="absolute inset-x-0 -bottom-px">
+            <ProgressBar value={(sightings.data?.loaded ?? 0) / (sightings.data?.expected || 1)} label="Loading live sightings" />
+          </div>
         )}
       </header>
 
       <main className="relative flex min-h-0 flex-1">
         {isDesktop && (
-          <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-[var(--line)]">
-            {panel}
-            <SiteFooter />
-          </aside>
+          <>
+            <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
+            <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-[var(--line)]">
+              {panel}
+              {footer}
+            </aside>
+          </>
         )}
 
-        <div className="relative min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1" style={isDesktop ? undefined : { marginBottom: TAB_BAR_HEIGHT }}>
           <Suspense fallback={<MapSkeleton />}>
           <FoliageMap
             regions={REGIONS}
@@ -597,28 +696,34 @@ export default function App() {
           />
           </Suspense>
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 p-3 pr-14">
-            <div className="pointer-events-auto flex items-start gap-2 md:max-w-xl">
-              <div className="min-w-0 flex-1">
-                <SearchBox
-                  parks={parks.data?.parks ?? NO_PARKS}
-                  trails={exploreIndex.trails}
-                  places={exploreIndex.places}
-                  onSelect={onSearch}
-                />
-              </div>
-              <ActivityFilter value={activities} onChange={setActivities} countWith={countParksWith} ready={!!facilities.data && !!parks.data} />
-              <LayerControl
-                layers={layers}
-                onChange={setLayers}
-                satelliteDate={satelliteDate}
-                onSatelliteDate={setSatelliteDate}
-                light={light}
-                onLight={setLight}
-              />
-            </div>
+          <div className="pointer-events-none absolute top-0 left-0 p-3">
             <div className="pointer-events-auto">
-              <TreeFilter counts={groupCounts} value={treeFilter} onChange={setTreeFilter} />
+              <MapFilters
+                tabs={[
+                  { id: 'trees', label: 'Trees', active: treeCount, content: <TreeOptions counts={groupCounts} value={treeFilter} onChange={setTreeFilter} /> },
+                  {
+                    id: 'activities',
+                    label: 'Activities',
+                    active: activities.length,
+                    content: <ActivityOptions value={activities} onChange={setActivities} countWith={countParksWith} ready={!!facilities.data && !!parks.data} />,
+                  },
+                  {
+                    id: 'layers',
+                    label: 'Layers',
+                    active: layerCount,
+                    content: (
+                      <LayerOptions
+                        layers={layers}
+                        onChange={setLayers}
+                        satelliteDate={satelliteDate}
+                        onSatelliteDate={setSatelliteDate}
+                        light={light}
+                        onLight={setLight}
+                      />
+                    ),
+                  },
+                ]}
+              />
             </div>
           </div>
 
@@ -630,10 +735,13 @@ export default function App() {
         </div>
 
         {!isDesktop && (
-          <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey}>
-            {panel}
-            <SiteFooter />
-          </BottomSheet>
+          <>
+            <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
+              {panel}
+              {footer}
+            </BottomSheet>
+            <TabBar active={section} onNavigate={openSection} tripCount={trips.length} />
+          </>
         )}
       </main>
     </div>

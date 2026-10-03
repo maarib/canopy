@@ -11,7 +11,7 @@ export function NearbyPhotos({ lat, lng, radiusKm = 75 }: { lat: number; lng: nu
 
   return (
     <section>
-      <h3 className="mb-2 text-lg">Recent colour sightings nearby</h3>
+      <h3 className="mb-2 text-lg">Recent color sightings nearby</h3>
       {photos.isPending && (
         <div className="grid grid-cols-3 gap-1.5" role="status" aria-label="Loading photos">
           {Array.from({ length: 6 }, (_, i) => (
@@ -21,7 +21,7 @@ export function NearbyPhotos({ lat, lng, radiusKm = 75 }: { lat: number; lng: nu
       )}
       {photos.data?.length === 0 && (
         <p className="text-sm text-[var(--ink-soft)]">
-          No coloured-leaf observations within {radiusKm} km in the last 3 weeks.
+          No colored-leaf observations within {radiusKm} km in the last 3 weeks.
         </p>
       )}
       <div className="grid grid-cols-3 gap-1.5">

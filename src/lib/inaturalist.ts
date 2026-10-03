@@ -159,7 +159,7 @@ export function reduceSightings(acc: SeasonSightings, chunk: Chunk): SeasonSight
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 /**
- * Every coloured-leaf and leafless sighting in Canada over the last `days`. The first page of
+ * Every colored-leaf and leafless sighting in Canada over the last `days`. The first page of
  * each arrives together so the map fills in fast; the rest follow politely (~1 request/second,
  * as iNaturalist asks) and are yielded one page at a time.
  */

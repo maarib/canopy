@@ -45,7 +45,7 @@ export function searchLocal(
   }
   for (const p of parks.filter((p) => p.main)) {
     const s = score(q, parkTitle(p))
-    if (s) scored.push([s + 0.2, { kind: 'park', park: p, label: parkTitle(p), detail: `ON · Provincial park · ${p.colourChange ?? 0}% colour` }])
+    if (s) scored.push([s + 0.2, { kind: 'park', park: p, label: parkTitle(p), detail: `ON · Provincial park · ${p.colorChange ?? 0}% color` }])
   }
   for (const t of trails) {
     const s = score(q, t.name)
