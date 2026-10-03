@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CoverThumb } from './ForestCover'
-import { parkCover } from '../lib/coverSpec'
+import { parkCover, placeCover } from '../lib/coverSpec'
 import { ChevronRight, FilterList, Search } from 'relume-icons'
 import { PARK_FILTERS } from '../data/amenityIcons'
 import { DIFFICULTY, PLACE_KINDS, type Difficulty, type Place, type PlaceKind, type Trail } from '../lib/explore'
@@ -237,9 +237,14 @@ export function TrailsPanel({
             {placeList.map((p) => (
               <li key={p.id}>
                 <button onClick={() => onSelectPlace(p)} className={ROW}>
-                  <span className={`${ICON_TILE} text-white`} style={{ background: PLACE_KINDS[p.kind].color }}>
-                    <PlaceIcon kind={p.kind} className="size-5" />
-                  </span>
+                  <CoverThumb
+                    spec={placeCover(p)}
+                    fallback={
+                      <span className={`${ICON_TILE} text-white`} style={{ background: PLACE_KINDS[p.kind].color }}>
+                        <PlaceIcon kind={p.kind} className="size-5" />
+                      </span>
+                    }
+                  />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{p.name}</span>
                     <span className="text-xs text-[var(--ink-soft)]">

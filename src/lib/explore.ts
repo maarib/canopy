@@ -41,6 +41,10 @@ export type Place = {
   ele?: number | null
   trails: string[]
   areaId: string
+  /** Lakes and wide rivers: outer rings, [lng, lat] (for the cover). */
+  water?: [number, number][][]
+  /** Rivers, creeks and the streams waterfalls are on: lines, [lng, lat], in the direction of flow. */
+  course?: [number, number][][]
 }
 
 export type ExploreArea = {

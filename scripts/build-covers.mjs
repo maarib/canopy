@@ -1,8 +1,9 @@
-// Pre-draws cover images for every fall-report park, region and trail in today's colors, so the
+// Pre-draws cover images for every fall-report park, region, trail and place in today's colors, so the
 // app shows them as plain images instead of drawing them in the browser. Opens
 // scripts/covers/render.html (the app's own cover code) in headless Chromium through Vite, and
 // writes <out>/<name>.webp, <out>/<name>-thumb.webp and <out>/index.json.
-// Usage: node scripts/build-covers.mjs [out dir, default dist/covers] [--reuse <dir>]. With
+// Usage: node scripts/build-covers.mjs [out dir, default dist/covers] [--reuse <dir>] [--only <kind>].
+// --only draws just the covers whose shape id starts with it (park, island, place), for checking. With
 // --reuse, covers in that folder (a previous run's output) whose shape and colors haven't changed
 // are copied instead of drawn. Needs VITE_MAPBOX_TOKEN (from the environment or .env.local).
 // Run by .github/workflows/deploy.yml after the build.
@@ -16,11 +17,13 @@ import { createServer } from 'vite'
 const args = process.argv.slice(2)
 const reuseAt = args.indexOf('--reuse')
 const REUSE = reuseAt >= 0 ? resolve(args.splice(reuseAt, 2)[1]) : null
+const onlyAt = args.indexOf('--only')
+const ONLY = onlyAt >= 0 ? args.splice(onlyAt, 2)[1] : ''
 const OUT = resolve(args[0] ?? 'dist/covers')
 
 // Covers are only reused when drawn by the same code: a fingerprint of the drawing code is kept
 // beside them, and any change to it redraws everything.
-const DRAWING_CODE = ['src/lib/forestCover.ts', 'src/lib/diorama.ts', 'src/lib/lowPolyTrees.ts', 'src/lib/coverSpec.ts', 'src/lib/foliage.ts', 'scripts/covers/render.ts']
+const DRAWING_CODE = ['src/lib/forestCover.ts', 'src/lib/diorama.ts', 'src/lib/lowPolyTrees.ts', 'src/lib/placeScenes.ts', 'src/lib/coverSpec.ts', 'src/lib/foliage.ts', 'scripts/covers/render.ts']
 const fingerprint = createHash('sha256')
 for (const f of DRAWING_CODE) fingerprint.update(await readFile(f))
 const VERSION = fingerprint.digest('hex').slice(0, 16)
@@ -47,7 +50,7 @@ try {
   })
   await page.goto(`${server.resolvedUrls.local[0]}scripts/covers/render.html`)
   await page.waitForFunction(() => typeof window.renderCovers === 'function')
-  const index = await page.evaluate((prev) => window.renderCovers(prev), previous)
+  const index = await page.evaluate(([prev, only]) => window.renderCovers(prev, only), [previous, ONLY])
   let reused = 0
   for (const [key, files] of Object.entries(index))
     if (previous[key]?.cover === files.cover) {

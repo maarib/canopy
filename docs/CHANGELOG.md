@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Island covers for places ([#111](https://github.com/maarib/canopy/pull/111)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | 2026-10-03 | The first release: everything up to [#108](https://github.com/maarib/canopy/pull/108) |
 
@@ -15,6 +16,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-04 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-04-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
 | 2026-10-03 | [Pre-drawn covers and list thumbnails](#2026-10-03-pre-drawn-covers-and-list-thumbnails) | [#109](https://github.com/maarib/canopy/pull/109) |
 | 2026-10-03 | [Map styles, Layers button and forest covers](#2026-10-03-map-styles-layers-button-and-forest-covers) | [#108](https://github.com/maarib/canopy/pull/108) |
 | 2026-10-03 | [Park boundaries](#2026-10-03-park-boundaries) | [#107](https://github.com/maarib/canopy/pull/107) |
@@ -39,6 +41,40 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Milestone 1: the live color map](#2026-09-30-milestone-1-the-live-color-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## Unreleased
+
+### 2026-10-04 · Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks
+
+**Ref:** [#111](https://github.com/maarib/canopy/pull/111)
+
+**Before.** Every place got the same flat, round island of trees. Nothing showed whether it was a waterfall or a peak, and lakes and streams didn't appear unless a lake happened to sit wholly inside the circle.
+
+**After.** Each kind of place has its own landform, built from its real shape where OpenStreetMap has one. The style, palette and live tree colors match the park and trail islands.
+- **Waterfalls:** two terraces split by a cliff across the stream the falls are on. The stream crosses the upper terrace, pours over the cliff as a white sheet into a plunge pool, and winds on below past boulders. OpenStreetMap draws streams in the direction they flow, so the upper terrace is always upstream.
+- **Lookouts:** terraces that crowd into a cliff on one side, with a wooden viewing deck on the bare rocky top. The camera turns so the cliff and deck face you.
+- **Peaks:** terraces rising to a bare summit, from forest to olive scrub to rock, with a cairn and a red flag on top.
+- **Lakes:** the lake's real outline in a ring of forest, with a small dock on the shore. The camera faces the dock.
+- **Rivers and creeks:** the real course winding across the island; rivers wide, creeks narrow with rocks in and beside them.
+- **Clear water:** trees standing in front of a stream, the falls or the deck turn see-through, as on trail covers.
+- **Everywhere:** all 62 places are pre-drawn at deploy time, and the place lists on the Trails page show their island thumbnails.
+
+**How.**
+- **Data.** `scripts/build-explore.mjs` keeps each place's real geometry:
+  - lake outlines;
+  - river and creek courses near the place, including the named stream for rivers mapped as water areas;
+  - for waterfalls, the stream they sit on (an extra Overpass query finds streams within 150 m of each fall, named or not).
+  
+  Every waterfall, river and creek now has its course.
+- **Scenes.** `src/lib/placeScenes.ts` builds a scene for each kind: pieces of land and water as solids (each with its own base, top and color), terraces, where trees grow, where they don't, props, and lines trees shouldn't hide. Parks and trails use the same scene format.
+- **Geometry.** `src/lib/diorama.ts` adds half-plane and hull clipping, stream trimming, scaled terrace rings and seeded randomness.
+- **Props.** `src/lib/lowPolyTrees.ts` adds low-poly props in the trees' style: a boulder, a cairn with a flag and a wooden deck.
+- **Renderer.** `src/lib/forestCover.ts` draws any scene with one extrusion layer for all land and water. Mapbox can't vary a model's height per feature from GeoJSON, so trees and props get one layer per terrace at a fixed height. Trees and props also turn to one of eight angles for variety. A scene can name a point to face the camera.
+- **Pre-render.** `scripts/build-covers.mjs` draws places too, and takes `--only <prefix>` to draw a subset while checking.
+
+**Why.** The cover should say what a place is at a glance, and its real shape is what makes it that place.
 
 ---
 

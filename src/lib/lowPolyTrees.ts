@@ -132,6 +132,63 @@ function glb(parts: { mesh: Mesh; color: string }[]): string {
   return URL.createObjectURL(new Blob([out], { type: 'model/gltf-binary' }))
 }
 
+/** An axis-aligned box centred at (cx, cy, cz), `w` × `h` × `d`. */
+function box(m: Mesh, [cx, cy, cz]: Vec3, [w, h, d]: Vec3) {
+  const x = [cx - w / 2, cx + w / 2]
+  const y = [cy - h / 2, cy + h / 2]
+  const z = [cz - d / 2, cz + d / 2]
+  const v = (i: number, j: number, k: number): Vec3 => [x[i], y[j], z[k]]
+  const faces = [
+    [v(0, 0, 0), v(1, 0, 0), v(1, 1, 0), v(0, 1, 0)],
+    [v(0, 0, 1), v(1, 0, 1), v(1, 1, 1), v(0, 1, 1)],
+    [v(0, 0, 0), v(0, 1, 0), v(0, 1, 1), v(0, 0, 1)],
+    [v(1, 0, 0), v(1, 1, 0), v(1, 1, 1), v(1, 0, 1)],
+    [v(0, 0, 0), v(1, 0, 0), v(1, 0, 1), v(0, 0, 1)],
+    [v(0, 1, 0), v(1, 1, 0), v(1, 1, 1), v(0, 1, 1)],
+  ]
+  for (const [a, b, c, e] of faces) {
+    m.tri(a, b, c, [cx, cy, cz])
+    m.tri(a, c, e, [cx, cy, cz])
+  }
+}
+
+let props: Record<string, string> | undefined
+/**
+ * Props for place covers, in the trees' low-poly style and scale: a boulder (creeks and rivers),
+ * a summit cairn with a flag (peaks) and a wooden viewing deck (lookouts). Built once.
+ */
+export function propModels(): Record<string, string> {
+  if (props) return props
+  const boulder = new Mesh()
+  crown(boulder, 2.6, 1.2, 0.62, 4242)
+  const stones = new Mesh()
+  crown(stones, 2.6, 1.6, 0.62, 11)
+  crown(stones, 1.9, 3.7, 0.62, 23)
+  crown(stones, 1.3, 5.3, 0.7, 37)
+  const pole = new Mesh()
+  box(pole, [0, 5.5, 0], [0.35, 11, 0.35])
+  const flag = new Mesh()
+  box(flag, [1.7, 9.6, 0], [3.4, 2, 0.15])
+  // The deck is drawn larger than life, like the trees, so it reads as the place's landmark.
+  const k = 1.7
+  const posts = new Mesh()
+  for (const [px, pz] of [[-5.4, -3.4], [5.4, -3.4], [-5.4, 3.4], [5.4, 3.4]]) box(posts, [px * k, 2.3 * k, pz * k], [0.7 * k, 4.6 * k, 0.7 * k])
+  const deck = new Mesh()
+  box(deck, [0, 4.8 * k, 0], [12 * k, 0.6 * k, 7.8 * k])
+  const rails = new Mesh()
+  for (const [px, pz] of [[-5.7, -3.7], [0, -3.7], [5.7, -3.7], [-5.7, 3.7], [0, 3.7], [5.7, 3.7], [-5.7, 0], [5.7, 0]]) box(rails, [px * k, 5.8 * k, pz * k], [0.3 * k, 1.6 * k, 0.3 * k])
+  box(rails, [0, 6.5 * k, -3.7 * k], [11.7 * k, 0.3 * k, 0.3 * k])
+  box(rails, [0, 6.5 * k, 3.7 * k], [11.7 * k, 0.3 * k, 0.3 * k])
+  box(rails, [-5.7 * k, 6.5 * k, 0], [0.3 * k, 0.3 * k, 7.7 * k])
+  box(rails, [5.7 * k, 6.5 * k, 0], [0.3 * k, 0.3 * k, 7.7 * k])
+  props = {
+    boulder: glb([{ mesh: boulder, color: '#9b968d' }]),
+    cairn: glb([{ mesh: stones, color: '#a39e95' }, { mesh: pole, color: '#5a4334' }, { mesh: flag, color: '#c8102e' }]),
+    deck: glb([{ mesh: posts, color: '#7a5434' }, { mesh: deck, color: '#a8784b' }, { mesh: rails, color: '#8a5f3a' }]),
+  }
+  return props
+}
+
 /** Leaf colors: summer green, the three fall colors, and bare branches. */
 export const CROWNS = { green: '#6f8f3a', yellow: '#e9b824', orange: '#e8730c', red: '#c8102e', bare: '#8b7d70' } as const
 export type Hue = 'yellow' | 'orange' | 'red'
