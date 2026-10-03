@@ -1,4 +1,5 @@
 import { LocationOn } from 'relume-icons'
+import { ForestCover } from './ForestCover'
 import { isPhotoSpot, PLACE_KINDS, type ExploreArea, type Place, type Trail } from '../lib/explore'
 import { directionsUrl } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
@@ -37,6 +38,8 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
   return (
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
+
+      <ForestCover lat={place.lat} lng={place.lng} name={place.name} radiusKm={place.kind === 'lake' ? 3.5 : 2} />
 
       <header className="flex items-start gap-4">
         <span

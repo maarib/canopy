@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Check } from 'relume-icons'
-import { LIGHT_PRESETS, localDate, type LightSetting } from '../lib/mapStyle'
+import { LIGHT_PRESETS, localDate, MAP_STYLES, type LightSetting, type MapStyle, type MapStyleId } from '../lib/mapStyle'
 import { TreeIcon } from './TreeIcon'
 import { Segmented } from './ui'
 import { STAGES, type Stage } from '../lib/stage'
@@ -13,7 +13,7 @@ const LAYER_LABELS: [keyof MapLayers, string, string][] = [
   ['sightings', 'Individual sightings', 'Shown when you zoom in'],
   ['trails', 'Parks Canada trails', 'Shown when you zoom in'],
   ['fishing', 'Fishing access', 'Boat launches, shore access and docks · zoom in'],
-  ['satellite', 'Satellite view', 'NASA VIIRS true color'],
+  ['satellite', 'Daily satellite image', 'NASA VIIRS true color, by date'],
   ['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys'],
 ]
 
@@ -25,6 +25,8 @@ export function LayerOptions({
   onSatelliteDate,
   light,
   onLight,
+  mapStyle,
+  onMapStyle,
 }: {
   layers: MapLayers
   onChange: (l: MapLayers) => void
@@ -32,10 +34,29 @@ export function LayerOptions({
   onSatelliteDate: (d: string) => void
   light: LightSetting
   onLight: (l: LightSetting) => void
+  mapStyle: MapStyleId
+  onMapStyle: (s: MapStyleId) => void
 }) {
   const [today] = useState(() => localDate())
   return (
     <div className="px-1">
+      <div className="mb-3 border-b border-[var(--line)] px-1 pb-3">
+        <div className="mb-1.5 text-xs font-semibold">Map style</div>
+        <div role="radiogroup" aria-label="Map style" className="grid grid-cols-4 gap-2">
+          {MAP_STYLES.map((s) => (
+            <button
+              key={s.id}
+              role="radio"
+              aria-checked={s.id === mapStyle}
+              onClick={() => onMapStyle(s.id)}
+              className="group flex flex-col items-center gap-1 text-[11px] leading-tight transition-transform active:scale-[0.97]"
+            >
+              <StylePreview style={s} selected={s.id === mapStyle} />
+              <span className={s.id === mapStyle ? 'font-semibold' : 'text-[var(--ink-soft)] group-hover:text-[var(--ink)]'}>{s.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
       <ul className="space-y-1">
         {LAYER_LABELS.map(([key, label, hint]) => (
           <li key={key}>
@@ -79,6 +100,25 @@ export function LayerOptions({
         <Legend />
       </div>
     </div>
+  )
+}
+
+/** A tiny map in the look's colors: land, a park, a lake and a road. */
+function StylePreview({ style, selected }: { style: MapStyle; selected: boolean }) {
+  const [land, green, water, road] = style.swatch
+  return (
+    <span
+      className={`block aspect-square w-full overflow-hidden rounded-xl border-2 transition-colors ${
+        selected ? 'border-[var(--ink)]' : 'border-[var(--line)] group-hover:border-[var(--ink-soft)]'
+      }`}
+    >
+      <svg viewBox="0 0 48 48" className="size-full" aria-hidden>
+        <rect width="48" height="48" fill={land} />
+        <path d="M-2 30 C8 24 14 34 24 30 S40 18 50 24 V50 H-2Z" fill={green} />
+        <path d="M30 -2 C26 8 36 12 33 20 S40 30 50 28 V-2Z" fill={water} />
+        <path d="M-2 14 C12 18 20 10 28 22 S36 40 30 50" fill="none" stroke={road} strokeWidth="3" strokeLinecap="round" />
+      </svg>
+    </span>
   )
 }
 

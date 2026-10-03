@@ -18,7 +18,7 @@
 - **About & data sources** (`/about`) lists every source with what it provides, its licence and how often it refreshes; the footer links to it.
 
 ### Live color map
-- **Basemap:** Mapbox Standard on a globe, with autumn colors and **dusk lighting** by default. Dawn, day, night and auto are under Filters → Layers.
+- **Basemap:** Mapbox Standard on a globe, in **Monochrome** by default, so fall colors and pins carry the color. The **Layers** button (next to Filters) offers eight map styles: Monochrome, Paper (Canopy's own palette), Faded, three custom color grades (Autumn film, Bark & spruce, Riso print), Mapbox Standard and Satellite. The choice is remembered on the device. Light follows the system (day, or night in dark mode); dawn, day, dusk and night are under Layers too.
 - **Official park reports:** Ontario Parks' color % and leaf fall % for about 64 parks, colored by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
 - **Live sightings:** iNaturalist colored-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
 - **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Foliage page).
@@ -36,6 +36,12 @@
 - **Layers → Fishing access** turns them off.
 
 ### Places with their own pages
+- **Island covers:** every region, park, trail, place and fishing page opens with an illustrated cover. The place's shape floats as a piece of land in soft colors, seen isometrically, with big low-poly trees in today's fall colors.
+  - A park uses its official boundary, islands included.
+  - Other places get an organic island; a trail's island hugs its track, which winds through a sparser forest; trees standing in front of it turn see-through so the whole path shows.
+  - Real lakes inside the shape are cut in.
+  - The colors come from the nearest Ontario Parks report within 60 km (how much has turned and fallen, and the dominant color), otherwise from the nearest region's typical peak window.
+  - Covers are still images, drawn once per visit by a single hidden map.
 - **Regions** (15, hand-picked): typical peak window, a 7-day color outlook, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
 - **Ontario provincial parks:** the official report (color %, leaf fall %, dominant color, viewing tips), outlook, photos, directions and booking.
 - **Trails** (Algonquin Highway 60 corridor, 17 trails):

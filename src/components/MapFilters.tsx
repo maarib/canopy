@@ -6,11 +6,11 @@ import { Segmented } from './ui'
 export type FilterTab = { id: string; label: string; active: number; content: ReactNode }
 
 /**
- * One Filters button on the map for everything that narrows or changes what the map shows:
- * trees, park activities, layers. Tabs keep it compact; each tab shows how many of its
- * options are set, and the button shows the total.
+ * A menu button on the map: Filters (trees, park activities) narrows what the map shows; Layers
+ * changes how it looks. With several tabs, each shows how many of its options are set and the
+ * button shows the total; a single tab shows its content without tabs.
  */
-export function MapFilters({ tabs }: { tabs: FilterTab[] }) {
+export function MapFilters({ tabs, label = 'Filters', icon = <FilterList className="size-5" /> }: { tabs: FilterTab[]; label?: string; icon?: ReactNode }) {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState(tabs[0].id)
   const [place, setPlace] = useState<CSSProperties>()
@@ -49,15 +49,15 @@ export function MapFilters({ tabs }: { tabs: FilterTab[] }) {
         ref={button}
         onClick={() => (open ? setOpen(false) : openMenu())}
         aria-expanded={open}
-        aria-label={total ? `Map filters: ${total} set` : 'Map filters'}
+        aria-label={total ? `Map ${label.toLowerCase()}: ${total} set` : `Map ${label.toLowerCase()}`}
         className={`flex h-[42px] items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium shadow-md transition-colors ${
           total
             ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]'
             : `border-[var(--line)] hover:bg-[var(--surface-2)] ${open ? 'bg-[var(--surface-2)]' : 'bg-[var(--surface)]'}`
         }`}
       >
-        <FilterList className="size-5" />
-        Filters
+        {icon}
+        {label}
         {total > 0 && <span className="rounded-full bg-[var(--surface)] px-1.5 text-xs leading-5 text-[var(--ink)]">{total}</span>}
       </button>
 
@@ -66,7 +66,7 @@ export function MapFilters({ tabs }: { tabs: FilterTab[] }) {
           style={place}
           className={`fixed z-40 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} flex max-h-[min(72vh,600px)] flex-col rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-xl`}
         >
-          <Segmented
+          {tabs.length > 1 && <Segmented
             className="m-2"
             value={current.id}
             onChange={setTab}
@@ -79,8 +79,8 @@ export function MapFilters({ tabs }: { tabs: FilterTab[] }) {
                 </>
               ),
             }))}
-          />
-          <div key={current.id} role="tabpanel" className="min-h-0 animate-fade-in overflow-y-auto px-2 pb-3">
+          />}
+          <div key={current.id} role={tabs.length > 1 ? 'tabpanel' : undefined} className={`min-h-0 animate-fade-in overflow-y-auto px-2 pb-3 ${tabs.length > 1 ? '' : 'pt-3'}`}>
             {current.content}
           </div>
         </div>

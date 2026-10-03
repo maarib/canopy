@@ -1,7 +1,7 @@
 import { experimental_streamedQuery as streamedQuery, useQuery } from '@tanstack/react-query'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
-import { ProgressActivity } from 'relume-icons'
+import { Layers, ProgressActivity } from 'relume-icons'
 import { BottomSheet, type SnapPoint } from './components/BottomSheet'
 import type { FlyTarget, MapLayers, MapView } from './components/FoliageMap'
 import { MapSkeleton } from './components/MapSkeleton'
@@ -56,7 +56,7 @@ import {
 } from './lib/inaturalist'
 import { fetchOntarioParks, parkTitle, type ParkReport } from './lib/ontarioParks'
 import { fetchParkBoundary } from './lib/parkBoundaries'
-import type { LightSetting } from './lib/mapStyle'
+import { readMapStyle, writeMapStyle, type LightSetting, type MapStyleId } from './lib/mapStyle'
 import { PHASE_STYLE, peakPhase } from './lib/peak'
 import { STAGES } from './lib/stage'
 import { decodeTrip, tripActions, useTrips, type SharedTrip, type StopRef, type Trip } from './lib/trips'
@@ -172,6 +172,11 @@ export default function App() {
   const setLayers = (l: MapLayers) => updateParams((p) => writeLayers(p, l))
   const setSatelliteDate = (d: string) => updateParams((p) => p.set('date', d))
   const setLight = (l: LightSetting) => updateParams((p) => writeLight(p, l))
+  const [mapStyle, setMapStyle] = useState<MapStyleId>(readMapStyle)
+  const chooseMapStyle = (id: MapStyleId) => {
+    setMapStyle(id)
+    writeMapStyle(id)
+  }
 
   const regionMatch = matchPath('/region/:id', location.pathname)
   const parkMatch = matchPath('/park/:slug', location.pathname)
@@ -700,6 +705,7 @@ export default function App() {
             initialView={initialView}
             onViewChange={onViewChange}
             parkBoundary={parkBoundary}
+            mapStyle={mapStyle}
             selectedId={selection?.kind === 'park' ? selection.park.id : selection?.kind === 'region' ? selection.region.id : null}
             onSelectRegion={selectRegion}
             onSelectPark={selectPark}
@@ -717,7 +723,7 @@ export default function App() {
           </Suspense>
 
           <div className="pointer-events-none absolute top-0 left-0 p-3">
-            <div className="pointer-events-auto">
+            <div className="pointer-events-auto flex gap-2">
               <MapFilters
                 tabs={[
                   { id: 'trees', label: 'Trees', active: treeCount, content: <TreeOptions counts={groupCounts} value={treeFilter} onChange={setTreeFilter} /> },
@@ -727,6 +733,12 @@ export default function App() {
                     active: activities.length,
                     content: <ActivityOptions value={activities} onChange={setActivities} countWith={countParksWith} ready={!!facilities.data && !!parks.data} />,
                   },
+                ]}
+              />
+              <MapFilters
+                label="Layers"
+                icon={<Layers className="size-5" />}
+                tabs={[
                   {
                     id: 'layers',
                     label: 'Layers',
@@ -739,6 +751,8 @@ export default function App() {
                         onSatelliteDate={setSatelliteDate}
                         light={light}
                         onLight={setLight}
+                        mapStyle={mapStyle}
+                        onMapStyle={chooseMapStyle}
                       />
                     ),
                   },

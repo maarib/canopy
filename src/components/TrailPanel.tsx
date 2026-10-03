@@ -1,4 +1,5 @@
 import { CalendarToday, ChevronRight, Description, LocationOn } from 'relume-icons'
+import { ForestCover } from './ForestCover'
 import {
   DIFFICULTY,
   downloadFile,
@@ -39,6 +40,8 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
   return (
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
+
+      <ForestCover {...trailCover(trail)} name={trail.name} path={trail.geometry} />
 
       <header>
         <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase" style={{ color: PLACE_KINDS.trail.color }}>
@@ -234,3 +237,10 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
   )
 }
 
+/** A trail's cover: an island around the whole track, a little wider than it. */
+function trailCover(t: Trail) {
+  const [w, s, e, n] = t.bbox
+  const lat = (s + n) / 2
+  const halfDiagKm = Math.hypot((e - w) * 111.32 * Math.cos((lat * Math.PI) / 180), (n - s) * 111.32) / 2
+  return { lat, lng: (w + e) / 2, radiusKm: Math.max(0.3, halfDiagKm * 1.3) }
+}
