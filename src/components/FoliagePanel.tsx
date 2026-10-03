@@ -29,16 +29,16 @@ type Props = {
   onTree: (v: TreeFilterValue) => void
 }
 
-/** Fall colors: official park reports, when each region peaks, and which trees are showing. */
-export function ColorsPanel(props: Props) {
+/** Foliage: official fall color reports, when each region peaks, and which trees are showing. */
+export function FoliagePanel(props: Props) {
   const [tab, setTab] = useState<Tab>('reports')
 
   return (
     <div className="p-5">
       <header className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-3xl leading-tight">Fall colors</h2>
-          <p className="text-sm text-[var(--ink-soft)]">Official reports, peak timing and live sightings</p>
+          <h2 className="text-3xl leading-tight">Foliage</h2>
+          <p className="text-sm text-[var(--ink-soft)]">Fall color reports, peak timing and live tree sightings</p>
         </div>
         <TreePicker value={props.tree} counts={props.treeCounts} onChange={props.onTree} />
       </header>

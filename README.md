@@ -12,7 +12,7 @@
 
 ### Search-first home and sections
 - **Explore (home)** is a search, in the spirit of Airbnb and AllTrails: type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall color) and **Looking for** (everything, fall colors with a tree dropdown, parks, trails, lakes & waterfalls). Below the search: parks peaking now and short fall hikes.
-- **Sections:** Explore, **Parks** (search, activity filter, sort by color or A–Z), **Trails** (trails by difficulty, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Fall colors** (official reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
+- **Sections:** Explore, **Parks** (search, activity filter, sort by color or A–Z), **Trails** (trails by difficulty, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Foliage** (official fall color reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
 - **One Filters button on the map** with three tabs: Trees, park Activities and map Layers (including light).
 - **Account menu** (avatar, top right): trips, About & data sources, feedback. Accounts aren't built yet, so trips are saved on the device and sign-in is marked as coming soon.
 - **About & data sources** (`/about`) lists every source with what it provides, its licence and how often it refreshes; the footer links to it.
@@ -21,7 +21,7 @@
 - **Basemap:** Mapbox Standard on a globe, with autumn colors and **dusk lighting** by default. Dawn, day, night and auto are under Filters → Layers.
 - **Official park reports:** Ontario Parks' color % and leaf fall % for about 64 parks, colored by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
 - **Live sightings:** iNaturalist colored-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
-- **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Fall colors page).
+- **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Foliage page).
 - **More layers:** Parks Canada trails, a NASA VIIRS satellite view with a date picker, and 3D terrain.
 
 ### Park activities and facilities

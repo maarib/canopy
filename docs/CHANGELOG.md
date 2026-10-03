@@ -42,10 +42,10 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 **After.**
 - **Explore (home) is a search.** A heading and a search card: the existing park/trail/lake/town search, then **Where** (province; Ontario first, other provinces offer fall color only) and **Looking for** (Everything, Fall colors, Parks, Trails, Lakes & waterfalls). Choosing Fall colors adds a **Trees** dropdown instead of showing every tree up front. The button frames the province on the map and opens the matching section. Below: parks peaking now, short fall hikes, and quick links to waterfalls, lookouts and lakes.
-- **Sections.** Explore, Parks, Trails, Fall colors and Trips. Desktop: a slim rail left of the panel. Phones: a bottom tab bar; the sheet sits above it and opens half way on every page. Detail pages highlight their section (a park under Parks, a trail or waterfall under Trails, a region under Fall colors).
+- **Sections.** Explore, Parks, Trails, Foliage and Trips. Desktop: a slim rail left of the panel. Phones: a bottom tab bar; the sheet sits above it and opens half way on every page. Detail pages highlight their section (a park under Parks, a trail or waterfall under Trails, a region under Foliage).
   - **Parks** (`/parks`): find by name, activity filter inline, sort by best color or A–Z.
   - **Trails** (`/trails`): trails by difficulty (shortest first) and tabs for waterfalls, lookouts, lakes, peaks, rivers and creeks (`?show=`).
-  - **Fall colors** (`/colors`): the previous home content (stats, Park reports / When to go) with a tree dropdown.
+  - **Foliage** (`/foliage`): the previous home content (stats, Park reports / When to go) with a tree dropdown.
 - **One Filters button on the map** replaces the tree chip row, the Activities button and the Layers button, with Trees, Activities and Layers tabs and a count of what's set.
 - **Account menu.** Avatar and dropdown at the top right: a guest card ("your trips are saved on this device"), Trips, About & data sources, Send feedback, and "Sign in or create account" marked as coming soon, since Canopy has no accounts yet.
 - **Footer** is one line: © Canopy, About & data sources, maaribs.com. The full credits moved to **About** (`/about`) as a table of source, what it provides, licence and refresh rate.
