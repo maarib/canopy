@@ -36,6 +36,25 @@ jobs:
           BASE_PATH: /${{ github.event.repository.name }}/
           # Public (pk.) token, URL-restricted in the Mapbox dashboard; stored as a repo variable.
           VITE_MAPBOX_TOKEN: ${{ vars.VITE_MAPBOX_TOKEN }}
+      # Pre-draw cover images (scripts/build-covers.mjs), redrawing only those whose shape or
+      # colors changed since the last deploy. Optional: if it fails, the app draws covers itself.
+      - run: npx playwright install --with-deps --only-shell chromium
+      - uses: actions/cache/restore@v4
+        with:
+          path: .covers-cache
+          key: covers-${{ github.run_id }}
+          restore-keys: covers-
+      - run: npm run covers -- dist/covers --reuse .covers-cache
+        continue-on-error: true
+        timeout-minutes: 20
+        env:
+          VITE_MAPBOX_TOKEN: ${{ vars.VITE_MAPBOX_TOKEN }}
+      - run: if [ -f dist/covers/index.json ]; then rm -rf .covers-cache && cp -R dist/covers .covers-cache; fi
+      - uses: actions/cache/save@v4
+        if: hashFiles('.covers-cache/index.json') != ''
+        with:
+          path: .covers-cache
+          key: covers-${{ github.run_id }}
       # SPA fallback so deep links work once we add routes.
       - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5

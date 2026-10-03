@@ -41,7 +41,8 @@
   - Other places get an organic island; a trail's island hugs its track, which winds through a sparser forest; trees standing in front of it turn see-through so the whole path shows.
   - Real lakes inside the shape are cut in.
   - The colors come from the nearest Ontario Parks report within 60 km (how much has turned and fallen, and the dominant color), otherwise from the nearest region's typical peak window.
-  - Covers are still images, drawn once per visit by a single hidden map.
+  - **Pre-drawn:** covers for every fall-report park, region and trail are drawn at deploy time in that day's colors and served as plain images (up to about 70 KB each), so those pages show their cover instantly with no map work. Anything else is drawn in the browser once per visit by a single hidden map.
+  - **Thumbnails:** park and trail list rows show a 4 KB island thumbnail when a pre-drawn one exists, and their usual icon otherwise. Lists never draw covers themselves.
 - **Regions** (15, hand-picked): typical peak window, a 7-day color outlook, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
 - **Ontario provincial parks:** the official report (color %, leaf fall %, dominant color, viewing tips), outlook, photos, directions and booking.
 - **Trails** (Algonquin Highway 60 corridor, 17 trails):
@@ -72,6 +73,7 @@
 | Ontario Parks reports | Snapshot `public/data/ontario-parks.json`, built by `scripts/scrape-ontario-parks.mjs` | Daily, Sept–Nov (GitHub Action) |
 | Park activities and facilities | Snapshot `public/data/park-facilities.json`, built by `scripts/scrape-park-facilities.mjs` from all ~340 Ontario Parks park pages (1 s between requests) | Weekly (GitHub Action) |
 | Provincial park boundaries | One file per park in `public/data/park-boundaries/<shortname>.json`, built by `scripts/build-park-boundaries.mjs` from the Land Information Ontario layer; a park page loads only its own outline | Monthly (GitHub Action) |
+| Cover images | Drawn at deploy time by `scripts/build-covers.mjs` into `dist/covers/` (not committed): the app's own cover code in headless Chromium, for every fall-report park, region and trail. Only covers whose shape or colors changed are redrawn; the rest come from the previous deploy (GitHub Actions cache) | Every deploy |
 | Fishing access points | Snapshot `public/data/fishing-access.json`, built by `scripts/build-fishing-access.mjs` from the Land Information Ontario layer (public points only) | Monthly (GitHub Action) |
 | Trails and places (Explore) | Snapshot `public/data/explore/<area>.json`, built by `scripts/build-explore.mjs` | Weekly (GitHub Action) |
 | iNaturalist sightings | Live from API v2 (only the fields used), streamed page by page; cached on the device for 30 min | Live, last 14 days |
@@ -115,6 +117,7 @@ npm run dev
 | `npm run data:explore [area]` | Rebuild trails and places (all areas, or one) |
 | `npm run data:fishing` | Refresh fishing access points |
 | `npm run data:park-boundaries` | Refresh provincial park boundaries |
+| `npm run covers [out] [--reuse dir]` | Pre-draw cover images (default `dist/covers`); `--reuse` copies unchanged covers from a previous run |
 | `npm run data:park-facilities [slug…]` | Refresh park activities and facilities (all parks, or the ones named) |
 
 **Deploys:** the Pages build reads `VITE_MAPBOX_TOKEN` from a repository variable and serves the app under `/canopy/` (`BASE_PATH`).
@@ -143,6 +146,15 @@ docs/                  PRD, technical plan, Explore design, change log
 | [docs/PLAN.md](docs/PLAN.md) | Original technical plan and data-source research |
 | [docs/EXPLORE.md](docs/EXPLORE.md) | Trails and places: research (AllTrails, Tripadvisor, Airbnb), identity system, data pipeline, roadmap |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Every change: before, after and why, with measurements |
+
+## Releases
+
+Each release is a git tag and a [GitHub Release](https://github.com/maarib/canopy/releases); the About page shows the live version. Minor versions (1.1, 1.2) bring new features, patch versions (1.1.1) only fixes, and a major version (2.0) a fundamental change. The version lives in `package.json`, and [docs/CHANGELOG.md](docs/CHANGELOG.md) groups changes by release.
+
+| Version | What's in it |
+|---|---|
+| [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | Pre-drawn covers and island thumbnails in lists |
+| [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | The first release |
 
 ## Roadmap
 

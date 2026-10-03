@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { CoverThumb } from './ForestCover'
+import { parkCover } from '../lib/coverSpec'
 import { ChevronRight, FilterList, Search } from 'relume-icons'
 import { PARK_FILTERS } from '../data/amenityIcons'
 import { DIFFICULTY, PLACE_KINDS, type Difficulty, type Place, type PlaceKind, type Trail } from '../lib/explore'
@@ -124,9 +126,14 @@ export function ParksPanel({
         {list.map((p) => (
           <li key={p.id}>
             <button onClick={() => onSelectPark(p)} className={ROW}>
-              <span className={`${ICON_TILE} bg-[var(--surface-2)]`}>
-                <span className="size-3.5 rounded-full" style={{ background: STAGES[p.stage].color }} />
-              </span>
+              <CoverThumb
+                spec={parkCover(p)}
+                fallback={
+                  <span className={`${ICON_TILE} bg-[var(--surface-2)]`}>
+                    <span className="size-3.5 rounded-full" style={{ background: STAGES[p.stage].color }} />
+                  </span>
+                }
+              />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium">{parkTitle(p)}</span>
                 <span className="text-xs text-[var(--ink-soft)]">
@@ -302,6 +309,15 @@ export function AboutPanel() {
           ; interface icons by Relume. Type: Londrina Solid and Livvic.
         </p>
       </section>
+      <p className="text-[11px] text-[var(--ink-soft)]">
+        Canopy v{VERSION} ·{' '}
+        <a href={`https://github.com/maarib/canopy/releases/tag/v${__APP_VERSION__}`} target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
+          What's new
+        </a>
+      </p>
     </div>
   )
 }
+
+/** "1.1.0" → "1.1"; a patch release keeps its last number ("1.1.2"). */
+const VERSION = __APP_VERSION__.replace(/\.0$/, '')

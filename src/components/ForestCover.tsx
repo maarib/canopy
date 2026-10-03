@@ -1,65 +1,49 @@
 import { useQuery } from '@tanstack/react-query'
-import type { MultiLineString } from 'geojson'
-import { useEffect, useState } from 'react'
-import { islandRing, outlineRings } from '../lib/diorama'
-import { foliageAt, foliageKey } from '../lib/foliage'
-import { COVER_BLEED, COVER_SIZE, forestCover, type CoverShape } from '../lib/forestCover'
-import { fetchOntarioParks, type ParkReport } from '../lib/ontarioParks'
+import { useEffect, useState, type ReactNode } from 'react'
+import { coverUrl, useCoverIndex, type CoverIndex } from '../lib/coverIndex'
+import { coverFoliage, coverKey, coverShape, shapeId, shapeIds, type CoverSpec } from '../lib/coverSpec'
+import { COVER_BLEED, COVER_SIZE, forestCover } from '../lib/forestCover'
+import { fetchOntarioParks } from '../lib/ontarioParks'
 import { MAPBOX_TOKEN } from '../lib/mapStyle'
 import { fetchParkBoundary } from '../lib/parkBoundaries'
 
-type Props = {
-  lat: number
-  lng: number
-  name: string
-  /** A park's own report, used for its colors. */
-  park?: ParkReport
-  /** Draw this provincial park's boundary as the land, when it has one. */
-  boundary?: string
-  /** A trail's track, drawn across the land. */
-  path?: MultiLineString
-  /** Size of the island drawn when there's no boundary. */
-  radiusKm?: number
-}
-
 /**
  * A detail page's cover: the place's shape as a floating piece of land with low-poly trees in
- * today's fall colors (lib/forestCover). A still image, inset to the page's content width.
+ * today's fall colors. Pre-drawn covers (lib/coverIndex) show straight away; anything else is
+ * drawn in the browser (lib/forestCover). A still image, inset to the page's content width.
  */
-export function ForestCover({ lat, lng, name, park, boundary, path, radiusKm = 2.5 }: Props) {
+export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
   const parks = useQuery({ queryKey: ['ontario-parks'], queryFn: fetchOntarioParks })
+  const index = useCoverIndex()
   const outline = useQuery({
-    queryKey: ['park-boundary', boundary ?? null],
-    queryFn: () => fetchParkBoundary(boundary!),
-    enabled: !!boundary,
+    queryKey: ['park-boundary', spec.boundary ?? null],
+    queryFn: () => fetchParkBoundary(spec.boundary!),
+    enabled: !!spec.boundary,
     staleTime: Infinity,
   })
-  const [cover, setCover] = useState<{ key: string; url: string }>()
+  const [drawn, setDrawn] = useState<{ key: string; url: string }>()
 
-  // Wait for the reports (colors) and the boundary (shape), so the cover is drawn once.
-  const ready = (!!parks.data || parks.isError) && (!boundary || !outline.isPending)
-  const { foliage, source } = foliageAt(lat, lng, parks.data?.parks ?? [], park)
-  const shapeId = outline.data ? `park:${boundary}` : `island:${lat.toFixed(4)},${lng.toFixed(4)}:${radiusKm}`
-  const key = `${shapeId}:${foliageKey(foliage)}`
+  const { foliage, source } = coverFoliage(spec, parks.data?.parks ?? [])
+  const predrawn = parks.data ? findCover(index.data, spec, foliage) : undefined
+  // Draw only once the colors, the pre-drawn index and the shape are known, so it happens once.
+  const ready = (!!parks.data || parks.isError) && !index.isPending && (!spec.boundary || !outline.isPending)
+  const outlineData = outline.data ?? null
+  const key = coverKey(shapeId(spec, outlineData), foliage)
 
   useEffect(() => {
-    if (!ready || !MAPBOX_TOKEN) return
-    const shape: CoverShape = {
-      id: shapeId,
-      rings: outline.data ? outlineRings(outline.data.geometry) : [islandRing([lng, lat], radiusKm, shapeId)],
-      path,
-    }
+    if (!ready || predrawn || !MAPBOX_TOKEN) return
     const abort = new AbortController()
-    forestCover(shape, foliage, abort.signal)
-      .then((url) => !abort.signal.aborted && setCover({ key, url }))
+    forestCover(coverShape(spec, outlineData), foliage, abort.signal)
+      .then((url) => !abort.signal.aborted && setDrawn({ key, url }))
       .catch(() => {})
     return () => abort.abort()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- the shape and foliage are captured by `key`
-  }, [ready, key])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the shape and colors are captured by `key`
+  }, [ready, key, !!predrawn])
 
-  if (!MAPBOX_TOKEN) return null
-  const url = cover?.key === key ? cover.url : undefined
+  if (!MAPBOX_TOKEN && !predrawn) return null
+  const url = predrawn ? coverUrl(predrawn.cover) : drawn?.key === key ? drawn.url : undefined
   return (
+    // Sideways overflow is clipped at the panel's padding, so the panel never scrolls sideways.
     <figure className="relative aspect-[3/2] overflow-x-clip [overflow-clip-margin:1.25rem]">
       {url ? (
         <img
@@ -67,6 +51,7 @@ export function ForestCover({ lat, lng, name, park, boundary, path, radiusKm = 2
           alt={`Illustration of ${name} as a small forested island in today's fall colors`}
           title={source}
           draggable={false}
+          decoding="async"
           // Drawn with a margin all round and allowed to overflow the frame, so nothing is cropped.
           style={BLEED}
           className="pointer-events-none absolute max-w-none animate-fade-in select-none"
@@ -78,6 +63,31 @@ export function ForestCover({ lat, lng, name, park, boundary, path, radiusKm = 2
         © Mapbox © OpenStreetMap
       </figcaption>
     </figure>
+  )
+}
+
+function findCover(index: CoverIndex | null | undefined, spec: CoverSpec, foliage: ReturnType<typeof coverFoliage>['foliage']) {
+  if (!index) return undefined
+  for (const id of shapeIds(spec)) {
+    const hit = index[coverKey(id, foliage)]
+    if (hit) return hit
+  }
+  return undefined
+}
+
+/**
+ * A small island for list rows, only when it was pre-drawn: lists never draw covers themselves,
+ * so scrolling stays smooth. Shows `fallback` (the row's usual icon) otherwise.
+ */
+export function CoverThumb({ spec, fallback }: { spec: CoverSpec; fallback: ReactNode }) {
+  const parks = useQuery({ queryKey: ['ontario-parks'], queryFn: fetchOntarioParks })
+  const index = useCoverIndex()
+  const hit = parks.data ? findCover(index.data, spec, coverFoliage(spec, parks.data.parks).foliage) : undefined
+  if (!hit) return fallback
+  return (
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--surface-2)]">
+      <img src={coverUrl(hit.thumb)} alt="" loading="lazy" decoding="async" draggable={false} className="size-12 max-w-none animate-fade-in object-contain select-none" />
+    </span>
   )
 }
 
