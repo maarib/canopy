@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | Navigation PR |
+| 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | [#104](https://github.com/maarib/canopy/pull/104) |
 | 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | [#103](https://github.com/maarib/canopy/pull/103) |
 | 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
 | 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | [#101](https://github.com/maarib/canopy/pull/101) |
@@ -28,7 +28,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-03 · Search-first home, sections and account menu
 
-**Ref:** Navigation PR
+**Ref:** [#104](https://github.com/maarib/canopy/pull/104)
 
 **Before.**
 - Everything started on the map. The home panel showed colour stats with Park reports / When to go tabs; the search box, an Activities button, a Layers button and a row of every tree group sat on top of the map.
