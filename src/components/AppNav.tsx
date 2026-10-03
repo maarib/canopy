@@ -79,11 +79,12 @@ export function SideNav({ active, onNavigate, tripCount }: Props) {
             key={s.id}
             onClick={() => onNavigate(s.path)}
             aria-current={on ? 'page' : undefined}
-            className={`flex flex-col items-center gap-1 rounded-2xl px-1 py-2.5 text-[11px] leading-tight font-medium transition-colors ${
+            className={`flex flex-col items-center gap-1 rounded-2xl px-1 py-2.5 text-[11px] leading-tight font-medium transition active:scale-95 ${
               on ? 'bg-[var(--surface-2)] font-semibold text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
             }`}
           >
-            <span className="relative">
+            {/* The selected icon pops as it fills in. */}
+            <span className={`relative ${on ? 'animate-icon-pop' : ''}`}>
               {ICONS[s.id](on)}
               {s.id === 'trips' && <Badge n={tripCount} />}
             </span>
@@ -109,11 +110,12 @@ export function TabBar({ active, onNavigate, tripCount }: Props) {
             key={s.id}
             onClick={() => onNavigate(s.path)}
             aria-current={on ? 'page' : undefined}
-            className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-[10.5px] font-medium transition-colors ${
+            className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-[10.5px] font-medium transition active:scale-95 ${
               on ? 'font-semibold text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
             }`}
           >
-            <span className="relative">
+            {/* The selected icon pops as it fills in. */}
+            <span className={`relative ${on ? 'animate-icon-pop' : ''}`}>
               {ICONS[s.id](on)}
               {s.id === 'trips' && <Badge n={tripCount} />}
             </span>

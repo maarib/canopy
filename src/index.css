@@ -10,6 +10,87 @@
   /* Livvic for everything; Londrina Solid for display titles and headings. */
   --font-sans: 'Livvic', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Londrina Solid', 'Livvic', ui-sans-serif, system-ui, sans-serif;
+
+  /*
+   * Motion. Short and quick: things appear from where they come from and settle without bounce,
+   * except a hint of overshoot on small accents. Everything is switched off for reduced motion.
+   */
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.32, 0.52, 1);
+  --animate-pop-in: pop-in 170ms var(--ease-out-soft) both;
+  --animate-pop-out: pop-out 120ms ease-in both;
+  --animate-panel-in: panel-in 260ms var(--ease-out-soft) both;
+  --animate-fade-in: fade-in 200ms var(--ease-out-soft) both;
+  --animate-icon-pop: icon-pop 320ms var(--ease-spring) both;
+  --animate-pin-in: pin-in 280ms var(--ease-spring) both;
+}
+
+/* Menus and dropdowns grow from their anchor (set transform-origin where they open). */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+@keyframes pop-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+/* A new page or panel eases up into place. */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+/* Map pins spring up from the ground as they appear. */
+@keyframes pin-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.6);
+  }
+}
+/* The selected nav icon gives a small pop. */
+@keyframes icon-pop {
+  40% {
+    transform: scale(1.14);
+  }
+}
+/* List rows rise in one after another (the first ten; the rest arrive with the tenth). */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.stagger > * {
+  animation: rise 280ms var(--ease-out-soft) both;
+}
+.stagger > :nth-child(2) { animation-delay: 25ms; }
+.stagger > :nth-child(3) { animation-delay: 50ms; }
+.stagger > :nth-child(4) { animation-delay: 75ms; }
+.stagger > :nth-child(5) { animation-delay: 100ms; }
+.stagger > :nth-child(6) { animation-delay: 125ms; }
+.stagger > :nth-child(7) { animation-delay: 150ms; }
+.stagger > :nth-child(8) { animation-delay: 175ms; }
+.stagger > :nth-child(9) { animation-delay: 200ms; }
+.stagger > :nth-child(n + 10) { animation-delay: 225ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 :root {

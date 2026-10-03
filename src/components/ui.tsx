@@ -163,3 +163,60 @@ export function InfoRow({ icon, label, detail, value }: { icon?: ReactNode; labe
     </li>
   )
 }
+
+/**
+ * Segmented tabs or options (equal widths) with a pill that slides to the selected one.
+ * `role` is "tablist" for tabs and "radiogroup" for a single choice.
+ */
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+  role = 'tablist',
+  label,
+  size = 'sm',
+  className = '',
+}: {
+  options: { id: T; label: ReactNode }[]
+  value: T
+  onChange: (id: T) => void
+  role?: 'tablist' | 'radiogroup'
+  label?: string
+  size?: 'sm' | 'xs'
+  className?: string
+}) {
+  const n = options.length
+  const index = Math.max(0, options.findIndex((o) => o.id === value))
+  const item = role === 'tablist' ? 'tab' : 'radio'
+  return (
+    <div
+      role={role}
+      aria-label={label}
+      className={`relative grid gap-1 rounded-full bg-[var(--surface-2)] p-1 ${size === 'xs' ? 'text-xs' : 'text-sm'} ${className}`}
+      style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}
+    >
+      <span
+        aria-hidden
+        className="absolute top-1 bottom-1 left-1 rounded-full bg-[var(--surface)] shadow-sm transition-transform duration-300 ease-[var(--ease-out-soft)]"
+        style={{ width: `calc((100% - 0.5rem - ${n - 1} * 0.25rem) / ${n})`, transform: `translateX(calc(${index} * (100% + 0.25rem)))` }}
+      />
+      {options.map((o) => {
+        const on = o.id === value
+        return (
+          <button
+            key={o.id}
+            role={item}
+            aria-selected={role === 'tablist' ? on : undefined}
+            aria-checked={role === 'radiogroup' ? on : undefined}
+            onClick={() => onChange(o.id)}
+            className={`relative flex items-center justify-center gap-1 rounded-full px-2 font-medium transition-colors ${size === 'xs' ? 'py-1' : 'py-1.5'} ${
+              on ? 'text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
+            }`}
+          >
+            {o.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}

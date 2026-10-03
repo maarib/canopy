@@ -663,8 +663,11 @@ export default function App() {
           <>
             <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
             <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-[var(--line)]">
-              {panel}
-              {footer}
+              {/* Keyed by page so each new page or place eases in. */}
+              <div key={selectionKey} className="animate-panel-in">
+                {panel}
+                {footer}
+              </div>
             </aside>
           </>
         )}
@@ -739,8 +742,10 @@ export default function App() {
         {!isDesktop && (
           <>
             <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
-              {panel}
-              {footer}
+              <div key={selectionKey} className="animate-panel-in">
+                {panel}
+                {footer}
+              </div>
             </BottomSheet>
             <TabBar active={section} onNavigate={openSection} tripCount={trips.length} />
           </>

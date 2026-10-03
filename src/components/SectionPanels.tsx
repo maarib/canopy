@@ -43,7 +43,7 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
     <button
       onClick={onClick}
       aria-pressed={on}
-      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition ${
+      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition active:scale-[0.97] ${
         on ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]' : 'border-[var(--line)] hover:bg-[var(--surface-2)]'
       }`}
     >
@@ -106,7 +106,7 @@ export function ParksPanel({
       </div>
 
       {showFilters && (
-        <div className="rounded-2xl border border-[var(--line)] p-2">
+        <div className="origin-top animate-pop-in rounded-2xl border border-[var(--line)] p-2">
           <ActivityOptions value={activities} onChange={onActivities} countWith={countWith} ready={facilitiesReady} />
         </div>
       )}
@@ -120,7 +120,7 @@ export function ParksPanel({
       )}
 
       <p className="text-xs text-[var(--ink-soft)]">{parks ? `${list.length} parks` : 'Loading parks…'}</p>
-      <ul className={LIST}>
+      <ul className={`stagger ${LIST}`}>
         {list.map((p) => (
           <li key={p.id}>
             <button onClick={() => onSelectPark(p)} className={ROW}>
@@ -215,7 +215,7 @@ export function TrailsPanel({
             ))}
           </div>
           <p className="text-xs text-[var(--ink-soft)]">{trailList.length} trails · shortest first</p>
-          <ul className={LIST}>
+          <ul className={`stagger ${LIST}`}>
             {trailList.map((t) => (
               <li key={t.id}>
                 <TrailCard trail={t} places={placeById} onClick={() => onSelectTrail(t)} />
@@ -226,7 +226,7 @@ export function TrailsPanel({
       ) : (
         <>
           <p className="text-xs text-[var(--ink-soft)]">{placeList.length} {PLACE_KINDS[show].plural.toLowerCase()}</p>
-          <ul className={LIST}>
+          <ul className={`stagger ${LIST}`}>
             {placeList.map((p) => (
               <li key={p.id}>
                 <button onClick={() => onSelectPlace(p)} className={ROW}>
@@ -276,7 +276,7 @@ export function AboutPanel() {
       </p>
       <section>
         <h3 className="text-lg">Data sources</h3>
-        <ul className={LIST}>
+        <ul className={`stagger ${LIST}`}>
           {SOURCES.map((s) => (
             <InfoRow
               key={s.name}

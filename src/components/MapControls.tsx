@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Check } from 'relume-icons'
 import { LIGHT_PRESETS, localDate, type LightSetting } from '../lib/mapStyle'
 import { TreeIcon } from './TreeIcon'
+import { Segmented } from './ui'
 import { STAGES, type Stage } from '../lib/stage'
 import { treeOptions } from '../lib/treeOptions'
 import type { MapLayers } from './FoliageMap'
@@ -65,21 +66,14 @@ export function LayerOptions({
       </ul>
       <div className="mt-3 border-t border-[var(--line)] px-1 pt-3">
         <div className="mb-1.5 text-xs font-semibold">Light</div>
-        <div role="radiogroup" aria-label="Map light" className="flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-xs">
-          {(['auto', ...LIGHT_PRESETS] as LightSetting[]).map((l) => (
-            <button
-              key={l}
-              role="radio"
-              aria-checked={light === l}
-              onClick={() => onLight(l)}
-              className={`flex-1 rounded-full py-1 capitalize transition ${
-                light === l ? 'bg-[var(--surface)] font-medium shadow-sm' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
-              }`}
-            >
-              {l}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          role="radiogroup"
+          label="Map light"
+          size="xs"
+          value={light}
+          onChange={onLight}
+          options={(['auto', ...LIGHT_PRESETS] as LightSetting[]).map((l) => ({ id: l, label: <span className="capitalize">{l}</span> }))}
+        />
       </div>
       <div className="mt-3 border-t border-[var(--line)] px-1 pt-3">
         <Legend />

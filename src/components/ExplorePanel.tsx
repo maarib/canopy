@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { usePresence } from '../hooks'
 import { Check, ChevronRight, KeyboardArrowDown, Search } from 'relume-icons'
 import { PROVINCES, PROVINCE_BY_CODE, type ProvinceCode } from '../data/provinces'
 import type { TreeIconId } from '../data/treeIcons'
@@ -43,6 +44,7 @@ type Props = {
 /** A labelled field that opens a list below it, like Airbnb's search segments. */
 function Field({ label, value, icon, children }: { label: string; value: string; icon?: ReactNode; children: (close: () => void) => ReactNode }) {
   const [open, setOpen] = useState(false)
+  const presence = usePresence(open)
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
@@ -71,10 +73,10 @@ function Field({ label, value, icon, children }: { label: string; value: string;
         </span>
         <KeyboardArrowDown className={`size-4 shrink-0 text-[var(--ink-soft)] transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && (
+      {presence.mounted && (
         <div
           role="listbox"
-          className="absolute inset-x-0 top-full z-30 mt-1 max-h-80 overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl"
+          className={`absolute inset-x-0 top-full z-30 mt-1 max-h-80 origin-top ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl`}
         >
           {children(() => setOpen(false))}
         </div>
@@ -211,7 +213,7 @@ export function ExplorePanel(props: Props) {
               All reports
             </button>
           </div>
-          <ul className={LIST}>
+          <ul className={`stagger ${LIST}`}>
             {peaking.map((p) => (
               <li key={p.id}>
                 <button onClick={() => props.onSelectPark(p)} className={ROW}>
@@ -243,7 +245,7 @@ export function ExplorePanel(props: Props) {
               All trails
             </button>
           </div>
-          <ul className={LIST}>
+          <ul className={`stagger ${LIST}`}>
             {popular.map((t) => (
               <li key={t.id}>
                 <TrailCard trail={t} places={places} onClick={() => props.onSelectTrail(t)} />

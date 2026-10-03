@@ -127,7 +127,7 @@ export function SearchBox({
         <ul
           id={listId}
           role="listbox"
-          className="absolute inset-x-0 top-full z-20 mt-2 max-h-[60vh] overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-1.5 shadow-xl"
+          className="absolute inset-x-0 top-full z-20 mt-2 max-h-[60vh] origin-top animate-pop-in overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-1.5 shadow-xl"
         >
           {results.map((r, i) => (
             <li
