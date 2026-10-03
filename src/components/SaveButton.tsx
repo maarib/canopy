@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import { usePresence } from '../hooks'
 import { Add, Bookmark, Check } from 'relume-icons'
 import { tripActions, tripsContaining, useTrips, type StopRef } from '../lib/trips'
 
@@ -10,6 +11,7 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
   const trips = useTrips()
   const saved = tripsContaining(trips, stopRef)
   const [open, setOpen] = useState(false)
+  const presence = usePresence(open)
   const [newName, setNewName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
   const root = useRef<HTMLDivElement>(null)
@@ -65,12 +67,12 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
         {isSaved ? 'Saved' : 'Save'}
       </button>
 
-      {open && (
+      {presence.mounted && (
         <div
           id={menuId}
           role="menu"
           aria-label={`Save ${name} to a trip`}
-          className="absolute top-full left-0 z-30 mt-2 w-64 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl"
+          className={`absolute top-full left-0 z-30 mt-2 w-64 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}
         >
           <p className="px-2 pt-1 pb-2 text-xs font-semibold">Save to a trip</p>
           <ul className="max-h-56 overflow-y-auto">
@@ -118,7 +120,7 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
       )}
 
       {toast && (
-        <span role="status" className="absolute bottom-full left-0 z-30 mb-1.5 whitespace-nowrap rounded-full bg-[var(--ink)] px-3 py-1 text-xs text-[var(--surface)] shadow-lg">
+        <span role="status" className="absolute bottom-full left-0 z-30 mb-1.5 origin-bottom-left animate-pop-in whitespace-nowrap rounded-full bg-[var(--ink)] px-3 py-1 text-xs text-[var(--surface)] shadow-lg">
           {toast}
         </span>
       )}

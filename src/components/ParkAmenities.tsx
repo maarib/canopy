@@ -27,7 +27,7 @@ function Rows({ items, limit }: { items: Amenity[]; limit?: number }) {
   const hidden = items.length - shown.length
   return (
     <>
-      <ul className={LIST}>
+      <ul className={`stagger ${LIST}`}>
         {shown.map((a) => (
           <InfoRow
             key={a.key}

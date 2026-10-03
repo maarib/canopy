@@ -40,3 +40,23 @@ export function useThrottledWhile<T>(value: T, throttling: boolean, ms: number):
   )
   return throttling ? shown : value
 }
+
+/**
+ * Keep something mounted for `ms` after `open` turns false, so it can play an exit animation.
+ * `closing` is true during that time. Pair with animate-pop-in / animate-pop-out.
+ */
+export function usePresence(open: boolean, ms = 120): { mounted: boolean; closing: boolean } {
+  const [lingering, setLingering] = useState(false)
+  const [wasOpen, setWasOpen] = useState(open)
+  // Adjust state during render when `open` flips (React's recommended pattern over an effect).
+  if (wasOpen !== open) {
+    setWasOpen(open)
+    setLingering(!open)
+  }
+  useEffect(() => {
+    if (!lingering) return
+    const t = setTimeout(() => setLingering(false), ms)
+    return () => clearTimeout(t)
+  }, [lingering, ms])
+  return { mounted: open || lingering, closing: !open && lingering }
+}

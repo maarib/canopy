@@ -6,7 +6,7 @@ import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/peak'
 import { STAGE_ORDER, STAGES } from '../lib/stage'
 import { ROW } from '../lib/styles'
-import { Skeleton } from './ui'
+import { Segmented, Skeleton } from './ui'
 import { TreePicker } from './TreePicker'
 import type { TreeFilterValue } from './MapControls'
 
@@ -44,27 +44,17 @@ export function FoliagePanel(props: Props) {
       </header>
       <SightingsSummary treeColorSightings={props.treeColorSightings} parks={props.parks} />
 
-      <div role="tablist" className="mb-2 flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-sm">
-        {(
-          [
-            ['reports', 'Park reports'],
-            ['regions', 'When to go'],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            role="tab"
-            aria-selected={tab === id}
-            onClick={() => setTab(id)}
-            className={`flex-1 rounded-full px-3 py-1.5 font-medium transition ${
-              tab === id ? 'bg-[var(--surface)] shadow-sm' : 'text-[var(--ink-soft)] hover:bg-[var(--surface)]/60 hover:text-[var(--ink)]'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Segmented
+        className="mb-2"
+        value={tab}
+        onChange={setTab}
+        options={[
+          { id: 'reports', label: 'Park reports' },
+          { id: 'regions', label: 'When to go' },
+        ]}
+      />
 
+      <div key={tab} className="animate-fade-in">
       {tab === 'reports' ? (
         <>
           {props.activityFilter && (
@@ -85,6 +75,7 @@ export function FoliagePanel(props: Props) {
       ) : (
         <RegionList regions={props.regions} onSelect={props.onSelectRegion} />
       )}
+      </div>
     </div>
   )
 }
@@ -147,7 +138,7 @@ export function ParkList({
       {filtered && !sorted.length && (
         <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No reporting park offers all of these. Try removing one.</p>
       )}
-      <ul className="divide-y divide-[var(--line)]">
+      <ul className="stagger divide-y divide-[var(--line)]">
         {sorted.map((p) => {
           const stage = STAGES[p.stage]
           return (
@@ -185,7 +176,7 @@ function RegionList({ regions, onSelect }: { regions: Region[]; onSelect: (r: Re
   const sorted = [...regions].sort((a, b) => PHASE_ORDER.indexOf(peakPhase(a)) - PHASE_ORDER.indexOf(peakPhase(b)))
   return (
     <>
-      <ul className="divide-y divide-[var(--line)]">
+      <ul className="stagger divide-y divide-[var(--line)]">
         {sorted.map((r) => {
           const phase = PHASE_STYLE[peakPhase(r)]
           return (

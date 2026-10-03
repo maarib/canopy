@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-03 | [Motion across panels, menus and the map](#2026-10-03-motion-across-panels-menus-and-the-map) | Motion PR |
 | 2026-10-03 | [Map performance and floating pins](#2026-10-03-map-performance-and-floating-pins) | [#105](https://github.com/maarib/canopy/pull/105) |
 | 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | [#104](https://github.com/maarib/canopy/pull/104) |
 | 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | [#103](https://github.com/maarib/canopy/pull/103) |
@@ -24,6 +25,26 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live color map](#2026-09-30-milestone-1-the-live-color-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-03 · Motion across panels, menus and the map
+
+**Ref:** Motion PR
+
+**Before.** Pages, menus and dropdowns appeared and disappeared instantly; tab selections jumped; list rows popped in all at once. The bottom sheet was the only animated surface.
+
+**After.** One small motion vocabulary in `src/index.css`, quick and quiet, with every animation and transition reduced to 1 ms when the system asks for reduced motion.
+- **Easing:** `--ease-out-soft` for most things; `--ease-spring` (a hint of overshoot) only for small accents.
+- **Menus and dropdowns** (map Filters, account menu, Explore's Where / Looking for / Trees, tree picker, Save to a trip, search suggestions) scale and fade in from their anchor (170 ms) and fade out on close (120 ms). `usePresence` keeps them mounted for the exit.
+- **Pages:** the panel content eases up into place whenever the page or place changes (260 ms); tab content fades.
+- **Lists** (parks, trails, places, reports, regions, activities and facilities, Explore) rise in with a short stagger (25 ms apart, capped at the tenth row).
+- **Segmented tabs** (Park reports / When to go, Filters tabs, map light) share a `Segmented` control whose selected pill slides between options.
+- **Navigation:** the selected section's icon pops as it fills; nav items and chips press down slightly.
+- **Bottom sheet:** a gentler spring when it snaps (380 ms).
+- **Map pins** spring up as they appear (280 ms).
+
+**Why.** Motion shows where things come from and where they went, so the app feels connected rather than swapping screens.
 
 ---
 

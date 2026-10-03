@@ -813,7 +813,7 @@ function HoverMarker() {
 /** A map pin: one pre-drawn image (disc, border, artwork and shadow) in an accessible button. */
 function PinButton({ pin, label }: { pin: PinImage; label: string }) {
   return (
-    <button title={label} aria-label={label} className="block cursor-pointer transition-transform duration-150 hover:scale-110" style={{ width: pin.px, height: pin.px }}>
+    <button title={label} aria-label={label} className="block animate-pin-in cursor-pointer transition-transform duration-150 hover:scale-110" style={{ width: pin.px, height: pin.px }}>
       <img src={pin.url} width={pin.px} height={pin.px} alt="" draggable={false} className="pointer-events-none block select-none" />
     </button>
   )

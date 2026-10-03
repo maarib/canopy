@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { usePresence } from '../hooks'
 import { Bookmark, Help, KeyboardArrowDown, Mail, Person } from 'relume-icons'
 import { ExternalIcon } from './ui'
 
@@ -12,6 +13,7 @@ type Props = { tripCount: number; onNavigate: (path: string) => void }
 
 export function AccountMenu({ tripCount, onNavigate }: Props) {
   const [open, setOpen] = useState(false)
+  const presence = usePresence(open)
   const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -48,8 +50,8 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
         <KeyboardArrowDown className={`size-4 text-[var(--ink-soft)] transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
-      {open && (
-        <div role="menu" className="absolute top-full right-0 z-40 mt-2 w-72 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl">
+      {presence.mounted && (
+        <div role="menu" className={`absolute top-full right-0 z-40 mt-2 w-72 origin-top-right ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}>
           <div className="flex items-center gap-3 px-2 pt-1 pb-3">
             <span className="flex size-10 items-center justify-center rounded-full bg-[var(--surface-2)]">
               <Person className="size-6 text-[var(--ink-soft)]" />

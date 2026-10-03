@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { FilterList } from 'relume-icons'
+import { usePresence } from '../hooks'
+import { Segmented } from './ui'
 
 export type FilterTab = { id: string; label: string; active: number; content: ReactNode }
 
@@ -15,6 +17,7 @@ export function MapFilters({ tabs }: { tabs: FilterTab[] }) {
   const root = useRef<HTMLDivElement>(null)
   const button = useRef<HTMLButtonElement>(null)
   const total = tabs.reduce((n, t) => n + t.active, 0)
+  const presence = usePresence(open)
 
   // Anchor to the viewport: below the button, left-aligned to it, never past either edge.
   const openMenu = () => {
@@ -58,28 +61,26 @@ export function MapFilters({ tabs }: { tabs: FilterTab[] }) {
         {total > 0 && <span className="rounded-full bg-[var(--surface)] px-1.5 text-xs leading-5 text-[var(--ink)]">{total}</span>}
       </button>
 
-      {open && (
+      {presence.mounted && (
         <div
           style={place}
-          className="fixed z-40 flex max-h-[min(72vh,600px)] flex-col rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-xl"
+          className={`fixed z-40 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} flex max-h-[min(72vh,600px)] flex-col rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-xl`}
         >
-          <div role="tablist" className="m-2 flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-sm">
-            {tabs.map((t) => (
-              <button
-                key={t.id}
-                role="tab"
-                aria-selected={t.id === current.id}
-                onClick={() => setTab(t.id)}
-                className={`flex flex-1 items-center justify-center gap-1 rounded-full px-2 py-1.5 font-medium transition ${
-                  t.id === current.id ? 'bg-[var(--surface)] shadow-sm' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
-                }`}
-              >
-                {t.label}
-                {t.active > 0 && <span className="rounded-full bg-maple px-1.5 text-[10px] leading-4 text-white">{t.active}</span>}
-              </button>
-            ))}
-          </div>
-          <div role="tabpanel" className="min-h-0 overflow-y-auto px-2 pb-3">
+          <Segmented
+            className="m-2"
+            value={current.id}
+            onChange={setTab}
+            options={tabs.map((t) => ({
+              id: t.id,
+              label: (
+                <>
+                  {t.label}
+                  {t.active > 0 && <span className="rounded-full bg-maple px-1.5 text-[10px] leading-4 text-white">{t.active}</span>}
+                </>
+              ),
+            }))}
+          />
+          <div key={current.id} role="tabpanel" className="min-h-0 animate-fade-in overflow-y-auto px-2 pb-3">
             {current.content}
           </div>
         </div>
