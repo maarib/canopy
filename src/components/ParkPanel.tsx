@@ -19,7 +19,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
 
-      <ForestCover lat={park.lat} lng={park.lng} name={parkTitle(park)} park={park} />
+      <ForestCover lat={park.lat} lng={park.lng} name={parkTitle(park)} park={park} boundary={park.shortname} />
 
       <header>
         <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">

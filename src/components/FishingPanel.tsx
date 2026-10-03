@@ -32,7 +32,7 @@ export function FishingPanel({ access, onBack }: { access: FishingAccess; onBack
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
 
-      <ForestCover lat={access.lat} lng={access.lng} name={access.name ?? type.label} />
+      <ForestCover lat={access.lat} lng={access.lng} name={access.name ?? type.label} radiusKm={2} />
 
       <header className="flex items-start gap-4">
         <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--surface-2)]">

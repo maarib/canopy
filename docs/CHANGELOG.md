@@ -37,7 +37,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 **Before.**
 - The map had one look: Standard's faded theme with warm land colors under dusk light.
 - Layers was a tab inside the Filters menu.
-- Detail pages started with the place's name; nothing showed what the forest there looks like right now.
+- Detail pages started with the place's name; nothing showed the place's shape or what its forest looks like right now.
 
 **After.**
 - **Eight map styles**, picked from small map previews under Layers:
@@ -50,18 +50,23 @@ What changed, what was there before, what it changed to, and why. Newest first. 
   The choice is kept on the device (`canopy:map-style`), not in shared links. The grades are 3D lookup tables generated in the browser (`src/lib/colorGrades.ts`) and applied through Standard's custom theme, so pins and data layers keep their true colors.
 - **Light follows the system by default** (day, or night in dark mode) instead of dusk. Monochrome reads best in daylight.
 - **Layers has its own button** next to Filters. It now holds the map style, light, data layers and the legend, which change how the map looks. Filters keeps Trees and Activities, which narrow what it shows. The old satellite layer is now labelled "Daily satellite image" so it isn't confused with the Satellite style.
-- **Forest covers on every detail page** (region, park, trail, place, fishing), above the name and inset to the page's content width:
-  - an isometric snapshot (orthographic camera, 3D terrain) of the forest around the place, with low-poly trees over the Bark & spruce map;
-  - the trees are planted in forest and parkland from Mapbox's land-cover and land-use data, never in water. Places with little mapped forest get trees on all dry land;
-  - **live colors:** the nearest Ontario Parks report within 60 km sets the share of trees still green, colored and bare, and its dominant color weights red, orange and yellow. A park uses its own report. Elsewhere the nearest region's typical peak window stands in. The source is in the image's tooltip.
+- **Island covers on every detail page** (region, park, trail, place, fishing), above the name, at full content width in a 3:2 frame with no background of their own:
+  - **Shape:** the place's shape as a floating piece of land, seen isometrically: a muted sage top over a darker earth edge. A park uses its regulated boundary (main parcel plus islands at least 2% its size). Other places get an organic island seeded by their location; a trail's island hugs its track, which is drawn across it in orange with a clearing either side and a sparser forest (about 150 trees) so the path stays visible.
+  - **Water:** lakes lying wholly inside the shape are read from Mapbox Streets at the real place and cut in, in soft blue.
+  - **Normalized:** every shape is moved to the same spot, scaled to 3 km across and simplified to chunky facets, so trees and land thickness look the same whether it's a lookout or Algonquin.
+  - **Framing:** the camera tries rotations in 10° steps and keeps the one where the shape fills the wide frame best, then zooms to fill it.
+  - **A caricature, not a survey:** about 320 big low-poly trees whatever the size.
+  - **Live colors:** the nearest Ontario Parks report within 60 km sets the share of trees still green, colored and bare, and its dominant color weights red, orange and yellow. A park uses its own report. Elsewhere the nearest region's typical peak window stands in. The source is in the image's tooltip.
+  - **Credit:** a small centered "© Mapbox © OpenStreetMap" pill sits under the island.
 
 **How.**
 - `src/lib/lowPolyTrees.ts` generates the tree models as tiny glTF files in the browser: a conifer and a leafy tree in each color, in two sizes. It also plants trees on a jittered grid, so the same place always gets the same trees.
-- `src/lib/forestCover.ts` keeps one hidden, non-interactive map, so a whole visit costs a single Mapbox map load. It draws one cover at a time, captures it as a WebP image and caches it for the visit. A cover no longer needed is skipped.
+- `src/lib/diorama.ts` builds the shapes: park outlines, seeded islands, normalizing, Douglas–Peucker simplification and the path quads.
+- `src/lib/forestCover.ts` keeps one hidden, non-interactive map on a blank, transparent style with its own lights, so a whole visit costs a single Mapbox map load. The land is two fill-extrusions, the lakes and path sit on top, and the trees are a model layer raised onto the land. It draws one cover at a time, captures it as a WebP image with transparency and caches it for the visit. A cover no longer needed is skipped.
 - `src/lib/foliage.ts` turns reports into tree mixes.
-- `src/components/ForestCover.tsx` shows a shimmer while drawing, then fades the still image in, with Mapbox and OpenStreetMap credit.
+- `src/components/ForestCover.tsx` picks each page's shape, shows a shimmer while drawing, then fades the still image in.
 
-**Why.** The default basemap looked generic. A quieter map lets the data lead, and the choice of styles lets people pick their own. The covers show at a glance what a place looks like today, in Canopy's own illustrated style.
+**Why.** The default basemap looked generic. A quieter map lets the data lead, and the choice of styles lets people pick their own. The covers show at a glance the shape of a place and its colors today, in Canopy's own illustrated style.
 
 ---
 

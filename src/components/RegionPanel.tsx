@@ -33,7 +33,7 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
 
-      <ForestCover lat={region.lat} lng={region.lng} name={region.name} />
+      <ForestCover lat={region.lat} lng={region.lng} name={region.name} boundary={region.id.replace(/-/g, '')} radiusKm={18} />
 
       <header>
         <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">{region.province} · Region</p>

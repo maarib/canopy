@@ -36,7 +36,12 @@
 - **Layers → Fishing access** turns them off.
 
 ### Places with their own pages
-- **Forest covers:** every region, park, trail, place and fishing page opens with an illustrated cover: an isometric snapshot of the forest around it, with low-poly trees in today's colors over the Bark & spruce map. The colors come from the nearest Ontario Parks report within 60 km (how much has turned and fallen, and the dominant color), otherwise from the nearest region's typical peak window. Covers are still images, drawn once per visit by a single hidden map.
+- **Island covers:** every region, park, trail, place and fishing page opens with an illustrated cover. The place's shape floats as a piece of land in soft colors, seen isometrically, with big low-poly trees in today's fall colors.
+  - A park uses its official boundary, islands included.
+  - Other places get an organic island; a trail's island hugs its track, which winds through a sparser forest so the path stays visible.
+  - Real lakes inside the shape are cut in.
+  - The colors come from the nearest Ontario Parks report within 60 km (how much has turned and fallen, and the dominant color), otherwise from the nearest region's typical peak window.
+  - Covers are still images, drawn once per visit by a single hidden map.
 - **Regions** (15, hand-picked): typical peak window, a 7-day color outlook, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
 - **Ontario provincial parks:** the official report (color %, leaf fall %, dominant color, viewing tips), outlook, photos, directions and booking.
 - **Trails** (Algonquin Highway 60 corridor, 17 trails):

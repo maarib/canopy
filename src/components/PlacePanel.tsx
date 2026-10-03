@@ -39,7 +39,7 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
 
-      <ForestCover lat={place.lat} lng={place.lng} name={place.name} />
+      <ForestCover lat={place.lat} lng={place.lng} name={place.name} radiusKm={place.kind === 'lake' ? 3.5 : 2} />
 
       <header className="flex items-start gap-4">
         <span
