@@ -38,11 +38,13 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 **After.**
 - **Terrain off unless 3D is chosen.** Cleared whenever the style changes (Standard re-applies it after load and config changes). The hillshade keeps the relief.
-- **Pins on the GPU.** Region, trailhead, place and fishing pins are symbol layers. Each pin is drawn once onto a canvas at each size it's shown (regions 24/32/44 px, places 28/44, fishing 24/34) and added as a map image. 0 DOM markers.
-  - Mapbox corrupted these raster icons when scaling them below 1× and when a symbol was laid out before its image existed (pins showed as noise or another pin's artwork). So images are drawn at their display size, added in one batch once the map is idle, and the pin layers stay hidden until then.
+- **Lighter pins.** Every pin is drawn once onto a canvas at each size it's shown (regions 24/32/44 px, trailheads and places 28/44, fishing 24/34; `src/lib/mapPins.ts`).
+  - Region, trailhead and place pins are markers holding a single pre-drawn image: 2 elements per pin instead of a nested SVG (zoom 9+: 116 elements, down from 446).
+  - Fishing access (2,400 points) stays a GPU symbol layer, with its images added before the layer needs them.
+  - Region and place pins were first tried as GPU symbols too, but Mapbox's icon atlas rendered some of them as noise or with another pin's artwork, and below 1× scale raster icons garbled; markers avoid the atlas entirely.
 - **Sightings throttled while streaming.** The map receives new sightings at most every 1.5 s during loading, then immediately once complete (`useThrottledWhile`).
 - **Pin lists keyed on zoom thresholds** (9 and 9.5) rather than the exact zoom, so they aren't rebuilt after every move.
-- **Result** (same script): 60 fps, worst frame 18 ms, no frames over 50 ms.
+- **Result** (same script): 60 fps, worst frame 19 ms, no frames over 50 ms, no long tasks.
 
 **Pin design.** Every pin type now shares one base: the same white border and a soft shadow on the ground beneath, so pins read as floating. Region pins show their peak phase as a small dot on the edge (the ring colour used to). Park report dots get the same white border and a matching soft shadow; the selected park is drawn larger instead of with a dark border.
 

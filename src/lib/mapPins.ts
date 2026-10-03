@@ -6,18 +6,17 @@ import type { TreeIconId } from '../data/treeIcons'
 import { PLACE_KINDS } from './explore'
 import { LEAF_COLORS, LEAF_SHAPES } from './leafShapes'
 
-// Map pins drawn once onto canvases and handed to Mapbox as images, so they render on the GPU
-// as a symbol layer. DOM markers (what these replaced) are repositioned by the browser on every
-// frame of a pan or zoom, which is what made the map stutter. Every pin shares one base: a disc
-// with the same white border, floating on a soft shadow.
+// Map pins drawn once onto canvases. Every pin shares one base: a disc with the same white border,
+// floating on a soft shadow. Each pin is drawn at each size it's shown and used two ways:
+// - as a single <img> in a map marker (regions, trailheads, places): one element per pin instead
+//   of a nested SVG tree, so the browser has little to move on each frame;
+// - as a map image for GPU symbol layers (fishing access, too many for markers).
 
 const RATIO = 2
 
 type MapLike = {
   hasImage: (id: string) => boolean
   addImage: (id: string, img: ImageData, o: { pixelRatio: number }) => void
-  once: (type: 'idle', listener: () => void) => unknown
-  triggerRepaint: () => void
 }
 
 function svgImage(markup: string): Promise<HTMLImageElement> {
@@ -48,9 +47,8 @@ function glyphMarkup(kind: PlaceIconId): string {
 }
 
 /**
- * One pin drawn for one on-screen size (`px` is the disc diameter, border included). Pins are
- * drawn at the exact size they're shown with icon-size 1: Mapbox garbled or dropped these raster
- * icons when scaling them below 1.
+ * One pin drawn for one on-screen size (`px` is the disc diameter, border included), so neither
+ * the browser nor Mapbox ever scales it (Mapbox garbled raster icons scaled below 1×).
  */
 class Pin {
   readonly px: number
@@ -73,7 +71,7 @@ class Pin {
     return (n * this.px * RATIO) / 40
   }
   image(id: string): PinImage {
-    return { id, data: this.ctx.getImageData(0, 0, this.size, this.size) }
+    return { id, data: this.ctx.getImageData(0, 0, this.size, this.size), url: this.canvas.toDataURL(), px: this.size / RATIO }
   }
   /** Draw `img` centred, `w` pin units wide. */
   centred(img: CanvasImageSource, w: number) {
@@ -126,20 +124,12 @@ function badge(pin: Pin, color: string) {
   ctx.stroke()
 }
 
-export type PinImage = { id: string; data: ImageData }
+/** A drawn pin: raw pixels for Mapbox, a data URL for markers, and its CSS size (shadow margin included). */
+export type PinImage = { id: string; data: ImageData; url: string; px: number }
 
-/**
- * Add every pin image in one synchronous batch once the map has settled, then call `onAdded`.
- * Callers keep the pin layers hidden until then: when Mapbox lays out a symbol before its image
- * exists and patches the image in later, its icon atlas can corrupt and pins render as noise or
- * with another pin's artwork.
- */
-export function addPins(map: MapLike, pins: PinImage[], onAdded?: () => void) {
-  map.once('idle', () => {
-    for (const { id, data } of pins) if (!map.hasImage(id)) map.addImage(id, data, { pixelRatio: RATIO })
-    onAdded?.()
-  })
-  map.triggerRepaint() // make sure an idle event follows even if the map is already still
+/** Add pin images to the map for symbol layers (all at once, before the layer needs them). */
+export function addPins(map: MapLike, pins: PinImage[]) {
+  for (const { id, data } of pins) if (!map.hasImage(id)) map.addImage(id, data, { pixelRatio: RATIO })
 }
 
 /** Pin image ids carry their size: `place-waterfall@28`. Layers pick the size with an expression. */
