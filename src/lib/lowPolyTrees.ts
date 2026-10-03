@@ -152,6 +152,56 @@ function box(m: Mesh, [cx, cy, cz]: Vec3, [w, h, d]: Vec3) {
   }
 }
 
+/** A simplified maple leaf (the flag's), on both faces of the flag at depth z ± `t`. */
+function mapleLeaf(m: Mesh, [cx, cy]: [number, number], size: number, z: number, t: number) {
+  const outline: [number, number][] = [
+    [0, 1], [0.18, 0.62], [0.42, 0.75], [0.36, 0.32], [0.8, 0.5], [0.7, 0.22], [0.95, 0.12], [0.5, -0.25], [0.55, -0.45], [0.06, -0.38], [0.06, -0.8],
+    [-0.06, -0.8], [-0.06, -0.38], [-0.55, -0.45], [-0.5, -0.25], [-0.95, 0.12], [-0.7, 0.22], [-0.8, 0.5], [-0.36, 0.32], [-0.42, 0.75], [-0.18, 0.62],
+  ]
+  const hub: [number, number] = [cx, cy + 0.1 * size]
+  for (const side of [1, -1]) {
+    const zz = z + side * t
+    for (let i = 0; i < outline.length; i++) {
+      const [ax, ay] = outline[i]
+      const [bx, by] = outline[(i + 1) % outline.length]
+      m.tri([hub[0], hub[1], zz], [cx + ax * size, cy + ay * size, zz], [cx + bx * size, cy + by * size, zz], [hub[0], hub[1], zz - side])
+    }
+  }
+}
+
+/**
+ * A peak's summit: a rough rock spire with a snowcap, 1 unit in base radius (the cover scales it
+ * to fit the top terrace).
+ */
+let spire: string | undefined
+export function spireModel(): string {
+  if (spire) return spire
+  const rock = new Mesh()
+  const snow = new Mesh()
+  const sides = 8
+  const jitter = [1, 0.86, 1.08, 0.9, 1.04, 0.84, 1.1, 0.92]
+  const base = Array.from({ length: sides }, (_, i): Vec3 => {
+    const t = (i / sides) * Math.PI * 2
+    return [Math.cos(t) * jitter[i], 0, Math.sin(t) * jitter[i]]
+  })
+  const mid = base.map(([x, , z], i): Vec3 => [x * 0.56 + 0.04, 0.72 + (i % 2) * 0.08, z * 0.56])
+  const high = base.map(([x, , z], i): Vec3 => [x * 0.28 + 0.07, 1.18 + (i % 3) * 0.04, z * 0.28])
+  const apex: Vec3 = [0.1, 1.7, 0.02]
+  const core: Vec3 = [0.05, 0.6, 0]
+  for (let i = 0; i < sides; i++) {
+    const j = (i + 1) % sides
+    rock.tri(base[i], base[j], mid[j], core)
+    rock.tri(base[i], mid[j], mid[i], core)
+    rock.tri(mid[i], mid[j], high[j], core)
+    rock.tri(mid[i], high[j], high[i], core)
+    // The snowcap sits over the top band, a touch proud of the rock.
+    const s = (p: Vec3): Vec3 => [p[0] * 1.06 + (1 - 1.06) * 0.08, p[1] + 0.005, p[2] * 1.06]
+    snow.tri(s(high[i]), s(high[j]), [apex[0], apex[1] + 0.01, apex[2]], [0.08, 1.3, 0])
+  }
+  spire = glb([{ mesh: rock, color: '#a39c90' }, { mesh: snow, color: '#f4f6f7' }])
+  return spire
+}
+
 let props: Record<string, string> | undefined
 /**
  * Props for place covers, in the trees' low-poly style and scale: a boulder (creeks and rivers),
@@ -181,10 +231,32 @@ export function propModels(): Record<string, string> {
   box(rails, [0, 6.5 * k, 3.7 * k], [11.7 * k, 0.3 * k, 0.3 * k])
   box(rails, [-5.7 * k, 6.5 * k, 0], [0.3 * k, 0.3 * k, 7.7 * k])
   box(rails, [5.7 * k, 6.5 * k, 0], [0.3 * k, 0.3 * k, 7.7 * k])
+  // A flagpole on the front corner flying the Canadian flag: red, white, red, and a red maple leaf.
+  const flagpole = new Mesh()
+  const px = 5.7 * k
+  const pz = 3.7 * k
+  const deckTop = 5.1 * k
+  box(flagpole, [px, deckTop + 8, pz], [0.45, 16, 0.45])
+  const fw = 8.4
+  const fh = fw / 2
+  const fy = deckTop + 13.6
+  const red = new Mesh()
+  const white = new Mesh()
+  box(red, [px + 0.3 + fw / 8, fy, pz], [fw / 4, fh, 0.15])
+  box(white, [px + 0.3 + fw / 2, fy, pz], [fw / 2, fh, 0.15])
+  box(red, [px + 0.3 + (fw * 7) / 8, fy, pz], [fw / 4, fh, 0.15])
+  mapleLeaf(red, [px + 0.3 + fw / 2, fy], fh * 0.36, pz, 0.12)
   props = {
     boulder: glb([{ mesh: boulder, color: '#9b968d' }]),
     cairn: glb([{ mesh: stones, color: '#a39e95' }, { mesh: pole, color: '#5a4334' }, { mesh: flag, color: '#c8102e' }]),
-    deck: glb([{ mesh: posts, color: '#7a5434' }, { mesh: deck, color: '#a8784b' }, { mesh: rails, color: '#8a5f3a' }]),
+    deck: glb([
+      { mesh: posts, color: '#7a5434' },
+      { mesh: deck, color: '#a8784b' },
+      { mesh: rails, color: '#8a5f3a' },
+      { mesh: flagpole, color: '#d9d4cc' },
+      { mesh: red, color: '#d52b1e' },
+      { mesh: white, color: '#ffffff' },
+    ]),
   }
   return props
 }
@@ -205,6 +277,11 @@ export function treeModels(): Record<string, string> {
     cone(conifer, 3.3 * k, 1.8 * k, 8.5 * k)
     cone(conifer, 2.5 * k, 5 * k, 12 * k, 0.4)
     models[`conifer-${sz}`] = glb([{ mesh: coniferTrunk, color: '#4a3a2e' }, { mesh: conifer, color: '#2f5d3a' }])
+    // High on a peak: the same conifer with snow resting on its boughs.
+    const snow = new Mesh()
+    cone(snow, 2.3 * k, 5.4 * k, 8.7 * k)
+    cone(snow, 1.6 * k, 9.4 * k, 12.2 * k, 0.4)
+    models[`snowy-${sz}`] = glb([{ mesh: coniferTrunk, color: '#4a3a2e' }, { mesh: conifer, color: '#2f5d3a' }, { mesh: snow, color: '#f3f6f8' }])
     for (const [hue, color] of Object.entries(CROWNS)) {
       const leaves = new Mesh()
       const stem = new Mesh()
@@ -229,6 +306,7 @@ export function modelExpression(f: Foliage) {
     'concat',
     [
       'case',
+      ['==', ['get', 'snow'], true], 'snowy',
       ['<', ['get', 'c'], f.conifer], 'conifer',
       ['<', ['get', 'r'], f.green], 'dec-green',
       ['>', ['get', 'r'], 1 - f.bare], 'dec-bare',

@@ -3,7 +3,7 @@ import type { ExpressionSpecification, GeoJSONSource, Map as MapboxMap, StyleSpe
 import { bboxOf, DIORAMA_SIZE_M, insideRing, metresToDeg, normalizer, simplify, type Ring } from './diorama'
 import type { PlaceKind } from './explore'
 import { foliageKey } from './foliage'
-import { modelExpression, plantTrees, propModels, treeModels, type Foliage, type TreePoint } from './lowPolyTrees'
+import { modelExpression, plantTrees, propModels, spireModel, treeModels, type Foliage, type TreePoint } from './lowPolyTrees'
 import { MAPBOX_TOKEN } from './mapStyle'
 import { islandScene, placeScene, type Scene } from './placeScenes'
 
@@ -88,9 +88,12 @@ function coverMap(): Promise<MapboxMap> {
           source: 'solids',
           paint: { 'fill-extrusion-color': ['get', 'color'], 'fill-extrusion-base': ['get', 'base'], 'fill-extrusion-height': ['get', 'top'] },
         })
-        for (const [id, url] of Object.entries({ ...treeModels(), ...propModels() })) map.addModel(id, url)
+        for (const [id, url] of Object.entries({ ...treeModels(), ...propModels(), spire: spireModel() })) map.addModel(id, url)
         map.addSource('trees', { type: 'geojson', data: collection([]) })
         map.addSource('props', { type: 'geojson', data: collection([]) })
+        map.addSource('landmark', { type: 'geojson', data: collection([]) })
+        // A scene's one large model (a peak's spire), scaled to fit its terrace.
+        map.addLayer({ id: 'landmark', type: 'model', source: 'landmark', layout: { 'model-id': 'spire' }, paint: { 'model-cast-shadows': true, 'model-receive-shadows': true } })
         // Mapbox can't vary a model's height or opacity per feature from GeoJSON, so each terrace gets
         // its own layers at a fixed height, and trees standing in front of a path, stream or deck
         // (drawn see-through so it shows behind them) get their own too.
@@ -160,10 +163,11 @@ function extent(map: MapboxMap, land: Ring[]) {
  * Turns the land to the angle where it fills the wide frame best, centres it, and zooms until it
  * fills the frame (measured on screen, with room left for the trees on top).
  */
-function fill(map: MapboxMap, land: Ring[], front?: Position) {
+function fill(map: MapboxMap, land: Ring[], front?: Position, headroom = 0) {
   const [w, s, e, n] = bboxOf(land)
-  // The land fills the frame, leaving room for the credit line below; trees may rise past it.
-  const room = { width: COVER_SIZE.width - 24, height: COVER_SIZE.height - 56 }
+  // The land fills the frame, leaving room for the credit line below and anything tall above;
+  // trees may rise past it.
+  const room = { width: COVER_SIZE.width - 24, height: COVER_SIZE.height - 56 - headroom }
   const centre = [(w + e) / 2, (s + n) / 2]
   map.jumpTo({ center: centre as [number, number], zoom: 12, ...VIEW })
   let best = { bearing: VIEW.bearing, ratio: 0 }
@@ -184,6 +188,11 @@ function fill(map: MapboxMap, land: Ring[], front?: Position) {
     // Nudge the centre up a little: the land's edge adds depth below it.
     const centre = map.unproject([(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2 + 2])
     map.jumpTo({ center: centre, zoom: map.getZoom() + Math.log2(ratio) })
+  }
+  // Then move the land down to make the headroom.
+  if (headroom) {
+    const canvas = map.getContainer()
+    map.jumpTo({ center: map.unproject([canvas.clientWidth / 2, canvas.clientHeight / 2 - headroom / 2]) })
   }
 }
 
@@ -261,21 +270,20 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
   // True land area (shoelace, in m² on the equator anchor) sets the spacing for a steady tree count.
   const landArea = scene.land.reduce((a, r) => a + ringArea(r), 0) * 111320 ** 2
   const spacing = Math.sqrt(landArea / scene.trees)
-  const ring = (r: Ring) => ({ geometry: { type: 'Polygon', coordinates: [r] } })
-  const trees = plantTrees(bboxOf(scene.land), spacing, scene.grow.map((g) => ring(g.ring)), scene.keepOut.map(ring)).map((t) => ({
-    ...t,
-    properties: {
-      ...t.properties,
-      tier: scene.grow.reduce((tier, g) => (g.tier > tier && insideRing(t.geometry.coordinates, g.ring) ? g.tier : tier), 0),
-      rot: Math.floor(((t.properties.r * 97) % 1) * 8),
-    },
-  }))
+  const polygon = (coordinates: Position[][]) => ({ geometry: { type: 'Polygon', coordinates } })
+  const trees = plantTrees(bboxOf(scene.land), spacing, scene.grow.map((g) => polygon([g.ring])), scene.keepOut.map(polygon)).map((t) => {
+    const tier = scene.grow.reduce((top, g) => (g.tier > top && insideRing(t.geometry.coordinates, g.ring) ? g.tier : top), 0)
+    return {
+      ...t,
+      properties: { ...t.properties, tier, rot: Math.floor(((t.properties.r * 97) % 1) * 8), snow: scene.snowTier !== undefined && tier >= scene.snowTier },
+    }
+  })
   // Crowns a little wider than the spacing, so the canopy reads as one forest.
   const scale = (spacing * 1.35) / 7.6
 
   const feature = (geometry: Feature['geometry'], properties: Record<string, unknown>): Feature => ({ type: 'Feature', geometry, properties })
   ;(map.getSource('solids') as GeoJSONSource).setData(
-    collection(scene.solids.map((s) => feature({ type: 'Polygon', coordinates: [s.ring] }, { base: s.base, top: s.top, color: s.color }))),
+    collection(scene.solids.map((s) => feature({ type: 'Polygon', coordinates: s.polygon }, { base: s.base, top: s.top, color: s.color }))),
   )
   ;(map.getSource('props') as GeoJSONSource).setData(
     collection(scene.props.map((p) => feature({ type: 'Point', coordinates: p.at }, { model: p.model, tier: p.tier, rot: p.rot }))),
@@ -289,8 +297,15 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
       map.setPaintProperty(id, 'model-rotation', BY_ROT as never)
     }
 
+  const { landmark } = scene
+  ;(map.getSource('landmark') as GeoJSONSource).setData(collection(landmark ? [feature({ type: 'Point', coordinates: landmark.at }, {})] : []))
+  if (landmark) {
+    map.setPaintProperty('landmark', 'model-scale', [landmark.size, landmark.size, landmark.size])
+    map.setPaintProperty('landmark', 'model-translation', [0, 0, scene.tiers[landmark.tier]])
+  }
+
   map.setCamera({ 'camera-projection': 'orthographic' })
-  fill(map, scene.land, scene.front)
+  fill(map, scene.land, scene.front, scene.headroom)
   const blocking = blockingTrees(map, trees, scene.watch, scene.tiers, scale)
   const shown = scene.clearView ? trees.filter((_, i) => !blocking.has(i)) : trees
   ;(map.getSource('trees') as GeoJSONSource).setData(

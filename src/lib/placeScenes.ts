@@ -1,4 +1,5 @@
 import type { Position } from 'geojson'
+import polygonClipping, { type MultiPolygon as ClipMulti } from 'polygon-clipping'
 import {
   bboxOf,
   centroid,
@@ -6,7 +7,6 @@ import {
   clipToHull,
   DIORAMA_SIZE_M,
   disc,
-  insideRing,
   insideRuns,
   metresToDeg,
   pathQuads,
@@ -20,6 +20,8 @@ import type { PlaceKind } from './explore'
 // What a cover diorama is made of, in the normalized frame (lib/diorama): pieces of land and water
 // as extruded solids, terraces trees and props stand on, where trees may grow, and lines they
 // shouldn't hide. Parks and trails are one flat island; each kind of place gets its own landform.
+// Water is cut into the land's top layer and sits a little below it, so every lake and stream has
+// banks, with a darker deep part under lighter shallows.
 
 /** Land thickness, and the soft top layer over the earth. */
 export const SLAB_M = DIORAMA_SIZE_M * 0.06
@@ -33,14 +35,16 @@ export const COLORS = {
   olive: '#9ea47e',
   rock: '#b3ad9f',
   rockSide: '#958b7d',
-  summit: '#cbc5b8',
-  water: '#9fbcc4',
+  shallow: '#a9cbd2',
+  deep: '#7fa5b3',
   foam: '#e3f2f5',
   wood: '#a8784b',
   path: '#e8730c',
 }
 
-export type Solid = { ring: Ring; base: number; top: number; color: string }
+/** A polygon: outer ring, then any holes. */
+export type Poly = Position[][]
+export type Solid = { polygon: Poly; base: number; top: number; color: string }
 export type Prop = { at: Position; model: 'boulder' | 'cairn' | 'deck'; tier: number; rot: number }
 export type Scene = {
   /** Outline used to frame the cover and size the forest. */
@@ -51,7 +55,7 @@ export type Scene = {
   /** Where trees grow; a point takes the highest terrace whose ring contains it. */
   grow: { ring: Ring; tier: number }[]
   /** No trees here (water, clearings, the summit). */
-  keepOut: Ring[]
+  keepOut: Poly[]
   props: Prop[]
   /** Lines trees shouldn't hide: trees standing in front of them turn see-through. */
   watch: { line: Position[]; tier: number }[]
@@ -61,31 +65,97 @@ export type Scene = {
   front?: Position
   /** Leave out trees standing in front of watched lines, rather than drawing them see-through. */
   clearView?: boolean
+  /** One large model scaled to fit (a peak's spire): its base radius in metres. */
+  landmark?: { at: Position; tier: number; size: number }
+  /** Trees on this terrace and above carry snow. */
+  snowTier?: number
+  /** Extra room (CSS px) above the land for something tall: a spire, a flag. */
+  headroom?: number
 }
 
 const m = metresToDeg
 const S = DIORAMA_SIZE_M
 
-/** A piece of land: earth up to the soft top layer. */
-const slab = (ring: Ring, top: number, cap = COLORS.land, side = COLORS.earth): Solid[] => [
-  { ring, base: 0, top: top - TOP_M, color: side },
-  { ring, base: top - TOP_M, top, color: cap },
-]
-const water = (ring: Ring, at: number, color = COLORS.water): Solid => ({ ring, base: at, top: at + 1.5, color })
+// ── Polygon helpers (polygon-clipping works on arrays of polygons) ───────────────────────────
+
+// Clipping runs in local metres rounded to the centimetre: polygon-clipping loses track of edges
+// with the tiny degree values of the anchor frame.
+const ORIGIN: Position = [-30, 0]
+const M_PER_DEG = 111320
+const toLocal = (polys: Poly[]): ClipMulti =>
+  polys.map((poly) => poly.map((ring) => ring.map(([x, y]) => [Math.round((x - ORIGIN[0]) * M_PER_DEG * 100) / 100, Math.round((y - ORIGIN[1]) * M_PER_DEG * 100) / 100]))) as ClipMulti
+const fromLocal = (polys: ClipMulti): Poly[] => polys.map((poly) => poly.map((ring) => ring.map(([x, y]) => [ORIGIN[0] + x / M_PER_DEG, ORIGIN[1] + y / M_PER_DEG])))
+const union = (polys: Poly[]): Poly[] => (polys.length ? fromLocal(polygonClipping.union(toLocal(polys))) : [])
+const minus = (a: Poly[], b: Poly[]): Poly[] => (b.length ? fromLocal(polygonClipping.difference(toLocal(a), toLocal(b))) : a)
+const within = (a: Poly[], b: Poly[]): Poly[] => (a.length && b.length ? fromLocal(polygonClipping.intersection(toLocal(a), toLocal(b))) : [])
+
+/** Chaikin smoothing: rounds every bend of a line, keeping its ends. */
+function smooth(line: Position[], rounds = 3): Position[] {
+  let pts = line
+  for (let r = 0; r < rounds && pts.length > 2; r++) {
+    const out: Position[] = [pts[0]]
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [ax, ay] = pts[i]
+      const [bx, by] = pts[i + 1]
+      out.push([ax * 0.75 + bx * 0.25, ay * 0.75 + by * 0.25], [ax * 0.25 + bx * 0.75, ay * 0.25 + by * 0.75])
+    }
+    out.push(pts[pts.length - 1])
+    pts = out
+  }
+  return pts
+}
+
+/** Drops points closer than `gap` to the last one kept (keeping the end). */
+function thin(line: Position[], gap: number): Position[] {
+  const out = [line[0]]
+  for (const p of line.slice(1, -1)) if (Math.hypot(p[0] - out[out.length - 1][0], p[1] - out[out.length - 1][1]) >= gap) out.push(p)
+  out.push(line[line.length - 1])
+  return out
+}
+
+/** A smooth band `width` wide along each line: its segments joined with round elbows. */
+function ribbon(lines: Position[][], width: number): Poly[] {
+  const parts: Poly[] = []
+  for (const line of lines.map((l) => thin(smooth(l), width / 3)))
+    for (let i = 0; i < line.length; i++) {
+      parts.push([disc(line[i], width / 2, 10)])
+      if (i < line.length - 1) {
+        const len = Math.hypot(line[i + 1][0] - line[i][0], line[i + 1][1] - line[i][1])
+        if (len) parts.push([strip(line[i], unit(line[i], line[i + 1]), len, width)])
+      }
+    }
+  return union(parts)
+}
+
+/**
+ * A piece of land `top` high with `water` cut into its top layer: earth up to the top layer, the
+ * top layer around the water, and the water sunk below the banks with its deep part darker.
+ */
+function terrace(rings: Ring[], top: number, water: Poly[], deep: Poly[], cap = COLORS.land, side = COLORS.earth): Solid[] {
+  const ground = rings.map((r): Poly => [r])
+  const surface = top - TOP_M * 0.5
+  return [
+    ...ground.map((polygon) => ({ polygon, base: 0, top: top - TOP_M, color: side })),
+    ...minus(ground, water).map((polygon) => ({ polygon, base: top - TOP_M, top, color: cap })),
+    ...water.map((polygon) => ({ polygon, base: top - TOP_M, top: surface, color: COLORS.shallow })),
+    ...within(deep, water).map((polygon) => ({ polygon, base: surface, top: surface + 0.8, color: COLORS.deep })),
+  ]
+}
+
+/** A lake's deep middle: the lake shrunk toward its centre, kept inside the lake. */
+const lakeDepths = (lakes: Ring[]) => lakes.map((r): Poly => [scaleRing(r, centroid(r), 0.55)])
 
 /** Parks, regions and trails: one flat island, its lakes, and a trail's track. */
 export function islandScene(land: Ring[], lakes: Ring[], path?: Position[][]): Scene {
+  const water = union(lakes.map((r) => [r]))
+  const quads = (w: number) => (path ? pathQuads({ type: 'MultiLineString', coordinates: path }, (p) => p, w) : [])
   return {
     land,
-    solids: [
-      ...land.flatMap((r) => slab(r, SLAB_M)),
-      ...lakes.map((r) => water(r, SLAB_M)),
-      ...(path ? pathQuads({ type: 'MultiLineString', coordinates: path }, (p) => p, m(S / 45)).map((r) => ({ ring: r, base: SLAB_M, top: SLAB_M + 3, color: COLORS.path })) : []),
-    ],
+    solids: [...terrace(land, SLAB_M, water, lakeDepths(lakes)), ...quads(m(S / 45)).map((r) => ({ polygon: [r], base: SLAB_M, top: SLAB_M + 3, color: COLORS.path }))],
     tiers: [SLAB_M],
     grow: land.map((ring) => ({ ring, tier: 0 })),
     // Trees keep well clear of the path, so it shows between the crowns.
-    keepOut: [...lakes, ...(path ? pathQuads({ type: 'MultiLineString', coordinates: path }, (p) => p, m(S / 8)) : [])],
+    keepOut: [...water, ...quads(m(S / 8)).map((r) => [r])],
     props: [],
     watch: (path ?? []).map((line) => ({ line, tier: 0 })),
     trees: path ? 150 : 320,
@@ -131,8 +201,6 @@ function madeUpCourse(island: Ring, c: Position, rnd: () => number): Position[][
   return [line]
 }
 
-const streamQuads = (runs: Position[][], width: number) => pathQuads({ type: 'MultiLineString', coordinates: runs }, (p) => p, width)
-
 /** A point beside the island's centre, at right angles to the longest stretch of stream. */
 function sideOn(island: Ring, runs: Position[][]): Position | undefined {
   const run = runs.reduce<Position[] | undefined>((a, r) => (!a || r.length > a.length ? r : a), undefined)
@@ -144,7 +212,7 @@ function sideOn(island: Ring, runs: Position[][]): Position | undefined {
 
 /** Boulders along a stream's banks (and a few in it). */
 function boulders(runs: Position[][], width: number, count: number, rnd: () => number, tier = 0, inStream = 0): Prop[] {
-  const pts = runs.flat()
+  const pts = runs.map((r) => smooth(r)).flat()
   const out: Prop[] = []
   for (let i = 0; i < count && pts.length > 2; i++) {
     const k = Math.min(pts.length - 2, Math.floor(rnd() * (pts.length - 1)))
@@ -184,37 +252,39 @@ export function placeScene(p: PlaceInput): Scene {
   }
 }
 
-/** A ring of forest around the lake's real outline, with a small dock. */
+/** A ring of forest around the lake's real outline, with a small dock facing the camera. */
 function lakeScene({ island, water: lakes }: PlaceInput): Scene {
   const shapes = lakes.map((r) => clipToHull(r, island)).filter((r) => r.length >= 4)
-  const solids = [...slab(island, SLAB_M), ...shapes.map((r) => water(r, SLAB_M))]
+  const water = within(union(shapes.map((r) => [r])), [[island]])
+  const solids = terrace([island], SLAB_M, water, lakeDepths(shapes))
   // The dock reaches into the lake from its southern shore, and the camera faces that shore.
-  const main = shapes.sort((a, b) => b.length - a.length)[0]
+  const main = [...shapes].sort((a, b) => b.length - a.length)[0]
   const watch: Scene['watch'] = []
   let front: Position | undefined
   if (main) {
     const shore = main.reduce((lo, q) => (q[1] < lo[1] ? q : lo))
     const into = unit(shore, centroid(main))
     const start: Position = [shore[0] - into[0] * m(S / 60), shore[1] - into[1] * m(S / 60)]
-    solids.push({ ring: strip(start, into, m(S / 9), m(S / 45)), base: SLAB_M, top: SLAB_M + 6, color: COLORS.wood })
+    solids.push({ polygon: [strip(start, into, m(S / 9), m(S / 45))], base: SLAB_M - TOP_M * 0.5, top: SLAB_M + 4, color: COLORS.wood })
     watch.push({ line: [start, [start[0] + into[0] * m(S / 9), start[1] + into[1] * m(S / 9)]], tier: 0 })
     front = start
   }
-  return { land: [island], solids, tiers: [SLAB_M], grow: [{ ring: island, tier: 0 }], keepOut: [...shapes, ...(front ? [disc(front, m(S / 14))] : [])], props: [], watch, trees: 230, front }
+  return { land: [island], solids, tiers: [SLAB_M], grow: [{ ring: island, tier: 0 }], keepOut: [...water, ...(front ? [[disc(front, m(S / 14))]] : [])], props: [], watch, trees: 230, front }
 }
 
-/** The stream's real course winding across the forest; rivers wide, creeks narrow and rocky. */
+/** The stream's real course winding across the forest, smooth; rivers wide, creeks narrow and rocky. */
 function streamScene({ kind, island, focus, water: areas, course }: PlaceInput, rnd: () => number): Scene {
-  const width = m(kind === 'river' ? S / 12 : S / 20)
+  const width = m(kind === 'river' ? S / 11 : S / 17)
   const lines = course.length ? course : areas.length ? [] : madeUpCourse(island, focus, rnd)
   const runs = insideRuns(lines, island, width / 3)
   const shapes = areas.map((r) => clipToHull(r, island)).filter((r) => r.length >= 4)
+  const water = within(union([...ribbon(runs, width), ...shapes.map((r): Poly => [r])]), [[island]])
   return {
     land: [island],
-    solids: [...slab(island, SLAB_M), ...shapes.map((r) => water(r, SLAB_M)), ...streamQuads(runs, width).map((r) => water(r, SLAB_M))],
+    solids: terrace([island], SLAB_M, water, ribbon(runs, width * 0.42)),
     tiers: [SLAB_M],
     grow: [{ ring: island, tier: 0 }],
-    keepOut: [...shapes, ...streamQuads(runs, width * (kind === 'river' ? 3 : 5))],
+    keepOut: [...water, ...ribbon(runs, width * (kind === 'river' ? 2.4 : 3.4))],
     props: boulders(runs, width, kind === 'river' ? 6 : 10, rnd, 0, kind === 'creek' ? 4 : 0),
     watch: runs.map((line) => ({ line, tier: 0 })),
     trees: kind === 'river' ? 160 : 130,
@@ -226,11 +296,11 @@ function streamScene({ kind, island, focus, water: areas, course }: PlaceInput, 
 
 /**
  * Two terraces split by a cliff across the stream at the falls: the stream runs along the upper
- * terrace, pours over the cliff as a white sheet into a plunge pool, and carries on below.
+ * terrace, pours over the cliff as a broad white sheet into a plunge pool, and carries on below.
  * OpenStreetMap draws streams in the direction they flow, so the upper side is upstream.
  */
 function waterfallScene({ island, focus, course }: PlaceInput, rnd: () => number): Scene {
-  const width = m(S / 18)
+  const width = m(S / 11)
   const lines = course.length ? course : madeUpCourse(island, focus, rnd)
   const { at: fall, dir } = nearestOnCourse(lines, focus)
   const across: Position = [-dir[1], dir[0]]
@@ -245,27 +315,25 @@ function waterfallScene({ island, focus, course }: PlaceInput, rnd: () => number
   const split = (side: boolean) => runs.flatMap((r) => runsWhere(r, (q) => upstream(q) === side))
   const above = split(true)
   const below = split(false)
-  const pool = disc([fall[0] + dir[0] * width * 1.3, fall[1] + dir[1] * width * 1.3], width * 1.35)
+  const poolAt: Position = [fall[0] + dir[0] * width * 1.1, fall[1] + dir[1] * width * 1.1]
+  const pool: Poly = [disc(poolAt, width * 1.25, 12)]
+  const upperWater = upper.length ? within(ribbon(above, width), [[upper]]) : []
+  const lowerWater = within(union([...ribbon(below, width), pool]), [[island]])
+  const surface = (top: number) => top - TOP_M * 0.5
   return {
     land: [island],
     solids: [
-      ...slab(island, low),
-      ...(upper.length ? slab(upper, high) : []),
-      ...streamQuads(above, width).map((r) => water(r, high)),
-      ...streamQuads(below, width).map((r) => water(r, low)),
-      water(pool, low),
-      // The falling water, from the lip of the cliff down into the pool.
-      { ring: strip([fall[0] - dir[0] * width * 0.1, fall[1] - dir[1] * width * 0.1], dir, width * 0.35, width * 1.1), base: low, top: high + 1.5, color: COLORS.foam },
-      water(disc([fall[0] + dir[0] * width * 0.7, fall[1] + dir[1] * width * 0.7], width * 0.55, 7), low + 0.5, COLORS.foam),
+      ...terrace([island], low, lowerWater, union([...ribbon(below, width * 0.42), [disc(poolAt, width * 0.7, 10)]])),
+      ...(upper.length ? terrace([upper], high, upperWater, ribbon(above, width * 0.42)) : []),
+      // The falling water, from the lip of the cliff down into the pool, as wide as the stream.
+      { polygon: [strip([fall[0] - dir[0] * width * 0.1, fall[1] - dir[1] * width * 0.1], dir, width * 0.3, width * 1.05)], base: surface(low), top: surface(high) + 1, color: COLORS.foam },
+      { polygon: [disc([fall[0] + dir[0] * width * 0.45, fall[1] + dir[1] * width * 0.45], width * 0.5, 9)], base: surface(low), top: surface(low) + 1.2, color: COLORS.foam },
     ],
     tiers: [low, high],
-    grow: [
-      { ring: island, tier: 0 },
-      ...(upper.length ? [{ ring: upper, tier: 1 }] : []),
-    ],
-    keepOut: [pool, ...streamQuads(runs, width * 4.5), strip([fall[0] - across[0] * width * 2, fall[1] - across[1] * width * 2], across, width * 4, width * 1.6)],
+    grow: [{ ring: island, tier: 0 }, ...(upper.length ? [{ ring: upper, tier: 1 }] : [])],
+    keepOut: [pool, ...ribbon(runs, width * 2.6), [strip([fall[0] - across[0] * width * 1.6, fall[1] - across[1] * width * 1.6], across, width * 3.2, width * 1.4)]],
     props: [...boulders(below, width, 4, rnd, 0), ...boulders(above, width, 3, rnd, 1)],
-    watch: [...above.map((line) => ({ line, tier: 1 })), ...below.map((line) => ({ line, tier: 0 })), { line: [fall, [fall[0] + dir[0] * width * 2, fall[1] + dir[1] * width * 2]], tier: 0 }],
+    watch: [...above.map((line) => ({ line, tier: 1 })), ...below.map((line) => ({ line, tier: 0 })), { line: [fall, poolAt], tier: 0 }],
     trees: 150,
   }
 }
@@ -285,26 +353,36 @@ function runsWhere(line: Position[], keep: (p: Position) => boolean): Position[]
   return out
 }
 
-/** Terraces rising to the summit: forest low down, olive scrub, then bare rock and a cairn. */
-function peakScene({ island, focus }: PlaceInput): Scene {
+/**
+ * Terraces climbing to a pointed rock spire with a snowcap: forest low down, olive scrub higher,
+ * and snow on the trees of the top terrace.
+ */
+function peakScene({ island }: PlaceInput): Scene {
   const c = centroid(island)
-  const rings = [0, 1, 2, 3].map((k) => (k ? scaleRing(island, c, 1 - k * 0.21, k * 9) : island))
-  const tops = rings.map((_, k) => SLAB_M + k * TIER_M * 1.7)
-  const caps = [COLORS.land, COLORS.land, COLORS.olive, COLORS.summit]
-  const sides = [COLORS.earth, COLORS.rockSide, COLORS.rockSide, COLORS.rockSide]
+  const rings = [0, 1, 2].map((k) => (k ? scaleRing(island, c, 1 - k * 0.24, k * 9) : island))
+  const tops = rings.map((_, k) => SLAB_M + k * TIER_M * 1.5)
+  const caps = [COLORS.land, COLORS.land, COLORS.olive]
+  const sides = [COLORS.earth, COLORS.rockSide, COLORS.rockSide]
+  const top = rings[2]
+  const topC = centroid(top)
+  // The spire fills most of the top terrace (its radius in metres on the anchor).
+  const radius = (top.slice(0, -1).reduce((a, q) => a + Math.hypot(q[0] - topC[0], q[1] - topC[1]), 0) / (top.length - 1)) * 0.72
   return {
     land: [island],
-    solids: rings.flatMap((r, k) => slab(r, tops[k], caps[k], sides[k])),
+    solids: rings.flatMap((r, k) => terrace([r], tops[k], [], [], caps[k], sides[k])),
     tiers: tops,
-    grow: rings.slice(0, 3).map((ring, k) => ({ ring, tier: k })),
-    keepOut: [rings[3]],
-    props: [{ at: insideRing(focus, rings[3]) ? focus : c, model: 'cairn', tier: 3, rot: 2 }],
+    grow: rings.map((ring, k) => ({ ring, tier: k })),
+    keepOut: [[disc(topC, radius * 1.08, 12)]],
+    props: [],
     watch: [],
     trees: 220,
+    landmark: { at: topC, tier: 2, size: radius * 111320 },
+    snowTier: 2,
+    headroom: 60,
   }
 }
 
-/** Terraces that crowd into a cliff on one side, with a wooden viewing deck at its edge. */
+/** Terraces that crowd into a cliff on one side, with a wooden viewing deck and flag at its edge. */
 function lookoutScene({ island }: PlaceInput, rnd: () => number): Scene {
   const c = centroid(island)
   const ring = island.slice(0, -1)
@@ -318,14 +396,15 @@ function lookoutScene({ island }: PlaceInput, rnd: () => number): Scene {
   const facing = (Math.atan2(pivot[1] - topC[1], pivot[0] - topC[0]) * 180) / Math.PI
   return {
     land: [island],
-    solids: rings.flatMap((r, k) => slab(r, tops[k], k === 2 ? COLORS.rock : COLORS.land, k ? COLORS.rockSide : COLORS.earth)),
+    solids: rings.flatMap((r, k) => terrace([r], tops[k], [], [], k === 2 ? COLORS.rock : COLORS.land, k ? COLORS.rockSide : COLORS.earth)),
     tiers: tops,
     // The rocky top stays bare around the deck.
     grow: rings.slice(0, 2).map((ring, k) => ({ ring, tier: k })),
-    keepOut: [top],
+    keepOut: [[top]],
     props: [{ at: deckAt, model: 'deck', tier: 2, rot: Math.round(((90 - facing + 360) % 360) / 45) % 8 }],
     watch: [{ line: [deckAt, [deckAt[0] + 1e-9, deckAt[1]]], tier: 2 }],
     trees: 180,
     front: pivot,
+    headroom: 40,
   }
 }

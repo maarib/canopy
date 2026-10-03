@@ -53,12 +53,13 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **Before.** Every place got the same flat, round island of trees. Nothing showed whether it was a waterfall or a peak, and lakes and streams didn't appear unless a lake happened to sit wholly inside the circle.
 
 **After.** Each kind of place has its own landform, built from its real shape where OpenStreetMap has one. The style, palette and live tree colors match the park and trail islands.
-- **Waterfalls:** two terraces split by a cliff across the stream the falls are on. The stream crosses the upper terrace, pours over the cliff as a white sheet into a plunge pool, and winds on below past boulders. OpenStreetMap draws streams in the direction they flow, so the upper terrace is always upstream.
-- **Lookouts:** terraces that crowd into a cliff on one side, with a wooden viewing deck on the bare rocky top. The camera turns so the cliff and deck face you.
-- **Peaks:** terraces rising to a bare summit, from forest to olive scrub to rock, with a cairn and a red flag on top.
+- **Waterfalls:** two terraces split by a cliff across the stream the falls are on. The broad stream crosses the upper terrace, pours over the cliff as a wide white sheet into a plunge pool, and winds on below past boulders. OpenStreetMap draws streams in the direction they flow, so the upper terrace is always upstream.
+- **Lookouts:** terraces that crowd into a cliff on one side, with a wooden viewing deck on the bare rocky top, flying the Canadian flag. The camera turns so the cliff and deck face you.
+- **Peaks:** terraces climbing from forest to olive scrub, topped by a pointed rock spire with a snowcap. The conifers on the top terrace carry snow.
 - **Lakes:** the lake's real outline in a ring of forest, with a small dock on the shore. The camera faces the dock.
-- **Rivers and creeks:** the real course winding across the island; rivers wide, creeks narrow with rocks in and beside them.
-- **Clear water:** trees standing in front of a stream, the falls or the deck turn see-through, as on trail covers.
+- **Rivers and creeks:** the real course as one smooth ribbon (smoothed, with rounded bends) winding across the island; rivers wide, creeks narrow with rocks in and beside them. The camera turns so the stream runs across the view, and trees in front of it are left out.
+- **Water with depth:** every lake, river, creek and falls is cut into the land's top layer and sits below its banks, with a darker deep middle or channel under lighter shallows. Park and trail lakes too.
+- **Clear water:** trees standing in front of the falls or a lookout's deck turn see-through, as on trail covers.
 - **Everywhere:** all 62 places are pre-drawn at deploy time, and the place lists on the Trails page show their island thumbnails.
 
 **How.**
@@ -70,8 +71,9 @@ Each release is a git tag and a GitHub Release. The live site is always the late
   Every waterfall, river and creek now has its course.
 - **Scenes.** `src/lib/placeScenes.ts` builds a scene for each kind: pieces of land and water as solids (each with its own base, top and color), terraces, where trees grow, where they don't, props, and lines trees shouldn't hide. Parks and trails use the same scene format.
 - **Geometry.** `src/lib/diorama.ts` adds half-plane and hull clipping, stream trimming, scaled terrace rings and seeded randomness.
-- **Props.** `src/lib/lowPolyTrees.ts` adds low-poly props in the trees' style: a boulder, a cairn with a flag and a wooden deck.
-- **Renderer.** `src/lib/forestCover.ts` draws any scene with one extrusion layer for all land and water. Mapbox can't vary a model's height per feature from GeoJSON, so trees and props get one layer per terrace at a fixed height. Trees and props also turn to one of eight angles for variety. A scene can name a point to face the camera.
+- **Water.** Water is cut into the land with `polygon-clipping` (MIT), working in local metres for precision. Streams are Chaikin-smoothed and drawn as one band with round elbows.
+- **Models.** `src/lib/lowPolyTrees.ts` adds, in the trees' style: a boulder, a wooden deck with a Canadian flag, snowy conifers, and a snow-capped rock spire that the cover scales to the top terrace.
+- **Renderer.** `src/lib/forestCover.ts` draws any scene with one extrusion layer for all land and water (polygons with holes). Mapbox can't vary a model's height per feature from GeoJSON, so trees and props get one layer per terrace at a fixed height. Trees and props also turn to one of eight angles for variety. A scene can name a point to face the camera and ask for headroom above tall things.
 - **Pre-render.** `scripts/build-covers.mjs` draws places too, and takes `--only <prefix>` to draw a subset while checking.
 
 **Why.** The cover should say what a place is at a glance, and its real shape is what makes it that place.
