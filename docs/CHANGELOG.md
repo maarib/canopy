@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-03 | [Map performance, floating pins and glass controls](#2026-10-03-map-performance-floating-pins-and-glass-controls) | Map performance PR |
 | 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | [#104](https://github.com/maarib/canopy/pull/104) |
 | 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | [#103](https://github.com/maarib/canopy/pull/103) |
 | 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
@@ -23,6 +24,29 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live color map](#2026-09-30-milestone-1-the-live-color-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-03 · Map performance, floating pins and glass controls
+
+**Ref:** Map performance PR
+
+**Before.** Panning and zooming could stutter, most on slower devices. Measured on the development machine with a scripted fly-and-zoom: 59 fps, worst frames 34–50 ms. Three causes:
+- **3D terrain was always on.** Mapbox Standard enables terrain between zoom 6 and 13.7 by default, even with Canopy's 3D toggle off. Draping every layer over the terrain mesh is the most expensive thing the map draws.
+- **Pins were DOM markers.** Region, trailhead and place pins were React components positioned by the browser on every frame: 15 markers (158 elements) zoomed out, 58 (446 elements) at zoom 9+.
+- **Streamed sightings rebuilt the map per page.** Each page of iNaturalist results re-binned the hexagons and re-uploaded the map data.
+
+**After.**
+- **Terrain off unless 3D is chosen.** Cleared whenever the style changes (Standard re-applies it after load and config changes). The hillshade keeps the relief.
+- **Pins on the GPU.** Region, trailhead, place and fishing pins are symbol layers. Each pin is drawn once onto a canvas at each size it's shown (regions 24/32/44 px, places 28/44, fishing 24/34) and added as a map image. 0 DOM markers.
+  - Mapbox corrupted these raster icons when scaling them below 1× and when a symbol was laid out before its image existed (pins showed as noise or another pin's artwork). So images are drawn at their display size, added in one batch once the map is idle, and the pin layers stay hidden until then.
+- **Sightings throttled while streaming.** The map receives new sightings at most every 1.5 s during loading, then immediately once complete (`useThrottledWhile`).
+- **Pin lists keyed on zoom thresholds** (9 and 9.5) rather than the exact zoom, so they aren't rebuilt after every move.
+- **Result** (same script): 60 fps, worst frame 18 ms, no frames over 50 ms.
+
+**Pin design.** Every pin type now shares one base: the same white border and a soft shadow on the ground beneath, so pins read as floating. Region pins show their peak phase as a small dot on the edge (the ring colour used to). Park report dots get the same white border and a matching soft shadow; the selected park is drawn larger instead of with a dark border.
+
+**Glass controls.** Controls floating over the map (Filters button, zoom and compass, legend) use a liquid-glass material after Apple's floating controls: translucent tint, backdrop blur with extra saturation, a bright top edge, faint rim and a lifted shadow, with light and dark variants (`.glass` in `index.css`). Map pins are GPU images and can't blur what's behind them, so they use the floating shadow instead.
 
 ---
 

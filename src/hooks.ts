@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(
@@ -14,3 +14,29 @@ function useMediaQuery(query: string): boolean {
 export const usePrefersDark = () => useMediaQuery('(prefers-color-scheme: dark)')
 /** Matches Tailwind's `md` breakpoint. */
 export const useIsDesktop = () => useMediaQuery('(min-width: 768px)')
+
+/**
+ * `value`, but while `throttling` is true it only updates every `ms` (the latest value wins).
+ * Used to stop streamed data from rebuilding the map on every page.
+ */
+export function useThrottledWhile<T>(value: T, throttling: boolean, ms: number): T {
+  const [shown, setShown] = useState(value)
+  const latest = useRef(value)
+  const pending = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    latest.current = value
+    // At most one timer at a time: new values arriving while it's pending ride along with it.
+    if (throttling && !pending.current)
+      pending.current = setTimeout(() => {
+        pending.current = null
+        setShown(latest.current)
+      }, ms)
+  }, [value, throttling, ms])
+  useEffect(
+    () => () => {
+      if (pending.current) clearTimeout(pending.current)
+    },
+    [],
+  )
+  return throttling ? shown : value
+}

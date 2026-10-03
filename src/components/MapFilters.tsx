@@ -47,10 +47,10 @@ export function MapFilters({ tabs }: { tabs: FilterTab[] }) {
         onClick={() => (open ? setOpen(false) : openMenu())}
         aria-expanded={open}
         aria-label={total ? `Map filters: ${total} set` : 'Map filters'}
-        className={`flex h-[42px] items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium shadow-md transition-colors ${
+        className={`flex h-[42px] items-center gap-1.5 rounded-full px-3.5 text-sm font-medium transition-colors ${
           total
-            ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]'
-            : `border-[var(--line)] hover:bg-[var(--surface-2)] ${open ? 'bg-[var(--surface-2)]' : 'bg-[var(--surface)]'}`
+            ? 'border border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)] shadow-md'
+            : `glass hover:brightness-105 ${open ? 'brightness-105' : ''}`
         }`}
       >
         <FilterList className="size-5" />
