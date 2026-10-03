@@ -57,6 +57,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
   - **Framing:** the camera tries rotations in 10° steps and keeps the one where the shape fills the wide frame best, then zooms to fill it.
   - **A caricature, not a survey:** about 320 big low-poly trees whatever the size.
   - **Live colors:** the nearest Ontario Parks report within 60 km sets the share of trees still green, colored and bare, and its dominant color weights red, orange and yellow. A park uses its own report. Elsewhere the nearest region's typical peak window stands in. The source is in the image's tooltip.
+  - **Never cropped:** the cover is drawn with a 48 px margin around its frame and allowed to overflow it, so treetops rising past the frame stay visible. Only sideways overflow is clipped, at the panel's padding, so the panel never scrolls sideways.
   - **Credit:** a small centered "© Mapbox © OpenStreetMap" pill sits under the island.
 
 **How.**

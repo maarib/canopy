@@ -10,8 +10,14 @@ import { MAPBOX_TOKEN } from './mapStyle'
 // One hidden map renders every cover in turn on a blank, transparent style and stays alive, so a
 // whole visit costs a single Mapbox map load. Each finished cover is a still image.
 
-/** Cover size in CSS pixels (3:2), drawn at the screen's pixel ratio. */
+/** The cover's frame in CSS pixels (3:2), drawn at the screen's pixel ratio. */
 export const COVER_SIZE = { width: 400, height: 267 }
+/**
+ * Extra canvas around the frame, so treetops and land reaching past it are drawn rather than cut
+ * off; the page lets the image overflow the frame by the same amount.
+ */
+export const COVER_BLEED = 48
+const CANVAS = { width: COVER_SIZE.width + 2 * COVER_BLEED, height: COVER_SIZE.height + 2 * COVER_BLEED }
 const VIEW = { pitch: 55, bearing: -35 }
 
 /** Land thickness: a soft top layer over earth. */
@@ -56,7 +62,7 @@ function coverMap(): Promise<MapboxMap> {
   ready ??= import('mapbox-gl').then(({ default: mapboxgl }) => {
     const container = document.createElement('div')
     container.setAttribute('aria-hidden', 'true')
-    Object.assign(container.style, { position: 'fixed', left: '-10000px', top: '0', width: `${COVER_SIZE.width}px`, height: `${COVER_SIZE.height}px`, pointerEvents: 'none' })
+    Object.assign(container.style, { position: 'fixed', left: '-10000px', top: '0', width: `${CANVAS.width}px`, height: `${CANVAS.height}px`, pointerEvents: 'none' })
     document.body.append(container)
     const map = new mapboxgl.Map({
       container,
@@ -152,8 +158,8 @@ function extent(map: MapboxMap, land: Ring[]) {
  */
 function fill(map: MapboxMap, land: Ring[]) {
   const [w, s, e, n] = bboxOf(land)
-  // Room for the credit line below and the treetops above.
-  const room = { width: COVER_SIZE.width - 64, height: COVER_SIZE.height - 84 }
+  // The land fills the frame, leaving room for the credit line below; trees may rise past it.
+  const room = { width: COVER_SIZE.width - 24, height: COVER_SIZE.height - 56 }
   map.jumpTo({ center: [(w + e) / 2, (s + n) / 2], zoom: 12, ...VIEW })
   let best = { bearing: VIEW.bearing, ratio: 0 }
   for (let bearing = -80; bearing <= 80; bearing += 10) {

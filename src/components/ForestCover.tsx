@@ -3,7 +3,7 @@ import type { MultiLineString } from 'geojson'
 import { useEffect, useState } from 'react'
 import { islandRing, outlineRings } from '../lib/diorama'
 import { foliageAt, foliageKey } from '../lib/foliage'
-import { forestCover, type CoverShape } from '../lib/forestCover'
+import { COVER_BLEED, COVER_SIZE, forestCover, type CoverShape } from '../lib/forestCover'
 import { fetchOntarioParks, type ParkReport } from '../lib/ontarioParks'
 import { MAPBOX_TOKEN } from '../lib/mapStyle'
 import { fetchParkBoundary } from '../lib/parkBoundaries'
@@ -60,14 +60,16 @@ export function ForestCover({ lat, lng, name, park, boundary, path, radiusKm = 2
   if (!MAPBOX_TOKEN) return null
   const url = cover?.key === key ? cover.url : undefined
   return (
-    <figure className="relative aspect-[3/2]">
+    <figure className="relative aspect-[3/2] overflow-x-clip [overflow-clip-margin:1.25rem]">
       {url ? (
         <img
           src={url}
           alt={`Illustration of ${name} as a small forested island in today's fall colors`}
           title={source}
           draggable={false}
-          className="size-full animate-fade-in object-contain select-none"
+          // Drawn with a margin all round and allowed to overflow the frame, so nothing is cropped.
+          style={BLEED}
+          className="pointer-events-none absolute max-w-none animate-fade-in select-none"
         />
       ) : (
         <div className="skeleton size-full rounded-2xl" aria-label="Drawing the cover" />
@@ -77,4 +79,12 @@ export function ForestCover({ lat, lng, name, park, boundary, path, radiusKm = 2
       </figcaption>
     </figure>
   )
+}
+
+const pct = (n: number, of: number) => `${(n / of) * 100}%`
+const BLEED = {
+  left: pct(-COVER_BLEED, COVER_SIZE.width),
+  top: pct(-COVER_BLEED, COVER_SIZE.height),
+  width: pct(COVER_SIZE.width + 2 * COVER_BLEED, COVER_SIZE.width),
+  height: pct(COVER_SIZE.height + 2 * COVER_BLEED, COVER_SIZE.height),
 }
