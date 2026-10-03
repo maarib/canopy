@@ -14,11 +14,9 @@ import Map, {
 } from 'react-map-gl/mapbox'
 import { ExternalIcon } from './ui'
 import { signatureTree, type Region } from '../data/regions'
-import type { TreeIconId } from '../data/treeIcons'
-import { TreeIcon } from './TreeIcon'
 import { MapSkeleton } from './MapSkeleton'
 import { useHoverPoint } from '../lib/hoverStore'
-import { PlaceIcon, type PlaceIconId } from './PlaceIcon'
+import type { PlaceIconId } from './PlaceIcon'
 import { isPhotoSpot, PLACE_KINDS, type Place, type Trail } from '../lib/explore'
 import { useIsDesktop, usePrefersDark } from '../hooks'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
@@ -35,6 +33,7 @@ import {
 import type { ParkReport } from '../lib/ontarioParks'
 import { amenityIconUrl } from '../data/amenityIcons'
 import { ACCESS_ICONS, type AccessType, type FishingAccess } from '../lib/fishingAccess'
+import { addPins, drawIconPins, drawPlacePins, drawRegionPins, PIN_SIZES, placePinId, regionPinId, sized, type PinImage } from '../lib/mapPins'
 import { PHASE_STYLE, peakPhase } from '../lib/peak'
 import { STAGE_COLOR_EXPRESSION, STAGES } from '../lib/stage'
 import { fetchParksCanadaTrails, snapBounds, type Bounds } from '../lib/trails'
@@ -127,34 +126,14 @@ const HOME_BOUNDS: [[number, number], [number, number]] = [
 const TRAILS_MIN_ZOOM = 9
 const INTERACTIVE = ['explore-trails-hit', 'parks-circles', 'sightings-dots', 'hexes-fill', 'fishing-pins']
 const FISHING_MIN_ZOOM = 8
-const FISHING_TEAL = '#1f6f74'
 
-/** A pin image for each access type: white disc, teal ring, Icons8 icon. Drawn at 2× for sharpness. */
-async function addFishingImages(map: { addImage: (id: string, img: ImageData, o: { pixelRatio: number }) => void; hasImage: (id: string) => boolean }) {
-  const px = 26 * 2
-  await Promise.all(
-    (Object.keys(ACCESS_ICONS) as AccessType[]).map(async (type) => {
-      const id = `fishing-${type}`
-      if (map.hasImage(id)) return
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.src = amenityIconUrl(ACCESS_ICONS[type], 16)
-      await img.decode()
-      const canvas = document.createElement('canvas')
-      canvas.width = canvas.height = px
-      const ctx = canvas.getContext('2d')!
-      ctx.beginPath()
-      ctx.arc(px / 2, px / 2, px / 2 - 3, 0, Math.PI * 2)
-      ctx.fillStyle = '#fff'
-      ctx.fill()
-      ctx.lineWidth = 4
-      ctx.strokeStyle = FISHING_TEAL
-      ctx.stroke()
-      const icon = 32
-      ctx.drawImage(img, (px - icon) / 2, (px - icon) / 2, icon, icon)
-      map.addImage(id, ctx.getImageData(0, 0, px, px), { pixelRatio: 2 })
-    }),
-  )
+/** Fishing pins per access type, on the shared pin base (lib/mapPins) with its Icons8 icon. */
+function drawFishingPins() {
+  return Promise.all(
+    (Object.keys(ACCESS_ICONS) as AccessType[]).map((type) =>
+      drawIconPins(`fishing-${type}`, amenityIconUrl(ACCESS_ICONS[type], 32), PIN_SIZES.fishing),
+    ),
+  ).then((pins) => pins.flat())
 }
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] }
 
@@ -178,6 +157,22 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
   // The map engine loads asynchronously, so a target can arrive before the map exists;
   // `mapReady` re-runs the fly once it does.
   const [mapReady, setMapReady] = useState(false)
+  /** Pin artwork for the region, trailhead and place markers, drawn once (lib/mapPins). */
+  const [pins, setPins] = useState<globalThis.Map<string, PinImage>>()
+  const regions = props.regions
+  useEffect(() => {
+    // In its own task: place glyphs are rendered with flushSync, which can't run while React renders.
+    const t = setTimeout(() => {
+      const kinds = new globalThis.Map(regions.map((r) => [regionPinId(signatureTree(r), PHASE_STYLE[peakPhase(r)].color), r] as const))
+      Promise.all([
+        ...(Object.keys(PLACE_KINDS) as PlaceIconId[]).map(drawPlacePins),
+        ...[...kinds.values()].map((r) => drawRegionPins(signatureTree(r), PHASE_STYLE[peakPhase(r)].color)),
+      ])
+        .then((drawn) => setPins(new globalThis.Map(drawn.flat().map((p) => [p.id, p] as const))))
+        .catch(() => {})
+    })
+    return () => clearTimeout(t)
+  }, [regions])
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
@@ -206,6 +201,25 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
     if (!map || !mapReady) return
     map.setConfig('basemap', standardConfig(lightPreset))
   }, [mapReady, lightPreset])
+
+  // Mapbox Standard turns 3D terrain on by default (zoom 6–13.7). Draping every layer over the
+  // terrain mesh is the most expensive thing the map draws, so it's off unless 3D is switched
+  // on; the hillshade keeps the relief.
+  // Standard applies its terrain after the style (and its basemap import) loads, and again after
+  // config changes, so clear it whenever the style changes rather than once.
+  useEffect(() => {
+    const map = mapRef.current?.getMap()
+    if (!map || !mapReady || layers.terrain3d) return
+    const clear = () => {
+      if (map.getTerrain()) map.setTerrain(null)
+    }
+    clear()
+    map.on('styledata', clear)
+    return () => {
+      map.off('styledata', clear)
+    }
+  }, [mapReady, layers.terrain3d])
+
 
   // Record the view after moves the user made, or a fly-to they asked for (search), but not
   // the map settling on load.
@@ -313,15 +327,22 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
   )
 
   // Which places get a pin: a selected trail's stops; otherwise photo spots and trailheads when zoomed in.
+  // Keyed on the zoom thresholds, not the exact zoom, so pins aren't rebuilt after every move.
+  const showPlaces = zoom >= 9
+  const showTrailheads = zoom >= 9.5
   const placePins = useMemo(() => {
     const byId = new globalThis.Map(props.explore.places.map((p) => [p.id, p]))
     if (props.selectedTrail) return props.selectedTrail.along.flatMap((a) => byId.get(a.poi) ?? [])
     if (props.trip) return []
-    const pins = zoom >= 9 ? props.explore.places.filter((p) => isPhotoSpot(p.kind)) : []
+    const pins = showPlaces ? props.explore.places.filter((p) => isPhotoSpot(p.kind)) : []
     if (props.selectedPlace && !pins.includes(props.selectedPlace)) pins.push(props.selectedPlace)
     return pins
-  }, [props.explore.places, props.selectedTrail, props.selectedPlace, props.trip, zoom])
-  const trailheadPins = props.selectedTrail ? [props.selectedTrail] : props.trip ? [] : zoom >= 9.5 ? props.explore.trails : []
+  }, [props.explore.places, props.selectedTrail, props.selectedPlace, props.trip, showPlaces])
+  const trailheadPins = useMemo(
+    () => (props.selectedTrail ? [props.selectedTrail] : props.trip ? [] : showTrailheads ? props.explore.trails : []),
+    [props.selectedTrail, props.trip, props.explore.trails, showTrailheads],
+  )
+
 
   const trailBounds = layers.trails && zoom >= TRAILS_MIN_ZOOM && bounds ? snapBounds(bounds) : null
   const trails = useQuery({
@@ -414,7 +435,10 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
         if (import.meta.env.DEV) Object.assign(window, { __canopyMap: e.target }) // for debugging in devtools
         updateView(false)
         setMapReady(true)
-        addFishingImages(e.target).catch(() => {}) // pins simply don't show if the icon CDN is unreachable
+        // Fishing pins are GPU symbols (thousands of points); add their images before the layer needs them.
+        drawFishingPins()
+          .then((pins) => addPins(e.target, pins))
+          .catch(() => {}) // fishing pins simply don't show if the icon CDN is unreachable
       }}
       onMoveEnd={(e) => {
         // Mapbox sets originalEvent only for user-driven moves (react-map-gl's type omits it).
@@ -619,8 +643,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           minzoom={FISHING_MIN_ZOOM}
           layout={{
             visibility: vis(layers.fishing),
-            'icon-image': ['concat', 'fishing-', ['get', 'type']],
-            'icon-size': ['interpolate', ['linear'], ['zoom'], FISHING_MIN_ZOOM, 0.75, 12, 1],
+            'icon-image': ['concat', 'fishing-', ['get', 'type'], '@24'],
             // Named points win when pins collide; Mapbox hides the rest until you zoom in.
             'symbol-sort-key': ['case', ['get', 'named'], 0, 1],
             'icon-padding': 1,
@@ -634,8 +657,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           type="symbol"
           slot="top"
           layout={{
-            'icon-image': ['concat', 'fishing-', ['get', 'type']],
-            'icon-size': 1.35,
+            'icon-image': ['concat', 'fishing-', ['get', 'type'], '@34'],
             'icon-allow-overlap': true,
             'icon-ignore-placement': true,
           }}
@@ -644,6 +666,28 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       </Source>
 
       <Source id="parks" type="geojson" data={parkPoints}>
+        {/* A soft shadow under each report dot, matching the floating pins. */}
+        <Layer
+          id="parks-shadow"
+          type="circle"
+          slot="middle"
+          layout={{ visibility: vis(layers.reports) }}
+          paint={{
+            'circle-color': '#000',
+            'circle-opacity': 0.28,
+            'circle-blur': 0.9,
+            'circle-translate': [0, 2.5],
+            'circle-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              3,
+              ['case', ['get', 'selected'], 8.5, ['get', 'main'], 6, 4.5],
+              9,
+              ['case', ['get', 'selected'], 17, ['get', 'main'], 13, 10],
+            ],
+          }}
+        />
         <Layer
           id="parks-circles"
           type="circle"
@@ -656,59 +700,57 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
               ['linear'],
               ['zoom'],
               3,
-              ['case', ['get', 'main'], 4.5, 3],
+              ['case', ['get', 'selected'], 7, ['get', 'main'], 4.5, 3],
               9,
-              ['case', ['get', 'main'], 10, 7],
+              ['case', ['get', 'selected'], 14, ['get', 'main'], 10, 7],
             ],
-            'circle-stroke-color': ['case', ['get', 'selected'], '#111', '#fff'],
-            'circle-stroke-width': ['case', ['get', 'selected'], 3, 1.5],
+            // The same white border as every other pin; the selected park is drawn larger instead.
+            'circle-stroke-color': '#fff',
+            'circle-stroke-width': ['case', ['get', 'selected'], 3, 2],
             'circle-emissive-strength': 1,
           }}
         />
       </Source>
 
-      {props.regions.map((r) => (
-        <Marker
-          key={r.id}
-          longitude={r.lng}
-          latitude={r.lat}
-          anchor="center"
-          onClick={(e) => {
-            e.originalEvent.stopPropagation()
-            props.onSelectRegion(r)
-          }}
-        >
-          <button title={r.name} aria-label={r.name} className="cursor-pointer">
-            <TreePin
-              tree={signatureTree(r)}
-              color={PHASE_STYLE[peakPhase(r)].color}
-              active={props.selectedId === r.id}
-              small={zoom < 4.5}
-            />
-          </button>
-        </Marker>
-      ))}
-
-      {trailheadPins.map((t) => (
-        <Marker key={`th-${t.id}`} longitude={t.trailhead[0]} latitude={t.trailhead[1]} anchor="center" onClick={(e) => {
-          e.originalEvent.stopPropagation()
-          props.onSelectTrail(t)
-        }}>
-          <button title={`${t.name} trailhead`} aria-label={`${t.name} trailhead`} className="cursor-pointer">
-            <PlacePin kind="trailhead" active={props.selectedTrail?.id === t.id} />
-          </button>
-        </Marker>
-      ))}
-      {placePins.map((p) => (
-        <Marker key={p.id} longitude={p.lng} latitude={p.lat} anchor="center" onClick={(e) => {
-          e.originalEvent.stopPropagation()
-          props.onSelectPlace(p)
-        }}>
-          <button title={p.name} aria-label={`${PLACE_KINDS[p.kind].label}: ${p.name}`} className="cursor-pointer">
-            <PlacePin kind={p.kind} active={props.selectedPlace?.id === p.id} />
-          </button>
-        </Marker>
-      ))}
+      {/* Region, trailhead and place pins: one pre-drawn image each (lib/mapPins), drawn at the
+          size shown: regions 24px zoomed out, 32px, 44px selected; trailheads and places 28/44. */}
+      {pins &&
+        props.regions.map((r) => {
+          const selected = props.selectedId === r.id
+          const pin = pins.get(sized(regionPinId(signatureTree(r), PHASE_STYLE[peakPhase(r)].color), selected ? 44 : zoom < 4.5 ? 24 : 32))
+          return pin ? (
+            <Marker key={r.id} longitude={r.lng} latitude={r.lat} anchor="center" style={{ zIndex: selected ? 2 : 1 }} onClick={(e) => {
+              e.originalEvent.stopPropagation()
+              props.onSelectRegion(r)
+            }}>
+              <PinButton pin={pin} label={r.name} />
+            </Marker>
+          ) : null
+        })}
+      {pins &&
+        trailheadPins.map((t) => {
+          const pin = pins.get(sized(placePinId('trailhead'), props.selectedTrail?.id === t.id ? 44 : 28))
+          return pin ? (
+            <Marker key={`th-${t.id}`} longitude={t.trailhead[0]} latitude={t.trailhead[1]} anchor="center" onClick={(e) => {
+              e.originalEvent.stopPropagation()
+              props.onSelectTrail(t)
+            }}>
+              <PinButton pin={pin} label={`${t.name} trailhead`} />
+            </Marker>
+          ) : null
+        })}
+      {pins &&
+        placePins.map((p) => {
+          const pin = pins.get(sized(placePinId(p.kind), props.selectedPlace?.id === p.id ? 44 : 28))
+          return pin ? (
+            <Marker key={p.id} longitude={p.lng} latitude={p.lat} anchor="center" onClick={(e) => {
+              e.originalEvent.stopPropagation()
+              props.onSelectPlace(p)
+            }}>
+              <PinButton pin={pin} label={`${PLACE_KINDS[p.kind].label}: ${p.name}`} />
+            </Marker>
+          ) : null
+        })}
       <HoverMarker />
       {props.trip?.stops.map((s) => (
         <Marker key={`trip-${s.ref}`} longitude={s.lng} latitude={s.lat} anchor="center" onClick={(e) => {
@@ -767,17 +809,13 @@ function HoverMarker() {
   )
 }
 
-function TreePin({ tree, color, active, small }: { tree: TreeIconId; color: string; active: boolean; small: boolean }) {
+
+/** A map pin: one pre-drawn image (disc, border, artwork and shadow) in an accessible button. */
+function PinButton({ pin, label }: { pin: PinImage; label: string }) {
   return (
-    <span
-      className={`flex items-center justify-center rounded-full bg-white shadow-md transition-transform ${
-        active ? 'size-10 scale-110 border-[3px]' : small ? 'size-6 border-2 hover:scale-125' : 'size-8 border-[2.5px] hover:scale-110'
-      }`}
-      // Leaf keeps its tree's fall color; the ring shows where the region is in its peak window.
-      style={{ borderColor: color, ['--leaf-ink' as string]: '#2d3550' }}
-    >
-      <TreeIcon id={tree} className={active ? 'size-7' : small ? 'size-[18px]' : 'size-6'} />
-    </span>
+    <button title={label} aria-label={label} className="block cursor-pointer transition-transform duration-150 hover:scale-110" style={{ width: pin.px, height: pin.px }}>
+      <img src={pin.url} width={pin.px} height={pin.px} alt="" draggable={false} className="pointer-events-none block select-none" />
+    </button>
   )
 }
 
@@ -795,15 +833,3 @@ function MissingToken() {
   )
 }
 
-function PlacePin({ kind, active }: { kind: PlaceIconId; active: boolean }) {
-  return (
-    <span
-      className={`flex items-center justify-center rounded-full border-2 border-white text-white shadow-md transition-transform ${
-        active ? 'size-10 scale-110' : 'size-7 hover:scale-110'
-      }`}
-      style={{ background: PLACE_KINDS[kind].color }}
-    >
-      <PlaceIcon kind={kind} className={active ? 'size-6' : 'size-4'} />
-    </span>
-  )
-}

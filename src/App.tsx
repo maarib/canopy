@@ -31,7 +31,7 @@ import { RegionPanel } from './components/RegionPanel'
 import { BackButton, PanelSkeleton, ProgressBar } from './components/ui'
 import { REGIONS, signatureTree, type Region } from './data/regions'
 import { TREE_GROUP_IDS } from './data/treeGroups'
-import { useIsDesktop } from './hooks'
+import { useIsDesktop, useThrottledWhile } from './hooks'
 import {
   fetchExploreAreas,
   placeIdFromSlug,
@@ -456,6 +456,8 @@ export default function App() {
       ),
     [sightings.data, treeFilter],
   )
+  // While sightings stream in, refresh the map's hexagons at most every 1.5 s rather than per page.
+  const mapSightings = useThrottledWhile(visibleSightings, sightingsLoading, 1500)
   const treeColorSightings = useMemo(
     () => sightings.data?.items.filter((o) => o.state === 'colored' && TREE_GROUP_IDS.has(o.group ?? '')).length,
     [sightings.data],
@@ -672,7 +674,7 @@ export default function App() {
           <FoliageMap
             regions={REGIONS}
             parks={filteredParks ?? NO_PARKS}
-            sightings={visibleSightings}
+            sightings={mapSightings}
             layers={layers}
             satelliteDate={satelliteDate}
             light={light}
