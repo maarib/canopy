@@ -27,6 +27,7 @@
 ### Park activities and facilities
 - **Every park page** lists what you can do there (hiking, canoeing, fishing, biking, swimming, camping types and more) and what's on site (campsites by type with counts, comfort stations, boat launches, docks, park store, visitor centre, rentals), taken from Ontario Parks' own park pages.
 - **Filter the map by activity:** Filters → Activities (or the Parks page) shows only the Ontario Parks that offer everything you pick (hiking, canoeing, fishing, car camping, cabins, canoe rentals, showers and more). Each option shows how many parks would remain, and the park list follows the same filter.
+- **Park boundaries:** opening a park outlines its regulated boundary on the map (a red-and-white dashed edge over a light wash, islands and separate parcels included) and fits the map to the whole park. Outlines come from the Ministry of Natural Resources for all 347 provincial parks.
 - **Icons:** activities and facilities use the Icons8 *Windows 11 Color* set (locked in `icons8.json`); trees keep Canopy's own leaf icons.
 
 ### Fishing access
@@ -64,6 +65,7 @@
 |---|---|---|
 | Ontario Parks reports | Snapshot `public/data/ontario-parks.json`, built by `scripts/scrape-ontario-parks.mjs` | Daily, Sept–Nov (GitHub Action) |
 | Park activities and facilities | Snapshot `public/data/park-facilities.json`, built by `scripts/scrape-park-facilities.mjs` from all ~340 Ontario Parks park pages (1 s between requests) | Weekly (GitHub Action) |
+| Provincial park boundaries | One file per park in `public/data/park-boundaries/<shortname>.json`, built by `scripts/build-park-boundaries.mjs` from the Land Information Ontario layer; a park page loads only its own outline | Monthly (GitHub Action) |
 | Fishing access points | Snapshot `public/data/fishing-access.json`, built by `scripts/build-fishing-access.mjs` from the Land Information Ontario layer (public points only) | Monthly (GitHub Action) |
 | Trails and places (Explore) | Snapshot `public/data/explore/<area>.json`, built by `scripts/build-explore.mjs` | Weekly (GitHub Action) |
 | iNaturalist sightings | Live from API v2 (only the fields used), streamed page by page; cached on the device for 30 min | Live, last 14 days |
@@ -106,6 +108,7 @@ npm run dev
 | `npm run data:ontario-parks` | Refresh the Ontario Parks snapshot |
 | `npm run data:explore [area]` | Rebuild trails and places (all areas, or one) |
 | `npm run data:fishing` | Refresh fishing access points |
+| `npm run data:park-boundaries` | Refresh provincial park boundaries |
 | `npm run data:park-facilities [slug…]` | Refresh park activities and facilities (all parks, or the ones named) |
 
 **Deploys:** the Pages build reads `VITE_MAPBOX_TOKEN` from a repository variable and serves the app under `/canopy/` (`BASE_PATH`).
@@ -157,6 +160,7 @@ Tracked as epics and milestones on the [project board](https://github.com/users/
 - **Basemap:** © [Mapbox](https://www.mapbox.com/about/maps/) · © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
 - **Park reports:** [Ontario Parks Fall Colour Report](https://www.ontarioparks.ca/fallcolour)
 - **Park activities and facilities:** [Ontario Parks](https://www.ontarioparks.ca) park pages
+- **Provincial park boundaries:** [Ontario Ministry of Natural Resources](https://data.ontario.ca/dataset/provincial-park-regulated), Open Government Licence – Ontario
 - **Fishing access points:** [Ontario Ministry of Natural Resources](https://data.ontario.ca/dataset/fishing-access-points) (Fish ON-Line), Open Government Licence – Ontario
 - **Activity and facility icons:** [Icons8](https://icons8.com) (Windows 11 Color)
 - **Trails (Ontario):** [Ontario Trail Network](https://data.ontario.ca/dataset/ontario-trail-network), Ministry of Natural Resources, Open Government Licence – Ontario
