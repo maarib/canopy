@@ -730,7 +730,7 @@ export default function App() {
           </div>
 
           {isDesktop && (
-            <div className="glass absolute bottom-3 left-3 w-64 rounded-2xl p-3">
+            <div className="absolute bottom-3 left-3 w-64 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/95 p-3 shadow-lg backdrop-blur">
               <Legend />
             </div>
           )}

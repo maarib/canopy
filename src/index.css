@@ -20,11 +20,6 @@
   --line: #e7ddd1;
   /* Stem and vein color for the two-color tree icons. */
   --leaf-ink: #2d3550;
-  /* Liquid-glass surfaces for controls floating over the map (see .glass). */
-  --glass-tint: rgb(255 253 249 / 0.62);
-  --glass-edge: rgb(255 255 255 / 0.75);
-  --glass-rim: rgb(255 255 255 / 0.55);
-  --glass-shadow: 0 10px 28px rgb(43 33 28 / 0.18), 0 2px 6px rgb(43 33 28 / 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,51 +30,6 @@
     --ink-soft: #b3a69a;
     --line: #3a312a;
     --leaf-ink: #f1e8dd;
-    --glass-tint: rgb(27 23 20 / 0.55);
-    --glass-edge: rgb(255 255 255 / 0.22);
-    --glass-rim: rgb(255 255 255 / 0.12);
-    --glass-shadow: 0 10px 30px rgb(0 0 0 / 0.42), 0 2px 6px rgb(0 0 0 / 0.3);
-  }
-}
-
-/*
- * Liquid glass, after Apple's floating-control material: a translucent tint over a blurred,
- * slightly saturated view of the map, a bright specular edge along the top, a faint rim and a
- * soft lifted shadow. Used only for controls that float over the map.
- */
-@utility glass {
-  background: var(--glass-tint);
-  -webkit-backdrop-filter: blur(18px) saturate(1.7);
-  backdrop-filter: blur(18px) saturate(1.7);
-  border: 1px solid var(--glass-rim);
-  box-shadow:
-    inset 0 1px 0 var(--glass-edge),
-    inset 0 -1px 0 rgb(0 0 0 / 0.06),
-    var(--glass-shadow);
-}
-
-/* Mapbox's zoom and compass buttons get the same material. */
-.mapboxgl-ctrl-group:not(:empty) {
-  background: var(--glass-tint) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.7);
-  backdrop-filter: blur(18px) saturate(1.7);
-  border: 1px solid var(--glass-rim);
-  border-radius: 16px !important;
-  box-shadow:
-    inset 0 1px 0 var(--glass-edge),
-    var(--glass-shadow) !important;
-  overflow: hidden;
-}
-.mapboxgl-ctrl-group button + button {
-  border-top-color: var(--glass-rim) !important;
-}
-.mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
-  filter: var(--ctrl-icon-filter, none);
-}
-@media (prefers-color-scheme: dark) {
-  /* Mapbox's control icons are dark glyphs; invert them on the dark glass. */
-  :root {
-    --ctrl-icon-filter: invert(1) brightness(1.6);
   }
 }
 

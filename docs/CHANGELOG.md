@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-03 | [Map performance, floating pins and glass controls](#2026-10-03-map-performance-floating-pins-and-glass-controls) | [#105](https://github.com/maarib/canopy/pull/105) |
+| 2026-10-03 | [Map performance and floating pins](#2026-10-03-map-performance-and-floating-pins) | [#105](https://github.com/maarib/canopy/pull/105) |
 | 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | [#104](https://github.com/maarib/canopy/pull/104) |
 | 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | [#103](https://github.com/maarib/canopy/pull/103) |
 | 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
@@ -27,7 +27,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ---
 
-## 2026-10-03 · Map performance, floating pins and glass controls
+## 2026-10-03 · Map performance and floating pins
 
 **Ref:** [#105](https://github.com/maarib/canopy/pull/105)
 
@@ -45,8 +45,6 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 - **Result** (same script): 60 fps, worst frame 18 ms, no frames over 50 ms.
 
 **Pin design.** Every pin type now shares one base: the same white border and a soft shadow on the ground beneath, so pins read as floating. Region pins show their peak phase as a small dot on the edge (the ring colour used to). Park report dots get the same white border and a matching soft shadow; the selected park is drawn larger instead of with a dark border.
-
-**Glass controls.** Controls floating over the map (Filters button, zoom and compass, legend) use a liquid-glass material after Apple's floating controls: translucent tint, backdrop blur with extra saturation, a bright top edge, faint rim and a lifted shadow, with light and dark variants (`.glass` in `index.css`). Map pins are GPU images and can't blur what's behind them, so they use the floating shadow instead.
 
 ---
 
