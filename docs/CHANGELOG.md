@@ -4,7 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-03 | [Motion across panels, menus and the map](#2026-10-03-motion-across-panels-menus-and-the-map) | Motion PR |
+| 2026-10-03 | [Motion across panels, menus and the map](#2026-10-03-motion-across-panels-menus-and-the-map) | [#106](https://github.com/maarib/canopy/pull/106) |
 | 2026-10-03 | [Map performance and floating pins](#2026-10-03-map-performance-and-floating-pins) | [#105](https://github.com/maarib/canopy/pull/105) |
 | 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | [#104](https://github.com/maarib/canopy/pull/104) |
 | 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | [#103](https://github.com/maarib/canopy/pull/103) |
@@ -30,7 +30,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 ## 2026-10-03 · Motion across panels, menus and the map
 
-**Ref:** Motion PR
+**Ref:** [#106](https://github.com/maarib/canopy/pull/106)
 
 **Before.** Pages, menus and dropdowns appeared and disappeared instantly; tab selections jumped; list rows popped in all at once. The bottom sheet was the only animated surface.
 
