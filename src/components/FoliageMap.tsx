@@ -115,13 +115,15 @@ function fitPadding(isDesktop: boolean) {
     : { top: 70, bottom: sheetHalf() + 16, left: 24, right: 24 }
 }
 
-/** Where nearly all of Canada's fall color is: the southern band, BC to Newfoundland. */
-const COLOR_BELT: [[number, number], [number, number]] = [
-  [-128, 42],
-  [-53, 57],
+/**
+ * The default view: southern and central Ontario, where most park pins, regions, trails and
+ * fishing spots are. Fitted inside the part of the map you can see (beside the panel on
+ * desktop, above the half-open sheet on phones) so the pins are the first thing in view.
+ */
+const HOME_BOUNDS: [[number, number], [number, number]] = [
+  [-85, 42.2],
+  [-74.4, 47.8],
 ]
-/** Phones are too narrow for the whole belt; start on the east, where most of the color is. */
-const EAST_BELT = { longitude: -73, latitude: 46.5, zoom: 3.4 }
 const TRAILS_MIN_ZOOM = 9
 const INTERACTIVE = ['explore-trails-hit', 'parks-circles', 'sightings-dots', 'hexes-fill', 'fishing-pins']
 const FISHING_MIN_ZOOM = 8
@@ -193,8 +195,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
         { padding: fitPadding(isDesktop), maxZoom: 15, duration: 1500 },
       )
     else if (target) map.flyTo({ center: [target.lng, target.lat], zoom: target.zoom, padding, duration: 1600, essential: true })
-    else if (isDesktop) map.fitBounds(COLOR_BELT, { padding: 24, duration: 1200 })
-    else map.flyTo({ center: [EAST_BELT.longitude, EAST_BELT.latitude], zoom: EAST_BELT.zoom, padding, duration: 1200 })
+    else map.fitBounds(HOME_BOUNDS, { padding: fitPadding(isDesktop), duration: 1200 })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fly only when the target changes identity
   }, [target?.id, mapReady])
 
@@ -396,9 +397,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           ? { longitude: props.target.lng, latitude: props.target.lat, zoom: props.target.zoom - 2 }
           : props.initialView
             ? { longitude: props.initialView.lng, latitude: props.initialView.lat, zoom: props.initialView.zoom }
-            : isDesktop
-              ? { bounds: COLOR_BELT, fitBoundsOptions: { padding: 24 } }
-              : EAST_BELT
+            : { bounds: HOME_BOUNDS, fitBoundsOptions: { padding: fitPadding(isDesktop) } }
       }
       mapboxAccessToken={MAPBOX_TOKEN}
       minZoom={2}
