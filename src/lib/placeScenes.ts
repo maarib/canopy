@@ -16,12 +16,13 @@ import {
   type Ring,
 } from './diorama'
 import type { PlaceKind } from './explore'
+import { SUMMITS } from './lowPolyTrees'
 
 // What a cover diorama is made of, in the normalized frame (lib/diorama): pieces of land and water
 // as extruded solids, terraces trees and props stand on, where trees may grow, and lines they
 // shouldn't hide. Parks and trails are one flat island; each kind of place gets its own landform.
-// Water is cut into the land's top layer and sits a little below it, so every lake and stream has
-// banks, with a darker deep part under lighter shallows.
+// Water is one color, and its depth comes from the land: it's cut down through the top layer into
+// the earth and sits well below the surface, inside banks that show both layers.
 
 /** Land thickness, and the soft top layer over the earth. */
 export const SLAB_M = DIORAMA_SIZE_M * 0.06
@@ -35,8 +36,7 @@ export const COLORS = {
   olive: '#9ea47e',
   rock: '#b3ad9f',
   rockSide: '#958b7d',
-  shallow: '#a9cbd2',
-  deep: '#7fa5b3',
+  water: '#8fb9c6',
   foam: '#e3f2f5',
   wood: '#a8784b',
   path: '#e8730c',
@@ -65,11 +65,11 @@ export type Scene = {
   front?: Position
   /** Leave out trees standing in front of watched lines, rather than drawing them see-through. */
   clearView?: boolean
-  /** One large model scaled to fit (a peak's spire): its base radius in metres. */
-  landmark?: { at: Position; tier: number; size: number }
-  /** Trees on this terrace and above carry snow. */
-  snowTier?: number
-  /** Extra room (CSS px) above the land for something tall: a spire, a flag. */
+  /** One large model scaled to fit (a peak's summit): its base radius in metres, turned `turn` degrees. */
+  landmark?: { at: Position; model: string; tier: number; size: number; turn: number }
+  /** Trees carry snow near this point, fewer and fewer out to `radius`. */
+  snow?: { at: Position; radius: number }
+  /** Extra room (CSS px) above the land for something tall: a summit, a flag. */
   headroom?: number
 }
 
@@ -127,23 +127,27 @@ function ribbon(lines: Position[][], width: number): Poly[] {
   return union(parts)
 }
 
+/** How far the banks are cut down, and how far below the land the water's surface sits. */
+const BANK_M = TOP_M * 3.5
+const WATER_DROP_M = TOP_M * 2.3
+/** The water's surface on a terrace `top` high. */
+const waterLevel = (top: number) => top - WATER_DROP_M
+
 /**
- * A piece of land `top` high with `water` cut into its top layer: earth up to the top layer, the
- * top layer around the water, and the water sunk below the banks with its deep part darker.
+ * A piece of land `top` high with `water` cut into it: solid earth below the cut, then earth and
+ * the top layer around the water, which fills the cut up to a little below the banks.
  */
-function terrace(rings: Ring[], top: number, water: Poly[], deep: Poly[], cap = COLORS.land, side = COLORS.earth): Solid[] {
+function terrace(rings: Ring[], top: number, water: Poly[], cap = COLORS.land, side = COLORS.earth): Solid[] {
   const ground = rings.map((r): Poly => [r])
-  const surface = top - TOP_M * 0.5
+  const banks = minus(ground, water)
+  const bed = top - BANK_M
   return [
-    ...ground.map((polygon) => ({ polygon, base: 0, top: top - TOP_M, color: side })),
-    ...minus(ground, water).map((polygon) => ({ polygon, base: top - TOP_M, top, color: cap })),
-    ...water.map((polygon) => ({ polygon, base: top - TOP_M, top: surface, color: COLORS.shallow })),
-    ...within(deep, water).map((polygon) => ({ polygon, base: surface, top: surface + 0.8, color: COLORS.deep })),
+    ...ground.map((polygon) => ({ polygon, base: 0, top: water.length ? bed : top - TOP_M, color: side })),
+    ...(water.length ? banks.map((polygon) => ({ polygon, base: bed, top: top - TOP_M, color: side })) : []),
+    ...banks.map((polygon) => ({ polygon, base: top - TOP_M, top, color: cap })),
+    ...water.map((polygon) => ({ polygon, base: bed, top: waterLevel(top), color: COLORS.water })),
   ]
 }
-
-/** A lake's deep middle: the lake shrunk toward its centre, kept inside the lake. */
-const lakeDepths = (lakes: Ring[]) => lakes.map((r): Poly => [scaleRing(r, centroid(r), 0.55)])
 
 /** Parks, regions and trails: one flat island, its lakes, and a trail's track. */
 export function islandScene(land: Ring[], lakes: Ring[], path?: Position[][]): Scene {
@@ -151,7 +155,7 @@ export function islandScene(land: Ring[], lakes: Ring[], path?: Position[][]): S
   const quads = (w: number) => (path ? pathQuads({ type: 'MultiLineString', coordinates: path }, (p) => p, w) : [])
   return {
     land,
-    solids: [...terrace(land, SLAB_M, water, lakeDepths(lakes)), ...quads(m(S / 45)).map((r) => ({ polygon: [r], base: SLAB_M, top: SLAB_M + 3, color: COLORS.path }))],
+    solids: [...terrace(land, SLAB_M, water), ...quads(m(S / 45)).map((r) => ({ polygon: [r], base: SLAB_M, top: SLAB_M + 3, color: COLORS.path }))],
     tiers: [SLAB_M],
     grow: land.map((ring) => ({ ring, tier: 0 })),
     // Trees keep well clear of the path, so it shows between the crowns.
@@ -246,7 +250,7 @@ export function placeScene(p: PlaceInput): Scene {
     case 'waterfall':
       return waterfallScene(p, rnd)
     case 'peak':
-      return peakScene(p)
+      return peakScene(p, rnd)
     case 'viewpoint':
       return lookoutScene(p, rnd)
   }
@@ -256,7 +260,7 @@ export function placeScene(p: PlaceInput): Scene {
 function lakeScene({ island, water: lakes }: PlaceInput): Scene {
   const shapes = lakes.map((r) => clipToHull(r, island)).filter((r) => r.length >= 4)
   const water = within(union(shapes.map((r) => [r])), [[island]])
-  const solids = terrace([island], SLAB_M, water, lakeDepths(shapes))
+  const solids = terrace([island], SLAB_M, water)
   // The dock reaches into the lake from its southern shore, and the camera faces that shore.
   const main = [...shapes].sort((a, b) => b.length - a.length)[0]
   const watch: Scene['watch'] = []
@@ -265,7 +269,7 @@ function lakeScene({ island, water: lakes }: PlaceInput): Scene {
     const shore = main.reduce((lo, q) => (q[1] < lo[1] ? q : lo))
     const into = unit(shore, centroid(main))
     const start: Position = [shore[0] - into[0] * m(S / 60), shore[1] - into[1] * m(S / 60)]
-    solids.push({ polygon: [strip(start, into, m(S / 9), m(S / 45))], base: SLAB_M - TOP_M * 0.5, top: SLAB_M + 4, color: COLORS.wood })
+    solids.push({ polygon: [strip(start, into, m(S / 9), m(S / 45))], base: waterLevel(SLAB_M), top: SLAB_M + 4, color: COLORS.wood })
     watch.push({ line: [start, [start[0] + into[0] * m(S / 9), start[1] + into[1] * m(S / 9)]], tier: 0 })
     front = start
   }
@@ -281,7 +285,7 @@ function streamScene({ kind, island, focus, water: areas, course }: PlaceInput, 
   const water = within(union([...ribbon(runs, width), ...shapes.map((r): Poly => [r])]), [[island]])
   return {
     land: [island],
-    solids: terrace([island], SLAB_M, water, ribbon(runs, width * 0.42)),
+    solids: terrace([island], SLAB_M, water),
     tiers: [SLAB_M],
     grow: [{ ring: island, tier: 0 }],
     keepOut: [...water, ...ribbon(runs, width * (kind === 'river' ? 2.4 : 3.4))],
@@ -319,15 +323,14 @@ function waterfallScene({ island, focus, course }: PlaceInput, rnd: () => number
   const pool: Poly = [disc(poolAt, width * 1.25, 12)]
   const upperWater = upper.length ? within(ribbon(above, width), [[upper]]) : []
   const lowerWater = within(union([...ribbon(below, width), pool]), [[island]])
-  const surface = (top: number) => top - TOP_M * 0.5
   return {
     land: [island],
     solids: [
-      ...terrace([island], low, lowerWater, union([...ribbon(below, width * 0.42), [disc(poolAt, width * 0.7, 10)]])),
-      ...(upper.length ? terrace([upper], high, upperWater, ribbon(above, width * 0.42)) : []),
+      ...terrace([island], low, lowerWater),
+      ...(upper.length ? terrace([upper], high, upperWater) : []),
       // The falling water, from the lip of the cliff down into the pool, as wide as the stream.
-      { polygon: [strip([fall[0] - dir[0] * width * 0.1, fall[1] - dir[1] * width * 0.1], dir, width * 0.3, width * 1.05)], base: surface(low), top: surface(high) + 1, color: COLORS.foam },
-      { polygon: [disc([fall[0] + dir[0] * width * 0.45, fall[1] + dir[1] * width * 0.45], width * 0.5, 9)], base: surface(low), top: surface(low) + 1.2, color: COLORS.foam },
+      { polygon: [strip([fall[0] - dir[0] * width * 0.1, fall[1] - dir[1] * width * 0.1], dir, width * 0.3, width * 1.05)], base: waterLevel(low), top: waterLevel(high) + 1, color: COLORS.foam },
+      { polygon: [disc([fall[0] + dir[0] * width * 0.45, fall[1] + dir[1] * width * 0.45], width * 0.5, 9)], base: waterLevel(low), top: waterLevel(low) + 1.2, color: COLORS.foam },
     ],
     tiers: [low, high],
     grow: [{ ring: island, tier: 0 }, ...(upper.length ? [{ ring: upper, tier: 1 }] : [])],
@@ -354,10 +357,10 @@ function runsWhere(line: Position[], keep: (p: Position) => boolean): Position[]
 }
 
 /**
- * Terraces climbing to a pointed rock spire with a snowcap: forest low down, olive scrub higher,
- * and snow on the trees of the top terrace.
+ * Terraces climbing to a rock summit with a snowcap, one of a few shapes and turned its own way so
+ * no two peaks match. Forest low down, olive scrub higher, and snow on the trees near the top.
  */
-function peakScene({ island }: PlaceInput): Scene {
+function peakScene({ island }: PlaceInput, rnd: () => number): Scene {
   const c = centroid(island)
   const rings = [0, 1, 2].map((k) => (k ? scaleRing(island, c, 1 - k * 0.24, k * 9) : island))
   const tops = rings.map((_, k) => SLAB_M + k * TIER_M * 1.5)
@@ -365,20 +368,20 @@ function peakScene({ island }: PlaceInput): Scene {
   const sides = [COLORS.earth, COLORS.rockSide, COLORS.rockSide]
   const top = rings[2]
   const topC = centroid(top)
-  // The spire fills most of the top terrace (its radius in metres on the anchor).
-  const radius = (top.slice(0, -1).reduce((a, q) => a + Math.hypot(q[0] - topC[0], q[1] - topC[1]), 0) / (top.length - 1)) * 0.72
+  // The summit fills most of the top terrace (its radius in metres on the anchor).
+  const radius = (top.slice(0, -1).reduce((a, q) => a + Math.hypot(q[0] - topC[0], q[1] - topC[1]), 0) / (top.length - 1)) * 0.74
   return {
     land: [island],
-    solids: rings.flatMap((r, k) => terrace([r], tops[k], [], [], caps[k], sides[k])),
+    solids: rings.flatMap((r, k) => terrace([r], tops[k], [], caps[k], sides[k])),
     tiers: tops,
     grow: rings.map((ring, k) => ({ ring, tier: k })),
-    keepOut: [[disc(topC, radius * 1.08, 12)]],
+    keepOut: [[disc(topC, radius * 0.96, 12)]],
     props: [],
     watch: [],
-    trees: 220,
-    landmark: { at: topC, tier: 2, size: radius * 111320 },
-    snowTier: 2,
-    headroom: 60,
+    trees: 230,
+    landmark: { at: topC, model: `summit-${Math.floor(rnd() * SUMMITS)}`, tier: 2, size: radius * 111320, turn: Math.floor(rnd() * 360) },
+    snow: { at: topC, radius: radius * 2.5 },
+    headroom: 45,
   }
 }
 
@@ -396,7 +399,7 @@ function lookoutScene({ island }: PlaceInput, rnd: () => number): Scene {
   const facing = (Math.atan2(pivot[1] - topC[1], pivot[0] - topC[0]) * 180) / Math.PI
   return {
     land: [island],
-    solids: rings.flatMap((r, k) => terrace([r], tops[k], [], [], k === 2 ? COLORS.rock : COLORS.land, k ? COLORS.rockSide : COLORS.earth)),
+    solids: rings.flatMap((r, k) => terrace([r], tops[k], [], k === 2 ? COLORS.rock : COLORS.land, k ? COLORS.rockSide : COLORS.earth)),
     tiers: tops,
     // The rocky top stays bare around the deck.
     grow: rings.slice(0, 2).map((ring, k) => ({ ring, tier: k })),

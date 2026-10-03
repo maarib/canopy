@@ -3,7 +3,7 @@ import type { ExpressionSpecification, GeoJSONSource, Map as MapboxMap, StyleSpe
 import { bboxOf, DIORAMA_SIZE_M, insideRing, metresToDeg, normalizer, simplify, type Ring } from './diorama'
 import type { PlaceKind } from './explore'
 import { foliageKey } from './foliage'
-import { modelExpression, plantTrees, propModels, spireModel, treeModels, type Foliage, type TreePoint } from './lowPolyTrees'
+import { modelExpression, plantTrees, propModels, summitModels, treeModels, type Foliage, type TreePoint } from './lowPolyTrees'
 import { MAPBOX_TOKEN } from './mapStyle'
 import { islandScene, placeScene, type Scene } from './placeScenes'
 
@@ -88,12 +88,12 @@ function coverMap(): Promise<MapboxMap> {
           source: 'solids',
           paint: { 'fill-extrusion-color': ['get', 'color'], 'fill-extrusion-base': ['get', 'base'], 'fill-extrusion-height': ['get', 'top'] },
         })
-        for (const [id, url] of Object.entries({ ...treeModels(), ...propModels(), spire: spireModel() })) map.addModel(id, url)
+        for (const [id, url] of Object.entries({ ...treeModels(), ...propModels(), ...summitModels() })) map.addModel(id, url)
         map.addSource('trees', { type: 'geojson', data: collection([]) })
         map.addSource('props', { type: 'geojson', data: collection([]) })
         map.addSource('landmark', { type: 'geojson', data: collection([]) })
-        // A scene's one large model (a peak's spire), scaled to fit its terrace.
-        map.addLayer({ id: 'landmark', type: 'model', source: 'landmark', layout: { 'model-id': 'spire' }, paint: { 'model-cast-shadows': true, 'model-receive-shadows': true } })
+        // A scene's one large model (a peak's summit), scaled to fit its terrace.
+        map.addLayer({ id: 'landmark', type: 'model', source: 'landmark', layout: { 'model-id': ['get', 'model'] }, paint: { 'model-cast-shadows': true, 'model-receive-shadows': true } })
         // Mapbox can't vary a model's height or opacity per feature from GeoJSON, so each terrace gets
         // its own layers at a fixed height, and trees standing in front of a path, stream or deck
         // (drawn see-through so it shows behind them) get their own too.
@@ -272,10 +272,13 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
   const spacing = Math.sqrt(landArea / scene.trees)
   const polygon = (coordinates: Position[][]) => ({ geometry: { type: 'Polygon', coordinates } })
   const trees = plantTrees(bboxOf(scene.land), spacing, scene.grow.map((g) => polygon([g.ring])), scene.keepOut.map(polygon)).map((t) => {
-    const tier = scene.grow.reduce((top, g) => (g.tier > top && insideRing(t.geometry.coordinates, g.ring) ? g.tier : top), 0)
+    const [x, y] = t.geometry.coordinates
+    const tier = scene.grow.reduce((top, g) => (g.tier > top && insideRing([x, y], g.ring) ? g.tier : top), 0)
+    // Snow thins out with distance from the summit: certain beside it, rare at the snowline.
+    const snowChance = scene.snow ? 1.15 * (1 - Math.hypot(x - scene.snow.at[0], y - scene.snow.at[1]) / scene.snow.radius) : 0
     return {
       ...t,
-      properties: { ...t.properties, tier, rot: Math.floor(((t.properties.r * 97) % 1) * 8), snow: scene.snowTier !== undefined && tier >= scene.snowTier },
+      properties: { ...t.properties, tier, rot: Math.floor(((t.properties.r * 97) % 1) * 8), snow: (t.properties.r * 53) % 1 < snowChance },
     }
   })
   // Crowns a little wider than the spacing, so the canopy reads as one forest.
@@ -298,9 +301,10 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
     }
 
   const { landmark } = scene
-  ;(map.getSource('landmark') as GeoJSONSource).setData(collection(landmark ? [feature({ type: 'Point', coordinates: landmark.at }, {})] : []))
+  ;(map.getSource('landmark') as GeoJSONSource).setData(collection(landmark ? [feature({ type: 'Point', coordinates: landmark.at }, { model: landmark.model })] : []))
   if (landmark) {
     map.setPaintProperty('landmark', 'model-scale', [landmark.size, landmark.size, landmark.size])
+    map.setPaintProperty('landmark', 'model-rotation', [0, 0, landmark.turn])
     map.setPaintProperty('landmark', 'model-translation', [0, 0, scene.tiers[landmark.tier]])
   }
 

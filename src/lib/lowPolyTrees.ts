@@ -169,37 +169,67 @@ function mapleLeaf(m: Mesh, [cx, cy]: [number, number], size: number, z: number,
   }
 }
 
+/** How many summit shapes there are; a peak picks one by its id. */
+export const SUMMITS = 4
+
 /**
- * A peak's summit: a rough rock spire with a snowcap, 1 unit in base radius (the cover scales it
- * to fit the top terrace).
+ * Rock summits with snowcaps for peaks, 1 unit in base radius (the cover scales one to fit the top
+ * terrace). Each is a stack of rough rings narrowing to a blunt top: a rounded dome, a leaning
+ * crag, twin summits and a broad shoulder, so peaks don't all look alike.
  */
-let spire: string | undefined
-export function spireModel(): string {
-  if (spire) return spire
-  const rock = new Mesh()
-  const snow = new Mesh()
-  const sides = 8
-  const jitter = [1, 0.86, 1.08, 0.9, 1.04, 0.84, 1.1, 0.92]
-  const base = Array.from({ length: sides }, (_, i): Vec3 => {
-    const t = (i / sides) * Math.PI * 2
-    return [Math.cos(t) * jitter[i], 0, Math.sin(t) * jitter[i]]
-  })
-  const mid = base.map(([x, , z], i): Vec3 => [x * 0.56 + 0.04, 0.72 + (i % 2) * 0.08, z * 0.56])
-  const high = base.map(([x, , z], i): Vec3 => [x * 0.28 + 0.07, 1.18 + (i % 3) * 0.04, z * 0.28])
-  const apex: Vec3 = [0.1, 1.7, 0.02]
-  const core: Vec3 = [0.05, 0.6, 0]
-  for (let i = 0; i < sides; i++) {
-    const j = (i + 1) % sides
-    rock.tri(base[i], base[j], mid[j], core)
-    rock.tri(base[i], mid[j], mid[i], core)
-    rock.tri(mid[i], mid[j], high[j], core)
-    rock.tri(mid[i], high[j], high[i], core)
-    // The snowcap sits over the top band, a touch proud of the rock.
-    const s = (p: Vec3): Vec3 => [p[0] * 1.06 + (1 - 1.06) * 0.08, p[1] + 0.005, p[2] * 1.06]
-    snow.tri(s(high[i]), s(high[j]), [apex[0], apex[1] + 0.01, apex[2]], [0.08, 1.3, 0])
+let summits: Record<string, string> | undefined
+export function summitModels(): Record<string, string> {
+  if (summits) return summits
+  summits = {}
+  /** One rough cone: rings of [height, radius], leaning by `lean` per unit of height, around (ox, oz). */
+  const mound = (rock: Mesh, snow: Mesh, rings: [number, number][], snowFrom: number, seed: number, lean: [number, number], [ox, oz]: [number, number], size: number) => {
+    let h = seed
+    const rnd = () => (h = (h * 16807) % 2147483647) / 2147483647
+    const sides = 8
+    const levels = rings.map(([y, radius]) =>
+      Array.from({ length: sides }, (_, i): Vec3 => {
+        const t = (i / sides) * Math.PI * 2
+        const k = radius * (0.84 + rnd() * 0.32) * size
+        return [ox + Math.cos(t) * k + lean[0] * y * size, y * size * (0.96 + rnd() * 0.08), oz + Math.sin(t) * k + lean[1] * y * size]
+      }),
+    )
+    const top = rings[rings.length - 1][0]
+    const core: Vec3 = [ox + lean[0] * top * size * 0.5, top * size * 0.45, oz + lean[1] * top * size * 0.5]
+    const cap: Vec3 = [ox + lean[0] * top * size, top * size * 1.04, oz + lean[1] * top * size]
+    for (let level = 0; level < levels.length; level++) {
+      const mesh = level >= snowFrom ? snow : rock
+      for (let i = 0; i < sides; i++) {
+        const j = (i + 1) % sides
+        const a = levels[level]
+        if (level === levels.length - 1) mesh.tri(a[i], a[j], cap, core)
+        else {
+          const b = levels[level + 1]
+          mesh.tri(a[i], a[j], b[j], core)
+          mesh.tri(a[i], b[j], b[i], core)
+        }
+      }
+    }
   }
-  spire = glb([{ mesh: rock, color: '#a39c90' }, { mesh: snow, color: '#f4f6f7' }])
-  return spire
+  const shapes: ((rock: Mesh, snow: Mesh) => void)[] = [
+    // A rounded dome.
+    (rock, snow) => mound(rock, snow, [[0, 1], [0.42, 0.74], [0.74, 0.44], [0.94, 0.2]], 2, 7, [0.04, 0.02], [0, 0], 1),
+    // A leaning crag, steeper on one side.
+    (rock, snow) => mound(rock, snow, [[0, 1], [0.5, 0.62], [0.92, 0.34], [1.2, 0.15]], 2, 131, [0.2, -0.08], [0, 0], 1),
+    // Twin summits: a main top and a lower one beside it.
+    (rock, snow) => {
+      mound(rock, snow, [[0, 0.82], [0.46, 0.56], [0.86, 0.3], [1.08, 0.13]], 2, 59, [-0.06, 0.04], [-0.2, 0.05], 1)
+      mound(rock, snow, [[0, 0.62], [0.44, 0.42], [0.8, 0.2]], 2, 977, [0.1, 0], [0.42, -0.12], 0.78)
+    },
+    // A broad shoulder stepping up to a small top.
+    (rock, snow) => mound(rock, snow, [[0, 1], [0.3, 0.86], [0.5, 0.52], [0.84, 0.3], [1.0, 0.14]], 3, 401, [-0.12, 0.1], [0, 0], 1),
+  ]
+  shapes.forEach((shape, i) => {
+    const rock = new Mesh()
+    const snow = new Mesh()
+    shape(rock, snow)
+    summits![`summit-${i}`] = glb([{ mesh: rock, color: '#a39c90' }, { mesh: snow, color: '#f4f6f7' }])
+  })
+  return summits
 }
 
 let props: Record<string, string> | undefined
@@ -242,10 +272,22 @@ export function propModels(): Record<string, string> {
   const fy = deckTop + 13.6
   const red = new Mesh()
   const white = new Mesh()
-  box(red, [px + 0.3 + fw / 8, fy, pz], [fw / 4, fh, 0.15])
-  box(white, [px + 0.3 + fw / 2, fy, pz], [fw / 2, fh, 0.15])
-  box(red, [px + 0.3 + (fw * 7) / 8, fy, pz], [fw / 4, fh, 0.15])
-  mapleLeaf(red, [px + 0.3 + fw / 2, fy], fh * 0.36, pz, 0.12)
+  // The cloth hangs in strips: it sags away from the pole and ripples more toward its free end.
+  const STRIPS = 12
+  const cloth = (u: number): Vec3 => [px + 0.3 + u * fw * 0.9, fy - fh * 0.3 * u * u, pz + Math.sin(u * Math.PI * 1.7) * fh * 0.22 * (0.25 + u)]
+  for (let i = 0; i < STRIPS; i++) {
+    const [a, b] = [cloth(i / STRIPS), cloth((i + 1) / STRIPS)]
+    const mid = (i + 0.5) / STRIPS
+    const mesh = mid < 0.25 || mid > 0.75 ? red : white
+    const corner = (p: Vec3, up: number, side: number): Vec3 => [p[0], p[1] + (up * fh) / 2, p[2] + side * 0.07]
+    for (const side of [1, -1]) {
+      const behind: Vec3 = [(a[0] + b[0]) / 2, a[1], (a[2] + b[2]) / 2 - side]
+      mesh.tri(corner(a, 1, side), corner(b, 1, side), corner(b, -1, side), behind)
+      mesh.tri(corner(a, 1, side), corner(b, -1, side), corner(a, -1, side), behind)
+    }
+  }
+  const [lx, ly, lz] = cloth(0.5)
+  mapleLeaf(red, [lx, ly], fh * 0.36, lz, 0.16)
   props = {
     boulder: glb([{ mesh: boulder, color: '#9b968d' }]),
     cairn: glb([{ mesh: stones, color: '#a39e95' }, { mesh: pole, color: '#5a4334' }, { mesh: flag, color: '#c8102e' }]),
