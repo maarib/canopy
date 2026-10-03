@@ -1,8 +1,8 @@
-import type { Feature, MultiLineString, Polygon } from 'geojson'
+import type { Feature, MultiLineString, Polygon, Position } from 'geojson'
 import type { GeoJSONSource, Map as MapboxMap, StyleSpecification } from 'mapbox-gl'
 import { bboxOf, DIORAMA_SIZE_M, insideRing, metresToDeg, normalizer, pathQuads, simplify, type Ring } from './diorama'
 import { foliageKey } from './foliage'
-import { modelExpression, plantTrees, treeModels, type Foliage } from './lowPolyTrees'
+import { modelExpression, plantTrees, treeModels, type Foliage, type TreePoint } from './lowPolyTrees'
 import { MAPBOX_TOKEN } from './mapStyle'
 
 // Cover images for detail pages: the shape of a place as a floating piece of land in soft
@@ -23,6 +23,8 @@ const COLORS = { top: '#a9b58a', earth: '#8f7656', water: '#9fbcc4', path: '#e87
  * of a forest rather than a survey of it.
  */
 const TREE_COUNT = 320
+/** Opacity of trees standing in front of a trail. */
+const FADED_OPACITY = 0.3
 /** Trails get a sparser forest, so the path shows clearly. */
 const TRAIL_TREE_COUNT = 150
 
@@ -85,7 +87,10 @@ function coverMap(): Promise<MapboxMap> {
         slab('path', SLAB_M, SLAB_M + 3, COLORS.path)
         for (const [id, url] of Object.entries(treeModels())) map.addModel(id, url)
         map.addSource('trees', { type: 'geojson', data: collection([]) })
-        map.addLayer({ id: 'trees', type: 'model', source: 'trees', paint: { 'model-translation': [0, 0, SLAB_M], 'model-cast-shadows': true, 'model-receive-shadows': true } })
+        // Trees standing in front of a trail are drawn see-through, so the path shows behind them.
+        // (Mapbox can't vary model opacity per feature from GeoJSON, hence two layers.)
+        map.addLayer({ id: 'trees', type: 'model', source: 'trees', filter: ['!', ['get', 'fade']], paint: { 'model-translation': [0, 0, SLAB_M], 'model-cast-shadows': true, 'model-receive-shadows': true } })
+        map.addLayer({ id: 'trees-faded', type: 'model', source: 'trees', filter: ['get', 'fade'], paint: { 'model-translation': [0, 0, SLAB_M], 'model-opacity': FADED_OPACITY, 'model-cast-shadows': false } })
         resolve(map)
       })
     })
@@ -167,6 +172,40 @@ function fill(map: MapboxMap, land: Ring[]) {
   }
 }
 
+/**
+ * Trees whose on-screen silhouette covers part of the trail behind them. A tree is a box from its
+ * base up to its top, as wide as its crown; the trail is sampled along its length, and a sample
+ * counts when it falls inside the box and lies farther back (higher on screen) than the tree's base.
+ */
+function blockingTrees(map: MapboxMap, trees: TreePoint[], lines: Position[][], scale: number): Set<number> {
+  const at = (p: Position) => map.project(p as [number, number])
+  // Screen pixels per metre across, and how tall a metre stands, under this camera.
+  const o = at([-30, 0])
+  const east = at([-30 + metresToDeg(100), 0])
+  const north = at([-30, metresToDeg(100)])
+  const across = Math.hypot(east.x - o.x, north.x - o.x) / 100
+  const upright = across * Math.sin((VIEW.pitch * Math.PI) / 180)
+  const crown = 4.6 * scale * across
+  const height = 13 * scale * upright
+
+  const samples: { x: number; y: number }[] = []
+  const step = metresToDeg(DIORAMA_SIZE_M / 300)
+  for (const line of lines)
+    for (let i = 1; i < line.length; i++) {
+      const [ax, ay] = line[i - 1]
+      const [bx, by] = line[i]
+      const n = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) / step))
+      for (let k = 0; k <= n; k++) samples.push(at([ax + ((bx - ax) * k) / n, ay + ((by - ay) * k) / n]))
+    }
+
+  const out = new Set<number>()
+  trees.forEach((t, i) => {
+    const b = at(t.geometry.coordinates)
+    if (samples.some((p) => Math.abs(p.x - b.x) < crown && p.y < b.y - 2 && p.y > b.y - height)) out.add(i)
+  })
+  return out
+}
+
 async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
   const map = await coverMap()
   const lakes = await lakesWithin(map, shape.rings)
@@ -192,12 +231,15 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
   ;(map.getSource('top') as GeoJSONSource).setData(collection(polygons(land)))
   ;(map.getSource('water') as GeoJSONSource).setData(collection(polygons(water)))
   ;(map.getSource('path') as GeoJSONSource).setData(collection(polygons(path)))
-  ;(map.getSource('trees') as GeoJSONSource).setData(collection(trees))
-  map.setLayoutProperty('trees', 'model-id', modelExpression(foliage) as never)
-  map.setPaintProperty('trees', 'model-scale', [scale, scale, scale])
+  for (const id of ['trees', 'trees-faded']) {
+    map.setLayoutProperty(id, 'model-id', modelExpression(foliage) as never)
+    map.setPaintProperty(id, 'model-scale', [scale, scale, scale])
+  }
 
   map.setCamera({ 'camera-projection': 'orthographic' })
   fill(map, land)
+  const faded = shape.path ? blockingTrees(map, trees, shape.path.coordinates.map((l) => l.map(to)), scale) : new Set<number>()
+  ;(map.getSource('trees') as GeoJSONSource).setData(collection(trees.map((t, i) => ({ ...t, properties: { ...t.properties, fade: faded.has(i) } }))))
   await settled(map)
 
   const blob = await new Promise<Blob | null>((resolve) => map.getCanvas().toBlob(resolve, 'image/webp', 0.92))

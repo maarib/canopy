@@ -38,7 +38,7 @@
 ### Places with their own pages
 - **Island covers:** every region, park, trail, place and fishing page opens with an illustrated cover. The place's shape floats as a piece of land in soft colors, seen isometrically, with big low-poly trees in today's fall colors.
   - A park uses its official boundary, islands included.
-  - Other places get an organic island; a trail's island hugs its track, which winds through a sparser forest so the path stays visible.
+  - Other places get an organic island; a trail's island hugs its track, which winds through a sparser forest; trees standing in front of it turn see-through so the whole path shows.
   - Real lakes inside the shape are cut in.
   - The colors come from the nearest Ontario Parks report within 60 km (how much has turned and fallen, and the dominant color), otherwise from the nearest region's typical peak window.
   - Covers are still images, drawn once per visit by a single hidden map.
