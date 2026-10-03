@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-03 | [Search-first home, sections and account menu](#2026-10-03-search-first-home-sections-and-account-menu) | Navigation PR |
 | 2026-10-02 | [Detail page layout, list rows, footer](#2026-10-02-detail-page-layout-list-rows-footer) | [#103](https://github.com/maarib/canopy/pull/103) |
 | 2026-10-02 | [Fishing access points](#2026-10-02-fishing-access-points) | [#102](https://github.com/maarib/canopy/pull/102) |
 | 2026-10-02 | [Filter parks by activity](#2026-10-02-filter-parks-by-activity) | [#101](https://github.com/maarib/canopy/pull/101) |
@@ -22,6 +23,36 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live colour map](#2026-09-30-milestone-1-the-live-colour-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-03 · Search-first home, sections and account menu
+
+**Ref:** Navigation PR
+
+**Before.**
+- Everything started on the map. The home panel showed colour stats with Park reports / When to go tabs; the search box, an Activities button, a Layers button and a row of every tree group sat on top of the map.
+- No navigation between kinds of things (parks, trails, colour); Trips was a header button.
+- The footer listed every data source and licence inline.
+
+**Research.** Airbnb's and AllTrails' current web home pages (checked 2026-10-03):
+- *Airbnb:* the page is built around one search pill split into Where / When / Who with a single search button; category tabs with icons above it; discovery carousels below. Top right: a profile avatar and a menu (your things first, then help, then account and sign-in).
+- *AllTrails:* a hero with one search ("city, park or trail name") and three quick actions under it (create a trip, custom route, nearby trails), then "Local favourites" cards. Browsing is organised by place (country, region, park) and by thing (trails, points of interest). The footer groups links into a few columns; its region pages pair a ranked list with a map.
+- Both use a bottom tab bar on phones for their main sections.
+
+**After.**
+- **Explore (home) is a search.** A heading and a search card: the existing park/trail/lake/town search, then **Where** (province; Ontario first, other provinces offer fall colour only) and **Looking for** (Everything, Fall colours, Parks, Trails, Lakes & waterfalls). Choosing Fall colours adds a **Trees** dropdown instead of showing every tree up front. The button frames the province on the map and opens the matching section. Below: parks peaking now, short fall hikes, and quick links to waterfalls, lookouts and lakes.
+- **Sections.** Explore, Parks, Trails, Fall colours and Trips. Desktop: a slim rail left of the panel. Phones: a bottom tab bar; the sheet sits above it and opens half way on every page. Detail pages highlight their section (a park under Parks, a trail or waterfall under Trails, a region under Fall colours).
+  - **Parks** (`/parks`): find by name, activity filter inline, sort by best colour or A–Z.
+  - **Trails** (`/trails`): trails by difficulty (shortest first) and tabs for waterfalls, lookouts, lakes, peaks, rivers and creeks (`?show=`).
+  - **Fall colours** (`/colours`): the previous home content (stats, Park reports / When to go) with a tree dropdown.
+- **One Filters button on the map** replaces the tree chip row, the Activities button and the Layers button, with Trees, Activities and Layers tabs and a count of what's set.
+- **Account menu.** Avatar and dropdown at the top right: a guest card ("your trips are saved on this device"), Trips, About & data sources, Send feedback, and "Sign in or create account" marked as coming soon, since Canopy has no accounts yet.
+- **Footer** is one line: © Canopy, About & data sources, maaribs.com. The full credits moved to **About** (`/about`) as a table of source, what it provides, licence and refresh rate.
+- **Fixes along the way.** On the globe at low zoom Mapbox's `getBounds()` can throw (`Invalid LngLat (NaN, NaN)`) when the viewport corners fall off the planet; the map now skips bounds there instead of erroring. Map padding on phones accounts for the tab bar once.
+- **Unchanged:** colours, type, icons, chips, rows and every detail page.
+
+**Why.** Canopy is meant to be a one-stop shop for nature lovers, and people arrive with an intent ("somewhere with colour and a canoe this weekend"). Starting from a search and giving parks, trails and colour their own places makes that intent the first step, while the map stays one glance away.
 
 ---
 

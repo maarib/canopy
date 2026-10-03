@@ -45,9 +45,13 @@ import { fetchParksCanadaTrails, snapBounds, type Bounds } from '../lib/trails'
  */
 /** Must match the half snap point in BottomSheet.tsx. */
 const SHEET_HALF = 0.52
+/** Phones: the bottom tab bar (see AppNav). The map stops above it; the sheet sits on it. */
+const TAB_BAR = 64
+/** Height of the half-open sheet, which covers the bottom of the map on phones. */
+const sheetHalf = () => Math.round((window.innerHeight - TAB_BAR) * SHEET_HALF)
 
 function sheetPadding(isDesktop: boolean, placeOpen: boolean) {
-  const bottom = isDesktop ? 0 : placeOpen ? Math.round(window.innerHeight * SHEET_HALF) : 132
+  const bottom = isDesktop ? 0 : placeOpen ? sheetHalf() : 132
   return { top: 0, left: 0, right: 0, bottom }
 }
 
@@ -107,8 +111,8 @@ export type TripPin = { ref: string; n: number; lng: number; lat: number; color:
 /** Room for the search bar on top and the sheet/panel elsewhere when fitting a trail. */
 function fitPadding(isDesktop: boolean) {
   return isDesktop
-    ? { top: 120, bottom: 60, left: 60, right: 60 }
-    : { top: 130, bottom: Math.round(window.innerHeight * SHEET_HALF) + 28, left: 36, right: 36 }
+    ? { top: 80, bottom: 60, left: 60, right: 60 }
+    : { top: 70, bottom: sheetHalf() + 16, left: 24, right: 24 }
 }
 
 /** Where nearly all of Canada's fall colour is: the southern band, BC to Newfoundland. */
@@ -207,7 +211,15 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
   const reportNextMove = useRef(false)
   useEffect(() => {
     if (focus) reportNextMove.current = true
-    if (focus)
+    if (focus?.bounds)
+      mapRef.current?.fitBounds(
+        [
+          [focus.bounds[0], focus.bounds[1]],
+          [focus.bounds[2], focus.bounds[3]],
+        ],
+        { padding: fitPadding(isDesktop), duration: 1600 },
+      )
+    else if (focus)
       mapRef.current?.flyTo({
         center: [focus.lng, focus.lat],
         zoom: focus.zoom,
@@ -325,7 +337,14 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
     setZoom(map.getZoom())
     const c = map.getCenter()
     if (report) props.onViewChange({ lat: c.lat, lng: c.lng, zoom: map.getZoom() })
-    const b = map.getBounds()
+    // On the globe at low zoom the viewport's corners can be off the planet, and Mapbox's
+    // getBounds() throws (Invalid LngLat NaN). Bounds only matter zoomed in, so skip them then.
+    let b: ReturnType<typeof map.getBounds> = null
+    try {
+      b = map.getBounds()
+    } catch {
+      return
+    }
     if (b) setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()])
   }
 

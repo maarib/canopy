@@ -7,6 +7,8 @@ import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/pea
 import { STAGE_ORDER, STAGES } from '../lib/stage'
 import { ROW } from '../lib/styles'
 import { Skeleton } from './ui'
+import { TreePicker } from './TreePicker'
+import type { TreeFilterValue } from './MapControls'
 
 type Tab = 'reports' | 'regions'
 const PHASE_ORDER: PeakPhase[] = ['peak', 'approaching', 'early', 'past']
@@ -21,13 +23,25 @@ type Props = {
   treeColourSightings: number | undefined
   onSelectRegion: (r: Region) => void
   onSelectPark: (p: ParkReport) => void
+  /** Which trees' sightings the map shows; a dropdown rather than every tree at once. */
+  tree: TreeFilterValue
+  treeCounts: Map<string, number>
+  onTree: (v: TreeFilterValue) => void
 }
 
-export function HomePanel(props: Props) {
+/** Fall colours: official park reports, when each region peaks, and which trees are showing. */
+export function ColoursPanel(props: Props) {
   const [tab, setTab] = useState<Tab>('reports')
 
   return (
     <div className="p-5">
+      <header className="mb-4 flex items-end justify-between gap-3">
+        <div>
+          <h2 className="text-3xl leading-tight">Fall colours</h2>
+          <p className="text-sm text-[var(--ink-soft)]">Official reports, peak timing and live sightings</p>
+        </div>
+        <TreePicker value={props.tree} counts={props.treeCounts} onChange={props.onTree} />
+      </header>
       <SightingsSummary treeColourSightings={props.treeColourSightings} parks={props.parks} />
 
       <div role="tablist" className="mb-2 flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-sm">
@@ -97,7 +111,7 @@ function Stat({ value, label, dot }: { value: number | undefined; label: string;
   )
 }
 
-function ParkList({
+export function ParkList({
   parks,
   fetchedAt,
   onSelect,

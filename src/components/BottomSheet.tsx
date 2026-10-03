@@ -3,8 +3,9 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 // Mobile bottom sheet with three snap points, Google Maps / Apple Maps style.
 export type SnapPoint = 'peek' | 'half' | 'full'
 
-const heightFor = (snap: SnapPoint) => {
-  const vh = window.innerHeight
+/** `bottom` is the space taken by the tab bar under the sheet. */
+const baseHeightFor = (snap: SnapPoint, bottom = 0) => {
+  const vh = window.innerHeight - bottom
   return snap === 'peek' ? 132 : snap === 'half' ? Math.round(vh * 0.52) : Math.round(vh * 0.9)
 }
 
@@ -13,10 +14,13 @@ type Props = {
   onSnap: (s: SnapPoint) => void
   /** Changes when the sheet shows something new, so it scrolls back to the top. */
   contentKey: string
+  /** Height of anything fixed below the sheet (the bottom tab bar). */
+  bottomOffset?: number
   children: ReactNode
 }
 
-export function BottomSheet({ snap, onSnap, contentKey, children }: Props) {
+export function BottomSheet({ snap, onSnap, contentKey, bottomOffset = 0, children }: Props) {
+  const heightFor = (s: SnapPoint) => baseHeightFor(s, bottomOffset)
   const [dragHeight, setDragHeight] = useState<number | null>(null)
   const start = useRef<{ y: number; h: number } | null>(null)
   const scroller = useRef<HTMLDivElement>(null)
@@ -32,7 +36,7 @@ export function BottomSheet({ snap, onSnap, contentKey, children }: Props) {
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!start.current) return
-    setDragHeight(Math.max(96, Math.min(window.innerHeight * 0.95, start.current.h + start.current.y - e.clientY)))
+    setDragHeight(Math.max(96, Math.min((window.innerHeight - bottomOffset) * 0.95, start.current.h + start.current.y - e.clientY)))
   }
   function onPointerUp(e: React.PointerEvent) {
     if (!start.current) return
@@ -47,8 +51,8 @@ export function BottomSheet({ snap, onSnap, contentKey, children }: Props) {
 
   return (
     <section
-      className="fixed inset-x-0 bottom-0 z-20 flex flex-col rounded-t-3xl border-t border-[var(--line)] bg-[var(--surface)] shadow-[0_-8px_30px_rgba(0,0,0,0.18)]"
-      style={{ height: dragHeight ?? heightFor(snap), transition: dragHeight === null ? 'height 280ms cubic-bezier(.2,.8,.2,1)' : 'none' }}
+      className="fixed inset-x-0 z-20 flex flex-col rounded-t-3xl border-t border-[var(--line)] bg-[var(--surface)] shadow-[0_-8px_30px_rgba(0,0,0,0.18)]"
+      style={{ bottom: bottomOffset, height: dragHeight ?? heightFor(snap), transition: dragHeight === null ? 'height 280ms cubic-bezier(.2,.8,.2,1)' : 'none' }}
     >
       <div
         className="group flex shrink-0 cursor-grab touch-none justify-center pt-2.5 pb-1.5 active:cursor-grabbing"

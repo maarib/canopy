@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { Layers } from 'relume-icons'
-import { TREE_GROUPS } from '../data/treeGroups'
+import { Check } from 'relume-icons'
 import { LIGHT_PRESETS, localDate, type LightSetting } from '../lib/mapStyle'
-import type { TreeIconId } from '../data/treeIcons'
 import { TreeIcon } from './TreeIcon'
-import { Skeleton } from './ui'
 import { STAGES, type Stage } from '../lib/stage'
+import { treeOptions } from '../lib/treeOptions'
 import type { MapLayers } from './FoliageMap'
 
 const LAYER_LABELS: [keyof MapLayers, string, string][] = [
@@ -18,7 +16,8 @@ const LAYER_LABELS: [keyof MapLayers, string, string][] = [
   ['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys'],
 ]
 
-export function LayerControl({
+/** Map layers, satellite date and light: the Layers tab of the map's Filters menu. */
+export function LayerOptions({
   layers,
   onChange,
   satelliteDate,
@@ -33,73 +32,58 @@ export function LayerControl({
   light: LightSetting
   onLight: (l: LightSetting) => void
 }) {
-  const [open, setOpen] = useState(false)
   const [today] = useState(() => localDate())
-
   return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        aria-expanded={open}
-        aria-label="Map layers"
-        className={`flex h-[42px] items-center gap-1.5 rounded-full border border-[var(--line)] px-3 text-sm font-medium shadow-md transition-colors hover:bg-[var(--surface-2)] ${open ? 'bg-[var(--surface-2)]' : 'bg-[var(--surface)]'}`}
-      >
-        <Layers className="size-5" />
-        <span className="hidden sm:inline">Layers</span>
-      </button>
-      {open && (
-        <div className="absolute top-full right-0 z-20 mt-2 w-72 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 shadow-xl">
-          <ul className="space-y-1">
-            {LAYER_LABELS.map(([key, label, hint]) => (
-              <li key={key}>
-                <label className="flex cursor-pointer items-start gap-2.5 rounded-lg px-1.5 py-1 hover:bg-[var(--surface-2)]">
-                  <input
-                    type="checkbox"
-                    checked={layers[key]}
-                    onChange={(e) => onChange({ ...layers, [key]: e.target.checked })}
-                    className="mt-1 accent-maple"
-                  />
-                  <span>
-                    <span className="block text-sm font-medium">{label}</span>
-                    <span className="block text-xs text-[var(--ink-soft)]">{hint}</span>
-                  </span>
-                </label>
-                {key === 'satellite' && layers.satellite && (
-                  <input
-                    type="date"
-                    value={satelliteDate}
-                    max={today}
-                    onChange={(e) => e.target.value && onSatelliteDate(e.target.value)}
-                    className="mt-1 ml-8 rounded-md border border-[var(--line)] bg-[var(--surface-2)] px-2 py-1 text-xs"
-                    aria-label="Satellite image date"
-                  />
-                )}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-3 border-t border-[var(--line)] pt-3">
-            <div className="mb-1.5 text-xs font-semibold">Light</div>
-            <div role="radiogroup" aria-label="Map light" className="flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-xs">
-              {(['auto', ...LIGHT_PRESETS] as LightSetting[]).map((l) => (
-                <button
-                  key={l}
-                  role="radio"
-                  aria-checked={light === l}
-                  onClick={() => onLight(l)}
-                  className={`flex-1 rounded-full py-1 capitalize transition ${
-                    light === l ? 'bg-[var(--surface)] font-medium shadow-sm' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
-                  }`}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="mt-3 border-t border-[var(--line)] pt-3">
-            <Legend />
-          </div>
+    <div className="px-1">
+      <ul className="space-y-1">
+        {LAYER_LABELS.map(([key, label, hint]) => (
+          <li key={key}>
+            <label className="flex cursor-pointer items-start gap-2.5 rounded-lg px-1.5 py-1 hover:bg-[var(--surface-2)]">
+              <input
+                type="checkbox"
+                checked={layers[key]}
+                onChange={(e) => onChange({ ...layers, [key]: e.target.checked })}
+                className="mt-1 accent-maple"
+              />
+              <span>
+                <span className="block text-sm font-medium">{label}</span>
+                <span className="block text-xs text-[var(--ink-soft)]">{hint}</span>
+              </span>
+            </label>
+            {key === 'satellite' && layers.satellite && (
+              <input
+                type="date"
+                value={satelliteDate}
+                max={today}
+                onChange={(e) => e.target.value && onSatelliteDate(e.target.value)}
+                className="mt-1 ml-8 rounded-md border border-[var(--line)] bg-[var(--surface-2)] px-2 py-1 text-xs"
+                aria-label="Satellite image date"
+              />
+            )}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3 border-t border-[var(--line)] px-1 pt-3">
+        <div className="mb-1.5 text-xs font-semibold">Light</div>
+        <div role="radiogroup" aria-label="Map light" className="flex gap-1 rounded-full bg-[var(--surface-2)] p-1 text-xs">
+          {(['auto', ...LIGHT_PRESETS] as LightSetting[]).map((l) => (
+            <button
+              key={l}
+              role="radio"
+              aria-checked={light === l}
+              onClick={() => onLight(l)}
+              className={`flex-1 rounded-full py-1 capitalize transition ${
+                light === l ? 'bg-[var(--surface)] font-medium shadow-sm' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
+              }`}
+            >
+              {l}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
+      <div className="mt-3 border-t border-[var(--line)] px-1 pt-3">
+        <Legend />
+      </div>
     </div>
   )
 }
@@ -128,9 +112,11 @@ export function Legend() {
   )
 }
 
-export type TreeFilterValue = 'trees' | 'all' | string
+export type { TreeFilterValue } from '../lib/treeOptions'
+import type { TreeFilterValue } from '../lib/treeOptions'
 
-export function TreeFilter({
+/** Which trees' sightings show on the map: one choice, with live sighting counts. */
+export function TreeOptions({
   counts,
   value,
   onChange,
@@ -139,43 +125,35 @@ export function TreeFilter({
   value: TreeFilterValue
   onChange: (v: TreeFilterValue) => void
 }) {
-  if (!counts.size)
-    return (
-      <div className="flex gap-1.5 overflow-hidden" aria-hidden>
-        {[84, 120, 96, 132].map((w) => (
-          <Skeleton key={w} className="h-[34px] shrink-0 rounded-full shadow-md" style={{ width: w }} />
-        ))}
-      </div>
-    )
-  // Real trees first by count; shrubs and vines go last.
-  const groups = TREE_GROUPS.filter((g) => counts.get(g.id)).sort(
-    (a, b) => Number(b.tree) - Number(a.tree) || counts.get(b.id)! - counts.get(a.id)!,
-  )
-  const chip = (active: boolean) =>
-    `flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm shadow-md transition ${
-      active
-        ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)] [--leaf-ink:var(--surface)]'
-        : 'border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--surface-2)]'
-    }`
   return (
-    <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]" role="group" aria-label="Filter by tree">
-      <button className={chip(value === 'trees')} aria-pressed={value === 'trees'} onClick={() => onChange('trees')}>
-        All trees
-      </button>
-      {groups.map((g) => (
-        <button
-          key={g.id}
-          className={chip(value === g.id)}
-          aria-pressed={value === g.id}
-          onClick={() => onChange(value === g.id ? 'trees' : g.id)}
-        >
-          <TreeIcon id={g.id as TreeIconId} className="size-[18px]" />
-          {g.label} <span className="opacity-60">{counts.get(g.id)}</span>
-        </button>
-      ))}
-      <button className={chip(value === 'all')} aria-pressed={value === 'all'} onClick={() => onChange('all')}>
-        All plants
-      </button>
-    </div>
+    <ul role="radiogroup" aria-label="Trees on the map">
+      {!counts.size && <li className="px-2 py-2 text-xs text-[var(--ink-soft)]">Loading sightings…</li>}
+      {treeOptions(counts).map((o) => {
+        const on = value === o.id
+        return (
+          <li key={o.id}>
+            <button
+              role="radio"
+              aria-checked={on}
+              onClick={() => onChange(o.id)}
+              className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors ${
+                on ? 'bg-maple/10 font-medium' : 'hover:bg-[var(--surface-2)]'
+              }`}
+            >
+              <span className="flex size-[22px] items-center justify-center">
+                {o.icon ? (
+                  <TreeIcon id={o.icon} className="size-[22px]" />
+                ) : (
+                  <TreeIcon id="maples" tone="mono" className="size-[18px] text-[var(--ink-soft)]" />
+                )}
+              </span>
+              <span className="min-w-0 flex-1">{o.label}</span>
+              {o.n != null && <span className="text-xs tabular-nums text-[var(--ink-soft)]">{o.n}</span>}
+              <span className="flex size-4 items-center justify-center">{on && <Check className="size-4 text-maple" />}</span>
+            </button>
+          </li>
+        )
+      })}
+    </ul>
   )
 }

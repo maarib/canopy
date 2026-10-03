@@ -10,16 +10,23 @@
 
 ## What it does today
 
+### Search-first home and sections
+- **Explore (home)** is a search, in the spirit of Airbnb and AllTrails: type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall colour) and **Looking for** (everything, fall colours with a tree dropdown, parks, trails, lakes & waterfalls). Below the search: parks peaking now and short fall hikes.
+- **Sections:** Explore, **Parks** (search, activity filter, sort by colour or A–Z), **Trails** (trails by difficulty, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Fall colours** (official reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
+- **One Filters button on the map** with three tabs: Trees, park Activities and map Layers (including light).
+- **Account menu** (avatar, top right): trips, About & data sources, feedback. Accounts aren't built yet, so trips are saved on the device and sign-in is marked as coming soon.
+- **About & data sources** (`/about`) lists every source with what it provides, its licence and how often it refreshes; the footer links to it.
+
 ### Live colour map
-- **Basemap:** Mapbox Standard on a globe, with autumn colours and **dusk lighting** by default. Dawn, day, night and auto are in the Layers menu.
+- **Basemap:** Mapbox Standard on a globe, with autumn colours and **dusk lighting** by default. Dawn, day, night and auto are under Filters → Layers.
 - **Official park reports:** Ontario Parks' colour % and leaf fall % for about 64 parks, coloured by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
 - **Live sightings:** iNaturalist coloured-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
-- **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon.
+- **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Fall colours page).
 - **More layers:** Parks Canada trails, a NASA VIIRS satellite view with a date picker, and 3D terrain.
 
 ### Park activities and facilities
 - **Every park page** lists what you can do there (hiking, canoeing, fishing, biking, swimming, camping types and more) and what's on site (campsites by type with counts, comfort stations, boat launches, docks, park store, visitor centre, rentals), taken from Ontario Parks' own park pages.
-- **Filter the map by activity:** the Activities button shows only the Ontario Parks that offer everything you pick (hiking, canoeing, fishing, car camping, cabins, canoe rentals, showers and more). Each option shows how many parks would remain, and the park list follows the same filter.
+- **Filter the map by activity:** Filters → Activities (or the Parks page) shows only the Ontario Parks that offer everything you pick (hiking, canoeing, fishing, car camping, cabins, canoe rentals, showers and more). Each option shows how many parks would remain, and the park list follows the same filter.
 - **Icons:** activities and facilities use the Icons8 *Windows 11 Color* set (locked in `icons8.json`); trees keep Canopy's own leaf icons.
 
 ### Fishing access
