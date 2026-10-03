@@ -1,4 +1,5 @@
 import { CalendarToday, ChevronRight, Description, LocationOn } from 'relume-icons'
+import { ForestCover } from './ForestCover'
 import {
   DIFFICULTY,
   downloadFile,
@@ -39,6 +40,8 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
   return (
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
+
+      <ForestCover lat={trail.trailhead[1]} lng={trail.trailhead[0]} name={trail.name} />
 
       <header>
         <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase" style={{ color: PLACE_KINDS.trail.color }}>

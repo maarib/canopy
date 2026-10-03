@@ -22,13 +22,14 @@ import { useIsDesktop, usePrefersDark } from '../hooks'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
 import type { LeafObservation } from '../lib/inaturalist'
 import {
+  basemapConfig,
   MAPBOX_DEM,
-  MAPBOX_STYLE,
   MAPBOX_TOKEN,
+  mapStyleById,
   resolveLight,
   satelliteTiles,
-  standardConfig,
   type LightSetting,
+  type MapStyleId,
 } from '../lib/mapStyle'
 import type { ParkReport } from '../lib/ontarioParks'
 import type { ParkBoundary } from '../lib/parkBoundaries'
@@ -108,6 +109,8 @@ type Props = {
   onSelectFishing: (a: FishingAccess) => void
   /** The open park's regulated boundary. */
   parkBoundary: ParkBoundary | null
+  /** The basemap look picked under Filters → Layers. */
+  mapStyle: MapStyleId
 }
 
 export type TripPin = { ref: string; n: number; lng: number; lat: number; color: string; name: string }
@@ -200,13 +203,19 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fly only when the target changes identity
   }, [target?.id, mapReady])
 
-  // Mapbox Standard is configured at runtime: theme, autumn colors, light preset.
+  // Mapbox Standard is configured at runtime: the chosen look and the light preset. Switching to
+  // or from satellite swaps the whole style, so the config is applied again once it has loaded.
   const lightPreset = resolveLight(props.light, dark)
   useEffect(() => {
     const map = mapRef.current?.getMap()
     if (!map || !mapReady) return
-    map.setConfig('basemap', standardConfig(lightPreset))
-  }, [mapReady, lightPreset])
+    const apply = () => map.setConfig('basemap', basemapConfig(props.mapStyle, lightPreset))
+    apply()
+    map.on('style.load', apply)
+    return () => {
+      map.off('style.load', apply)
+    }
+  }, [mapReady, lightPreset, props.mapStyle])
 
   // Mapbox Standard turns 3D terrain on by default (zoom 6–13.7). Draping every layer over the
   // terrain mesh is the most expensive thing the map draws, so it's off unless 3D is switched
@@ -437,7 +446,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       mapboxAccessToken={MAPBOX_TOKEN}
       minZoom={2}
       maxPitch={75}
-      mapStyle={MAPBOX_STYLE}
+      mapStyle={mapStyleById(props.mapStyle).url}
       style={{ width: '100%', height: '100%' }}
       attributionControl={false}
       interactiveLayerIds={INTERACTIVE}

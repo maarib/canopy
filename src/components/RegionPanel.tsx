@@ -1,4 +1,5 @@
 import type { Region } from '../data/regions'
+import { ForestCover } from './ForestCover'
 import { directionsUrl, formatWindow, PHASE_STYLE, peakPhase } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
@@ -31,6 +32,8 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
   return (
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
+
+      <ForestCover lat={region.lat} lng={region.lng} name={region.name} />
 
       <header>
         <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">{region.province} · Region</p>

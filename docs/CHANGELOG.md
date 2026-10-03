@@ -4,6 +4,7 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-03 | [Map styles, Layers button and forest covers](#2026-10-03-map-styles-layers-button-and-forest-covers) | [#108](https://github.com/maarib/canopy/pull/108) |
 | 2026-10-03 | [Park boundaries](#2026-10-03-park-boundaries) | [#107](https://github.com/maarib/canopy/pull/107) |
 | 2026-10-03 | [Motion across panels, menus and the map](#2026-10-03-motion-across-panels-menus-and-the-map) | [#106](https://github.com/maarib/canopy/pull/106) |
 | 2026-10-03 | [Map performance and floating pins](#2026-10-03-map-performance-and-floating-pins) | [#105](https://github.com/maarib/canopy/pull/105) |
@@ -26,6 +27,41 @@ What changed, what was there before, what it changed to, and why. Newest first. 
 | 2026-09-30 | [Milestone 1: the live color map](#2026-09-30-milestone-1-the-live-color-map) | `2d0dfdc` |
 | 2026-09-30 | [Map engine: Google Maps → MapLibre + OpenFreeMap](#2026-09-30-map-engine-google-maps--maplibre--openfreemap) | `34c03de` |
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
+
+---
+
+## 2026-10-03 · Map styles, Layers button and forest covers
+
+**Ref:** [#108](https://github.com/maarib/canopy/pull/108)
+
+**Before.**
+- The map had one look: Standard's faded theme with warm land colors under dusk light.
+- Layers was a tab inside the Filters menu.
+- Detail pages started with the place's name; nothing showed what the forest there looks like right now.
+
+**After.**
+- **Eight map styles**, picked from small map previews under Layers:
+  - Monochrome (the new default);
+  - Paper (every basemap color from Canopy's tokens);
+  - Faded (the previous look);
+  - three custom color grades: Autumn film, Bark & spruce, Riso print;
+  - Mapbox Standard and Standard Satellite.
+  
+  The choice is kept on the device (`canopy:map-style`), not in shared links. The grades are 3D lookup tables generated in the browser (`src/lib/colorGrades.ts`) and applied through Standard's custom theme, so pins and data layers keep their true colors.
+- **Light follows the system by default** (day, or night in dark mode) instead of dusk. Monochrome reads best in daylight.
+- **Layers has its own button** next to Filters. It now holds the map style, light, data layers and the legend, which change how the map looks. Filters keeps Trees and Activities, which narrow what it shows. The old satellite layer is now labelled "Daily satellite image" so it isn't confused with the Satellite style.
+- **Forest covers on every detail page** (region, park, trail, place, fishing), above the name and inset to the page's content width:
+  - an isometric snapshot (orthographic camera, 3D terrain) of the forest around the place, with low-poly trees over the Bark & spruce map;
+  - the trees are planted in forest and parkland from Mapbox's land-cover and land-use data, never in water. Places with little mapped forest get trees on all dry land;
+  - **live colors:** the nearest Ontario Parks report within 60 km sets the share of trees still green, colored and bare, and its dominant color weights red, orange and yellow. A park uses its own report. Elsewhere the nearest region's typical peak window stands in. The source is in the image's tooltip.
+
+**How.**
+- `src/lib/lowPolyTrees.ts` generates the tree models as tiny glTF files in the browser: a conifer and a leafy tree in each color, in two sizes. It also plants trees on a jittered grid, so the same place always gets the same trees.
+- `src/lib/forestCover.ts` keeps one hidden, non-interactive map, so a whole visit costs a single Mapbox map load. It draws one cover at a time, captures it as a WebP image and caches it for the visit. A cover no longer needed is skipped.
+- `src/lib/foliage.ts` turns reports into tree mixes.
+- `src/components/ForestCover.tsx` shows a shimmer while drawing, then fades the still image in, with Mapbox and OpenStreetMap credit.
+
+**Why.** The default basemap looked generic. A quieter map lets the data lead, and the choice of styles lets people pick their own. The covers show at a glance what a place looks like today, in Canopy's own illustrated style.
 
 ---
 
