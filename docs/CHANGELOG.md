@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Explore as a map-first landing page |
+| Unreleased | | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | 2026-10-03 | The first release: everything up to [#108](https://github.com/maarib/canopy/pull/108) |
@@ -17,7 +17,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-04 | [Explore as a map-first landing page](#2026-10-04-explore-as-a-map-first-landing-page) | `feat/explore-landing` |
+| 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | `feat/explore-landing` |
 | 2026-10-04 | [Three views, orange brand color, new logo and navigation polish](#2026-10-04-three-views-orange-brand-color-new-logo-and-navigation-polish) | [#114](https://github.com/maarib/canopy/pull/114) |
 | 2026-10-03 | [About and Data sources pages, footer at the bottom, legend in Layers](#2026-10-03-about-and-data-sources-pages-footer-at-the-bottom-legend-in-layers) | [#112](https://github.com/maarib/canopy/pull/112) |
 | 2026-10-03 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-03-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
@@ -51,28 +51,38 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ## Unreleased
 
-### 2026-10-04 · Explore as a map-first landing page
+### 2026-10-04 · Explore landing page, Places, filter menus and a satellite default
 
 **Ref:** branch `feat/explore-landing`
 
-**Before.** Explore opened with its panel beside the map (half the screen on phones): a heading, the search card, parks peaking now, short fall hikes and three place links.
+**Before.**
+- Explore opened with its panel beside the map (half the screen on phones): a heading, the search card, parks peaking now, short fall hikes and three place links.
+- The map was a globe in Monochrome, with light following the system. Zoomed out, the globe showed as a disc with empty corners, most of all on phones. The map only followed the window's size, so it was left cut off or stretched when the panel opened or closed.
+- Detail pages put every link in the same row of buttons as directions, save and share.
+- The forecast was the "7-day color outlook", with a colored dot per day and a legend, low on the park page.
+- Parks had an Activities toggle that opened an inline box, and two sort chips. Trails had a row of difficulty chips.
+- The third section was called Trails, and Foliage used the detailed maple icon.
 
 **After.**
-- Explore opens on the map alone, on desktop and phones. The heading, the search card and a row of quick links sit over the map's lower edge, centred.
-- A fade in the surface color runs from solid at the bottom to clear above the heading, so the card and links read against the map. The map stays draggable through the fade, and the Mapbox logo and attribution stay on top of it.
-- **Quick links:** Parks, Trails, Waterfalls, Lookouts, Lakes and Creeks, as pills with each kind's icon in its color. On phones the row scrolls sideways.
-- **Opening the panel:** choosing a park, trail or place from the search, pressing the button with something specific in Looking for, or tapping a quick link opens the map with the panel on the matching page. A town from the search, or "Explore Ontario", moves the map and stays on the landing page.
-- **Phones:** the card starts as the search box alone; a button beside it reveals Where and Looking for. The sheet is hidden on the landing page.
-- The search results and the field lists open upward when the card is at the bottom of the screen.
-- **Map size:** the map now follows its own box, so it fills its space when the panel opens, closes or takes the whole screen. Before, it only followed the window, which left it cut off or stretched after a view change. The floating view switch is centred over the map rather than the window, clear of the Mapbox logo.
-- Returning to Explore from any page shows the landing page again. Its panel (the same search, parks peaking now, short fall hikes, quick links) opens from the view switch.
+- **Explore** opens on the map alone, on desktop and phones. A search card sits bottom-centre over the map, with three short lists under it: parks peaking now, easy trails, and waterfalls & lookouts (three rows each, with a link to the full list). On phones the card starts as the search box alone, a button reveals Where and Looking for, and the lists scroll sideways. The sheet is hidden on the landing page. Results and field lists open upward.
+  - Choosing a park, trail or place opens the map with the panel on that page. A town from the search, or "Explore Ontario", moves the map and stays on the landing page.
+  - Returning to Explore from any page shows the landing page again. Its panel (the same search, parks peaking now, short fall hikes) opens from the view switch.
+- **Map:** flat (Mercator) rather than a globe, **Satellite at dawn** by default; the other styles and lights are still under Layers. The map follows its own box, so it fills its space after any view change. The floating view switch is centred over the map, clear of the Mapbox logo.
+- **Detail pages:** Get directions, Save and Share are the main buttons. Every other link (reserve a site, the park's page, GPX download, official trail info, fishing regulations, OpenStreetMap) sits in one compact row of text links under them.
+- **Forecast:** renamed "7-day weather forecast", without the color dots and legend. On park pages it moved up, above Best viewing and the activities.
+- **Filters and sorts are menu pills**, the standard control from here on: a pill that opens a menu, shows the current choice after its label, and fills in when a filter is set.
+  - Parks: Region (new), Activities and Sort (Best color, A–Z). Ontario Parks spells two regions both ways ("Northeast", "Northeastern"); the filter treats each pair as one.
+  - Places: Difficulty for trails.
+- **Navigation:** Trails is now **Places** (`/places`; `/trails` still works) with a pin icon. Foliage uses Canopy's own leaf, upright.
 
 **How.**
-- `src/components/ExploreSearch.tsx` (new) holds the search card (`ExploreSearch`), `QuickLinks` and `ExploreLanding`; `ExplorePanel.tsx` reuses the first two.
-- `SearchBox` and the card's fields take `up` to open above.
-- `src/App.tsx` starts on the map-only view at `/`, returns to it whenever the page becomes Explore, and draws the landing over the map when Explore is in that view.
+- `src/components/ExploreSearch.tsx` (new) holds the search card and the landing page; `ExplorePanel.tsx` reuses the card. `SearchBox` and the card's fields take `up` to open above.
+- `src/components/ui.tsx` adds `MenuButton` and `MenuOption` (the menu is anchored to the viewport, so a scrolling row never clips it) and `MoreLinks`.
+- `src/App.tsx` starts on the map-only view at `/`, returns to it whenever the page becomes Explore, and draws the landing over the map in that view.
+- `src/components/FoliageMap.tsx` sets `projection="mercator"` and resizes the map from a `ResizeObserver` on its container.
+- `src/lib/mapStyle.ts`: the default style is `satellite` and the default light `dawn`.
 
-**Why.** The map is what sets Canopy apart, and the old Explore hid half of it behind a form. Map plus search is the landing page.
+**Why.** The map is what sets Canopy apart, and the old Explore hid half of it behind a form. One kind of filter control is easier to learn than three. Links that leave Canopy shouldn't compete with the three things people do most on a place's page.
 
 ## v1.2
 

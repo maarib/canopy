@@ -1,13 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from './ui'
-import { colorOutlook, fetchForecast, weatherEmoji, type ColorOutlook } from '../lib/weather'
-
-const OUTLOOK_DOT: Record<ColorOutlook, { label: string; cls: string } | null> = {
-  vivid: { label: 'Vivid color', cls: 'bg-brand' },
-  'leaf-drop': { label: 'Leaf-drop risk', cls: 'bg-bark dark:bg-[#a08672]' },
-  frost: { label: 'Hard frost', cls: 'bg-sky-500' },
-  neutral: null,
-}
+import { fetchForecast, weatherEmoji } from '../lib/weather'
 
 export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
   const forecast = useQuery({
@@ -17,7 +10,7 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
 
   return (
     <section>
-      <h3 className="mb-2 text-lg">7-day color outlook</h3>
+      <h3 className="mb-2 text-lg">7-day weather forecast</h3>
       {forecast.isPending && (
         <div className="grid grid-cols-7 gap-1" role="status" aria-label="Loading forecast">
           {Array.from({ length: 7 }, (_, i) => (
@@ -35,26 +28,18 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
       )}
       {forecast.data && (
         <ol className="grid grid-cols-7 gap-1 text-center text-xs">
-          {forecast.data.map((d) => {
-            const outlook = OUTLOOK_DOT[colorOutlook(d)]
-            return (
-              <li key={d.date} className="rounded-lg bg-[var(--surface-2)] px-0.5 py-2" title={outlook?.label}>
+          {forecast.data.map((d) => (
+              <li key={d.date} className="rounded-lg bg-[var(--surface-2)] px-0.5 py-2">
                 <div className="text-[var(--ink-soft)]">
                   {new Date(`${d.date}T12:00`).toLocaleDateString('en-CA', { weekday: 'short' })}
                 </div>
                 <div className="my-1 text-base">{weatherEmoji(d.weatherCode)}</div>
                 <div className="font-medium">{Math.round(d.tMax)}°</div>
                 <div className="text-[var(--ink-soft)]">{Math.round(d.tMin)}°</div>
-                <div className={`mx-auto mt-1 size-1.5 rounded-full ${outlook?.cls ?? ''}`} />
               </li>
-            )
-          })}
+          ))}
         </ol>
       )}
-      <p className="mt-2 text-xs text-[var(--ink-soft)]">
-        <span className="mr-1 inline-block size-1.5 rounded-full bg-brand align-middle" /> cool nights and dry days, the best reds
-        <span className="mr-1 ml-3 inline-block size-1.5 rounded-full bg-bark align-middle dark:bg-[#a08672]" /> wind or heavy rain
-      </p>
     </section>
   )
 }

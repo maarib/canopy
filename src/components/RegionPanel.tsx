@@ -11,7 +11,7 @@ import { PlaceIcon } from './PlaceIcon'
 import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
 import { TreeIcon } from './TreeIcon'
-import { BackButton, Badge, LinkButton, ShareButton, Skeleton } from './ui'
+import { BackButton, Badge, LinkButton, MoreLinks, ShareButton, Skeleton } from './ui'
 
 type Props = {
   region: Region
@@ -54,17 +54,8 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
         </LinkButton>
         <SaveButton stopRef={`region:${region.id}`} name={region.name} />
         <ShareButton title={`${region.name} fall colors · Canopy`} />
-        {region.links.map((l) => (
-          <LinkButton
-            key={l.url}
-            href={l.url}
-            external
-            icon={/book|reserv/i.test(l.label) ? <CalendarToday className="size-4" /> : undefined}
-          >
-            {l.label}
-          </LinkButton>
-        ))}
       </section>
+      <MoreLinks links={region.links.map((l) => ({ label: l.label, href: l.url }))} />
 
       <ForecastStrip lat={region.lat} lng={region.lng} />
 

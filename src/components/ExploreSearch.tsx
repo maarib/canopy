@@ -3,16 +3,18 @@ import { Check, FilterList, KeyboardArrowDown, Search } from 'relume-icons'
 import { PROVINCES, PROVINCE_BY_CODE, type ProvinceCode } from '../data/provinces'
 import type { TreeIconId } from '../data/treeIcons'
 import { usePresence } from '../hooks'
-import { PLACE_KINDS, type Place, type Trail } from '../lib/explore'
-import type { ParkReport } from '../lib/ontarioParks'
+import { formatDuration, PLACE_KINDS, type Place, type Trail } from '../lib/explore'
+import { parkTitle, type ParkReport } from '../lib/ontarioParks'
+import { STAGE_ORDER, STAGES } from '../lib/stage'
 import type { SearchResult } from '../lib/search'
 import { treeOptions, type TreeFilterValue } from '../lib/treeOptions'
 import { PlaceIcon, type PlaceIconId } from './PlaceIcon'
 import { SearchBox } from './SearchBox'
 import { TreeIcon } from './TreeIcon'
+import { Badge } from './ui'
 
 // Explore is a search, Airbnb-style: type a name, or pick where (province) and what you're after.
-// The same card is the landing page (over the map, with quick links under it) and the top of the
+// The same card is the landing page (over the map, with short lists under it) and the top of the
 // Explore panel. Over the map it sits at the bottom of the screen, so its lists open upward.
 
 export type LookingFor = 'everything' | 'colors' | 'parks' | 'trails' | 'places'
@@ -211,48 +213,114 @@ export function ExploreSearch({ up, compact, ...props }: SearchProps & { up?: bo
   )
 }
 
-const QUICK: { label: string; path: string; icon: PlaceIconId; color: string }[] = [
-  { label: 'Parks', path: '/parks', icon: 'peak', color: 'var(--color-brand)' },
-  { label: 'Trails', path: '/trails', icon: 'trail', color: PLACE_KINDS.trail.color },
-  ...(['waterfall', 'viewpoint', 'lake', 'creek'] as const).map((k) => ({ label: PLACE_KINDS[k].plural, path: `/trails?show=${k}`, icon: k, color: PLACE_KINDS[k].color })),
-]
+type ListProps = {
+  onSelectPark: (p: ParkReport) => void
+  onSelectTrail: (t: Trail) => void
+  onSelectPlace: (p: Place) => void
+  onNavigate: (path: string) => void
+}
 
-/** Quick links to the lists people open most: one tap from the map to a page of them. */
-export function QuickLinks({ onNavigate, className = '' }: { onNavigate: (path: string) => void; className?: string }) {
+/** One short list on the landing page: a title, a link to the full list, and up to three rows. */
+function ShortList({ title, all, onAll, children }: { title: string; all: string; onAll: () => void; children: ReactNode }) {
   return (
-    <nav aria-label="Browse" className={`flex gap-2 ${className}`}>
-      {QUICK.map((q) => (
-        <button
-          key={q.path}
-          onClick={() => onNavigate(q.path)}
-          className="flex shrink-0 items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] py-1 pr-3.5 pl-1 text-sm shadow-sm transition-colors hover:bg-[var(--surface-2)] active:scale-[0.97]"
-        >
-          <span className="flex size-7 items-center justify-center rounded-full text-white" style={{ background: q.color }}>
-            <PlaceIcon kind={q.icon} className="size-4" />
-          </span>
-          {q.label}
+    <section className="pointer-events-auto w-[78%] max-w-xs shrink-0 snap-start rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-md md:w-auto md:max-w-none md:min-w-0 md:flex-1">
+      <div className="flex items-baseline justify-between px-2 pt-1 pb-0.5">
+        <h3 className="text-base">{title}</h3>
+        <button onClick={onAll} className="text-xs font-medium text-brand hover:underline">
+          {all}
         </button>
-      ))}
-    </nav>
+      </div>
+      <ul>{children}</ul>
+    </section>
+  )
+}
+
+function ShortRow({ icon, name, detail, badge, onClick }: { icon: ReactNode; name: string; detail: string; badge?: ReactNode; onClick: () => void }) {
+  return (
+    <li>
+      <button onClick={onClick} className="flex w-full items-center gap-2.5 rounded-2xl px-2 py-1.5 text-left transition-colors hover:bg-[var(--surface-2)]">
+        {icon}
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-medium">{name}</span>
+          <span className="block truncate text-xs text-[var(--ink-soft)]">{detail}</span>
+        </span>
+        {badge}
+      </button>
+    </li>
+  )
+}
+
+const tile = (kind: PlaceIconId, color: string) => (
+  <span className="flex size-7 shrink-0 items-center justify-center rounded-full text-white" style={{ background: color }}>
+    <PlaceIcon kind={kind} className="size-4" />
+  </span>
+)
+
+/** Three short lists under the landing page's search: what's peaking, easy trails, and photo spots. */
+function LandingLists({ parks, trails, places, onSelectPark, onSelectTrail, onSelectPlace, onNavigate }: Pick<SearchProps, 'parks' | 'trails' | 'places'> & ListProps) {
+  const peaking = parks
+    .filter((p) => p.main && (p.stage === 'peak' || p.stage === 'near'))
+    .sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0))
+    .slice(0, 3)
+  const easy = trails.filter((t) => t.difficulty === 'easy').sort((a, b) => a.lengthKm - b.lengthKm).slice(0, 3)
+  // Named waterfalls and lookouts, the ones on the most trails first.
+  const spots = places
+    .filter((p) => (p.kind === 'waterfall' || p.kind === 'viewpoint') && !/^(Lookout on|Lookout$|Falls on|Unnamed)/.test(p.name))
+    .sort((a, b) => b.trails.length - a.trails.length || a.name.localeCompare(b.name))
+    .slice(0, 3)
+  if (!peaking.length && !easy.length && !spots.length) return null
+  return (
+    // A row of three on desktop; on phones it scrolls sideways, edge to edge.
+    <div className="-mx-3 mt-3 flex snap-x gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] md:mx-auto md:max-w-4xl md:overflow-visible md:px-0">
+      {peaking.length > 0 && (
+        <ShortList title="Peaking now" all="All parks" onAll={() => onNavigate('/parks')}>
+          {peaking.map((p) => (
+            <ShortRow
+              key={p.id}
+              icon={<span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)]"><span className="size-3 rounded-full" style={{ background: STAGES[p.stage].color }} /></span>}
+              name={parkTitle(p)}
+              detail={`${p.region} · ${p.colorChange ?? 0}% color`}
+              badge={<Badge size="sm" color={STAGES[p.stage].color}>{STAGES[p.stage].label}</Badge>}
+              onClick={() => onSelectPark(p)}
+            />
+          ))}
+        </ShortList>
+      )}
+      {easy.length > 0 && (
+        <ShortList title="Easy trails" all="All trails" onAll={() => onNavigate('/places')}>
+          {easy.map((t) => (
+            <ShortRow key={t.id} icon={tile('trail', PLACE_KINDS.trail.color)} name={t.name} detail={`${t.lengthKm} km · ${formatDuration(t.durationH)}`} onClick={() => onSelectTrail(t)} />
+          ))}
+        </ShortList>
+      )}
+      {spots.length > 0 && (
+        <ShortList title="Waterfalls & lookouts" all="All waterfalls" onAll={() => onNavigate('/places?show=waterfall')}>
+          {spots.map((p) => (
+            <ShortRow
+              key={p.id}
+              icon={tile(p.kind, PLACE_KINDS[p.kind].color)}
+              name={p.name}
+              detail={`${PLACE_KINDS[p.kind].label}${p.trails.length ? ` · on ${p.trails.length} trail${p.trails.length > 1 ? 's' : ''}` : ''}`}
+              onClick={() => onSelectPlace(p)}
+            />
+          ))}
+        </ShortList>
+      )}
+    </div>
   )
 }
 
 /**
- * The landing page: the map takes the screen, and the search and quick links sit over its lower
- * edge, on a fade from the surface color (solid at the bottom, clear just above the heading).
- * Only the card and links take clicks; the map stays draggable through the fade.
+ * The landing page: the map takes the screen, and the search sits over its lower edge with three
+ * short lists under it. Only the cards take clicks; the map stays draggable between them.
  */
-export function ExploreLanding({ compact, onNavigate, ...search }: SearchProps & { compact: boolean; onNavigate: (path: string) => void }) {
+export function ExploreLanding({ compact, onSelectPark, onSelectTrail, onSelectPlace, onNavigate, ...search }: SearchProps & ListProps & { compact: boolean }) {
   return (
-    <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 animate-fade-in bg-gradient-to-t from-[var(--surface)] from-25% via-[var(--surface)]/75 via-60% to-transparent px-3 pt-24 ${compact ? 'pb-10' : 'pb-20'}`}>
-      <div className="mx-auto max-w-xl">
-        <h2 className={`mb-3 text-center leading-none ${compact ? 'text-3xl' : 'text-4xl'}`}>Find your next fall adventure</h2>
-        <div className="pointer-events-auto">
-          <ExploreSearch {...search} up compact={compact} />
-        </div>
+    <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 animate-fade-in px-3 ${compact ? 'pb-10' : 'pb-20'}`}>
+      <div className="pointer-events-auto mx-auto max-w-xl">
+        <ExploreSearch {...search} up compact={compact} />
       </div>
-      {/* One row: centred on desktop; on phones it scrolls sideways, edge to edge. */}
-      <QuickLinks onNavigate={onNavigate} className={`pointer-events-auto mt-3 ${compact ? '-mx-3 overflow-x-auto px-3 pb-1 [scrollbar-width:none]' : 'flex-wrap justify-center'}`} />
+      <LandingLists parks={search.parks} trails={search.trails} places={search.places} onSelectPark={onSelectPark} onSelectTrail={onSelectTrail} onSelectPlace={onSelectPlace} onNavigate={onNavigate} />
     </div>
   )
 }

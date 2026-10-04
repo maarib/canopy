@@ -3,12 +3,12 @@ import type { Trail } from '../lib/explore'
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { STAGES } from '../lib/stage'
 import { LIST, ROW } from '../lib/styles'
-import { ExploreSearch, QuickLinks, type SearchProps } from './ExploreSearch'
+import { ExploreSearch, type SearchProps } from './ExploreSearch'
 import { TrailCard } from './TrailPanel'
 import { Badge } from './ui'
 
 // The Explore panel, opened from the landing page's view switch: the same search, then discovery
-// (what's peaking, short hikes) and the quick links.
+// (what's peaking, short hikes).
 
 type Props = SearchProps & {
   onSelectPark: (p: ParkReport) => void
@@ -67,7 +67,7 @@ export function ExplorePanel(props: Props) {
         <section>
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg">Short fall hikes</h3>
-            <button onClick={() => props.onNavigate('/trails')} className="text-sm font-medium text-brand hover:underline">
+            <button onClick={() => props.onNavigate('/places')} className="text-sm font-medium text-brand hover:underline">
               All trails
             </button>
           </div>
@@ -81,7 +81,6 @@ export function ExplorePanel(props: Props) {
         </section>
       )}
 
-      <QuickLinks onNavigate={props.onNavigate} className="flex-wrap" />
     </div>
   )
 }

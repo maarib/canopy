@@ -444,6 +444,8 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
             : { bounds: HOME_BOUNDS, fitBoundsOptions: { padding: fitPadding(isDesktop) } }
       }
       mapboxAccessToken={MAPBOX_TOKEN}
+      // A flat map: zoomed out, the globe showed as a disc with empty corners, worst on phones.
+      projection="mercator"
       minZoom={2}
       maxPitch={75}
       mapStyle={mapStyleById(props.mapStyle).url}

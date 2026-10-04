@@ -11,10 +11,10 @@ import { ICON_TILE, LIST, ROW } from '../lib/styles'
 import { ActivityOptions } from './ActivityFilter'
 import { PlaceIcon } from './PlaceIcon'
 import { TrailCard } from './TrailPanel'
-import { Badge, ExternalIcon, InfoRow } from './ui'
+import { Badge, ExternalIcon, InfoRow, MenuButton, MenuOption } from './ui'
 
-// Dedicated pages for the Parks and Trails sections (and About). Each is a list with its own
-// search, filters and sort; the map beside it shows the same things.
+// Dedicated pages for the Parks and Places sections (and About). Each is a list with its own
+// search, and filters and sorts as menu pills (MenuButton); the map beside it shows the same things.
 
 function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
@@ -56,7 +56,11 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
 
 // ── Parks ──────────────────────────────────────────────────
 
+/** Ontario Parks writes two of its regions both ways ("Northeast" and "Northeastern"); the filter treats each pair as one. */
+const regionOf = (p: ParkReport) => p.region.replace(/^(North(?:east|west))$/, '$1ern')
+
 type ParkSort = 'color' | 'name'
+const PARK_SORTS: Record<ParkSort, string> = { color: 'Best color', name: 'A–Z' }
 
 export function ParksPanel({
   parks,
@@ -76,18 +80,19 @@ export function ParksPanel({
 }) {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<ParkSort>('color')
-  const [showFilters, setShowFilters] = useState(activities.length > 0)
+  const [region, setRegion] = useState<string | null>(null)
+  const regions = useMemo(() => [...new Set((parks ?? []).filter((p) => p.main).map(regionOf))].sort(), [parks])
 
   const list = useMemo(() => {
     const q = normalize(query)
     return (parks ?? [])
-      .filter((p) => p.main && (!q || normalize(parkTitle(p)).includes(q)))
+      .filter((p) => p.main && (!region || regionOf(p) === region) && (!q || normalize(parkTitle(p)).includes(q)))
       .sort((a, b) =>
         sort === 'name'
           ? parkTitle(a).localeCompare(parkTitle(b))
           : STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0),
       )
-  }, [parks, query, sort])
+  }, [parks, query, sort, region])
 
   return (
     <div className="space-y-4 p-5">
@@ -95,24 +100,27 @@ export function ParksPanel({
       <FilterInput value={query} onChange={setQuery} placeholder="Find a park" />
 
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
-        <Chip on={showFilters || activities.length > 0} onClick={() => setShowFilters(!showFilters)}>
-          <FilterList className="size-4" />
-          Activities{activities.length > 0 && ` · ${activities.length}`}
-        </Chip>
-        <Chip on={sort === 'color'} onClick={() => setSort('color')}>
-          Best color first
-        </Chip>
-        <Chip on={sort === 'name'} onClick={() => setSort('name')}>
-          A–Z
-        </Chip>
+        <MenuButton label="Region" value={region ?? undefined} active={!!region}>
+          {(close) => (
+            <>
+              <MenuOption selected={!region} label="All regions" onClick={() => (setRegion(null), close())} />
+              {regions.map((r) => (
+                <MenuOption key={r} selected={region === r} label={r} onClick={() => (setRegion(r), close())} />
+              ))}
+            </>
+          )}
+        </MenuButton>
+        <MenuButton label="Activities" count={activities.length} icon={<FilterList className="size-4" />} width={340}>
+          {() => <ActivityOptions value={activities} onChange={onActivities} countWith={countWith} ready={facilitiesReady} />}
+        </MenuButton>
+        <MenuButton label="Sort" value={PARK_SORTS[sort]} active={false}>
+          {(close) =>
+            (Object.keys(PARK_SORTS) as ParkSort[]).map((id) => <MenuOption key={id} selected={sort === id} label={PARK_SORTS[id]} onClick={() => (setSort(id), close())} />)
+          }
+        </MenuButton>
       </div>
 
-      {showFilters && (
-        <div className="origin-top animate-pop-in rounded-2xl border border-[var(--line)] p-2">
-          <ActivityOptions value={activities} onChange={onActivities} countWith={countWith} ready={facilitiesReady} />
-        </div>
-      )}
-      {!showFilters && activities.length > 0 && (
+      {activities.length > 0 && (
         <p className="text-sm">
           With <strong className="font-semibold">{activities.map((id) => PARK_FILTERS.get(id)?.label).join(', ')}</strong>{' '}
           <button onClick={() => onActivities([])} className="ml-1 text-xs font-medium text-brand hover:underline">
@@ -146,7 +154,7 @@ export function ParksPanel({
           </li>
         ))}
       </ul>
-      {parks && !list.length && <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No parks match. Try fewer activities or another name.</p>}
+      {parks && !list.length && <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No parks match. Try another region, fewer activities or another name.</p>}
       <p className="text-[11px] text-[var(--ink-soft)]">
         All 340 Ontario Parks have facility data; the ones with fall color reports are shown here and on the map. The rest are coming.
       </p>
@@ -190,7 +198,7 @@ export function TrailsPanel({
 
   return (
     <div className="space-y-4 p-5">
-      <PageHeader title="Trails" subtitle="Hikes, waterfalls, lookouts and lakes, with what's along each trail" />
+      <PageHeader title="Places" subtitle="Trails, waterfalls, lookouts, lakes and peaks, with what's along each trail" />
       <FilterInput value={query} onChange={setQuery} placeholder={show === 'trails' ? 'Find a trail' : `Find a ${PLACE_KINDS[show].label.toLowerCase()}`} />
 
       <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -208,16 +216,23 @@ export function TrailsPanel({
 
       {show === 'trails' ? (
         <>
-          <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]" role="group" aria-label="Difficulty">
-            <Chip on={!difficulty} onClick={() => setDifficulty(null)}>
-              Any difficulty
-            </Chip>
-            {DIFFICULTIES.map((d) => (
-              <Chip key={d} on={difficulty === d} onClick={() => setDifficulty(difficulty === d ? null : d)}>
-                <span className="size-2 rounded-full" style={{ background: DIFFICULTY[d].color }} />
-                {DIFFICULTY[d].label}
-              </Chip>
-            ))}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
+            <MenuButton label="Difficulty" value={difficulty ? DIFFICULTY[difficulty].label : undefined} active={!!difficulty} icon={<FilterList className="size-4" />}>
+              {(close) => (
+                <>
+                  <MenuOption selected={!difficulty} label="Any difficulty" onClick={() => (setDifficulty(null), close())} />
+                  {DIFFICULTIES.map((d) => (
+                    <MenuOption
+                      key={d}
+                      selected={difficulty === d}
+                      icon={<span className="size-2.5 rounded-full" style={{ background: DIFFICULTY[d].color }} />}
+                      label={DIFFICULTY[d].label}
+                      onClick={() => (setDifficulty(d), close())}
+                    />
+                  ))}
+                </>
+              )}
+            </MenuButton>
           </div>
           <p className="text-xs text-[var(--ink-soft)]">{trailList.length} trails · shortest first</p>
           <ul className={`stagger ${LIST}`}>

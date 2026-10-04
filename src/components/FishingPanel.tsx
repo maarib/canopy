@@ -6,7 +6,7 @@ import { directionsUrl } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
 import { AmenityIcon } from './ParkAmenities'
 import { LIST } from '../lib/styles'
-import { BackButton, InfoRow, LinkButton, ShareButton } from './ui'
+import { BackButton, InfoRow, LinkButton, MoreLinks, ShareButton } from './ui'
 
 const REGULATIONS = 'https://www.ontario.ca/document/ontario-fishing-regulations-summary'
 
@@ -50,18 +50,14 @@ export function FishingPanel({ access, onBack }: { access: FishingAccess; onBack
           Get directions
         </LinkButton>
         <ShareButton title={`${accessTitle(access)} · Canopy`} />
-        <LinkButton href={FISH_ONLINE} external>
-          Fish species & stocking
-        </LinkButton>
-        <LinkButton href={REGULATIONS} external>
-          Fishing regulations
-        </LinkButton>
-        {access.url && (
-          <LinkButton href={access.url} external>
-            More info
-          </LinkButton>
-        )}
       </section>
+      <MoreLinks
+        links={[
+          { label: 'Fish species & stocking', href: FISH_ONLINE },
+          { label: 'Fishing regulations', href: REGULATIONS },
+          ...(access.url ? [{ label: 'More info', href: access.url }] : []),
+        ]}
+      />
 
       <p className="text-sm leading-relaxed">{BLURB[access.type]}</p>
 

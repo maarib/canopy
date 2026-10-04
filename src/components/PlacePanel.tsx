@@ -8,7 +8,7 @@ import { NearbyPhotos } from './NearbyPhotos'
 import { PlaceIcon } from './PlaceIcon'
 import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
-import { BackButton, LinkButton, ShareButton } from './ui'
+import { BackButton, LinkButton, MoreLinks, ShareButton } from './ui'
 
 const BLURB: Record<Place['kind'], string> = {
   waterfall: 'Falls are at their most dramatic after rain; fall color on the banks peaks with the surrounding forest.',
@@ -65,10 +65,8 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
         </LinkButton>
         <SaveButton stopRef={`place:${place.id}`} name={place.name} />
         <ShareButton title={`${place.name} · Canopy`} />
-        <LinkButton href={place.osm} external>
-          View on OpenStreetMap
-        </LinkButton>
       </section>
+      <MoreLinks links={[{ label: 'View on OpenStreetMap', href: place.osm }]} />
 
       <p className="text-sm leading-relaxed">{BLURB[place.kind]}</p>
 

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Search } from 'relume-icons'
-import { LEAF_SHAPES } from '../lib/leafShapes'
+import { LOGO_LEAF } from './ui'
 import { TAB_BAR_HEIGHT } from '../lib/styles'
 
 // The app's sections. Desktop: a slim rail left of the panel. Phones: a bottom tab bar
@@ -21,7 +21,6 @@ const svg = (children: ReactNode, viewBox = '0 0 24 24') => (
 const BOOKMARK_OUTER =
   'M12.0001 18.1677L7.23159 20.2077C6.66392 20.4524 6.12517 20.4065 5.61534 20.07C5.1055 19.7335 4.85059 19.2573 4.85059 18.6415V4.42898C4.85059 3.96731 5.0195 3.56706 5.35734 3.22823C5.695 2.88923 6.09384 2.71973 6.55384 2.71973H17.4463C17.908 2.71973 18.3083 2.88923 18.6471 3.22823C18.9861 3.56706 19.1556 3.96731 19.1556 4.42898V18.6415C19.1556 19.2573 18.8997 19.7335 18.3878 20.07C17.876 20.4065 17.3363 20.4524 16.7686 20.2077L12.0001 18.1677Z'
 const BOOKMARK_INNER = 'M12.0001 16.3455L17.4463 18.6415V4.42898H6.55384V18.6415L12.0001 16.3455Z'
-const MAPLE = LEAF_SHAPES.maples.blades[0].d
 
 const ICONS: Record<Section, (active: boolean) => ReactNode> = {
   explore: (active) => <Search className={`size-6 ${active ? 'stroke-current stroke-[0.9]' : ''}`} />,
@@ -32,22 +31,16 @@ const ICONS: Record<Section, (active: boolean) => ReactNode> = {
         <circle cx="17" cy="5.75" r="1.9" {...STROKE} fill={active ? 'currentColor' : 'none'} />
       </>,
     ),
+  // Places: a map pin.
   trails: (active) =>
     svg(
       <>
-        <path d="M12 3v18M9 21h6" {...STROKE} />
-        <path d="M12 5.25h6.1l2.15 2.4-2.15 2.4H12Z" {...STROKE} fill={active ? 'currentColor' : 'none'} />
-        <path d="M12 11.9H5.9l-2.15 2.4 2.15 2.4H12Z" {...STROKE} fill={active ? 'currentColor' : 'none'} />
+        <path d="M12 21.25s-6.75-6.1-6.75-11.5a6.75 6.75 0 0 1 13.5 0c0 5.4-6.75 11.5-6.75 11.5Z" {...STROKE} fill={active ? 'currentColor' : 'none'} />
+        <circle cx="12" cy="9.75" r="2.4" {...STROKE} fill={active ? 'var(--surface-2)' : 'none'} stroke={active ? 'var(--surface-2)' : 'currentColor'} />
       </>,
     ),
-  foliage: (active) =>
-    svg(
-      <>
-        <path d={MAPLE} fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={7} strokeLinejoin="round" />
-        <path d="M50 70v24" fill="none" stroke="currentColor" strokeWidth={7} strokeLinecap="round" />
-      </>,
-      '0 0 100 100',
-    ),
+  // Foliage: Canopy's own leaf, upright.
+  foliage: (active) => svg(<path d={LOGO_LEAF} fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={7} strokeLinejoin="round" />, '-4 -4 108 108'),
   trips: (active) =>
     svg(active ? <path d={BOOKMARK_OUTER} fill="currentColor" /> : <path d={BOOKMARK_OUTER + BOOKMARK_INNER} fill="currentColor" fillRule="evenodd" />),
 }
@@ -55,7 +48,7 @@ const ICONS: Record<Section, (active: boolean) => ReactNode> = {
 const SECTIONS: { id: Section; path: string; label: string }[] = [
   { id: 'explore', path: '/', label: 'Explore' },
   { id: 'parks', path: '/parks', label: 'Parks' },
-  { id: 'trails', path: '/trails', label: 'Trails' },
+  { id: 'trails', path: '/places', label: 'Places' },
   { id: 'foliage', path: '/foliage', label: 'Foliage' },
   { id: 'trips', path: '/trips', label: 'Trips' },
 ]

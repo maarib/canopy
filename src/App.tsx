@@ -187,7 +187,7 @@ export default function App() {
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
   const fishingMatch = matchPath('/fishing/:slug', location.pathname)
-  const sectionPath = (['/parks', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
+  const sectionPath = (['/parks', '/places', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
   // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
   const fishing = useQuery({
     queryKey: ['fishing-access'],
@@ -202,7 +202,8 @@ export default function App() {
   const onTripsPage = !!tripsMatch
   const selection: Selection = useMemo(() => {
     if (onTripsPage) return { kind: 'trips' }
-    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'foliage' | 'about' | 'sources' }
+    // Places lives at /places; /trails is its old address and still works.
+    if (sectionPath) return { kind: (sectionPath === '/places' ? 'trails' : sectionPath.slice(1)) as 'parks' | 'trails' | 'foliage' | 'about' | 'sources' }
     if (tripMatch) {
       if (tripMatch.params.id === 'shared') {
         const shared = decodeTrip(params.get('t') ?? '')
@@ -355,7 +356,7 @@ export default function App() {
               : selection?.kind === 'parks'
                 ? 'Parks'
               : selection?.kind === 'trails'
-                ? 'Trails'
+                ? 'Places'
               : selection?.kind === 'foliage'
                 ? 'Foliage'
               : selection?.kind === 'about'
@@ -408,8 +409,8 @@ export default function App() {
     setFocus({ id: `province:${q.province}:${exploreSeq.current}`, lng: (bounds[0] + bounds[2]) / 2, lat: (bounds[1] + bounds[3]) / 2, zoom: 6, bounds })
     if (q.what === 'colors') openSection('/foliage', (p) => writeTree(p, q.tree))
     else if (q.what === 'parks') openSection('/parks')
-    else if (q.what === 'trails') openSection('/trails')
-    else if (q.what === 'places') openSection('/trails?show=waterfall')
+    else if (q.what === 'trails') openSection('/places')
+    else if (q.what === 'places') openSection('/places?show=waterfall')
     else setSheet('peek')
   }
 
@@ -788,6 +789,9 @@ export default function App() {
               treeCounts={groupCounts}
               onSearchSelect={onSearch}
               onSubmit={onExplore}
+              onSelectPark={selectPark}
+              onSelectTrail={selectTrail}
+              onSelectPlace={selectPlace}
               onNavigate={openSection}
             />
           )}
