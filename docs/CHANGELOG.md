@@ -61,14 +61,14 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 **After.**
 - **About** (`/about`) tells the story of Canopy in the first person: made to plan the maker's own trips, and grown into what it is today. It links to Data sources and keeps the version line.
-- **Data sources** (`/data`) lists every source with what it provides, its licence and how often it refreshes, followed by the design credits. The arrow now follows the last word of a source's name, however it wraps.
+- **Data sources** (`/sources`) lists every source with what it provides, its licence and how often it refreshes, followed by the design credits. The arrow now follows the last word of a source's name, however it wraps.
 - The footer links to both pages, as does the account menu, and sits at the bottom of the panel when the page is shorter than the panel (desktop side panel and mobile sheet).
 - The floating legend is gone from the map; the legend stays at the bottom of the Layers menu.
 - In the Layers menu, Light is directly below Map style, above the list of layers.
 
 **How.**
 - `src/components/SectionPanels.tsx` splits `AboutPanel` and adds `DataSourcesPanel`; the source link is inline with a non-breaking space before the arrow.
-- `src/App.tsx` adds the `/data` route and drops the map legend. The panel wrapper is a column at least as tall as its scroller, and `SiteFooter` takes the remaining space above it (`mt-auto`).
+- `src/App.tsx` adds the `/sources` route (not `/data`, which is the folder of data files on the site, so a direct link there would never reach the app) and drops the map legend. The panel wrapper is a column at least as tall as its scroller, and `SiteFooter` takes the remaining space above it (`mt-auto`).
 - `src/components/MapControls.tsx` moves the Light control.
 
 **Why.** The story and the source list serve different readers, and each is easier to find on its own page. The footer, legend and Light changes remove small distractions.

@@ -15,7 +15,7 @@
 - **Sections:** Explore, **Parks** (search, activity filter, sort by color or A–Z), **Trails** (trails by difficulty, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Foliage** (official fall color reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
 - **One Filters button on the map** with three tabs: Trees, park Activities and map Layers (including light).
 - **Account menu** (avatar, top right): trips, About, Data sources, feedback. Accounts aren't built yet, so trips are saved on the device and sign-in is marked as coming soon.
-- **About** (`/about`) tells how Canopy came to be, and **Data sources** (`/data`) lists every source with what it provides, its licence and how often it refreshes. The footer links to both, and sits at the bottom of the panel even on short pages.
+- **About** (`/about`) tells how Canopy came to be, and **Data sources** (`/sources`) lists every source with what it provides, its licence and how often it refreshes. The footer links to both, and sits at the bottom of the panel even on short pages.
 
 ### Live color map
 - **Basemap:** Mapbox Standard on a globe, in **Monochrome** by default, so fall colors and pins carry the color. The **Layers** button (next to Filters) offers eight map styles: Monochrome, Paper (Canopy's own palette), Faded, three custom color grades (Autumn film, Bark & spruce, Riso print), Mapbox Standard and Satellite. The choice is remembered on the device. Light follows the system (day, or night in dark mode); dawn, day, dusk and night are under Layers too, directly below the map styles. The color legend is at the bottom of the same menu.
