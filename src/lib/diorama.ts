@@ -219,6 +219,32 @@ export function scaleRing(ring: Ring, about: Position, k: number, deg = 0): Ring
   })
 }
 
+/**
+ * `ring` with every corner rounded: each one is cut back up to `radius` along its two edges (never
+ * past the middle of a short edge) and replaced by a short curve, so outlines read soft, not faceted.
+ */
+export function soften(ring: Ring, radius: number): Ring {
+  const pts = ring.slice(0, -1)
+  if (pts.length < 3) return ring
+  const out: Ring = []
+  pts.forEach((p, i) => {
+    const prev = pts[(i - 1 + pts.length) % pts.length]
+    const next = pts[(i + 1) % pts.length]
+    const toward = (q: Position): Position => {
+      const len = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1
+      const k = Math.min(radius, len * 0.5) / len
+      return [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k]
+    }
+    const a = toward(prev)
+    const b = toward(next)
+    for (let s = 0; s <= 4; s++) {
+      const t = s / 4
+      out.push([(1 - t) ** 2 * a[0] + 2 * t * (1 - t) * p[0] + t * t * b[0], (1 - t) ** 2 * a[1] + 2 * t * (1 - t) * p[1] + t * t * b[1]])
+    }
+  })
+  return [...out, out[0]]
+}
+
 /** A small rough disc of radius `r` (pools, clearings). */
 export function disc(at: Position, r: number, sides = 9): Ring {
   const ring: Ring = Array.from({ length: sides }, (_, i) => {

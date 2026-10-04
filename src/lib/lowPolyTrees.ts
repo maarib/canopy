@@ -152,20 +152,24 @@ function box(m: Mesh, [cx, cy, cz]: Vec3, [w, h, d]: Vec3) {
   }
 }
 
-/** A simplified maple leaf (the flag's), on both faces of the flag at depth z ± `t`. */
-function mapleLeaf(m: Mesh, [cx, cy]: [number, number], size: number, z: number, t: number) {
+/**
+ * A simplified maple leaf (the flag's) on both faces of the cloth, `t` off its surface. `at` gives
+ * the cloth's height and depth at any x, so the leaf follows its sag and ripple instead of being
+ * sliced by them.
+ */
+function mapleLeaf(m: Mesh, cx: number, size: number, t: number, at: (x: number) => [number, number]) {
   const outline: [number, number][] = [
     [0, 1], [0.18, 0.62], [0.42, 0.75], [0.36, 0.32], [0.8, 0.5], [0.7, 0.22], [0.95, 0.12], [0.5, -0.25], [0.55, -0.45], [0.06, -0.38], [0.06, -0.8],
     [-0.06, -0.8], [-0.06, -0.38], [-0.55, -0.45], [-0.5, -0.25], [-0.95, 0.12], [-0.7, 0.22], [-0.8, 0.5], [-0.36, 0.32], [-0.42, 0.75], [-0.18, 0.62],
   ]
-  const hub: [number, number] = [cx, cy + 0.1 * size]
   for (const side of [1, -1]) {
-    const zz = z + side * t
-    for (let i = 0; i < outline.length; i++) {
-      const [ax, ay] = outline[i]
-      const [bx, by] = outline[(i + 1) % outline.length]
-      m.tri([hub[0], hub[1], zz], [cx + ax * size, cy + ay * size, zz], [cx + bx * size, cy + by * size, zz], [hub[0], hub[1], zz - side])
+    const on = ([ax, ay]: [number, number]): Vec3 => {
+      const x = cx + ax * size
+      const [y, z] = at(x)
+      return [x, y + ay * size, z + side * t]
     }
+    const hub = on([0, 0.1])
+    for (let i = 0; i < outline.length; i++) m.tri(hub, on(outline[i]), on(outline[(i + 1) % outline.length]), [hub[0], hub[1], hub[2] - side])
   }
 }
 
@@ -274,7 +278,7 @@ export function propModels(): Record<string, string> {
   const white = new Mesh()
   // The cloth hangs in strips: it sags away from the pole and ripples more toward its free end.
   const STRIPS = 12
-  const cloth = (u: number): Vec3 => [px + 0.3 + u * fw * 0.9, fy - fh * 0.3 * u * u, pz + Math.sin(u * Math.PI * 1.7) * fh * 0.22 * (0.25 + u)]
+  const cloth = (u: number): Vec3 => [px + 0.3 + u * fw * 0.9, fy - fh * 0.3 * u * u, pz + Math.sin(u * Math.PI * 1.7) * fh * 0.16 * (0.25 + u)]
   for (let i = 0; i < STRIPS; i++) {
     const [a, b] = [cloth(i / STRIPS), cloth((i + 1) / STRIPS)]
     const mid = (i + 0.5) / STRIPS
@@ -286,8 +290,11 @@ export function propModels(): Record<string, string> {
       mesh.tri(corner(a, 1, side), corner(b, -1, side), corner(a, -1, side), behind)
     }
   }
-  const [lx, ly, lz] = cloth(0.5)
-  mapleLeaf(red, [lx, ly], fh * 0.36, lz, 0.16)
+  const span = fw * 0.9
+  mapleLeaf(red, cloth(0.5)[0], fh * 0.36, 0.3, (x) => {
+    const [, y, z] = cloth((x - px - 0.3) / span)
+    return [y, z]
+  })
   props = {
     boulder: glb([{ mesh: boulder, color: '#9b968d' }]),
     cairn: glb([{ mesh: stones, color: '#a39e95' }, { mesh: pole, color: '#5a4334' }, { mesh: flag, color: '#c8102e' }]),

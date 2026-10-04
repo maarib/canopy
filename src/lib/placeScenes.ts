@@ -12,6 +12,7 @@ import {
   pathQuads,
   scaleRing,
   seeded,
+  soften,
   strip,
   type Ring,
 } from './diorama'
@@ -21,8 +22,8 @@ import { SUMMITS } from './lowPolyTrees'
 // What a cover diorama is made of, in the normalized frame (lib/diorama): pieces of land and water
 // as extruded solids, terraces trees and props stand on, where trees may grow, and lines they
 // shouldn't hide. Parks and trails are one flat island; each kind of place gets its own landform.
-// Water is one color, and its depth comes from the land: it's cut down through the top layer into
-// the earth and sits well below the surface, inside banks that show both layers.
+// Water is one color and sits a little below the land, inside a low bank: the top layer's lip and
+// a sliver of the earth under it.
 
 /** Land thickness, and the soft top layer over the earth. */
 export const SLAB_M = DIORAMA_SIZE_M * 0.06
@@ -128,8 +129,8 @@ function ribbon(lines: Position[][], width: number): Poly[] {
 }
 
 /** How far the banks are cut down, and how far below the land the water's surface sits. */
-const BANK_M = TOP_M * 3.5
-const WATER_DROP_M = TOP_M * 2.3
+const BANK_M = TOP_M * 2
+const WATER_DROP_M = TOP_M * 1.25
 /** The water's surface on a terrace `top` high. */
 const waterLevel = (top: number) => top - WATER_DROP_M
 
@@ -174,7 +175,7 @@ function unit(a: Position, b: Position): Position {
 
 /** Where `p` sits along the nearest segment of `lines`: that point and the flow direction there. */
 function nearestOnCourse(lines: Position[][], p: Position) {
-  let best = { d: Infinity, at: p, dir: [1, 0] as Position }
+  let best = { d: Infinity, at: p, dir: [1, 0] as Position, line: lines[0], i: 1 }
   for (const line of lines)
     for (let i = 1; i < line.length; i++) {
       const a = line[i - 1]
@@ -184,7 +185,7 @@ function nearestOnCourse(lines: Position[][], p: Position) {
       const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy || 1)))
       const at: Position = [a[0] + dx * t, a[1] + dy * t]
       const d = Math.hypot(p[0] - at[0], p[1] - at[1])
-      if (d < best.d) best = { d, at, dir: unit(a, b) }
+      if (d < best.d) best = { d, at, dir: unit(a, b), line, i }
     }
   return best
 }
@@ -239,7 +240,12 @@ export type PlaceInput = {
   seed: string
 }
 
-export function placeScene(p: PlaceInput): Scene {
+/** How far corners of land and shorelines are rounded. */
+const ROUND_M = S / 9
+
+export function placeScene(input: PlaceInput): Scene {
+  // Every landform is built on a rounded island, and lakes keep a soft shoreline.
+  const p = { ...input, island: soften(input.island, m(ROUND_M)), water: input.water.map((r) => soften(r, m(ROUND_M / 3))) }
   const rnd = seeded(p.seed)
   switch (p.kind) {
     case 'lake':
@@ -306,19 +312,28 @@ function streamScene({ kind, island, focus, water: areas, course }: PlaceInput, 
 function waterfallScene({ island, focus, course }: PlaceInput, rnd: () => number): Scene {
   const width = m(S / 11)
   const lines = course.length ? course : madeUpCourse(island, focus, rnd)
-  const { at: fall, dir } = nearestOnCourse(lines, focus)
+  const { at: fall, dir, line: main, i: seg } = nearestOnCourse(lines, focus)
   const across: Position = [-dir[1], dir[0]]
-  // The cliff line through the falls; the upper terrace is on the upstream side (left of a→b).
+  // The cliff line through the falls; the upper terrace is on the upstream side (left of a→b). It
+  // stands a little inside the island's edge, so the lower terrace shows as a ledge all around it.
   const a: Position = [fall[0] - across[0], fall[1] - across[1]]
   const b: Position = [fall[0] + across[0], fall[1] + across[1]]
-  const upper = clipHalfPlane(island, a, b)
+  const cut = clipHalfPlane(scaleRing(island, centroid(island), 0.95), a, b)
+  const upper = cut.length ? soften(cut, m(S / 14)) : cut
   const low = SLAB_M
   const high = SLAB_M + TIER_M * 1.4
-  const runs = insideRuns(lines, island, width / 3)
-  const upstream = (q: Position) => (q[0] - fall[0]) * dir[0] + (q[1] - fall[1]) * dir[1] < 0
-  const split = (side: boolean) => runs.flatMap((r) => runsWhere(r, (q) => upstream(q) === side))
-  const above = split(true)
-  const below = split(false)
+  // A winding stream can cross the cliff line more than once. Each side is folded back over the
+  // line where it strays, so the water above the falls stays on the upper terrace and the water
+  // below stays on the lower one.
+  const along = (q: Position) => (q[0] - fall[0]) * dir[0] + (q[1] - fall[1]) * dir[1]
+  const keepTo = (side: 1 | -1) => (q: Position): Position => {
+    const t = along(q)
+    return t * side < 0 ? [q[0] - 2 * t * dir[0], q[1] - 2 * t * dir[1]] : q
+  }
+  const others = lines.filter((l) => l !== main)
+  const above = insideRuns([[...main.slice(0, seg).map(keepTo(-1)), fall], ...others.flatMap((l) => runsWhere(l, (q) => along(q) < 0))], upper.length ? upper : island, width / 3)
+  const below = insideRuns([[fall, ...main.slice(seg).map(keepTo(1))], ...others.flatMap((l) => runsWhere(l, (q) => along(q) >= 0))], island, width / 3)
+  const runs = [...above, ...below]
   const poolAt: Position = [fall[0] + dir[0] * width * 1.1, fall[1] + dir[1] * width * 1.1]
   const pool: Poly = [disc(poolAt, width * 1.25, 12)]
   const upperWater = upper.length ? within(ribbon(above, width), [[upper]]) : []
