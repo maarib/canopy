@@ -17,7 +17,7 @@ const LAYER_LABELS: [keyof MapLayers, string, string][] = [
   ['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys'],
 ]
 
-/** Map layers, satellite date and light: the Layers tab of the map's Filters menu. */
+/** Map style, light, layers and the color legend: the map's Layers menu. */
 export function LayerOptions({
   layers,
   onChange,
@@ -57,6 +57,17 @@ export function LayerOptions({
           ))}
         </div>
       </div>
+      <div className="mb-3 border-b border-[var(--line)] px-1 pb-3">
+        <div className="mb-1.5 text-xs font-semibold">Light</div>
+        <Segmented
+          role="radiogroup"
+          label="Map light"
+          size="xs"
+          value={light}
+          onChange={onLight}
+          options={(['auto', ...LIGHT_PRESETS] as LightSetting[]).map((l) => ({ id: l, label: <span className="capitalize">{l}</span> }))}
+        />
+      </div>
       <ul className="space-y-1">
         {LAYER_LABELS.map(([key, label, hint]) => (
           <li key={key}>
@@ -85,17 +96,6 @@ export function LayerOptions({
           </li>
         ))}
       </ul>
-      <div className="mt-3 border-t border-[var(--line)] px-1 pt-3">
-        <div className="mb-1.5 text-xs font-semibold">Light</div>
-        <Segmented
-          role="radiogroup"
-          label="Map light"
-          size="xs"
-          value={light}
-          onChange={onLight}
-          options={(['auto', ...LIGHT_PRESETS] as LightSetting[]).map((l) => ({ id: l, label: <span className="capitalize">{l}</span> }))}
-        />
-      </div>
       <div className="mt-3 border-t border-[var(--line)] px-1 pt-3">
         <Legend />
       </div>
