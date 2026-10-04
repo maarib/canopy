@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import {
   Add,
-  Bookmark,
   CalendarToday,
   ChevronRight,
   Close,
@@ -65,10 +64,7 @@ export function TripsPanel({
   return (
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
-      <header>
-        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-brand uppercase">
-          <Bookmark className="size-3.5" /> Your trips
-        </p>
+      <header className="pt-4">
         <h2 className="text-3xl leading-tight">Trips</h2>
         <p className="mt-1 text-sm text-[var(--ink-soft)]">
           Save trails, parks and places with the Save button on their pages, then plan them day by day. Trips are kept on this
@@ -178,10 +174,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
         </div>
       )}
 
-      <header>
-        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-brand uppercase">
-          <Bookmark className="size-3.5" /> Trip
-        </p>
+      <header className="pt-4">
         {editable ? (
           <input
             key={id}
