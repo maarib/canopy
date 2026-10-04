@@ -231,7 +231,12 @@ async function buildArea(area) {
   const lakes = await overpass(`(way["natural"="water"]["name"](${bb});relation["natural"="water"]["name"](${bb}););out tags geom;`)
   await sleep(2000)
   const creeks = await overpass(`way["waterway"~"^(stream|river)$"]["name"](${bb});out tags geom;`)
-  console.log(`  ${points.length} points, ${lakes.length} lakes, ${creeks.length} creek/river ways`)
+  await sleep(2000)
+  // The streams waterfalls sit on, named or not, for their cover's course.
+  const fallStreams = await overpass(
+    `node["waterway"="waterfall"](${bb})->.f;way(around.f:150)["waterway"~"^(stream|river)$"];out tags geom;`,
+  )
+  console.log(`  ${points.length} points, ${lakes.length} lakes, ${creeks.length} creek/river ways, ${fallStreams.length} waterfall streams`)
 
   // Projected outlines for distance checks.
   const lakeShapes = lakes.map((l) => {
@@ -252,6 +257,41 @@ async function buildArea(area) {
     }
   })
   const creekShapes = creeks.map((c) => ({ el: c, line: (c.geometry ?? []).map((g) => proj([g.lon, g.lat])) }))
+
+  // Real geometry for place covers (src/lib/placeScenes.ts), simplified and kept near the place.
+  const lngLat = (g) => [g.lon, g.lat]
+  /** A lake's outer rings. */
+  const waterRings = (el) =>
+    (el.type === 'way' ? [el.geometry ?? []] : (el.members ?? []).filter((m) => m.role !== 'inner' && m.geometry).map((m) => m.geometry))
+      .filter((ring) => ring.length > 3)
+      .map((ring) => simplify(ring.map(lngLat), 12, proj))
+  /** Streams passing within 150 m of a point: the waterfall query's, plus the named ones. */
+  const allStreams = [...new Map([...fallStreams, ...creeks].map((w) => [w.id, w])).values()]
+  const streamsAt = (xy) =>
+    allStreams.filter((w) => {
+      const line = (w.geometry ?? []).map((g) => proj([g.lon, g.lat]))
+      return line.some((q, i) => i && segDist(xy, line[i - 1], q) <= 150)
+    })
+  /** Elevation, and for waterfalls the stream they're on. */
+  function pointExtra(pp) {
+    const course = pp.kind === 'waterfall' ? courseNear(streamsAt(pp.xy), [pp.p.lon, pp.p.lat], 900) : []
+    return { ele: pp.ele, ...(course.length ? { course } : {}) }
+  }
+  /**
+   * Waterway lines within `radius` m of `at`, each trimmed to the stretch in range (plus one point
+   * either side, so sparsely mapped straight reaches aren't dropped).
+   */
+  function courseNear(ways, at, radius) {
+    const xy = proj(at)
+    const near = (p) => Math.hypot(...proj(p).map((v, i) => v - xy[i])) <= radius
+    return ways
+      .map((w) => {
+        const pts = (w.geometry ?? []).map(lngLat)
+        return pts.filter((p, i) => near(p) || (i > 0 && near(pts[i - 1])) || (i < pts.length - 1 && near(pts[i + 1])))
+      })
+      .filter((line) => line.length > 1)
+      .map((line) => simplify(line, 6, proj))
+  }
 
   const pois = new Map()
   const poiId = (kind, el) => `${kind}-${el.type[0]}${el.id}`
@@ -345,7 +385,7 @@ async function buildArea(area) {
       const { m, d } = nearestAlong(pp.xy)
       if (m <= NEAR[pp.kind]) {
         const name = pp.name ?? (pp.kind === 'viewpoint' ? `Lookout on ${props.TRAIL_NAME}` : pp.kind === 'waterfall' ? 'Unnamed waterfall' : 'Unnamed peak')
-        const id = addPoi(pp.kind, pp.p, name, [pp.p.lon, pp.p.lat], { ele: pp.ele })
+        const id = addPoi(pp.kind, pp.p, name, [pp.p.lon, pp.p.lat], pointExtra(pp))
         along.push({ poi: id, km: +(d / 1000).toFixed(1), offM: Math.round(m) })
       }
     }
@@ -365,7 +405,9 @@ async function buildArea(area) {
         // Wide rivers are mapped as water areas too; classify by name.
         const nm = lake.el.tags.name
         const kind = /\briver\b/i.test(nm) ? 'river' : /\b(creek|brook)\b/i.test(nm) ? 'creek' : 'lake'
-        const id = addPoi(kind, lake.el, nm, lake.center)
+        // Wide rivers and creeks mapped as water areas also get the course of their named stream.
+        const course = kind === 'lake' ? [] : courseNear(creeks.filter((c) => c.tags.name === nm), lake.center, kind === 'river' ? 1600 : 900)
+        const id = addPoi(kind, lake.el, nm, lake.center, { water: waterRings(lake.el), ...(course.length ? { course } : {}) })
         if (!along.some((a) => a.poi === id)) along.push({ poi: id, km: +(firstD / 1000).toFixed(1), offM: 0 })
       }
     }
@@ -377,7 +419,9 @@ async function buildArea(area) {
         if (creek.line.some((q, i) => i && segDist(s.xy, creek.line[i - 1], q) <= NEAR.creek)) {
           const mid = creek.el.geometry[Math.floor(creek.el.geometry.length / 2)]
           const kind = creek.el.tags.waterway === 'river' ? 'river' : 'creek'
-          const id = addPoi(kind, creek.el, name, [+mid.lon.toFixed(5), +mid.lat.toFixed(5)])
+          const at = [+mid.lon.toFixed(5), +mid.lat.toFixed(5)]
+          const course = courseNear(creeks.filter((c) => c.tags.name === name), at, kind === 'river' ? 1600 : 900)
+          const id = addPoi(kind, creek.el, name, at, { course })
           along.push({ poi: id, km: +(s.d / 1000).toFixed(1), offM: 0 })
           creekSeen.add(name)
           break
@@ -432,7 +476,7 @@ async function buildArea(area) {
   }
 
   // Map every named waterfall/lookout/peak in the area, not just those on trails.
-  for (const pp of pointPois) if (pp.name) addPoi(pp.kind, pp.p, pp.name, [pp.p.lon, pp.p.lat], { ele: pp.ele })
+  for (const pp of pointPois) if (pp.name) addPoi(pp.kind, pp.p, pp.name, [pp.p.lon, pp.p.lat], pointExtra(pp))
 
   // Which trails reach each place, for place pages.
   const poiList = [...pois.values()].map((p) => ({

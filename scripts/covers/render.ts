@@ -1,10 +1,10 @@
 // Runs in headless Chromium (scripts/build-covers.mjs): draws the cover of every fall-report
-// park, region and trail in today's colors with the app's own code, plus a small thumbnail for
+// park, region, trail and place in today's colors with the app's own code, plus a small thumbnail for
 // list rows, and hands each to the Node script to save. Covers whose shape and colors are
 // unchanged since the last deploy are reused rather than drawn again.
 
 import { REGIONS } from '../../src/data/regions'
-import { coverFoliage, coverKey, coverShape, parkCover, regionCover, trailCover, type CoverSpec } from '../../src/lib/coverSpec'
+import { coverFoliage, coverKey, coverShape, parkCover, placeCover, regionCover, trailCover, type CoverSpec } from '../../src/lib/coverSpec'
 import type { CoverIndex } from '../../src/lib/coverIndex'
 import { fetchExploreAreas } from '../../src/lib/explore'
 import { COVER_BLEED, COVER_SIZE, forestCover } from '../../src/lib/forestCover'
@@ -14,7 +14,7 @@ import { fetchParkBoundary } from '../../src/lib/parkBoundaries'
 declare global {
   interface Window {
     saveCover: (file: string, cover: string, thumb: string) => Promise<void>
-    renderCovers: (previous: CoverIndex) => Promise<CoverIndex>
+    renderCovers: (previous: CoverIndex, only?: string) => Promise<CoverIndex>
   }
 }
 
@@ -54,14 +54,20 @@ async function thumbnail(url: string): Promise<string> {
   return toBase64(blob)
 }
 
-window.renderCovers = async (previous) => {
+window.renderCovers = async (previous, only = '') => {
   const parks = (await fetchOntarioParks()).parks
-  const trails = (await fetchExploreAreas()).flatMap((a) => a.trails)
-  const specs: CoverSpec[] = [...parks.map(parkCover), ...REGIONS.map(regionCover), ...trails.map(trailCover)]
+  const areas = await fetchExploreAreas()
+  const specs: CoverSpec[] = [
+    ...parks.map(parkCover),
+    ...REGIONS.map(regionCover),
+    ...areas.flatMap((a) => a.trails).map(trailCover),
+    ...areas.flatMap((a) => a.pois).map(placeCover),
+  ]
   const index: CoverIndex = {}
   for (const spec of specs) {
     const outline = spec.boundary ? await fetchParkBoundary(spec.boundary) : null
     const shape = coverShape(spec, outline)
+    if (!shape.id.startsWith(only)) continue
     const { foliage } = coverFoliage(spec, parks)
     const key = coverKey(shape.id, foliage)
     if (index[key]) continue

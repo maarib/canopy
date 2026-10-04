@@ -132,6 +132,184 @@ function glb(parts: { mesh: Mesh; color: string }[]): string {
   return URL.createObjectURL(new Blob([out], { type: 'model/gltf-binary' }))
 }
 
+/** An axis-aligned box centred at (cx, cy, cz), `w` × `h` × `d`. */
+function box(m: Mesh, [cx, cy, cz]: Vec3, [w, h, d]: Vec3) {
+  const x = [cx - w / 2, cx + w / 2]
+  const y = [cy - h / 2, cy + h / 2]
+  const z = [cz - d / 2, cz + d / 2]
+  const v = (i: number, j: number, k: number): Vec3 => [x[i], y[j], z[k]]
+  const faces = [
+    [v(0, 0, 0), v(1, 0, 0), v(1, 1, 0), v(0, 1, 0)],
+    [v(0, 0, 1), v(1, 0, 1), v(1, 1, 1), v(0, 1, 1)],
+    [v(0, 0, 0), v(0, 1, 0), v(0, 1, 1), v(0, 0, 1)],
+    [v(1, 0, 0), v(1, 1, 0), v(1, 1, 1), v(1, 0, 1)],
+    [v(0, 0, 0), v(1, 0, 0), v(1, 0, 1), v(0, 0, 1)],
+    [v(0, 1, 0), v(1, 1, 0), v(1, 1, 1), v(0, 1, 1)],
+  ]
+  for (const [a, b, c, e] of faces) {
+    m.tri(a, b, c, [cx, cy, cz])
+    m.tri(a, c, e, [cx, cy, cz])
+  }
+}
+
+/**
+ * A simplified maple leaf (the flag's) on both faces of the cloth, `t` off its surface. `at` gives
+ * the cloth's height and depth at any x, so the leaf follows its sag and ripple instead of being
+ * sliced by them.
+ */
+function mapleLeaf(m: Mesh, cx: number, size: number, t: number, at: (x: number) => [number, number]) {
+  const outline: [number, number][] = [
+    [0, 1], [0.18, 0.62], [0.42, 0.75], [0.36, 0.32], [0.8, 0.5], [0.7, 0.22], [0.95, 0.12], [0.5, -0.25], [0.55, -0.45], [0.06, -0.38], [0.06, -0.8],
+    [-0.06, -0.8], [-0.06, -0.38], [-0.55, -0.45], [-0.5, -0.25], [-0.95, 0.12], [-0.7, 0.22], [-0.8, 0.5], [-0.36, 0.32], [-0.42, 0.75], [-0.18, 0.62],
+  ]
+  for (const side of [1, -1]) {
+    const on = ([ax, ay]: [number, number]): Vec3 => {
+      const x = cx + ax * size
+      const [y, z] = at(x)
+      return [x, y + ay * size, z + side * t]
+    }
+    const hub = on([0, 0.1])
+    for (let i = 0; i < outline.length; i++) m.tri(hub, on(outline[i]), on(outline[(i + 1) % outline.length]), [hub[0], hub[1], hub[2] - side])
+  }
+}
+
+/** How many summit shapes there are; a peak picks one by its id. */
+export const SUMMITS = 4
+
+/**
+ * Rock summits with snowcaps for peaks, 1 unit in base radius (the cover scales one to fit the top
+ * terrace). Each is a stack of rough rings narrowing to a blunt top: a rounded dome, a leaning
+ * crag, twin summits and a broad shoulder, so peaks don't all look alike.
+ */
+let summits: Record<string, string> | undefined
+export function summitModels(): Record<string, string> {
+  if (summits) return summits
+  summits = {}
+  /** One rough cone: rings of [height, radius], leaning by `lean` per unit of height, around (ox, oz). */
+  const mound = (rock: Mesh, snow: Mesh, rings: [number, number][], snowFrom: number, seed: number, lean: [number, number], [ox, oz]: [number, number], size: number) => {
+    let h = seed
+    const rnd = () => (h = (h * 16807) % 2147483647) / 2147483647
+    const sides = 8
+    const levels = rings.map(([y, radius]) =>
+      Array.from({ length: sides }, (_, i): Vec3 => {
+        const t = (i / sides) * Math.PI * 2
+        const k = radius * (0.84 + rnd() * 0.32) * size
+        return [ox + Math.cos(t) * k + lean[0] * y * size, y * size * (0.96 + rnd() * 0.08), oz + Math.sin(t) * k + lean[1] * y * size]
+      }),
+    )
+    const top = rings[rings.length - 1][0]
+    const core: Vec3 = [ox + lean[0] * top * size * 0.5, top * size * 0.45, oz + lean[1] * top * size * 0.5]
+    const cap: Vec3 = [ox + lean[0] * top * size, top * size * 1.04, oz + lean[1] * top * size]
+    for (let level = 0; level < levels.length; level++) {
+      const mesh = level >= snowFrom ? snow : rock
+      for (let i = 0; i < sides; i++) {
+        const j = (i + 1) % sides
+        const a = levels[level]
+        if (level === levels.length - 1) mesh.tri(a[i], a[j], cap, core)
+        else {
+          const b = levels[level + 1]
+          mesh.tri(a[i], a[j], b[j], core)
+          mesh.tri(a[i], b[j], b[i], core)
+        }
+      }
+    }
+  }
+  const shapes: ((rock: Mesh, snow: Mesh) => void)[] = [
+    // A rounded dome.
+    (rock, snow) => mound(rock, snow, [[0, 1], [0.42, 0.74], [0.74, 0.44], [0.94, 0.2]], 2, 7, [0.04, 0.02], [0, 0], 1),
+    // A leaning crag, steeper on one side.
+    (rock, snow) => mound(rock, snow, [[0, 1], [0.5, 0.62], [0.92, 0.34], [1.2, 0.15]], 2, 131, [0.2, -0.08], [0, 0], 1),
+    // Twin summits: a main top and a lower one beside it.
+    (rock, snow) => {
+      mound(rock, snow, [[0, 0.82], [0.46, 0.56], [0.86, 0.3], [1.08, 0.13]], 2, 59, [-0.06, 0.04], [-0.2, 0.05], 1)
+      mound(rock, snow, [[0, 0.62], [0.44, 0.42], [0.8, 0.2]], 2, 977, [0.1, 0], [0.42, -0.12], 0.78)
+    },
+    // A broad shoulder stepping up to a small top.
+    (rock, snow) => mound(rock, snow, [[0, 1], [0.3, 0.86], [0.5, 0.52], [0.84, 0.3], [1.0, 0.14]], 3, 401, [-0.12, 0.1], [0, 0], 1),
+  ]
+  shapes.forEach((shape, i) => {
+    const rock = new Mesh()
+    const snow = new Mesh()
+    shape(rock, snow)
+    summits![`summit-${i}`] = glb([{ mesh: rock, color: '#a39c90' }, { mesh: snow, color: '#f4f6f7' }])
+  })
+  return summits
+}
+
+let props: Record<string, string> | undefined
+/**
+ * Props for place covers, in the trees' low-poly style and scale: a boulder (creeks and rivers),
+ * a summit cairn with a flag (peaks) and a wooden viewing deck (lookouts). Built once.
+ */
+export function propModels(): Record<string, string> {
+  if (props) return props
+  const boulder = new Mesh()
+  crown(boulder, 2.6, 1.2, 0.62, 4242)
+  const stones = new Mesh()
+  crown(stones, 2.6, 1.6, 0.62, 11)
+  crown(stones, 1.9, 3.7, 0.62, 23)
+  crown(stones, 1.3, 5.3, 0.7, 37)
+  const pole = new Mesh()
+  box(pole, [0, 5.5, 0], [0.35, 11, 0.35])
+  const flag = new Mesh()
+  box(flag, [1.7, 9.6, 0], [3.4, 2, 0.15])
+  // The deck is drawn larger than life, like the trees, so it reads as the place's landmark.
+  const k = 1.7
+  const posts = new Mesh()
+  for (const [px, pz] of [[-5.4, -3.4], [5.4, -3.4], [-5.4, 3.4], [5.4, 3.4]]) box(posts, [px * k, 2.3 * k, pz * k], [0.7 * k, 4.6 * k, 0.7 * k])
+  const deck = new Mesh()
+  box(deck, [0, 4.8 * k, 0], [12 * k, 0.6 * k, 7.8 * k])
+  const rails = new Mesh()
+  for (const [px, pz] of [[-5.7, -3.7], [0, -3.7], [5.7, -3.7], [-5.7, 3.7], [0, 3.7], [5.7, 3.7], [-5.7, 0], [5.7, 0]]) box(rails, [px * k, 5.8 * k, pz * k], [0.3 * k, 1.6 * k, 0.3 * k])
+  box(rails, [0, 6.5 * k, -3.7 * k], [11.7 * k, 0.3 * k, 0.3 * k])
+  box(rails, [0, 6.5 * k, 3.7 * k], [11.7 * k, 0.3 * k, 0.3 * k])
+  box(rails, [-5.7 * k, 6.5 * k, 0], [0.3 * k, 0.3 * k, 7.7 * k])
+  box(rails, [5.7 * k, 6.5 * k, 0], [0.3 * k, 0.3 * k, 7.7 * k])
+  // A flagpole on the front corner flying the Canadian flag: red, white, red, and a red maple leaf.
+  const flagpole = new Mesh()
+  const px = 5.7 * k
+  const pz = 3.7 * k
+  const deckTop = 5.1 * k
+  box(flagpole, [px, deckTop + 8, pz], [0.45, 16, 0.45])
+  const fw = 8.4
+  const fh = fw / 2
+  const fy = deckTop + 13.6
+  const red = new Mesh()
+  const white = new Mesh()
+  // The cloth hangs in strips: it sags away from the pole and ripples more toward its free end.
+  const STRIPS = 12
+  const cloth = (u: number): Vec3 => [px + 0.3 + u * fw * 0.9, fy - fh * 0.3 * u * u, pz + Math.sin(u * Math.PI * 1.7) * fh * 0.16 * (0.25 + u)]
+  for (let i = 0; i < STRIPS; i++) {
+    const [a, b] = [cloth(i / STRIPS), cloth((i + 1) / STRIPS)]
+    const mid = (i + 0.5) / STRIPS
+    const mesh = mid < 0.25 || mid > 0.75 ? red : white
+    const corner = (p: Vec3, up: number, side: number): Vec3 => [p[0], p[1] + (up * fh) / 2, p[2] + side * 0.07]
+    for (const side of [1, -1]) {
+      const behind: Vec3 = [(a[0] + b[0]) / 2, a[1], (a[2] + b[2]) / 2 - side]
+      mesh.tri(corner(a, 1, side), corner(b, 1, side), corner(b, -1, side), behind)
+      mesh.tri(corner(a, 1, side), corner(b, -1, side), corner(a, -1, side), behind)
+    }
+  }
+  const span = fw * 0.9
+  mapleLeaf(red, cloth(0.5)[0], fh * 0.36, 0.3, (x) => {
+    const [, y, z] = cloth((x - px - 0.3) / span)
+    return [y, z]
+  })
+  props = {
+    boulder: glb([{ mesh: boulder, color: '#9b968d' }]),
+    cairn: glb([{ mesh: stones, color: '#a39e95' }, { mesh: pole, color: '#5a4334' }, { mesh: flag, color: '#c8102e' }]),
+    deck: glb([
+      { mesh: posts, color: '#7a5434' },
+      { mesh: deck, color: '#a8784b' },
+      { mesh: rails, color: '#8a5f3a' },
+      { mesh: flagpole, color: '#d9d4cc' },
+      { mesh: red, color: '#d52b1e' },
+      { mesh: white, color: '#ffffff' },
+    ]),
+  }
+  return props
+}
+
 /** Leaf colors: summer green, the three fall colors, and bare branches. */
 export const CROWNS = { green: '#6f8f3a', yellow: '#e9b824', orange: '#e8730c', red: '#c8102e', bare: '#8b7d70' } as const
 export type Hue = 'yellow' | 'orange' | 'red'
@@ -148,6 +326,11 @@ export function treeModels(): Record<string, string> {
     cone(conifer, 3.3 * k, 1.8 * k, 8.5 * k)
     cone(conifer, 2.5 * k, 5 * k, 12 * k, 0.4)
     models[`conifer-${sz}`] = glb([{ mesh: coniferTrunk, color: '#4a3a2e' }, { mesh: conifer, color: '#2f5d3a' }])
+    // High on a peak: the same conifer with snow resting on its boughs.
+    const snow = new Mesh()
+    cone(snow, 2.3 * k, 5.4 * k, 8.7 * k)
+    cone(snow, 1.6 * k, 9.4 * k, 12.2 * k, 0.4)
+    models[`snowy-${sz}`] = glb([{ mesh: coniferTrunk, color: '#4a3a2e' }, { mesh: conifer, color: '#2f5d3a' }, { mesh: snow, color: '#f3f6f8' }])
     for (const [hue, color] of Object.entries(CROWNS)) {
       const leaves = new Mesh()
       const stem = new Mesh()
@@ -172,6 +355,7 @@ export function modelExpression(f: Foliage) {
     'concat',
     [
       'case',
+      ['==', ['get', 'snow'], true], 'snowy',
       ['<', ['get', 'c'], f.conifer], 'conifer',
       ['<', ['get', 'r'], f.green], 'dec-green',
       ['>', ['get', 'r'], 1 - f.bare], 'dec-bare',

@@ -130,3 +130,145 @@ export function pathQuads(path: MultiLineString, map: (p: Position) => Position,
 
 /** Degrees on the anchor that equal `m` metres (the anchor is on the equator). */
 export const metresToDeg = (m: number) => m / M_PER_DEG
+
+// ── Scene geometry (place covers: terraces, streams, waterfalls) ───────────────────────────
+
+/** Sutherland–Hodgman: the part of `ring` on the kept side of the line through `a` and `b` (left side). */
+export function clipHalfPlane(ring: Ring, a: Position, b: Position): Ring {
+  const side = (p: Position) => (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])
+  const cross = (p: Position, q: Position): Position => {
+    const t = side(p) / (side(p) - side(q))
+    return [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]
+  }
+  const pts = ring.slice(0, -1)
+  const out: Ring = []
+  pts.forEach((p, i) => {
+    const q = pts[(i + 1) % pts.length]
+    const pin = side(p) >= 0
+    const qin = side(q) >= 0
+    if (pin) out.push(p)
+    if (pin !== qin) out.push(cross(p, q))
+  })
+  return out.length >= 3 ? [...out, out[0]] : []
+}
+
+/** Convex hull (monotone chain), closed. */
+export function convexHull(ring: Ring): Ring {
+  const pts = [...ring].sort((p, q) => p[0] - q[0] || p[1] - q[1])
+  const turn = (o: Position, a: Position, b: Position) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+  const half = (list: Position[]) => {
+    const h: Position[] = []
+    for (const p of list) {
+      while (h.length >= 2 && turn(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop()
+      h.push(p)
+    }
+    return h.slice(0, -1)
+  }
+  const hull = [...half(pts), ...half([...pts].reverse())]
+  return [...hull, hull[0]]
+}
+
+/** `ring` clipped to the convex hull of `clip` (close enough for our nearly convex islands). */
+export function clipToHull(ring: Ring, clip: Ring): Ring {
+  const hull = convexHull(clip)
+  // Hull from monotone chain is counter-clockwise, so the inside is to the left of each edge.
+  let out = ring
+  for (let i = 0; i < hull.length - 1 && out.length; i++) out = clipHalfPlane(out, hull[i], hull[i + 1])
+  return out
+}
+
+/** Stretches of `lines` inside `ring`, densified to `step` so they end close to its edge. */
+export function insideRuns(lines: Position[][], ring: Ring, step: number): Position[][] {
+  const runs: Position[][] = []
+  for (const line of lines) {
+    let run: Position[] = []
+    for (let i = 0; i < line.length; i++) {
+      const pts: Position[] = [line[i]]
+      if (i < line.length - 1) {
+        const [ax, ay] = line[i]
+        const [bx, by] = line[i + 1]
+        const n = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) / step))
+        for (let k = 1; k < n; k++) pts.push([ax + ((bx - ax) * k) / n, ay + ((by - ay) * k) / n])
+      }
+      for (const p of pts) {
+        if (insideRing(p, ring)) run.push(p)
+        else if (run.length) {
+          if (run.length > 1) runs.push(run)
+          run = []
+        }
+      }
+    }
+    if (run.length > 1) runs.push(run)
+  }
+  return runs
+}
+
+export const centroid = (ring: Ring): Position => {
+  const pts = ring.slice(0, -1)
+  return [pts.reduce((a, p) => a + p[0], 0) / pts.length, pts.reduce((a, p) => a + p[1], 0) / pts.length]
+}
+
+/** `ring` scaled by `k` about `about` and turned by `deg`. */
+export function scaleRing(ring: Ring, about: Position, k: number, deg = 0): Ring {
+  const c = Math.cos((deg * Math.PI) / 180)
+  const s = Math.sin((deg * Math.PI) / 180)
+  return ring.map(([x, y]) => {
+    const dx = (x - about[0]) * k
+    const dy = (y - about[1]) * k
+    return [about[0] + dx * c - dy * s, about[1] + dx * s + dy * c]
+  })
+}
+
+/**
+ * `ring` with every corner rounded: each one is cut back up to `radius` along its two edges (never
+ * past the middle of a short edge) and replaced by a short curve, so outlines read soft, not faceted.
+ */
+export function soften(ring: Ring, radius: number): Ring {
+  const pts = ring.slice(0, -1)
+  if (pts.length < 3) return ring
+  const out: Ring = []
+  pts.forEach((p, i) => {
+    const prev = pts[(i - 1 + pts.length) % pts.length]
+    const next = pts[(i + 1) % pts.length]
+    const toward = (q: Position): Position => {
+      const len = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1
+      const k = Math.min(radius, len * 0.5) / len
+      return [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k]
+    }
+    const a = toward(prev)
+    const b = toward(next)
+    for (let s = 0; s <= 4; s++) {
+      const t = s / 4
+      out.push([(1 - t) ** 2 * a[0] + 2 * t * (1 - t) * p[0] + t * t * b[0], (1 - t) ** 2 * a[1] + 2 * t * (1 - t) * p[1] + t * t * b[1]])
+    }
+  })
+  return [...out, out[0]]
+}
+
+/** A small rough disc of radius `r` (pools, clearings). */
+export function disc(at: Position, r: number, sides = 9): Ring {
+  const ring: Ring = Array.from({ length: sides }, (_, i) => {
+    const t = (i / sides) * Math.PI * 2
+    const k = 1 + 0.12 * Math.sin(3 * t + 1)
+    return [at[0] + Math.cos(t) * r * k, at[1] + Math.sin(t) * r * k]
+  })
+  return [...ring, ring[0]]
+}
+
+/** A rectangle from `a` along unit direction `d`, `length` long and `width` wide. */
+export function strip(a: Position, d: Position, length: number, width: number): Ring {
+  const n = [-d[1] * (width / 2), d[0] * (width / 2)]
+  const b = [a[0] + d[0] * length, a[1] + d[1] * length]
+  return [[a[0] + n[0], a[1] + n[1]], [b[0] + n[0], b[1] + n[1]], [b[0] - n[0], b[1] - n[1]], [a[0] - n[0], a[1] - n[1]], [a[0] + n[0], a[1] + n[1]]]
+}
+
+/** Seeded random numbers in [0, 1), the same for the same seed. */
+export function seeded(seed: string) {
+  let h = 2166136261
+  for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619)
+  return () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507)
+    h = Math.imul(h ^ (h >>> 13), 3266489909)
+    return ((h ^= h >>> 16) >>> 0) / 4294967296
+  }
+}
