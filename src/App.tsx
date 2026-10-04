@@ -11,9 +11,9 @@ import { SideNav, TabBar, type Section } from './components/AppNav'
 import { TAB_BAR_HEIGHT } from './lib/styles'
 import { FoliagePanel } from './components/FoliagePanel'
 import { ExplorePanel, type ExploreQuery } from './components/ExplorePanel'
-import { LayerOptions, Legend, TreeOptions, type TreeFilterValue } from './components/MapControls'
+import { LayerOptions, TreeOptions, type TreeFilterValue } from './components/MapControls'
 import { MapFilters } from './components/MapFilters'
-import { AboutPanel, ParksPanel, TrailsPanel } from './components/SectionPanels'
+import { AboutPanel, DataSourcesPanel, ParksPanel, TrailsPanel } from './components/SectionPanels'
 import { PROVINCE_BY_CODE } from './data/provinces'
 import { DEFAULT_LAYERS } from './lib/urlState'
 import { PARK_FILTERS } from './data/amenityIcons'
@@ -96,6 +96,7 @@ type Selection =
   | { kind: 'trails' }
   | { kind: 'foliage' }
   | { kind: 'about' }
+  | { kind: 'data' }
   | { kind: 'trips' }
   | { kind: 'trip'; trip: Trip }
   | { kind: 'shared-trip'; trip: SharedTrip }
@@ -183,7 +184,7 @@ export default function App() {
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
   const fishingMatch = matchPath('/fishing/:slug', location.pathname)
-  const sectionPath = (['/parks', '/trails', '/foliage', '/about'] as const).find((p) => location.pathname === p)
+  const sectionPath = (['/parks', '/trails', '/foliage', '/about', '/data'] as const).find((p) => location.pathname === p)
   // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
   const fishing = useQuery({
     queryKey: ['fishing-access'],
@@ -198,7 +199,7 @@ export default function App() {
   const onTripsPage = !!tripsMatch
   const selection: Selection = useMemo(() => {
     if (onTripsPage) return { kind: 'trips' }
-    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'foliage' | 'about' }
+    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'foliage' | 'about' | 'data' }
     if (tripMatch) {
       if (tripMatch.params.id === 'shared') {
         const shared = decodeTrip(params.get('t') ?? '')
@@ -313,7 +314,7 @@ export default function App() {
             ? `place:${selection.place.id}`
             : selection?.kind === 'fishing'
               ? `fishing:${selection.access.id}`
-            : selection?.kind === 'parks' || selection?.kind === 'trails' || selection?.kind === 'foliage' || selection?.kind === 'about'
+            : selection?.kind === 'parks' || selection?.kind === 'trails' || selection?.kind === 'foliage' || selection?.kind === 'about' || selection?.kind === 'data'
               ? selection.kind
             : selection?.kind === 'trips'
               ? 'trips'
@@ -352,6 +353,8 @@ export default function App() {
                 ? 'Foliage'
               : selection?.kind === 'about'
                 ? 'About'
+              : selection?.kind === 'data'
+                ? 'Data sources'
               : selection?.kind === 'trips'
                 ? 'Trips'
                 : selection?.kind === 'trip' || selection?.kind === 'shared-trip'
@@ -624,7 +627,9 @@ export default function App() {
         onTree={setTreeFilter}
       />
     ) : selection?.kind === 'about' ? (
-      <AboutPanel />
+      <AboutPanel onData={() => openSection('/data')} />
+    ) : selection?.kind === 'data' ? (
+      <DataSourcesPanel />
     ) : selection?.kind === 'park' ? (
       <ParkPanel key={selection.park.id} park={selection.park} onBack={goBack} />
     ) : selection?.kind === 'loading' ? (
@@ -649,7 +654,7 @@ export default function App() {
       />
     )
 
-  const footer = <SiteFooter onAbout={() => openSection('/about')} />
+  const footer = <SiteFooter onNavigate={openSection} />
   const treeCount = treeFilter === 'trees' ? 0 : 1
   const layerCount = (Object.keys(DEFAULT_LAYERS) as (keyof MapLayers)[]).filter((k) => layers[k] !== DEFAULT_LAYERS[k]).length
 
@@ -682,8 +687,8 @@ export default function App() {
           <>
             <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
             <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-[var(--line)]">
-              {/* Keyed by page so each new page or place eases in. */}
-              <div key={selectionKey} className="animate-panel-in">
+              {/* Keyed by page so each new page or place eases in. At least as tall as the panel, so the footer sits at the bottom on short pages. */}
+              <div key={selectionKey} className="animate-panel-in flex min-h-full flex-col">
                 {panel}
                 {footer}
               </div>
@@ -761,17 +766,13 @@ export default function App() {
             </div>
           </div>
 
-          {isDesktop && (
-            <div className="absolute bottom-3 left-3 w-64 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/95 p-3 shadow-lg backdrop-blur">
-              <Legend />
-            </div>
-          )}
         </div>
 
         {!isDesktop && (
           <>
             <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
-              <div key={selectionKey} className="animate-panel-in">
+              {/* At least as tall as the panel, so the footer sits at the bottom on short pages. */}
+              <div key={selectionKey} className="animate-panel-in flex min-h-full flex-col">
                 {panel}
                 {footer}
               </div>

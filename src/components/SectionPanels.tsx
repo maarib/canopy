@@ -265,7 +265,7 @@ export function TrailsPanel({
   )
 }
 
-// ── About & data sources ───────────────────────────────────
+// ── About, and data sources ───────────────────────────────────
 
 const SOURCES: { name: string; url: string; what: string; licence: string; refresh: string }[] = [
   { name: 'Ontario Parks', url: 'https://www.ontarioparks.ca/fallcolour', what: 'Fall color reports, park activities and facilities', licence: 'Ontario Parks website', refresh: 'Daily · weekly' },
@@ -278,32 +278,67 @@ const SOURCES: { name: string; url: string; what: string; licence: string; refre
   { name: 'Open-Meteo', url: 'https://open-meteo.com', what: '7-day outlook', licence: 'CC BY 4.0', refresh: 'Live' },
 ]
 
-export function AboutPanel() {
+/** The story of Canopy, in its maker's words. */
+export function AboutPanel({ onData }: { onData: () => void }) {
   return (
     <div className="space-y-6 p-5">
       <PageHeader title="About Canopy" subtitle="A one-stop shop for nature lovers and explorers" />
-      <p className="text-sm leading-relaxed">
-        Canopy brings together fall color, parks, trails, lakes and fishing spots so you can plan a day outside in one place. It starts
-        with Ontario, with fall color across Canada, and will grow from there.
+      <div className="space-y-4 text-sm leading-relaxed">
+        <p>
+          Canopy started as something I made for myself. Every fall I wanted to know where the color was, and every trip meant the
+          same routine: a park report in one tab, a trail map in another, the weather in a third, and a guess at whether the drive
+          would be worth it.
+        </p>
+        <p>
+          So I built one place to plan my own trips. First a map of fall color. Then the parks, and what each one offers. Then
+          trails, waterfalls, lookouts and lakes, and a way to string them together into a day out.
+        </p>
+        <p>
+          Somewhere along the way it stopped being only mine. It grew into what you're looking at today: a single place to see
+          what's out there, pick where to go, and plan the trip. It starts with Ontario, with fall color across Canada, and it
+          will keep growing from there.
+        </p>
+        <p>If it helps you get outside a little more often, it has done its job.</p>
+      </div>
+      <p className="text-sm text-[var(--ink-soft)]">
+        Everything here is built on open and public data.{' '}
+        <button onClick={onData} className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
+          See the data sources
+        </button>
+        .
       </p>
-      <section>
-        <h3 className="text-lg">Data sources</h3>
-        <ul className={`stagger ${LIST}`}>
-          {SOURCES.map((s) => (
-            <InfoRow
-              key={s.name}
-              label={
-                <a href={s.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-maple">
-                  {s.name}
-                  <ExternalIcon className="size-3.5 text-[var(--ink-soft)]" />
-                </a>
-              }
-              detail={`${s.what} · ${s.licence}`}
-              value={s.refresh}
-            />
-          ))}
-        </ul>
-      </section>
+      <p className="text-[11px] text-[var(--ink-soft)]">
+        Canopy v{VERSION} ·{' '}
+        <a href={`https://github.com/maarib/canopy/releases/tag/v${__APP_VERSION__}`} target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
+          What's new
+        </a>
+      </p>
+    </div>
+  )
+}
+
+/** Every source: what it provides, its licence and how often it refreshes. */
+export function DataSourcesPanel() {
+  return (
+    <div className="space-y-6 p-5">
+      <PageHeader title="Data sources" subtitle="Where everything in Canopy comes from" />
+      <ul className={`stagger ${LIST}`}>
+        {SOURCES.map((s) => (
+          <InfoRow
+            key={s.name}
+            label={
+              // Inline, with the arrow tied to the last word, so it follows the name when it wraps.
+              <a href={s.url} target="_blank" rel="noreferrer" className="hover:text-maple">
+                {s.name}
+                {'\u00a0'}
+                <ExternalIcon className="inline size-3.5 align-[-2px] text-[var(--ink-soft)]" />
+              </a>
+            }
+            detail={`${s.what} · ${s.licence}`}
+            value={s.refresh}
+          />
+        ))}
+      </ul>
       <section className="space-y-1 text-sm">
         <h3 className="text-lg">Design</h3>
         <p className="text-[var(--ink-soft)]">
@@ -314,12 +349,6 @@ export function AboutPanel() {
           ; interface icons by Relume. Type: Londrina Solid and Livvic.
         </p>
       </section>
-      <p className="text-[11px] text-[var(--ink-soft)]">
-        Canopy v{VERSION} ·{' '}
-        <a href={`https://github.com/maarib/canopy/releases/tag/v${__APP_VERSION__}`} target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
-          What's new
-        </a>
-      </p>
     </div>
   )
 }
