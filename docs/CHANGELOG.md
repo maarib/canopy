@@ -64,12 +64,12 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - The third section was called Trails, and Foliage used the detailed maple icon.
 
 **After.**
-- **Explore** opens on the map alone, on desktop and phones. A search card sits bottom-centre over the map, with three short lists under it: parks peaking now, easy trails, and waterfalls & lookouts (three rows each, with a link to the full list). On phones the card starts as the search box alone, a button reveals Where and Looking for, and the lists scroll sideways. The sheet is hidden on the landing page. Results and field lists open upward.
-  - Choosing a park, trail or place opens the map with the panel on that page. A town from the search, or "Explore Ontario", moves the map and stays on the landing page.
+- **Explore** opens on the map alone, on desktop and phones. A search card sits bottom-centre over the map, with three quick links under it: Peaking now (Parks, best color first), Easy trails (Places, with Difficulty set to Easy) and Waterfalls & lookouts. Each opens the panel on that list. On phones the card starts as the search box alone, a button reveals Where and Looking for, and the links scroll sideways. The sheet is hidden on the landing page. Results and field lists open upward.
+  - Choosing a park, trail or place from the search opens the map with the panel on that page. A town from the search, or "Explore Ontario", moves the map and stays on the landing page.
   - Returning to Explore from any page shows the landing page again. Its panel (the same search, parks peaking now, short fall hikes) opens from the view switch.
 - **Map:** flat (Mercator) rather than a globe, **Satellite at dawn** by default; the other styles and lights are still under Layers. The map follows its own box, so it fills its space after any view change. The floating view switch is centred over the map, clear of the Mapbox logo.
-- **Detail pages:** Get directions, Save and Share are the main buttons. Every other link (reserve a site, the park's page, GPX download, official trail info, fishing regulations, OpenStreetMap) sits in one compact row of text links under them.
-- **Forecast:** renamed "7-day weather forecast", without the color dots and legend. On park pages it moved up, above Best viewing and the activities.
+- **Detail pages:** Get directions, Save and Share are the main buttons. Every other link (reserve a site, the park's page, GPX download, official trail info, fishing regulations, OpenStreetMap) sits in one compact row of text links under them, below a divider.
+- **Forecast:** renamed "7-day weather forecast", without the color dots and legend. It sits in the same place on every detail page: right after the page's summary (buttons, links and key figures), before everything else. The Foliage page's sightings figure is labelled "Trees seen turning".
 - **Filters and sorts are menu pills**, the standard control from here on: a pill that opens a menu, shows the current choice after its label, and fills in when a filter is set.
   - Parks: Region (new), Activities and Sort (Best color, A–Z). Ontario Parks spells two regions both ways ("Northeast", "Northeastern"); the filter treats each pair as one.
   - Places: Difficulty for trails.

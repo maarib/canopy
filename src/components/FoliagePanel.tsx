@@ -85,7 +85,7 @@ function SightingsSummary({ treeColorSightings, parks }: Pick<Props, 'treeColorS
   return (
     <div className="mb-4 grid grid-cols-2 gap-2">
       <Stat value={atPeak} label="Ontario parks at peak" dot={STAGES.peak.color} />
-      <Stat value={treeColorSightings} label="trees seen turning in the last 14 days" dot="#e8730c" />
+      <Stat value={treeColorSightings} label="Trees seen turning" dot="#e8730c" />
     </div>
   )
 }

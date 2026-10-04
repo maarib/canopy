@@ -89,6 +89,8 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         ))}
       </dl>
 
+      <ForecastStrip lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
+
       <section>
         <h3 className="mb-2 text-lg">Elevation</h3>
         <ElevationChart trail={trail} places={places} onHover={onHoverPoint} />
@@ -135,7 +137,6 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         </section>
       )}
 
-      <ForecastStrip lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
       <NearbyPhotos lat={trail.trailhead[1]} lng={trail.trailhead[0]} radiusKm={Math.max(3, Math.round(trail.lengthKm / 2))} />
 
       <p className="text-[11px] leading-relaxed text-[var(--ink-soft)]">

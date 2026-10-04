@@ -272,6 +272,7 @@ export default function App() {
     (pathname: string) => {
       const next = new URLSearchParams(window.location.search)
       next.delete('map') // the place decides the view
+      next.delete('level') // a list's starting filter doesn't follow you to a place
       next.delete('t') // a shared trip's payload belongs only to /trip/shared
       navigate({ pathname, search: next.toString() })
     },
@@ -433,6 +434,7 @@ export default function App() {
       const [pathname, query] = path.split('?')
       const next = new URLSearchParams(window.location.search)
       next.delete('show')
+      next.delete('level')
       next.delete('t')
       new URLSearchParams(query).forEach((v, k) => next.set(k, v))
       change?.(next)
@@ -617,6 +619,7 @@ export default function App() {
         trails={exploreIndex.trails}
         places={exploreIndex.places}
         show={trailsShow}
+        initialDifficulty={params.get('level')}
         onShow={(v) => updateParams((p) => (v === 'trails' ? p.delete('show') : p.set('show', v)))}
         onSelectTrail={selectTrail}
         onSelectPlace={selectPlace}
@@ -789,9 +792,6 @@ export default function App() {
               treeCounts={groupCounts}
               onSearchSelect={onSearch}
               onSubmit={onExplore}
-              onSelectPark={selectPark}
-              onSelectTrail={selectTrail}
-              onSelectPlace={selectPlace}
               onNavigate={openSection}
             />
           )}

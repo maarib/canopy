@@ -70,6 +70,8 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
 
       <p className="text-sm leading-relaxed">{BLURB[place.kind]}</p>
 
+      <ForecastStrip lat={place.lat} lng={place.lng} />
+
       <section>
         <h3 className="mb-1 text-lg">{onTrails.length ? 'Trails that reach it' : 'Trails'}</h3>
         {onTrails.length ? (
@@ -86,7 +88,6 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
         )}
       </section>
 
-      <ForecastStrip lat={place.lat} lng={place.lng} />
       <NearbyPhotos lat={place.lat} lng={place.lng} radiusKm={3} />
 
       <p className="text-[11px] text-[var(--ink-soft)]">Place data © OpenStreetMap contributors.</p>

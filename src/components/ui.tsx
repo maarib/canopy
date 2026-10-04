@@ -113,13 +113,13 @@ export type MoreLink = { label: string; href?: string; onClick?: () => void }
 
 /**
  * The secondary links of a detail page, in one compact row under its main buttons (directions,
- * save, share): quiet underlined text, with an arrow on the ones that leave Canopy.
+ * save, share) and a divider: quiet underlined text, with an arrow on the ones that leave Canopy.
  */
 export function MoreLinks({ links }: { links: MoreLink[] }) {
   const cls = 'inline-flex items-center gap-1 underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current'
   if (!links.length) return null
   return (
-    <nav aria-label="More links" className="-mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-[var(--ink-soft)]">
+    <nav aria-label="More links" className="-mt-2 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-[var(--line)] pt-3 text-sm text-[var(--ink-soft)]">
       {links.map((l) =>
         l.href ? (
           <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className={cls}>

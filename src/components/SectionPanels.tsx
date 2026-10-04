@@ -172,6 +172,7 @@ export function TrailsPanel({
   trails,
   places,
   show,
+  initialDifficulty,
   onShow,
   onSelectTrail,
   onSelectPlace,
@@ -179,12 +180,14 @@ export function TrailsPanel({
   trails: Trail[]
   places: Place[]
   show: 'trails' | PlaceKind
+  /** A difficulty to start on (from ?level=, e.g. the landing page's "Easy trails"). */
+  initialDifficulty?: string | null
   onShow: (s: 'trails' | PlaceKind) => void
   onSelectTrail: (t: Trail) => void
   onSelectPlace: (p: Place) => void
 }) {
   const [query, setQuery] = useState('')
-  const [difficulty, setDifficulty] = useState<Difficulty | null>(null)
+  const [difficulty, setDifficulty] = useState<Difficulty | null>(DIFFICULTIES.includes(initialDifficulty as Difficulty) ? (initialDifficulty as Difficulty) : null)
   const placeById = useMemo(() => new Map(places.map((p) => [p.id, p] as const)), [places])
   const q = normalize(query)
 
