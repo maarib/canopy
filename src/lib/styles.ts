@@ -16,3 +16,16 @@ export const LIST = 'divide-y divide-[var(--line)]'
 
 /** Phones: height of the bottom tab bar (AppNav), which the sheet and map sit above. */
 export const TAB_BAR_HEIGHT = 64
+
+/**
+ * White or dark ink, whichever reads better on a `#rrggbb` fill (WCAG contrast): white on the
+ * peak red and the greens, dark on the lighter yellows and oranges.
+ */
+export function inkOn(fill: string): string {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(fill.slice(i, i + 2), 16) / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  })
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+  return 1.05 / (luminance + 0.05) >= 4.5 ? '#ffffff' : '#2a211c'
+}

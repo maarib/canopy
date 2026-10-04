@@ -245,7 +245,7 @@ function QuickLinks({ onNavigate, compact }: { onNavigate: (path: string) => voi
  */
 export function ExploreLanding({ compact, onNavigate, ...search }: SearchProps & { compact: boolean; onNavigate: (path: string) => void }) {
   return (
-    <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 animate-fade-in px-3 ${compact ? 'pb-10' : 'pb-20'}`}>
+    <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 animate-fade-in px-3 ${compact ? 'pb-10' : 'pb-8'}`}>
       <div className="pointer-events-auto mx-auto max-w-xl">
         <ExploreSearch {...search} up compact={compact} />
       </div>

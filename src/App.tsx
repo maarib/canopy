@@ -680,6 +680,12 @@ export default function App() {
           <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         </button>
         <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Explore Ontario's outdoors</span>
+        {/* The view switch: in the middle of the header on desktop, beside the account menu on phones. */}
+        {isDesktop && (
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <ViewSwitch view={sheet} onChange={setSheet} />
+          </div>
+        )}
         <div className="ml-auto flex items-center gap-3">
           {sightingsLoading && (
             <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
@@ -703,7 +709,7 @@ export default function App() {
             <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
             <aside className={`overflow-y-auto border-r border-[var(--line)] ${sheet === 'full' ? 'min-w-0 flex-1' : sheet === 'peek' ? 'hidden' : 'w-[420px] shrink-0'}`}>
               {/* Keyed by page so each new page or place eases in. At least as tall as the panel, so the footer sits at the bottom on short pages. */}
-              <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl pb-14' : ''}`}>
+              <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl' : ''}`}>
                 {panel}
                 {footer}
               </div>
@@ -811,8 +817,6 @@ export default function App() {
           </>
         )}
 
-        {/* Floats over the bottom of the screen. Phones have no free spot there (the sheet and tab bar), so theirs is in the header. */}
-        {isDesktop && <ViewSwitch view={sheet} onChange={setSheet} floating />}
       </main>
     </div>
   )
@@ -824,17 +828,10 @@ const VIEWS: { snap: SnapPoint; icon: 'map' | 'split' | 'panel'; label: string }
   { snap: 'full', icon: 'panel', label: 'Panel' },
 ]
 
-/** Always on screen: the map alone, the map with the panel, or the panel alone. */
-function ViewSwitch({ view, onChange, floating }: { view: SnapPoint; onChange: (v: SnapPoint) => void; floating?: boolean }) {
+/** Always on screen, in the header: the map alone, the map with the panel, or the panel alone. */
+function ViewSwitch({ view, onChange }: { view: SnapPoint; onChange: (v: SnapPoint) => void }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label="View"
-      // Centred on what's beside the nav rail (84 px): the map, or the map beside the 420 px panel.
-      className={`flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 ${
-        floating ? `fixed bottom-4 z-30 -translate-x-1/2 shadow-lg transition-[left] duration-300 ${view === 'half' ? 'left-[calc(50%+252px)]' : 'left-[calc(50%+42px)]'}` : ''
-      }`}
-    >
+    <div role="radiogroup" aria-label="View" className="flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1">
       {VIEWS.map((v) => (
         <button
           key={v.snap}
@@ -843,7 +840,7 @@ function ViewSwitch({ view, onChange, floating }: { view: SnapPoint; onChange: (
           aria-label={v.label}
           title={v.label}
           onClick={() => onChange(v.snap)}
-          className={`flex items-center justify-center rounded-full transition-colors active:scale-[0.97] ${floating ? 'h-9 w-11' : 'h-8 w-9'} ${
+          className={`flex items-center justify-center rounded-full transition-colors active:scale-[0.97] h-8 w-9 ${
             view === v.snap ? 'bg-brand text-white' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
           }`}
         >

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowBack, ArrowForward, Check, KeyboardArrowDown, Link } from 'relume-icons'
 import { usePresence } from '../hooks'
-import { ICON_TILE, INFO_ROW } from '../lib/styles'
+import { ICON_TILE, INFO_ROW, inkOn } from '../lib/styles'
 
 /** The nearest ancestor that scrolls (the desktop panel or the phone sheet). */
 function scrollParent(el: HTMLElement | null): HTMLElement | null {
@@ -65,7 +65,7 @@ export function BackButton({ onClick }: { onClick: () => void }) {
 /** A label inside a fill of its color: a park's color stage, a trail's difficulty. `sm` for list rows. */
 export function Badge({ color, size = 'md', children }: { color: string; size?: 'sm' | 'md'; children: ReactNode }) {
   return (
-    <span className={`shrink-0 rounded-full font-medium text-white ${size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-0.5 text-sm'}`} style={{ background: color }}>
+    <span className={`shrink-0 rounded-full font-medium ${size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-0.5 text-sm'}`} style={{ background: color, color: inkOn(color) }}>
       {children}
     </span>
   )
@@ -379,7 +379,8 @@ export function MenuButton({
     if (!open) return
     const close = () => setOpen(false)
     const onDown = (e: PointerEvent) => !root.current?.contains(e.target as Node) && close()
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close()
+    // Escape closes the menu and hands focus back to its pill.
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (close(), button.current?.focus())
     const onScroll = (e: Event) => !menu.current?.contains(e.target as Node) && close()
     document.addEventListener('pointerdown', onDown)
     document.addEventListener('keydown', onKey)
@@ -398,7 +399,6 @@ export function MenuButton({
       <button
         ref={button}
         onClick={() => (open ? setOpen(false) : openMenu())}
-        aria-haspopup="menu"
         aria-expanded={open}
         className={`flex items-center gap-1.5 rounded-full border py-1.5 pr-2 pl-3 text-sm transition active:scale-[0.97] ${
           active ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]' : `border-[var(--line)] hover:bg-[var(--surface-2)] ${open ? 'bg-[var(--surface-2)]' : ''}`
@@ -415,7 +415,8 @@ export function MenuButton({
       {presence.mounted && (
         <div
           ref={menu}
-          role="menu"
+          role="group"
+          aria-label={label}
           style={place}
           className={`fixed z-40 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl`}
         >
@@ -430,8 +431,7 @@ export function MenuButton({
 export function MenuOption({ selected, onClick, icon, label, hint }: { selected: boolean; onClick: () => void; icon?: ReactNode; label: string; hint?: string }) {
   return (
     <button
-      role="menuitemradio"
-      aria-checked={selected}
+      aria-pressed={selected}
       onClick={onClick}
       className={`flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-left text-sm transition-colors ${selected ? 'bg-brand/10' : 'hover:bg-[var(--surface-2)]'}`}
     >

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import type { FeatureCollection, Point } from 'geojson'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
 import Map, {
   AttributionControl,
   Layer,
@@ -777,41 +777,41 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           const selected = props.selectedId === r.id
           const pin = pins.get(sized(regionPinId(signatureTree(r), PHASE_STYLE[peakPhase(r)].color), selected ? 44 : zoom < 4.5 ? 24 : 32))
           return pin ? (
-            <Marker key={r.id} longitude={r.lng} latitude={r.lat} anchor="center" style={{ zIndex: selected ? 2 : 1 }} onClick={(e) => {
+            <PinMarker key={r.id} longitude={r.lng} latitude={r.lat} anchor="center" style={{ zIndex: selected ? 2 : 1 }} onClick={(e) => {
               e.originalEvent.stopPropagation()
               props.onSelectRegion(r)
             }}>
               <PinButton pin={pin} label={r.name} />
-            </Marker>
+            </PinMarker>
           ) : null
         })}
       {pins &&
         trailheadPins.map((t) => {
           const pin = pins.get(sized(placePinId('trailhead'), props.selectedTrail?.id === t.id ? 44 : 28))
           return pin ? (
-            <Marker key={`th-${t.id}`} longitude={t.trailhead[0]} latitude={t.trailhead[1]} anchor="center" onClick={(e) => {
+            <PinMarker key={`th-${t.id}`} longitude={t.trailhead[0]} latitude={t.trailhead[1]} anchor="center" onClick={(e) => {
               e.originalEvent.stopPropagation()
               props.onSelectTrail(t)
             }}>
               <PinButton pin={pin} label={`${t.name} trailhead`} />
-            </Marker>
+            </PinMarker>
           ) : null
         })}
       {pins &&
         placePins.map((p) => {
           const pin = pins.get(sized(placePinId(p.kind), props.selectedPlace?.id === p.id ? 44 : 28))
           return pin ? (
-            <Marker key={p.id} longitude={p.lng} latitude={p.lat} anchor="center" onClick={(e) => {
+            <PinMarker key={p.id} longitude={p.lng} latitude={p.lat} anchor="center" onClick={(e) => {
               e.originalEvent.stopPropagation()
               props.onSelectPlace(p)
             }}>
               <PinButton pin={pin} label={`${PLACE_KINDS[p.kind].label}: ${p.name}`} />
-            </Marker>
+            </PinMarker>
           ) : null
         })}
       <HoverMarker />
       {props.trip?.stops.map((s) => (
-        <Marker key={`trip-${s.ref}`} longitude={s.lng} latitude={s.lat} anchor="center" onClick={(e) => {
+        <PinMarker key={`trip-${s.ref}`} longitude={s.lng} latitude={s.lat} anchor="center" onClick={(e) => {
           e.originalEvent.stopPropagation()
           props.onSelectTripStop(s.ref)
         }}>
@@ -823,7 +823,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           >
             {s.n}
           </button>
-        </Marker>
+        </PinMarker>
       ))}
 
       {popup && (
@@ -867,6 +867,23 @@ function HoverMarker() {
   )
 }
 
+
+/**
+ * A marker holding a button. Mapbox labels every marker as an image called "Map marker", which
+ * hides the button inside it from assistive technology; this hands the role back to the button.
+ */
+function PinMarker(props: ComponentProps<typeof Marker>) {
+  return (
+    <Marker
+      {...props}
+      ref={(m) => {
+        const el = m?.getElement()
+        el?.setAttribute('role', 'none')
+        el?.removeAttribute('aria-label')
+      }}
+    />
+  )
+}
 
 /** A map pin: one pre-drawn image (disc, border, artwork and shadow) in an accessible button. */
 function PinButton({ pin, label }: { pin: PinImage; label: string }) {

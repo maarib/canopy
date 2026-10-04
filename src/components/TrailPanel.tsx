@@ -45,7 +45,7 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
       <ForestCover spec={trailCover(trail)} name={trail.name} />
 
       <header>
-        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase" style={{ color: PLACE_KINDS.trail.color }}>
+        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">
           <PlaceIcon kind="trail" className="size-3.5" />
           Trail · {trail.association ?? area.name}
         </p>
@@ -63,7 +63,7 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
 
       <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(trail.trailhead[1], trail.trailhead[0])} icon={<LocationOn className="size-4" />}>
-          Directions to trailhead
+          Get directions
         </LinkButton>
         <SaveButton stopRef={`trail:${trail.id}`} name={trail.name} />
         <ShareButton title={`${trail.name} · Canopy`} />
@@ -210,7 +210,9 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium">{trail.name}</span>
         <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
-          <span style={{ color: difficulty.color }} className="font-medium">
+          {/* The color is a dot; the word stays in the text color, which reads in both themes. */}
+          <span className="flex items-center gap-1 font-medium text-[var(--ink)]">
+            <span className="size-2 rounded-full" style={{ background: difficulty.color }} />
             {difficulty.label}
           </span>
           · {trail.lengthKm} km · {formatDuration(trail.durationH)}

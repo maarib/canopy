@@ -50,7 +50,7 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
           <PlaceIcon kind={place.kind} className="size-9" />
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-medium tracking-wide uppercase" style={{ color: kind.color }}>
+          <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">
             {kind.label}
             {isPhotoSpot(place.kind) && ' · Photo spot'} · {area.name.split(' · ')[0]}
           </p>

@@ -1,5 +1,6 @@
 import type { Feature, MultiLineString, Position } from 'geojson'
 import type { ExpressionSpecification, GeoJSONSource, Map as MapboxMap, StyleSpecification } from 'mapbox-gl'
+import { COVER_BLEED, COVER_SIZE } from './coverFrame'
 import { bboxOf, DIORAMA_SIZE_M, insideRing, metresToDeg, normalizer, simplify, type Ring } from './diorama'
 import type { PlaceKind } from './explore'
 import { foliageKey } from './foliage'
@@ -12,13 +13,7 @@ import { islandScene, placeScene, type Scene } from './placeScenes'
 // One hidden map renders every cover in turn on a blank, transparent style and stays alive, so a
 // whole visit costs a single Mapbox map load. Each finished cover is a still image.
 
-/** The cover's frame in CSS pixels (3:2), drawn at the screen's pixel ratio. */
-export const COVER_SIZE = { width: 400, height: 267 }
-/**
- * Extra canvas around the frame, so treetops and land reaching past it are drawn rather than cut
- * off; the page lets the image overflow the frame by the same amount.
- */
-export const COVER_BLEED = 48
+export { COVER_BLEED, COVER_SIZE }
 const CANVAS = { width: COVER_SIZE.width + 2 * COVER_BLEED, height: COVER_SIZE.height + 2 * COVER_BLEED }
 const VIEW = { pitch: 55, bearing: -35 }
 
@@ -56,6 +51,7 @@ function coverMap(): Promise<MapboxMap> {
   ready ??= import('mapbox-gl').then(({ default: mapboxgl }) => {
     const container = document.createElement('div')
     container.setAttribute('aria-hidden', 'true')
+    container.inert = true // nothing in the hidden map can take focus
     Object.assign(container.style, { position: 'fixed', left: '-10000px', top: '0', width: `${CANVAS.width}px`, height: `${CANVAS.height}px`, pointerEvents: 'none' })
     document.body.append(container)
     const map = new mapboxgl.Map({
