@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePresence } from '../hooks'
-import { Bookmark, Help, KeyboardArrowDown, Mail, Person } from 'relume-icons'
+import { Bookmark, Description, Help, KeyboardArrowDown, Mail, Person } from 'relume-icons'
 import { ExternalIcon } from './ui'
 
 // Header avatar with an account menu, modelled on Airbnb's and AllTrails' profile menus:
@@ -68,7 +68,10 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
           </div>
           <div className="border-t border-[var(--line)] py-1">
             <Item icon={<Help className="size-5" />} onClick={() => go('/about')}>
-              About & data sources
+              About
+            </Item>
+            <Item icon={<Description className="size-5" />} onClick={() => go('/data')}>
+              Data sources
             </Item>
             <Item icon={<Mail className="size-5" />} href={FEEDBACK}>
               Send feedback
