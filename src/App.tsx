@@ -826,7 +826,10 @@ function ViewSwitch({ view, onChange, floating }: { view: SnapPoint; onChange: (
     <div
       role="radiogroup"
       aria-label="View"
-      className={`flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 ${floating ? 'fixed bottom-4 left-1/2 z-30 -translate-x-1/2 shadow-lg' : ''}`}
+      // Centred on what's beside the nav rail (84 px): the map, or the map beside the 420 px panel.
+      className={`flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 ${
+        floating ? `fixed bottom-4 z-30 -translate-x-1/2 shadow-lg transition-[left] duration-300 ${view === 'half' ? 'left-[calc(50%+252px)]' : 'left-[calc(50%+42px)]'}` : ''
+      }`}
     >
       {VIEWS.map((v) => (
         <button

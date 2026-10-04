@@ -456,6 +456,10 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       onClick={handleClick}
       onLoad={(e) => {
         if (import.meta.env.DEV) Object.assign(window, { __canopyMap: e.target }) // for debugging in devtools
+        // Mapbox only follows the window's size. The panel beside the map opens, closes and takes
+        // the whole screen, so follow the map's own box too (not while it's hidden, at zero size).
+        const box = e.target.getContainer()
+        new ResizeObserver(() => box.clientWidth && box.clientHeight && e.target.resize()).observe(box)
         updateView(false)
         setMapReady(true)
         // Fishing pins are GPU symbols (thousands of points); add their images before the layer needs them.

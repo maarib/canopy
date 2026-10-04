@@ -64,6 +64,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - **Opening the panel:** choosing a park, trail or place from the search, pressing the button with something specific in Looking for, or tapping a quick link opens the map with the panel on the matching page. A town from the search, or "Explore Ontario", moves the map and stays on the landing page.
 - **Phones:** the card starts as the search box alone; a button beside it reveals Where and Looking for. The sheet is hidden on the landing page.
 - The search results and the field lists open upward when the card is at the bottom of the screen.
+- **Map size:** the map now follows its own box, so it fills its space when the panel opens, closes or takes the whole screen. Before, it only followed the window, which left it cut off or stretched after a view change. The floating view switch is centred over the map rather than the window, clear of the Mapbox logo.
 - Returning to Explore from any page shows the landing page again. Its panel (the same search, parks peaking now, short fall hikes, quick links) opens from the view switch.
 
 **How.**
