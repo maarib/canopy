@@ -56,13 +56,33 @@ export const AMENITY_ICONS = {
   info: 'A21WjJlVSGoO',
   'ev-charging': '5XZRgEg2SRb9',
   pool: '1GkaoxFfL9wx',
+  tobogganing: '1mENOaB0HTpp',
 } as const
 
-export type AmenityIcon = keyof typeof AMENITY_ICONS
+/**
+ * Activities the pack has no icon for, composed from two of its icons: a main icon with a small
+ * badge in the corner, the way the pack builds its own (e.g. "Bike Parking", "Jet Ski Rental").
+ */
+export const COMPOSED_ICONS = {
+  'mountain-biking': { main: 'EuCILJ2WLuTN', badge: 'dS4yBBYCfo3q' }, // bicycle + mountain
+  climbing: { main: 'dS4yBBYCfo3q', badge: 'yOY9bOGdu5oi' }, // mountain + ladder
+  'disc-golf': { main: '1nH7pOXEgShZ', badge: '2vTwHCjWpXxx' }, // golf bag + disc
+  whitewater: { main: 'BxDXJlL8qTUx', badge: 'rb7RHfMsD5Cv' }, // waves + dinghy
+  snowmobiling: { main: 'cUnsXrpRV0dh', badge: 'Mvbzy3ZDRcVj' }, // motorcycle + snowflake
+  cidery: { main: 's3EqD09UVwX5', badge: 'ZnCPBUsBNhfb' }, // apple + keg
+} as const
 
-/** PNG from the Icons8 CDN at 2× for crisp rendering. */
-export const amenityIconUrl = (icon: AmenityIcon, px: number) =>
-  `https://img.icons8.com/?id=${AMENITY_ICONS[icon]}&format=png&size=${px * 2}`
+/** Drawn for Canopy in the pack's style where nothing in it fits: public/icons/<name>.svg. */
+export const DRAWN_ICONS = ['kayaking', 'sup'] as const
+
+export type PackIcon = keyof typeof AMENITY_ICONS
+export type AmenityIcon = PackIcon | keyof typeof COMPOSED_ICONS | (typeof DRAWN_ICONS)[number]
+
+/** PNG of an Icons8 icon id from its CDN, at 2× for crisp rendering. */
+export const icons8Url = (id: string, px: number) => `https://img.icons8.com/?id=${id}&format=png&size=${px * 2}`
+
+/** PNG of a single pack icon (map pins draw these onto canvases). */
+export const amenityIconUrl = (icon: PackIcon, px: number) => icons8Url(AMENITY_ICONS[icon], px)
 
 type Entry = { label: string; icon: AmenityIcon; group?: 'camping' | 'rentals' | 'amenities' }
 
@@ -74,9 +94,9 @@ export const PARK_ACTIVITIES: Record<string, Entry> = {
   hiking: { label: 'Hiking', icon: 'hiking' },
   overnight_hiking: { label: 'Overnight hiking', icon: 'overnight' },
   biking: { label: 'Biking', icon: 'biking' },
-  mountain_biking: { label: 'Mountain biking', icon: 'biking' },
+  mountain_biking: { label: 'Mountain biking', icon: 'mountain-biking' },
   canoeing: { label: 'Canoeing', icon: 'canoeing' },
-  whitewater_paddling: { label: 'Whitewater paddling', icon: 'canoeing' },
+  whitewater_paddling: { label: 'Whitewater paddling', icon: 'whitewater' },
   boating: { label: 'Boating', icon: 'boating' },
   motorboat_restrictions: { label: 'Motorboat limits', icon: 'boating' },
   fishing: { label: 'Fishing', icon: 'fishing' },
@@ -87,8 +107,8 @@ export const PARK_ACTIVITIES: Record<string, Entry> = {
   discovery_program: { label: 'Discovery Program', icon: 'discovery' },
   hunting: { label: 'Hunting', icon: 'hunting' },
   birding_festivals: { label: 'Birding festivals', icon: 'birding' },
-  rock_climbing: { label: 'Rock climbing', icon: 'peak' },
-  disc_golf: { label: 'Disc golf', icon: 'playground' },
+  rock_climbing: { label: 'Rock climbing', icon: 'climbing' },
+  disc_golf: { label: 'Disc golf', icon: 'disc-golf' },
   camping_car: { label: 'Car camping', icon: 'campground' },
   camping_backcountry: { label: 'Backcountry camping', icon: 'backcountry' },
   camping_walk_in: { label: 'Walk-in camping', icon: 'overnight' },
@@ -100,9 +120,9 @@ export const PARK_ACTIVITIES: Record<string, Entry> = {
   xcountryskiing: { label: 'Cross-country skiing', icon: 'skiing' },
   snowshoeing: { label: 'Snowshoeing', icon: 'snowshoeing' },
   ice_skating: { label: 'Ice skating', icon: 'skating' },
-  snowmobiling: { label: 'Snowmobiling', icon: 'winter' },
+  snowmobiling: { label: 'Snowmobiling', icon: 'snowmobiling' },
   dogsledding: { label: 'Dogsledding', icon: 'dogsledding' },
-  tobogganing: { label: 'Tobogganing', icon: 'winter' },
+  tobogganing: { label: 'Tobogganing', icon: 'tobogganing' },
 }
 
 export const PARK_FACILITIES: Record<string, Entry> = {
@@ -118,8 +138,8 @@ export const PARK_FACILITIES: Record<string, Entry> = {
   campsites_seasonal: { label: 'Seasonal sites', icon: 'rv', group: 'camping' },
   access_points: { label: 'Backcountry access points', icon: 'trail', group: 'camping' },
   rental_canoe: { label: 'Canoes', icon: 'canoeing', group: 'rentals' },
-  rental_kayak: { label: 'Kayaks', icon: 'canoeing', group: 'rentals' },
-  rental_sup: { label: 'Paddleboards', icon: 'canoeing', group: 'rentals' },
+  rental_kayak: { label: 'Kayaks', icon: 'kayaking', group: 'rentals' },
+  rental_sup: { label: 'Paddleboards', icon: 'sup', group: 'rentals' },
   rental_bike: { label: 'Bikes', icon: 'biking', group: 'rentals' },
   rental_crosscountryskis: { label: 'Cross-country skis', icon: 'skiing', group: 'rentals' },
   rental_snowshoes: { label: 'Snowshoes', icon: 'snowshoeing', group: 'rentals' },
@@ -165,7 +185,7 @@ export const PARK_FILTER_GROUPS: { title: string; filters: ParkFilter[] }[] = [
       { id: 'canoeing', label: 'Canoeing', icon: 'canoeing', activity: 'canoeing' },
       { id: 'fishing', label: 'Fishing', icon: 'fishing', activity: 'fishing' },
       { id: 'biking', label: 'Biking', icon: 'biking', activity: 'biking' },
-      { id: 'mountain-biking', label: 'Mountain biking', icon: 'biking', activity: 'mountain_biking' },
+      { id: 'mountain-biking', label: 'Mountain biking', icon: 'mountain-biking', activity: 'mountain_biking' },
       { id: 'swimming', label: 'Swimming', icon: 'swimming', activity: 'swimming' },
       { id: 'boating', label: 'Boating', icon: 'boating', activity: 'boating' },
       { id: 'backpacking', label: 'Overnight hiking', icon: 'overnight', activity: 'overnight_hiking' },

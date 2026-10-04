@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Island covers for places ([#111](https://github.com/maarib/canopy/pull/111)) |
+| Unreleased | | Island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | 2026-10-03 | The first release: everything up to [#108](https://github.com/maarib/canopy/pull/108) |
 
@@ -17,6 +17,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | Date | Change | Ref |
 |---|---|---|
 | 2026-10-04 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-04-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
+| 2026-10-03 | [Icons for the nine missing activities](#2026-10-03-icons-for-the-nine-missing-activities) | [#110](https://github.com/maarib/canopy/pull/110) |
 | 2026-10-03 | [Pre-drawn covers and list thumbnails](#2026-10-03-pre-drawn-covers-and-list-thumbnails) | [#109](https://github.com/maarib/canopy/pull/109) |
 | 2026-10-03 | [Map styles, Layers button and forest covers](#2026-10-03-map-styles-layers-button-and-forest-covers) | [#108](https://github.com/maarib/canopy/pull/108) |
 | 2026-10-03 | [Park boundaries](#2026-10-03-park-boundaries) | [#107](https://github.com/maarib/canopy/pull/107) |
@@ -78,6 +79,36 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - **Pre-render.** `scripts/build-covers.mjs` draws places too, and takes `--only <prefix>` to draw a subset while checking.
 
 **Why.** The cover should say what a place is at a glance, and its real shape is what makes it that place.
+### 2026-10-03 · Icons for the nine missing activities
+
+**Ref:** [#110](https://github.com/maarib/canopy/pull/110)
+
+**Before.** Nine activities had no icon in the Icons8 *Windows 11 Color* pack, so they borrowed a neighbour's:
+- mountain biking showed the plain bicycle; whitewater paddling, kayak rentals and paddleboard rentals the canoe;
+- rock climbing the mountain; disc golf the playground;
+- snowmobiling and tobogganing the snowflake;
+- cideries had nothing.
+
+**After.** Each has its own icon, still in the same pack's style:
+- **Composed from two pack icons** (a main icon with a small corner badge, the pack's own pattern, as in its "Bike Parking" and "Jet Ski Rental"):
+  - mountain biking: bicycle + mountain;
+  - rock climbing: mountain + ladder;
+  - disc golf: golf bag + disc;
+  - whitewater: waves + dinghy;
+  - snowmobiling: motorcycle + snowflake;
+  - cidery: apple + keg (ready for the orchard and cidery markers).
+- **Another pack icon:** tobogganing uses "Winter Landscape", a snowy hill, so it no longer shares the snowflake with winter activities.
+- **Drawn for Canopy** in the pack's palette, gradients and proportions, where nothing fits: kayaking (`public/icons/kayaking.svg`) and stand-up paddleboarding (`public/icons/sup.svg`). They're Canopy's own artwork, not edits of Icons8 files.
+
+**How.**
+- `src/data/amenityIcons.ts` adds `COMPOSED_ICONS` and `DRAWN_ICONS` beside the single pack icons.
+- `AmenityIcon` (in `ParkAmenities.tsx`) renders all three kinds. A composed icon's badge is 62% of the icon's size, on the lower right with a thin halo.
+- Map pins still take single pack icons only (`PackIcon`).
+- `icons8.json` replaces its `gaps` list with `composed` and `drawn` entries.
+
+**Note.** Ontario Parks currently lists no kayak, paddleboard, canoe or bike rentals on any park page. The kayak and paddleboard icons are mapped and will show when that data appears.
+
+**Why.** Every activity should be recognisable at a glance, and the icons should keep one visual language.
 
 ---
 

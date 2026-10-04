@@ -376,19 +376,55 @@
         "id": "FXCZgLgKpBk6",
         "label": "Dogsledding",
         "standIn": true
+      },
+      "tobogganing": {
+        "id": "1mENOaB0HTpp",
+        "label": "Tobogganing (winter landscape: a snowy hill)",
+        "standIn": true
       }
     },
-    "gaps": [
-      "cidery",
-      "mountain-biking",
-      "climbing",
-      "disc-golf",
-      "kayaking",
-      "whitewater",
-      "sup",
-      "snowmobiling",
-      "tobogganing"
-    ],
-    "note": "Tree and leaf icons are Canopy's own (src/lib/leafShapes.ts); every other place, activity and facility uses this pack."
+    "note": "Tree and leaf icons are Canopy's own (src/lib/leafShapes.ts). Every other place, activity and facility uses this pack. Where the pack has no icon: `composed` pairs two pack icons (main + corner badge, the pack's own pattern), and `drawn` icons are Canopy-made in the pack's style.",
+    "composed": {
+      "mountain-biking": {
+        "main": "EuCILJ2WLuTN",
+        "badge": "dS4yBBYCfo3q",
+        "label": "Mountain biking: bicycle + mountain badge"
+      },
+      "climbing": {
+        "main": "dS4yBBYCfo3q",
+        "badge": "yOY9bOGdu5oi",
+        "label": "Rock climbing: mountain + ladder badge"
+      },
+      "disc-golf": {
+        "main": "1nH7pOXEgShZ",
+        "badge": "2vTwHCjWpXxx",
+        "label": "Disc golf: golf bag + disc badge"
+      },
+      "whitewater": {
+        "main": "BxDXJlL8qTUx",
+        "badge": "rb7RHfMsD5Cv",
+        "label": "Whitewater paddling: waves + dinghy badge"
+      },
+      "snowmobiling": {
+        "main": "cUnsXrpRV0dh",
+        "badge": "Mvbzy3ZDRcVj",
+        "label": "Snowmobiling: motorcycle + snowflake badge"
+      },
+      "cidery": {
+        "main": "s3EqD09UVwX5",
+        "badge": "ZnCPBUsBNhfb",
+        "label": "Cidery: apple + keg badge"
+      }
+    },
+    "drawn": {
+      "kayaking": {
+        "file": "public/icons/kayaking.svg",
+        "label": "Kayaking"
+      },
+      "sup": {
+        "file": "public/icons/sup.svg",
+        "label": "Stand-up paddleboarding"
+      }
+    }
   }
 }
