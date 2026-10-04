@@ -1,4 +1,4 @@
-import type { AmenityIcon } from '../data/amenityIcons'
+import type { PackIcon } from '../data/amenityIcons'
 
 // Ontario's public fishing access points (Ministry of Natural Resources, via Land Information
 // Ontario; the data behind Fish ON-Line). Snapshot written by scripts/build-fishing-access.mjs.
@@ -28,7 +28,7 @@ export const ACCESS_TYPES: Record<AccessType, { label: string; plural: string }>
   pier: { label: 'Dock or pier', plural: 'Docks and piers' },
 }
 
-export const ACCESS_ICONS: Record<AccessType, AmenityIcon> = { launch: 'boat-launch', shore: 'fishing', pier: 'dock' }
+export const ACCESS_ICONS: Record<AccessType, PackIcon> = { launch: 'boat-launch', shore: 'fishing', pier: 'dock' }
 
 export const FISH_ONLINE = 'https://www.lioapplications.lrc.gov.on.ca/fishonline/Index.html?viewer=FishONLine.FishONLine&locale=en-CA'
 
