@@ -96,7 +96,7 @@ type Selection =
   | { kind: 'trails' }
   | { kind: 'foliage' }
   | { kind: 'about' }
-  | { kind: 'data' }
+  | { kind: 'sources' }
   | { kind: 'trips' }
   | { kind: 'trip'; trip: Trip }
   | { kind: 'shared-trip'; trip: SharedTrip }
@@ -184,7 +184,7 @@ export default function App() {
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
   const fishingMatch = matchPath('/fishing/:slug', location.pathname)
-  const sectionPath = (['/parks', '/trails', '/foliage', '/about', '/data'] as const).find((p) => location.pathname === p)
+  const sectionPath = (['/parks', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
   // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
   const fishing = useQuery({
     queryKey: ['fishing-access'],
@@ -199,7 +199,7 @@ export default function App() {
   const onTripsPage = !!tripsMatch
   const selection: Selection = useMemo(() => {
     if (onTripsPage) return { kind: 'trips' }
-    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'foliage' | 'about' | 'data' }
+    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'foliage' | 'about' | 'sources' }
     if (tripMatch) {
       if (tripMatch.params.id === 'shared') {
         const shared = decodeTrip(params.get('t') ?? '')
@@ -314,7 +314,7 @@ export default function App() {
             ? `place:${selection.place.id}`
             : selection?.kind === 'fishing'
               ? `fishing:${selection.access.id}`
-            : selection?.kind === 'parks' || selection?.kind === 'trails' || selection?.kind === 'foliage' || selection?.kind === 'about' || selection?.kind === 'data'
+            : selection?.kind === 'parks' || selection?.kind === 'trails' || selection?.kind === 'foliage' || selection?.kind === 'about' || selection?.kind === 'sources'
               ? selection.kind
             : selection?.kind === 'trips'
               ? 'trips'
@@ -353,7 +353,7 @@ export default function App() {
                 ? 'Foliage'
               : selection?.kind === 'about'
                 ? 'About'
-              : selection?.kind === 'data'
+              : selection?.kind === 'sources'
                 ? 'Data sources'
               : selection?.kind === 'trips'
                 ? 'Trips'
@@ -627,8 +627,8 @@ export default function App() {
         onTree={setTreeFilter}
       />
     ) : selection?.kind === 'about' ? (
-      <AboutPanel onData={() => openSection('/data')} />
-    ) : selection?.kind === 'data' ? (
+      <AboutPanel onData={() => openSection('/sources')} />
+    ) : selection?.kind === 'sources' ? (
       <DataSourcesPanel />
     ) : selection?.kind === 'park' ? (
       <ParkPanel key={selection.park.id} park={selection.park} onBack={goBack} />

@@ -70,7 +70,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
             <Item icon={<Help className="size-5" />} onClick={() => go('/about')}>
               About
             </Item>
-            <Item icon={<Description className="size-5" />} onClick={() => go('/data')}>
+            <Item icon={<Description className="size-5" />} onClick={() => go('/sources')}>
               Data sources
             </Item>
             <Item icon={<Mail className="size-5" />} href={FEEDBACK}>

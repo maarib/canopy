@@ -17,7 +17,7 @@ export function SiteFooter({ onNavigate }: { onNavigate: (path: string) => void 
         About
       </button>
       <span aria-hidden>·</span>
-      <button onClick={() => onNavigate('/data')} className={link}>
+      <button onClick={() => onNavigate('/sources')} className={link}>
         Data sources
       </button>
       <a
