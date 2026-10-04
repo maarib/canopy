@@ -16,7 +16,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-04 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-04-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
+| 2026-10-03 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-03-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
 | 2026-10-03 | [Icons for the nine missing activities](#2026-10-03-icons-for-the-nine-missing-activities) | [#110](https://github.com/maarib/canopy/pull/110) |
 | 2026-10-03 | [Pre-drawn covers and list thumbnails](#2026-10-03-pre-drawn-covers-and-list-thumbnails) | [#109](https://github.com/maarib/canopy/pull/109) |
 | 2026-10-03 | [Map styles, Layers button and forest covers](#2026-10-03-map-styles-layers-button-and-forest-covers) | [#108](https://github.com/maarib/canopy/pull/108) |
@@ -47,7 +47,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ## Unreleased
 
-### 2026-10-04 · Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks
+### 2026-10-03 · Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks
 
 **Ref:** [#111](https://github.com/maarib/canopy/pull/111)
 
