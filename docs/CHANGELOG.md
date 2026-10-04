@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Explore as a map-first landing page |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | 2026-10-03 | The first release: everything up to [#108](https://github.com/maarib/canopy/pull/108) |
@@ -16,6 +17,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-04 | [Explore as a map-first landing page](#2026-10-04-explore-as-a-map-first-landing-page) | `feat/explore-landing` |
 | 2026-10-04 | [Three views, orange brand color, new logo and navigation polish](#2026-10-04-three-views-orange-brand-color-new-logo-and-navigation-polish) | [#114](https://github.com/maarib/canopy/pull/114) |
 | 2026-10-03 | [About and Data sources pages, footer at the bottom, legend in Layers](#2026-10-03-about-and-data-sources-pages-footer-at-the-bottom-legend-in-layers) | [#112](https://github.com/maarib/canopy/pull/112) |
 | 2026-10-03 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-03-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
@@ -46,6 +48,30 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-04 · Explore as a map-first landing page
+
+**Ref:** branch `feat/explore-landing`
+
+**Before.** Explore opened with its panel beside the map (half the screen on phones): a heading, the search card, parks peaking now, short fall hikes and three place links.
+
+**After.**
+- Explore opens on the map alone, on desktop and phones. The heading, the search card and a row of quick links sit over the map's lower edge, centred.
+- A fade in the surface color runs from solid at the bottom to clear above the heading, so the card and links read against the map. The map stays draggable through the fade, and the Mapbox logo and attribution stay on top of it.
+- **Quick links:** Parks, Trails, Waterfalls, Lookouts, Lakes and Creeks, as pills with each kind's icon in its color. On phones the row scrolls sideways.
+- **Opening the panel:** choosing a park, trail or place from the search, pressing the button with something specific in Looking for, or tapping a quick link opens the map with the panel on the matching page. A town from the search, or "Explore Ontario", moves the map and stays on the landing page.
+- **Phones:** the card starts as the search box alone; a button beside it reveals Where and Looking for. The sheet is hidden on the landing page.
+- The search results and the field lists open upward when the card is at the bottom of the screen.
+- Returning to Explore from any page shows the landing page again. Its panel (the same search, parks peaking now, short fall hikes, quick links) opens from the view switch.
+
+**How.**
+- `src/components/ExploreSearch.tsx` (new) holds the search card (`ExploreSearch`), `QuickLinks` and `ExploreLanding`; `ExplorePanel.tsx` reuses the first two.
+- `SearchBox` and the card's fields take `up` to open above.
+- `src/App.tsx` starts on the map-only view at `/`, returns to it whenever the page becomes Explore, and draws the landing over the map when Explore is in that view.
+
+**Why.** The map is what sets Canopy apart, and the old Explore hid half of it behind a form. Map plus search is the landing page.
 
 ## v1.2
 

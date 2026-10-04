@@ -10,7 +10,8 @@ import { AccountMenu } from './components/AccountMenu'
 import { SideNav, TabBar, type Section } from './components/AppNav'
 import { TAB_BAR_HEIGHT } from './lib/styles'
 import { FoliagePanel } from './components/FoliagePanel'
-import { ExplorePanel, type ExploreQuery } from './components/ExplorePanel'
+import { ExplorePanel } from './components/ExplorePanel'
+import { ExploreLanding, type ExploreQuery } from './components/ExploreSearch'
 import { LayerOptions, Legend, TreeOptions, type TreeFilterValue } from './components/MapControls'
 import { MapFilters } from './components/MapFilters'
 import { AboutPanel, DataSourcesPanel, ParksPanel, TrailsPanel } from './components/SectionPanels'
@@ -109,8 +110,9 @@ export default function App() {
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   // The view: the map alone ('peek'), the map with the panel ('half') or the panel alone ('full').
-  // On phones these are the sheet's three heights. Starts with both, so Explore's search shows.
-  const [sheet, setSheet] = useState<SnapPoint>('half')
+  // On phones these are the sheet's three heights. Explore is the landing page and opens on the
+  // map alone, with the search over it; any other page opens with its panel.
+  const [sheet, setSheet] = useState<SnapPoint>(() => (location.pathname === '/' ? 'peek' : 'half'))
   const [focus, setFocus] = useState<FlyTarget>(null)
 
   // Sightings stream in page by page; a recent copy on the device makes reopening instant.
@@ -332,7 +334,9 @@ export default function App() {
   if (sheetFor !== selectionKey) {
     setSheetFor(selectionKey)
     const isPlace = ['region', 'park', 'trail', 'place', 'fishing', 'loading'].includes(selection?.kind ?? '')
-    if (isPlace || sheet !== 'full') setSheet('half')
+    // Explore always comes back as the landing page: the map, with the search over it.
+    if (selectionKey === 'home') setSheet('peek')
+    else if (isPlace || sheet !== 'full') setSheet('half')
   }
 
   // Tab titles make shared links and history readable.
@@ -391,8 +395,8 @@ export default function App() {
     else {
       if (selection) goHome()
       setFocus({ id: `${r.id}:${Date.now()}`, lng: r.lng, lat: r.lat, zoom: r.zoom })
-      // The map is what answers this search: on phones it takes the screen, on desktop it stays beside the panel.
-      setSheet(isDesktop ? 'half' : 'peek')
+      // The map is what answers this search.
+      setSheet('peek')
     }
   }
 
@@ -406,7 +410,7 @@ export default function App() {
     else if (q.what === 'parks') openSection('/parks')
     else if (q.what === 'trails') openSection('/trails')
     else if (q.what === 'places') openSection('/trails?show=waterfall')
-    else setSheet(isDesktop ? 'half' : 'peek')
+    else setSheet('peek')
   }
 
   /** Which nav item a page belongs to. */
@@ -659,6 +663,8 @@ export default function App() {
     )
 
   const footer = <SiteFooter onNavigate={openSection} />
+  /** Explore with the panel closed: the search and quick links sit over the map. */
+  const landing = selection === null && sheet === 'peek'
   const treeCount = treeFilter === 'trees' ? 0 : 1
   const layerCount = (Object.keys(DEFAULT_LAYERS) as (keyof MapLayers)[]).filter((k) => layers[k] !== DEFAULT_LAYERS[k]).length
 
@@ -773,17 +779,30 @@ export default function App() {
             </div>
           </div>
 
+          {landing && (
+            <ExploreLanding
+              compact={!isDesktop}
+              parks={parks.data?.parks ?? NO_PARKS}
+              trails={exploreIndex.trails}
+              places={exploreIndex.places}
+              treeCounts={groupCounts}
+              onSearchSelect={onSearch}
+              onSubmit={onExplore}
+              onNavigate={openSection}
+            />
+          )}
         </div>
 
         {!isDesktop && (
           <>
-            <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
+            {/* The landing page has no sheet: the search sits on the map instead. */}
+            {!landing && <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
               {/* At least as tall as the panel, so the footer sits at the bottom on short pages. */}
               <div key={selectionKey} className="animate-panel-in flex min-h-full flex-col">
                 {panel}
                 {footer}
               </div>
-            </BottomSheet>
+            </BottomSheet>}
             <TabBar active={section} onNavigate={openSection} tripCount={trips.length} />
           </>
         )}
