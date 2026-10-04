@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePresence } from '../hooks'
-import { Bookmark, Description, Help, KeyboardArrowDown, Mail, Person } from 'relume-icons'
-import { ExternalIcon } from './ui'
+import { Bookmark, Description, KeyboardArrowDown, Mail, Person } from 'relume-icons'
+import { ExternalIcon, InfoIcon } from './ui'
 
 // Header avatar with an account menu, modelled on Airbnb's and AllTrails' profile menus:
 // your things first (trips), then help and about, then sign-in. Canopy has no accounts yet,
-// so trips live on this device and sign-in is marked as coming soon.
+// so trips live on this device and accounts are marked as coming soon.
 
 const FEEDBACK = 'https://github.com/maarib/canopy/issues/new'
 
@@ -44,7 +44,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
           open ? 'bg-[var(--surface-2)]' : ''
         }`}
       >
-        <span className="flex size-8 items-center justify-center rounded-full bg-[var(--ink)] text-[var(--surface)]">
+        <span className="flex size-8 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--ink-soft)]">
           <Person className="size-5" />
         </span>
         <KeyboardArrowDown className={`size-4 text-[var(--ink-soft)] transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -57,7 +57,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
               <Person className="size-6 text-[var(--ink-soft)]" />
             </span>
             <span className="min-w-0">
-              <span className="block text-sm font-semibold">Guest</span>
+              <span className="block text-sm font-semibold">Maarib</span>
               <span className="block text-xs text-[var(--ink-soft)]">Your trips are saved on this device</span>
             </span>
           </div>
@@ -67,7 +67,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
             </Item>
           </div>
           <div className="border-t border-[var(--line)] py-1">
-            <Item icon={<Help className="size-5" />} onClick={() => go('/about')}>
+            <Item icon={<InfoIcon className="size-5" />} onClick={() => go('/about')}>
               About
             </Item>
             <Item icon={<Description className="size-5" />} onClick={() => go('/sources')}>
@@ -78,8 +78,8 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
             </Item>
           </div>
           <div className="border-t border-[var(--line)] pt-1">
-            <Item icon={<Person className="size-5" />} disabled meta="Coming soon">
-              Sign in or create account
+            <Item icon={<Person className="size-5" />} disabled>
+              Accounts coming soon
             </Item>
           </div>
         </div>

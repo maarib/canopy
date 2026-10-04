@@ -13,6 +13,7 @@ import { PlaceIcon } from './PlaceIcon'
 import { SearchBox } from './SearchBox'
 import { TrailCard } from './TrailPanel'
 import { TreeIcon } from './TreeIcon'
+import { Badge } from './ui'
 
 // The home page is a search, Airbnb-style: pick where (province) and what you're after, or
 // type a name. Discovery (what's peaking, popular trails) sits underneath as secondary help.
@@ -93,7 +94,7 @@ function Option({ selected, disabled, onClick, icon, label, hint }: { selected: 
       disabled={disabled}
       onClick={onClick}
       className={`flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-left text-sm transition-colors ${
-        selected ? 'bg-maple/10' : 'hover:bg-[var(--surface-2)]'
+        selected ? 'bg-brand/10' : 'hover:bg-[var(--surface-2)]'
       } disabled:cursor-default disabled:opacity-45 disabled:hover:bg-transparent`}
     >
       {icon && <span className="flex size-6 shrink-0 items-center justify-center text-[var(--ink-soft)]">{icon}</span>}
@@ -101,7 +102,7 @@ function Option({ selected, disabled, onClick, icon, label, hint }: { selected: 
         <span className={`block ${selected ? 'font-semibold' : 'font-medium'}`}>{label}</span>
         {hint && <span className="block text-xs text-[var(--ink-soft)]">{hint}</span>}
       </span>
-      {selected && <Check className="size-4 shrink-0 text-maple" />}
+      {selected && <Check className="size-4 shrink-0 text-brand" />}
     </button>
   )
 }
@@ -198,7 +199,7 @@ export function ExplorePanel(props: Props) {
         )}
         <button
           onClick={() => props.onSubmit({ province, what, tree })}
-          className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-maple px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.99]"
+          className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.99]"
         >
           <Search className="size-5" />
           {what === 'everything' ? `Explore ${PROVINCE_BY_CODE.get(province)!.name}` : `Show ${whatItem.label.toLowerCase()}`}
@@ -209,7 +210,7 @@ export function ExplorePanel(props: Props) {
         <section>
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg">Peaking now in Ontario</h3>
-            <button onClick={() => props.onNavigate('/foliage')} className="text-sm font-medium text-maple hover:underline">
+            <button onClick={() => props.onNavigate('/foliage')} className="text-sm font-medium text-brand hover:underline">
               All reports
             </button>
           </div>
@@ -226,9 +227,7 @@ export function ExplorePanel(props: Props) {
                       {p.colorChange ?? 0}% color · {p.dominantColor}
                     </span>
                   </span>
-                  <span className="shrink-0 text-xs font-medium" style={{ color: STAGES[p.stage].color }}>
-                    {STAGES[p.stage].label}
-                  </span>
+                  <Badge size="sm" color={STAGES[p.stage].color}>{STAGES[p.stage].label}</Badge>
                   <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
                 </button>
               </li>
@@ -241,7 +240,7 @@ export function ExplorePanel(props: Props) {
         <section>
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg">Short fall hikes</h3>
-            <button onClick={() => props.onNavigate('/trails')} className="text-sm font-medium text-maple hover:underline">
+            <button onClick={() => props.onNavigate('/trails')} className="text-sm font-medium text-brand hover:underline">
               All trails
             </button>
           </div>

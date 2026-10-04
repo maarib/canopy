@@ -13,12 +13,13 @@
 ### Search-first home and sections
 - **Explore (home)** is a search, in the spirit of Airbnb and AllTrails: type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall color) and **Looking for** (everything, fall colors with a tree dropdown, parks, trails, lakes & waterfalls). Below the search: parks peaking now and short fall hikes.
 - **Sections:** Explore, **Parks** (search, activity filter, sort by color or A–Z), **Trails** (trails by difficulty, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Foliage** (official fall color reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
-- **One Filters button on the map** with three tabs: Trees, park Activities and map Layers (including light).
-- **Account menu** (avatar, top right): trips, About, Data sources, feedback. Accounts aren't built yet, so trips are saved on the device and sign-in is marked as coming soon.
-- **About** (`/about`) tells how Canopy came to be, and **Data sources** (`/sources`) lists every source with what it provides, its licence and how often it refreshes. The footer links to both, and sits at the bottom of the panel even on short pages.
+- **Three views**, switched from a control that is always on screen (floating at the bottom on desktop, in the header on phones): the map alone, the map with the panel, or the panel alone. Opening a place always shows the map with the panel, so the map can fly to it. Moving between pages keeps the full panel if that's the view in use. On phones the three views are the sheet's three heights, and a double tap on its grabber opens the full panel.
+- **Three buttons on the map:** Filters (Trees and park Activities), Layers (map style, light and layers) and a round info button that opens the color legend.
+- **Account menu** (avatar, top right): trips, About, Data sources, feedback. Accounts aren't built yet, so trips are saved on the device and accounts are marked as coming soon.
+- **About** (`/about`) tells how Canopy came to be, and **Data sources** (`/sources`) lists every source with what it provides, its licence and how often it refreshes. The footer has the copyright on the left and About, Data sources and maaribs.com on the right, and sits at the bottom of the panel even on short pages.
 
 ### Live color map
-- **Basemap:** Mapbox Standard on a globe, in **Monochrome** by default, so fall colors and pins carry the color. The **Layers** button (next to Filters) offers eight map styles: Monochrome, Paper (Canopy's own palette), Faded, three custom color grades (Autumn film, Bark & spruce, Riso print), Mapbox Standard and Satellite. The choice is remembered on the device. Light follows the system (day, or night in dark mode); dawn, day, dusk and night are under Layers too, directly below the map styles. The color legend is at the bottom of the same menu.
+- **Basemap:** Mapbox Standard on a globe, in **Monochrome** by default, so fall colors and pins carry the color. The **Layers** button (next to Filters) offers eight map styles: Monochrome, Paper (Canopy's own palette), Faded, three custom color grades (Autumn film, Bark & spruce, Riso print), Mapbox Standard and Satellite. The choice is remembered on the device. Light follows the system (day, or night in dark mode); dawn, day, dusk and night are under Layers too, directly below the map styles.
 - **Official park reports:** Ontario Parks' color % and leaf fall % for about 64 parks, colored by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
 - **Live sightings:** iNaturalist colored-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
 - **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Foliage page).
@@ -159,6 +160,7 @@ Each release is a git tag and a [GitHub Release](https://github.com/maarib/canop
 
 | Version | What's in it |
 |---|---|
+| [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | Island covers for places, three views, orange brand color, new logo, About and Data sources pages, the nine missing activity icons |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | Pre-drawn covers and island thumbnails in lists |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | The first release |
 

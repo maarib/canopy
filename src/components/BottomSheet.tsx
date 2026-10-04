@@ -6,7 +6,8 @@ export type SnapPoint = 'peek' | 'half' | 'full'
 /** `bottom` is the space taken by the tab bar under the sheet. */
 const baseHeightFor = (snap: SnapPoint, bottom = 0) => {
   const vh = window.innerHeight - bottom
-  return snap === 'peek' ? 132 : snap === 'half' ? Math.round(vh * 0.52) : Math.round(vh * 0.9)
+  // Full covers the map entirely: everything below the app's header.
+  return snap === 'peek' ? 132 : snap === 'half' ? Math.round(vh * 0.52) : vh - (document.querySelector('header')?.offsetHeight ?? 0)
 }
 
 type Props = {
@@ -23,6 +24,7 @@ export function BottomSheet({ snap, onSnap, contentKey, bottomOffset = 0, childr
   const heightFor = (s: SnapPoint) => baseHeightFor(s, bottomOffset)
   const [dragHeight, setDragHeight] = useState<number | null>(null)
   const start = useRef<{ y: number; h: number } | null>(null)
+  const lastTap = useRef(0)
   const scroller = useRef<HTMLDivElement>(null)
 
   // New content starts at the top.
@@ -36,7 +38,7 @@ export function BottomSheet({ snap, onSnap, contentKey, bottomOffset = 0, childr
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!start.current) return
-    setDragHeight(Math.max(96, Math.min((window.innerHeight - bottomOffset) * 0.95, start.current.h + start.current.y - e.clientY)))
+    setDragHeight(Math.max(96, Math.min(heightFor('full'), start.current.h + start.current.y - e.clientY)))
   }
   function onPointerUp(e: React.PointerEvent) {
     if (!start.current) return
@@ -44,7 +46,12 @@ export function BottomSheet({ snap, onSnap, contentKey, bottomOffset = 0, childr
     const h = dragHeight ?? start.current.h
     start.current = null
     setDragHeight(null)
-    if (moved < 6) return onSnap(snap === 'peek' ? 'half' : snap === 'half' ? 'full' : 'half') // tap
+    if (moved < 6) {
+      // A double tap always opens the full panel; a single tap steps to the next height.
+      const double = e.timeStamp - lastTap.current < 350
+      lastTap.current = e.timeStamp
+      return onSnap(double ? 'full' : snap === 'peek' ? 'half' : snap === 'half' ? 'full' : 'half')
+    }
     const snaps: SnapPoint[] = ['peek', 'half', 'full']
     onSnap(snaps.reduce((best, s) => (Math.abs(heightFor(s) - h) < Math.abs(heightFor(best) - h) ? s : best)))
   }

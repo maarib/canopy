@@ -3,7 +3,7 @@ import { Skeleton } from './ui'
 import { colorOutlook, fetchForecast, weatherEmoji, type ColorOutlook } from '../lib/weather'
 
 const OUTLOOK_DOT: Record<ColorOutlook, { label: string; cls: string } | null> = {
-  vivid: { label: 'Vivid color', cls: 'bg-maple' },
+  vivid: { label: 'Vivid color', cls: 'bg-brand' },
   'leaf-drop': { label: 'Leaf-drop risk', cls: 'bg-bark dark:bg-[#a08672]' },
   frost: { label: 'Hard frost', cls: 'bg-sky-500' },
   neutral: null,
@@ -28,7 +28,7 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
       {forecast.isError && (
         <p className="flex items-center gap-2 text-sm">
           <span className="text-[var(--ink-soft)]">Couldn’t load the forecast.</span>
-          <button onClick={() => forecast.refetch()} className="rounded-full px-2 py-0.5 text-maple transition-colors hover:bg-maple/10">
+          <button onClick={() => forecast.refetch()} className="rounded-full px-2 py-0.5 text-brand transition-colors hover:bg-brand/10">
             Try again
           </button>
         </p>
@@ -52,7 +52,7 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
         </ol>
       )}
       <p className="mt-2 text-xs text-[var(--ink-soft)]">
-        <span className="mr-1 inline-block size-1.5 rounded-full bg-maple align-middle" /> cool nights and dry days, the best reds
+        <span className="mr-1 inline-block size-1.5 rounded-full bg-brand align-middle" /> cool nights and dry days, the best reds
         <span className="mr-1 ml-3 inline-block size-1.5 rounded-full bg-bark align-middle dark:bg-[#a08672]" /> wind or heavy rain
       </p>
     </section>

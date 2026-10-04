@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
+| [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | 2026-10-03 | The first release: everything up to [#108](https://github.com/maarib/canopy/pull/108) |
 
@@ -16,6 +16,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-04 | [Three views, orange brand color, new logo and navigation polish](#2026-10-04-three-views-orange-brand-color-new-logo-and-navigation-polish) | [#114](https://github.com/maarib/canopy/pull/114) |
 | 2026-10-03 | [About and Data sources pages, footer at the bottom, legend in Layers](#2026-10-03-about-and-data-sources-pages-footer-at-the-bottom-legend-in-layers) | [#112](https://github.com/maarib/canopy/pull/112) |
 | 2026-10-03 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-03-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
 | 2026-10-03 | [Icons for the nine missing activities](#2026-10-03-icons-for-the-nine-missing-activities) | [#110](https://github.com/maarib/canopy/pull/110) |
@@ -46,7 +47,43 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ---
 
-## Unreleased
+## v1.2
+
+### 2026-10-04 · Three views, orange brand color, new logo and navigation polish
+
+**Ref:** [#114](https://github.com/maarib/canopy/pull/114)
+
+**Before.**
+- The view was fixed on desktop (a 420 px panel beside the map). On phones the sheet had three heights, but its tallest left a strip of map, and every page change reset it to half.
+- The logo was the detailed two-color maple from the tree icons.
+- The accent color was maple red (`#c8102e`), the same red that means "peak" in the data.
+- The header avatar was a solid light disc; the menu said "Guest", used a question mark for About and ended with "Sign in or create account · Coming soon".
+- The color legend sat at the bottom of the Layers menu.
+- In lists, a park's or region's stage was colored text.
+- The footer ran left to right with dots between items, and maaribs.com was styled differently from the other links.
+
+**After.**
+- **Three views:** the map alone, the map with the panel, or the panel alone (the map hidden). A three-button control is always on screen: floating at the bottom centre on desktop, in the header on phones, where the sheet and tab bar leave no free spot at the bottom.
+  - Opening a place always shows the map with the panel, and the map flies to it, as before.
+  - In the full panel, moving between pages stays in the full panel.
+  - On phones the views are the sheet's three heights; the tallest now covers the map up to the header. A double tap on the grabber opens the full panel.
+  - On desktop the full panel keeps its content in a centred column.
+- **Logo:** a plain one-color maple leaf, tilted slightly in the header. The favicon matches.
+- **Brand color:** a vibrant orange (`#f2600c`) for buttons, links, hover and selected states, focus rings, counters and the progress bar. Red remains only where it is data: the peak stage, hard trails, dense sightings and the park boundary.
+- **Account menu:** the avatar uses the same quiet fill as in the open menu; the name is Maarib; About has an info icon; the last row reads "Accounts coming soon".
+- **Legend:** a round info button beside Layers opens the color stage and sightings legend in its own menu; it is no longer inside Layers.
+- **Stage labels in lists** are a label inside a fill, as on detail pages (parks, regions, Explore, Foliage).
+- **Footer:** "© Canopy 2026" on the left; About, Data sources and maaribs.com ↗ on the right, with no dots and one link style.
+
+**How.**
+- `src/App.tsx` treats the sheet's snap point as the view on every screen size and adds `ViewSwitch`. The map stays mounted while hidden. A page change sets the split view unless the full panel is in use and the page isn't a place.
+- `src/components/BottomSheet.tsx`: the full height reaches the header; a second tap within 350 ms opens the full panel.
+- `src/index.css` replaces `--color-maple` with `--color-brand`; the `*-maple` classes became `*-brand`. `index.html` and the manifest's theme color follow.
+- `src/components/ui.tsx` adds `Logo`, `InfoIcon` and `ViewIcon` (the icon pack has no info or view icons) and a small size for `Badge`.
+- `src/components/MapFilters.tsx` gains an icon-only button.
+
+**Why.** Sometimes the map is the point and sometimes the list is; the view should be the user's choice and stay put. Orange separates the brand from the red that carries meaning in the data.
+
 
 ### 2026-10-03 · About and Data sources pages, footer at the bottom, legend in Layers
 

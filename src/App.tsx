@@ -11,7 +11,7 @@ import { SideNav, TabBar, type Section } from './components/AppNav'
 import { TAB_BAR_HEIGHT } from './lib/styles'
 import { FoliagePanel } from './components/FoliagePanel'
 import { ExplorePanel, type ExploreQuery } from './components/ExplorePanel'
-import { LayerOptions, TreeOptions, type TreeFilterValue } from './components/MapControls'
+import { LayerOptions, Legend, TreeOptions, type TreeFilterValue } from './components/MapControls'
 import { MapFilters } from './components/MapFilters'
 import { AboutPanel, DataSourcesPanel, ParksPanel, TrailsPanel } from './components/SectionPanels'
 import { PROVINCE_BY_CODE } from './data/provinces'
@@ -28,7 +28,7 @@ import { TripPanel, TripsPanel, type StopInfo } from './components/TripPanels'
 import { PlaceIcon } from './components/PlaceIcon'
 import { TreeIcon } from './components/TreeIcon'
 import { RegionPanel } from './components/RegionPanel'
-import { BackButton, PanelSkeleton, ProgressBar } from './components/ui'
+import { BackButton, InfoIcon, Logo, PanelSkeleton, ProgressBar, ViewIcon } from './components/ui'
 import { REGIONS, signatureTree, type Region } from './data/regions'
 import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop, useThrottledWhile } from './hooks'
@@ -108,7 +108,8 @@ export default function App() {
   const location = useLocation()
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
-  // Phones open on Explore's search, so the sheet starts half open.
+  // The view: the map alone ('peek'), the map with the panel ('half') or the panel alone ('full').
+  // On phones these are the sheet's three heights. Starts with both, so Explore's search shows.
   const [sheet, setSheet] = useState<SnapPoint>('half')
   const [focus, setFocus] = useState<FlyTarget>(null)
 
@@ -324,12 +325,14 @@ export default function App() {
                   ? 'shared-trip'
                   : 'home'
 
-  // Open the sheet halfway whenever the page changes, so its content (search, list, place) shows.
-  // (Adjusting state during render when the key changes, per React's guidance.)
+  // When the page changes, show the map with the panel, so the new content shows. The full panel
+  // is the exception: moving between pages stays in it. Opening a place always shows both, so the
+  // map can fly to it. (Adjusting state during render when the key changes, per React's guidance.)
   const [sheetFor, setSheetFor] = useState(selectionKey)
   if (sheetFor !== selectionKey) {
     setSheetFor(selectionKey)
-    setSheet('half')
+    const isPlace = ['region', 'park', 'trail', 'place', 'fishing', 'loading'].includes(selection?.kind ?? '')
+    if (isPlace || sheet !== 'full') setSheet('half')
   }
 
   // Tab titles make shared links and history readable.
@@ -388,7 +391,8 @@ export default function App() {
     else {
       if (selection) goHome()
       setFocus({ id: `${r.id}:${Date.now()}`, lng: r.lng, lat: r.lat, zoom: r.zoom })
-      setSheet('peek')
+      // The map is what answers this search: on phones it takes the screen, on desktop it stays beside the panel.
+      setSheet(isDesktop ? 'half' : 'peek')
     }
   }
 
@@ -402,7 +406,7 @@ export default function App() {
     else if (q.what === 'parks') openSection('/parks')
     else if (q.what === 'trails') openSection('/trails')
     else if (q.what === 'places') openSection('/trails?show=waterfall')
-    else setSheet('peek')
+    else setSheet(isDesktop ? 'half' : 'peek')
   }
 
   /** Which nav item a page belongs to. */
@@ -662,7 +666,7 @@ export default function App() {
     <div className="flex h-full flex-col">
       <header className="relative z-30 flex items-center gap-2 border-b border-[var(--line)] bg-[var(--surface)] px-5 py-2.5">
         <button onClick={goHome} className="flex items-center gap-2" aria-label="Canopy home">
-          <TreeIcon id="maples" className="size-7" />
+          <Logo className="size-7 -rotate-12" />
           <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         </button>
         <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Explore Ontario's outdoors</span>
@@ -673,6 +677,7 @@ export default function App() {
               <span className="hidden sm:inline">Loading live sightings…</span>
             </span>
           )}
+          {!isDesktop && <ViewSwitch view={sheet} onChange={setSheet} />}
           <AccountMenu tripCount={trips.length} onNavigate={openSection} />
         </div>
         {sightingsLoading && (
@@ -686,9 +691,9 @@ export default function App() {
         {isDesktop && (
           <>
             <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
-            <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-[var(--line)]">
+            <aside className={`overflow-y-auto border-r border-[var(--line)] ${sheet === 'full' ? 'min-w-0 flex-1' : sheet === 'peek' ? 'hidden' : 'w-[420px] shrink-0'}`}>
               {/* Keyed by page so each new page or place eases in. At least as tall as the panel, so the footer sits at the bottom on short pages. */}
-              <div key={selectionKey} className="animate-panel-in flex min-h-full flex-col">
+              <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl pb-14' : ''}`}>
                 {panel}
                 {footer}
               </div>
@@ -696,7 +701,8 @@ export default function App() {
           </>
         )}
 
-        <div className="relative min-w-0 flex-1" style={isDesktop ? undefined : { marginBottom: TAB_BAR_HEIGHT }}>
+        {/* The map stays mounted behind the full panel, so coming back to it is instant. */}
+        <div className={`relative min-w-0 flex-1 ${isDesktop && sheet === 'full' ? 'hidden' : ''}`} style={isDesktop ? undefined : { marginBottom: TAB_BAR_HEIGHT }}>
           <Suspense fallback={<MapSkeleton />}>
           <FoliageMap
             regions={REGIONS}
@@ -763,6 +769,7 @@ export default function App() {
                   },
                 ]}
               />
+              <MapFilters label="Legend" iconOnly icon={<InfoIcon className="size-5" />} tabs={[{ id: 'legend', label: 'Legend', active: 0, content: <Legend /> }]} />
             </div>
           </div>
 
@@ -780,7 +787,43 @@ export default function App() {
             <TabBar active={section} onNavigate={openSection} tripCount={trips.length} />
           </>
         )}
+
+        {/* Floats over the bottom of the screen. Phones have no free spot there (the sheet and tab bar), so theirs is in the header. */}
+        {isDesktop && <ViewSwitch view={sheet} onChange={setSheet} floating />}
       </main>
+    </div>
+  )
+}
+
+const VIEWS: { snap: SnapPoint; icon: 'map' | 'split' | 'panel'; label: string }[] = [
+  { snap: 'peek', icon: 'map', label: 'Map' },
+  { snap: 'half', icon: 'split', label: 'Map and panel' },
+  { snap: 'full', icon: 'panel', label: 'Panel' },
+]
+
+/** Always on screen: the map alone, the map with the panel, or the panel alone. */
+function ViewSwitch({ view, onChange, floating }: { view: SnapPoint; onChange: (v: SnapPoint) => void; floating?: boolean }) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label="View"
+      className={`flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 ${floating ? 'fixed bottom-4 left-1/2 z-30 -translate-x-1/2 shadow-lg' : ''}`}
+    >
+      {VIEWS.map((v) => (
+        <button
+          key={v.snap}
+          role="radio"
+          aria-checked={view === v.snap}
+          aria-label={v.label}
+          title={v.label}
+          onClick={() => onChange(v.snap)}
+          className={`flex items-center justify-center rounded-full transition-colors active:scale-[0.97] ${floating ? 'h-9 w-11' : 'h-8 w-9'} ${
+            view === v.snap ? 'bg-brand text-white' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
+          }`}
+        >
+          <ViewIcon view={v.icon} />
+        </button>
+      ))}
     </div>
   )
 }

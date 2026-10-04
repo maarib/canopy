@@ -11,7 +11,7 @@ import { ICON_TILE, LIST, ROW } from '../lib/styles'
 import { ActivityOptions } from './ActivityFilter'
 import { PlaceIcon } from './PlaceIcon'
 import { TrailCard } from './TrailPanel'
-import { ExternalIcon, InfoRow } from './ui'
+import { Badge, ExternalIcon, InfoRow } from './ui'
 
 // Dedicated pages for the Parks and Trails sections (and About). Each is a list with its own
 // search, filters and sort; the map beside it shows the same things.
@@ -27,7 +27,7 @@ function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
 
 function FilterInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
   return (
-    <label className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2 focus-within:ring-2 focus-within:ring-maple/40">
+    <label className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2 focus-within:ring-2 focus-within:ring-brand/40">
       <Search className="size-5 shrink-0 text-[var(--ink-soft)]" />
       <input
         value={value}
@@ -115,7 +115,7 @@ export function ParksPanel({
       {!showFilters && activities.length > 0 && (
         <p className="text-sm">
           With <strong className="font-semibold">{activities.map((id) => PARK_FILTERS.get(id)?.label).join(', ')}</strong>{' '}
-          <button onClick={() => onActivities([])} className="ml-1 text-xs font-medium text-maple hover:underline">
+          <button onClick={() => onActivities([])} className="ml-1 text-xs font-medium text-brand hover:underline">
             Clear
           </button>
         </p>
@@ -140,9 +140,7 @@ export function ParksPanel({
                   {p.region} · {p.colorChange ?? 0}% color
                 </span>
               </span>
-              <span className="shrink-0 text-xs font-medium" style={{ color: STAGES[p.stage].color }}>
-                {STAGES[p.stage].label}
-              </span>
+              <Badge size="sm" color={STAGES[p.stage].color}>{STAGES[p.stage].label}</Badge>
               <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
             </button>
           </li>
@@ -328,7 +326,7 @@ export function DataSourcesPanel() {
             key={s.name}
             label={
               // Inline, with the arrow tied to the last word, so it follows the name when it wraps.
-              <a href={s.url} target="_blank" rel="noreferrer" className="hover:text-maple">
+              <a href={s.url} target="_blank" rel="noreferrer" className="hover:text-brand">
                 {s.name}
                 {'\u00a0'}
                 <ExternalIcon className="inline size-3.5 align-[-2px] text-[var(--ink-soft)]" />

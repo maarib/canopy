@@ -65,7 +65,7 @@ type Props = { active: Section | null; onNavigate: (path: string) => void; tripC
 function Badge({ n }: { n: number }) {
   if (!n) return null
   return (
-    <span className="absolute -top-1 -right-2 rounded-full bg-maple px-1.5 text-[10px] leading-4 font-semibold text-white">{n}</span>
+    <span className="absolute -top-1 -right-2 rounded-full bg-brand px-1.5 text-[10px] leading-4 font-semibold text-white">{n}</span>
   )
 }
 

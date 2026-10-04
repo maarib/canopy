@@ -1,7 +1,8 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-maple: #c8102e;
+  /* The brand accent: buttons, links, selection, focus. Red stays for data (peak color, hard trails). */
+  --color-brand: #f2600c;
   --color-pumpkin: #e8730c;
   --color-birch: #e9b824;
   --color-spruce: #2f5d3a;
@@ -138,7 +139,7 @@
 
   /* Visible focus for keyboard users, in the brand color. */
   :focus-visible {
-    outline: 2px solid var(--color-maple);
+    outline: 2px solid var(--color-brand);
     outline-offset: 2px;
   }
 
