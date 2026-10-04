@@ -830,7 +830,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
               </div>
             ))}
             {popup.href && (
-              <a href={popup.href} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-maple underline underline-offset-2 hover:brightness-90">
+              <a href={popup.href} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-brand underline underline-offset-2 hover:brightness-90">
                 View on iNaturalist
                 <ExternalIcon className="size-3.5" />
               </a>

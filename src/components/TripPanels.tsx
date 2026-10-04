@@ -66,7 +66,7 @@ export function TripsPanel({
     <div className="space-y-6 p-5">
       <BackButton onClick={onBack} />
       <header>
-        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-maple uppercase">
+        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-brand uppercase">
           <Bookmark className="size-3.5" /> Your trips
         </p>
         <h2 className="text-3xl leading-tight">Trips</h2>
@@ -90,9 +90,9 @@ export function TripsPanel({
           placeholder="Name a new trip, e.g. Algonquin weekend"
           aria-label="New trip name"
           maxLength={80}
-          className="min-w-0 flex-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-maple/40"
+          className="min-w-0 flex-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-brand/40"
         />
-        <button type="submit" className="inline-flex items-center gap-1 rounded-full bg-maple px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+        <button type="submit" className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-sm font-medium text-white hover:opacity-90">
           <Add className="size-4" /> Create trip
         </button>
       </form>
@@ -170,16 +170,16 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
       <BackButton onClick={onBack} />
 
       {shared && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl bg-maple/10 p-3 text-sm">
+        <div className="flex items-center justify-between gap-3 rounded-2xl bg-brand/10 p-3 text-sm">
           <span>This trip was shared with you. Save it to make changes.</span>
-          <button onClick={onSaveCopy} className="shrink-0 rounded-full bg-maple px-3 py-1.5 font-medium text-white hover:opacity-90">
+          <button onClick={onSaveCopy} className="shrink-0 rounded-full bg-brand px-3 py-1.5 font-medium text-white hover:opacity-90">
             Save to my trips
           </button>
         </div>
       )}
 
       <header>
-        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-maple uppercase">
+        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-brand uppercase">
           <Bookmark className="size-3.5" /> Trip
         </p>
         {editable ? (
@@ -256,7 +256,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
                     target="_blank"
                     rel="noreferrer"
                     aria-label={`Directions for ${dayLabel(trip, d + 1)}`}
-                    className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-maple transition-colors hover:bg-maple/10"
+                    className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-brand transition-colors hover:bg-brand/10"
                   >
                     <LocationOn className="size-4" /> Directions
                   </a>
@@ -371,7 +371,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
               onDeleted?.()
             }
           }}
-          className="text-sm text-[var(--ink-soft)] underline hover:text-maple"
+          className="text-sm text-[var(--ink-soft)] underline hover:text-brand"
         >
           Delete trip
         </button>

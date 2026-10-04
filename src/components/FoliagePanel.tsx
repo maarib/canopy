@@ -6,7 +6,7 @@ import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/peak'
 import { STAGE_ORDER, STAGES } from '../lib/stage'
 import { ROW } from '../lib/styles'
-import { Segmented, Skeleton } from './ui'
+import { Badge, Segmented, Skeleton } from './ui'
 import { TreePicker } from './TreePicker'
 import type { TreeFilterValue } from './MapControls'
 
@@ -64,7 +64,7 @@ export function FoliagePanel(props: Props) {
               </span>
               <button
                 onClick={props.activityFilter.onClear}
-                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium text-maple transition-colors hover:bg-maple/10"
+                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium text-brand transition-colors hover:bg-brand/10"
               >
                 Clear
               </button>
@@ -151,9 +151,7 @@ export function ParkList({
                     {p.colorChange ?? 0}% color · {p.leafFall ?? 0}% fallen · {p.dominantColor}
                   </span>
                 </span>
-                <span className="shrink-0 text-xs font-medium" style={{ color: stage.color }}>
-                  {stage.label}
-                </span>
+                <Badge size="sm" color={stage.color}>{stage.label}</Badge>
                 <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
               </button>
             </li>
@@ -189,9 +187,7 @@ function RegionList({ regions, onSelect }: { regions: Region[]; onSelect: (r: Re
                     {r.province} · peak {formatWindow(r)}
                   </span>
                 </span>
-                <span className="shrink-0 text-xs font-medium" style={{ color: phase.color }}>
-                  {phase.label}
-                </span>
+                <Badge size="sm" color={phase.color}>{phase.label}</Badge>
                 <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
               </button>
             </li>

@@ -7,10 +7,10 @@ export type FilterTab = { id: string; label: string; active: number; content: Re
 
 /**
  * A menu button on the map: Filters (trees, park activities) narrows what the map shows; Layers
- * changes how it looks. With several tabs, each shows how many of its options are set and the
+ * changes how it looks; a round info button opens the legend. With several tabs, each shows how many of its options are set and the
  * button shows the total; a single tab shows its content without tabs.
  */
-export function MapFilters({ tabs, label = 'Filters', icon = <FilterList className="size-5" /> }: { tabs: FilterTab[]; label?: string; icon?: ReactNode }) {
+export function MapFilters({ tabs, label = 'Filters', icon = <FilterList className="size-5" />, iconOnly }: { tabs: FilterTab[]; label?: string; icon?: ReactNode; /** A round button with no text; `label` still names it. */ iconOnly?: boolean }) {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState(tabs[0].id)
   const [place, setPlace] = useState<CSSProperties>()
@@ -50,14 +50,14 @@ export function MapFilters({ tabs, label = 'Filters', icon = <FilterList classNa
         onClick={() => (open ? setOpen(false) : openMenu())}
         aria-expanded={open}
         aria-label={total ? `Map ${label.toLowerCase()}: ${total} set` : `Map ${label.toLowerCase()}`}
-        className={`flex h-[42px] items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium shadow-md transition-colors ${
+        className={`flex h-[42px] items-center justify-center gap-1.5 rounded-full border ${iconOnly ? 'w-[42px]' : 'px-3.5'} text-sm font-medium shadow-md transition-colors ${
           total
             ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]'
             : `border-[var(--line)] hover:bg-[var(--surface-2)] ${open ? 'bg-[var(--surface-2)]' : 'bg-[var(--surface)]'}`
         }`}
       >
         {icon}
-        {label}
+        {!iconOnly && label}
         {total > 0 && <span className="rounded-full bg-[var(--surface)] px-1.5 text-xs leading-5 text-[var(--ink)]">{total}</span>}
       </button>
 
@@ -75,7 +75,7 @@ export function MapFilters({ tabs, label = 'Filters', icon = <FilterList classNa
               label: (
                 <>
                   {t.label}
-                  {t.active > 0 && <span className="rounded-full bg-maple px-1.5 text-[10px] leading-4 text-white">{t.active}</span>}
+                  {t.active > 0 && <span className="rounded-full bg-brand px-1.5 text-[10px] leading-4 text-white">{t.active}</span>}
                 </>
               ),
             }))}

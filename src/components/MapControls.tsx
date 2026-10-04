@@ -17,7 +17,7 @@ const LAYER_LABELS: [keyof MapLayers, string, string][] = [
   ['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys'],
 ]
 
-/** Map style, light, layers and the color legend: the map's Layers menu. */
+/** Map style, light and layers: the map's Layers menu. */
 export function LayerOptions({
   layers,
   onChange,
@@ -76,7 +76,7 @@ export function LayerOptions({
                 type="checkbox"
                 checked={layers[key]}
                 onChange={(e) => onChange({ ...layers, [key]: e.target.checked })}
-                className="mt-1 accent-maple"
+                className="mt-1 accent-brand"
               />
               <span>
                 <span className="block text-sm font-medium">{label}</span>
@@ -96,9 +96,6 @@ export function LayerOptions({
           </li>
         ))}
       </ul>
-      <div className="mt-3 border-t border-[var(--line)] px-1 pt-3">
-        <Legend />
-      </div>
     </div>
   )
 }
@@ -124,9 +121,10 @@ function StylePreview({ style, selected }: { style: MapStyle; selected: boolean 
 
 const LEGEND_STAGES: Stage[] = ['green', 'patchy', 'near', 'peak', 'past']
 
+/** What the map's colors mean: opened by the info button beside Layers. */
 export function Legend() {
   return (
-    <div className="text-xs">
+    <div className="px-2 text-xs">
       <div className="mb-1.5 font-semibold">Color stage</div>
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {LEGEND_STAGES.map((s) => (
@@ -171,7 +169,7 @@ export function TreeOptions({
               aria-checked={on}
               onClick={() => onChange(o.id)}
               className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors ${
-                on ? 'bg-maple/10 font-medium' : 'hover:bg-[var(--surface-2)]'
+                on ? 'bg-brand/10 font-medium' : 'hover:bg-[var(--surface-2)]'
               }`}
             >
               <span className="flex size-[22px] items-center justify-center">
@@ -183,7 +181,7 @@ export function TreeOptions({
               </span>
               <span className="min-w-0 flex-1">{o.label}</span>
               {o.n != null && <span className="text-xs tabular-nums text-[var(--ink-soft)]">{o.n}</span>}
-              <span className="flex size-4 items-center justify-center">{on && <Check className="size-4 text-maple" />}</span>
+              <span className="flex size-4 items-center justify-center">{on && <Check className="size-4 text-brand" />}</span>
             </button>
           </li>
         )

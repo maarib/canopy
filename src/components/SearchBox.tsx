@@ -84,7 +84,7 @@ export function SearchBox({
 
   return (
     <div className="relative">
-      <div className="flex h-[42px] items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 shadow-md focus-within:ring-2 focus-within:ring-maple/40">
+      <div className="flex h-[42px] items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 shadow-md focus-within:ring-2 focus-within:ring-brand/40">
         <Search className="size-5 shrink-0 text-[var(--ink-soft)]" />
         <input
           ref={inputRef}
@@ -165,7 +165,7 @@ function ResultIcon({ result }: { result: SearchResult }) {
   if (result.kind === 'region') {
     const region = REGIONS.find((r) => r.id === result.id)!
     return (
-      <span className={`${box} text-maple`}>
+      <span className={`${box} text-brand`}>
         <TreeIcon id={signatureTree(region)} className="size-4" />
       </span>
     )

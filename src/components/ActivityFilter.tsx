@@ -29,7 +29,7 @@ export function ActivityOptions({
           {!ready ? 'Loading park facilities…' : active ? `${countWith(value)} Ontario Parks offer all of these` : 'Ontario Parks that offer…'}
         </p>
         {active && (
-          <button onClick={() => onChange([])} className="rounded-full px-2 py-1 text-xs font-medium text-maple transition-colors hover:bg-maple/10">
+          <button onClick={() => onChange([])} className="rounded-full px-2 py-1 text-xs font-medium text-brand transition-colors hover:bg-brand/10">
             Clear
           </button>
         )}
@@ -50,7 +50,7 @@ export function ActivityOptions({
                     disabled={empty}
                     onClick={() => toggle(f.id)}
                     className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors ${
-                      on ? 'bg-maple/10 font-medium' : 'hover:bg-[var(--surface-2)]'
+                      on ? 'bg-brand/10 font-medium' : 'hover:bg-[var(--surface-2)]'
                     } disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent`}
                   >
                     <AmenityIcon icon={f.icon} size={22} />
@@ -58,7 +58,7 @@ export function ActivityOptions({
                     {n != null && <span className="text-xs tabular-nums text-[var(--ink-soft)]">{n}</span>}
                     <span
                       aria-hidden
-                      className={`flex size-4 items-center justify-center rounded border ${on ? 'border-maple bg-maple text-white' : 'border-[var(--line)]'}`}
+                      className={`flex size-4 items-center justify-center rounded border ${on ? 'border-brand bg-brand text-white' : 'border-[var(--line)]'}`}
                     >
                       {on && <Check className="size-3" />}
                     </span>

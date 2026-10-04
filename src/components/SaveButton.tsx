@@ -60,7 +60,7 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition active:scale-[0.97] ${
-          isSaved ? 'border-maple bg-maple/10 font-medium text-maple hover:bg-maple/15' : 'border-[var(--line)] hover:bg-[var(--surface-2)]'
+          isSaved ? 'border-brand bg-brand/10 font-medium text-brand hover:bg-brand/15' : 'border-[var(--line)] hover:bg-[var(--surface-2)]'
         }`}
       >
         <Bookmark className="size-4" />
@@ -91,7 +91,7 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
                   >
                     <span
                       className={`flex size-5 shrink-0 items-center justify-center rounded-md border ${
-                        inTrip ? 'border-maple bg-maple text-white' : 'border-[var(--line)]'
+                        inTrip ? 'border-brand bg-brand text-white' : 'border-[var(--line)]'
                       }`}
                     >
                       {inTrip && <Check className="size-3.5" />}
@@ -110,9 +110,9 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
               placeholder="New trip name"
               aria-label="New trip name"
               maxLength={80}
-              className="min-w-0 flex-1 rounded-lg bg-[var(--surface-2)] px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-maple/40"
+              className="min-w-0 flex-1 rounded-lg bg-[var(--surface-2)] px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-brand/40"
             />
-            <button type="submit" aria-label="Create trip and save" className="rounded-lg bg-maple p-1.5 text-white hover:opacity-90">
+            <button type="submit" aria-label="Create trip and save" className="rounded-lg bg-brand p-1.5 text-white hover:opacity-90">
               <Add className="size-4" />
             </button>
           </form>

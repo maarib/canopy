@@ -61,9 +61,10 @@ export function BackButton({ onClick }: { onClick: () => void }) {
   )
 }
 
-export function Badge({ color, children }: { color: string; children: ReactNode }) {
+/** A label inside a fill of its color: a park's color stage, a trail's difficulty. `sm` for list rows. */
+export function Badge({ color, size = 'md', children }: { color: string; size?: 'sm' | 'md'; children: ReactNode }) {
   return (
-    <span className="rounded-full px-2.5 py-0.5 text-sm font-medium text-white" style={{ background: color }}>
+    <span className={`shrink-0 rounded-full font-medium text-white ${size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-0.5 text-sm'}`} style={{ background: color }}>
       {children}
     </span>
   )
@@ -96,7 +97,7 @@ export function LinkButton({
       rel="noreferrer"
       className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition ${
         primary
-          ? 'bg-maple font-medium text-white hover:brightness-110 active:scale-[0.97]'
+          ? 'bg-brand font-medium text-white hover:brightness-110 active:scale-[0.97]'
           : 'border border-[var(--line)] hover:bg-[var(--surface-2)] active:scale-[0.97]'
       }`}
     >
@@ -270,3 +271,40 @@ export function Segmented<T extends string>({
     </div>
   )
 }
+
+// ── Icons the icon pack doesn't have, drawn to match its outline style ──
+
+const OUTLINE = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const
+
+export function InfoIcon({ className = 'size-5' }: { className?: string }) {
+  return (
+    <svg {...OUTLINE} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5.5" />
+      <circle cx="12" cy="7.6" r="0.6" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** The three views: the map alone, the map with the panel, the panel alone. */
+export function ViewIcon({ view, className = 'size-5' }: { view: 'map' | 'split' | 'panel'; className?: string }) {
+  return (
+    <svg {...OUTLINE} className={className}>
+      {view === 'map' && <path d="M9 4.5 3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5l-6-2ZM9 4.5v13M15 6.5v13" />}
+      {view === 'split' && <path d="M5.5 4.5h13a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2ZM10 4.5v15M5.8 8.5h1.9M5.8 11.5h1.9" />}
+      {view === 'panel' && <path d="M5.5 4.5h13a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2ZM7.5 9h9M7.5 12h9M7.5 15h5.5" />}
+    </svg>
+  )
+}
+
+/** Canopy's mark: a plain maple leaf in the brand color. */
+export function Logo({ className = 'size-7' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" className={`text-brand ${className}`} aria-hidden>
+      <path d={LOGO_LEAF} fill="currentColor" stroke="currentColor" strokeWidth="5" strokeLinejoin="round" />
+    </svg>
+  )
+}
+/** Three lobes with a tooth on each shoulder and a short stem. Also public/favicon.svg. */
+const LOGO_LEAF =
+  'M50 6 58 21 66 17 63 39 76 28 79 36 92 34 88 47 95 51 76 66 79 74 53 71 53 94 47 94 47 71 21 74 24 66 5 51 12 47 8 34 21 36 24 28 37 39 34 17 42 21Z'
