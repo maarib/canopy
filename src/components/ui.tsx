@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowBack, ArrowForward, Check, KeyboardArrowDown, Link } from 'relume-icons'
 import { usePresence } from '../hooks'
@@ -11,11 +11,19 @@ function scrollParent(el: HTMLElement | null): HTMLElement | null {
 }
 
 /**
+ * Set while a place's page covers the map (the full panel on phones): calling it brings the map
+ * back with the place on it. The detail page's top bar shows a "Show on map" button for it.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export const ShowOnMap = createContext<(() => void) | null>(null)
+
+/**
  * The top bar of a detail page, pinned to the top of the panel: a round back button, and the
  * page's title, which fades in once the page's own heading has scrolled under the bar. Clear while
  * the page is at the top, so the cover shows through; solid once it scrolls.
  */
 export function BackButton({ onClick }: { onClick: () => void }) {
+  const showOnMap = useContext(ShowOnMap)
   const bar = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
   const [title, setTitle] = useState<string | null>(null)
@@ -56,9 +64,18 @@ export function BackButton({ onClick }: { onClick: () => void }) {
       >
         <ArrowBack className="size-5" />
       </button>
-      <span aria-hidden className={`min-w-0 truncate font-display text-xl leading-none transition-opacity duration-200 ${title ? 'opacity-100' : 'opacity-0'}`}>
+      <span aria-hidden className={`min-w-0 flex-1 truncate font-display text-xl leading-none transition-opacity duration-200 ${title ? 'opacity-100' : 'opacity-0'}`}>
         {title}
       </span>
+      {showOnMap && (
+        <button
+          onClick={showOnMap}
+          className="flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 text-sm font-medium shadow-sm transition-[background-color,transform] hover:bg-[var(--surface-2)] active:scale-95"
+        >
+          <ViewIcon view="map" className="size-4" />
+          Show on map
+        </button>
+      )}
     </div>
   )
 }
