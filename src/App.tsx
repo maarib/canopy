@@ -678,6 +678,8 @@ export default function App() {
     )
 
   const footer = <SiteFooter onNavigate={openSection} />
+  /** Desktop, map with panel: the panel floats over the map's left side. */
+  const floatingPanel = isDesktop && sheet === 'half'
   const onPlace = ['region', 'park', 'trail', 'place', 'fishing'].includes(selection?.kind ?? '')
   /** On phones, a place's page in the full panel offers a way back to the map, which has moved to it. */
   const showOnMap = !isDesktop && sheet === 'full' && onPlace ? () => setSheet('half') : null
@@ -721,7 +723,18 @@ export default function App() {
         {isDesktop && (
           <>
             <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
-            <aside ref={asideRef} className={`overflow-y-auto border-r border-[var(--line)] ${sheet === 'full' ? 'min-w-0 flex-1' : sheet === 'peek' ? 'hidden' : 'w-[420px] shrink-0'}`}>
+            {/* Beside the map, the panel floats over it as a card: level with the map's buttons, the
+                same gap at its left and bottom. As the full panel it is the page. */}
+            <aside
+              ref={asideRef}
+              className={`overflow-y-auto bg-[var(--surface)] ${
+                sheet === 'full'
+                  ? 'min-w-0 flex-1'
+                  : sheet === 'peek'
+                    ? 'hidden'
+                    : 'absolute top-3 bottom-3 left-[96px] z-20 w-[420px] rounded-3xl border border-[var(--line)] shadow-xl'
+              }`}
+            >
               {/* Keyed by page so each new page or place eases in. At least as tall as the panel, so the footer sits at the bottom on short pages. */}
               <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl' : ''}`}>
                 {panel}
@@ -732,7 +745,7 @@ export default function App() {
         )}
 
         {/* The map stays mounted behind the full panel, so coming back to it is instant. */}
-        <div className={`relative min-w-0 flex-1 ${isDesktop && sheet === 'full' ? 'hidden' : ''}`} style={isDesktop ? undefined : { marginBottom: TAB_BAR_HEIGHT }}>
+        <div className={`relative min-w-0 flex-1 ${isDesktop && sheet === 'full' ? 'hidden' : ''} ${floatingPanel ? 'panel-floating' : ''}`} style={isDesktop ? undefined : { marginBottom: TAB_BAR_HEIGHT }}>
           <Suspense fallback={<MapSkeleton />}>
           <FoliageMap
             regions={REGIONS}
@@ -743,6 +756,7 @@ export default function App() {
             light={light}
             target={target}
             focus={focus}
+            panelInset={floatingPanel ? PANEL_INSET : 0}
             initialView={initialView}
             onViewChange={onViewChange}
             parkBoundary={parkBoundary}
@@ -763,7 +777,7 @@ export default function App() {
           />
           </Suspense>
 
-          <div className="pointer-events-none absolute top-0 left-0 p-3">
+          <div className={`pointer-events-none absolute top-0 p-3 transition-[left] duration-200 ${floatingPanel ? 'left-[432px]' : 'left-0'}`}>
             <div className="pointer-events-auto flex gap-2">
               <MapFilters
                 tabs={[
@@ -835,6 +849,9 @@ export default function App() {
     </div>
   )
 }
+
+/** The floating panel's width plus its gap from the map's left edge (px). */
+const PANEL_INSET = 432
 
 const VIEWS: { snap: SnapPoint; icon: 'map' | 'split' | 'panel'; label: string }[] = [
   { snap: 'peek', icon: 'map', label: 'Map' },

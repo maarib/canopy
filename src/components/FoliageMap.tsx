@@ -51,9 +51,9 @@ const TAB_BAR = 64
 /** Height of the half-open sheet, which covers the bottom of the map on phones. */
 const sheetHalf = () => Math.round((window.innerHeight - TAB_BAR) * SHEET_HALF)
 
-function sheetPadding(isDesktop: boolean, placeOpen: boolean) {
+function sheetPadding(isDesktop: boolean, placeOpen: boolean, panelInset: number) {
   const bottom = isDesktop ? 0 : placeOpen ? sheetHalf() : 132
-  return { top: 0, left: 0, right: 0, bottom }
+  return { top: 0, left: panelInset, right: 0, bottom }
 }
 
 export type MapLayers = {
@@ -79,6 +79,8 @@ export type FlyTarget = {
 export type MapView = { lat: number; lng: number; zoom: number }
 
 type Props = {
+  /** Desktop: how much of the map's left side the floating panel covers (px), so places are framed in what's visible. */
+  panelInset?: number
   regions: Region[]
   parks: ParkReport[]
   sightings: LeafObservation[]
@@ -116,9 +118,9 @@ type Props = {
 export type TripPin = { ref: string; n: number; lng: number; lat: number; color: string; name: string }
 
 /** Room for the search bar on top and the sheet/panel elsewhere when fitting a trail. */
-function fitPadding(isDesktop: boolean) {
+function fitPadding(isDesktop: boolean, panelInset: number) {
   return isDesktop
-    ? { top: 80, bottom: 60, left: 60, right: 60 }
+    ? { top: 80, bottom: 60, left: 60 + panelInset, right: 60 }
     : { top: 70, bottom: sheetHalf() + 16, left: 24, right: 24 }
 }
 
@@ -153,6 +155,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
   const mapRef = useRef<MapRef>(null)
   const dark = usePrefersDark()
   const isDesktop = useIsDesktop()
+  const panelInset = props.panelInset ?? 0
   const [zoom, setZoom] = useState(3.3)
   const [bounds, setBounds] = useState<Bounds | null>(null)
   const [hovering, setHovering] = useState(false)
@@ -189,17 +192,17 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       if (!target) return
     }
     if (target?.wait) return
-    const padding = sheetPadding(isDesktop, !!target)
+    const padding = sheetPadding(isDesktop, !!target, panelInset)
     if (target?.bounds)
       map.fitBounds(
         [
           [target.bounds[0], target.bounds[1]],
           [target.bounds[2], target.bounds[3]],
         ],
-        { padding: fitPadding(isDesktop), maxZoom: 15, duration: 1500 },
+        { padding: fitPadding(isDesktop, panelInset), maxZoom: 15, duration: 1500 },
       )
     else if (target) map.flyTo({ center: [target.lng, target.lat], zoom: target.zoom, padding, duration: 1600, essential: true })
-    else map.fitBounds(HOME_BOUNDS, { padding: fitPadding(isDesktop), duration: 1200 })
+    else map.fitBounds(HOME_BOUNDS, { padding: fitPadding(isDesktop, panelInset), duration: 1200 })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fly only when the target changes identity
   }, [target?.id, mapReady])
 
@@ -255,13 +258,13 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           [focus.bounds[0], focus.bounds[1]],
           [focus.bounds[2], focus.bounds[3]],
         ],
-        { padding: fitPadding(isDesktop), duration: 1600 },
+        { padding: fitPadding(isDesktop, panelInset), duration: 1600 },
       )
     else if (focus)
       mapRef.current?.flyTo({
         center: [focus.lng, focus.lat],
         zoom: focus.zoom,
-        padding: sheetPadding(isDesktop, false),
+        padding: sheetPadding(isDesktop, false, panelInset),
         duration: 1600,
         essential: true,
       })
@@ -436,12 +439,12 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       ref={mapRef}
       initialViewState={
         props.target?.bounds
-          ? { bounds: props.target.bounds, fitBoundsOptions: { padding: fitPadding(isDesktop) } }
+          ? { bounds: props.target.bounds, fitBoundsOptions: { padding: fitPadding(isDesktop, panelInset) } }
           : props.target
           ? { longitude: props.target.lng, latitude: props.target.lat, zoom: props.target.zoom - 2 }
           : props.initialView
             ? { longitude: props.initialView.lng, latitude: props.initialView.lat, zoom: props.initialView.zoom }
-            : { bounds: HOME_BOUNDS, fitBoundsOptions: { padding: fitPadding(isDesktop) } }
+            : { bounds: HOME_BOUNDS, fitBoundsOptions: { padding: fitPadding(isDesktop, panelInset) } }
       }
       mapboxAccessToken={MAPBOX_TOKEN}
       // A flat map: zoomed out, the globe showed as a disc with empty corners, worst on phones.

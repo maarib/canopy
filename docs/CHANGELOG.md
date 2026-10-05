@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)) |
 | Unreleased | | Filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
@@ -18,6 +19,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-04 | [Floating panel on desktop](#2026-10-04-floating-panel-on-desktop) | [#118](https://github.com/maarib/canopy/pull/118) |
 | 2026-10-04 | [Filter menus open under their pill; phones keep their view](#2026-10-04-filter-menus-open-under-their-pill-phones-keep-their-view) | [#116](https://github.com/maarib/canopy/pull/116) |
 | 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | [#115](https://github.com/maarib/canopy/pull/115) |
 | 2026-10-04 | [Three views, orange brand color, new logo and navigation polish](#2026-10-04-three-views-orange-brand-color-new-logo-and-navigation-polish) | [#114](https://github.com/maarib/canopy/pull/114) |
@@ -52,6 +54,23 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-10-04 · Floating panel on desktop
+
+**Ref:** [#118](https://github.com/maarib/canopy/pull/118)
+
+**Before.** On desktop, the panel was a full-height column between the navigation rail and the map, and the map started at its right edge.
+
+**After.**
+- In the map-with-panel view, the map runs the full width beside the navigation rail and the panel floats over its left side as a rounded card: level with the Filters buttons at the top, with the same 12 px gap at its left and bottom, so the map shows around it.
+- Filters, Layers and the legend button sit just to the right of the panel, and the Mapbox logo moves out from under it.
+- Places are framed in the visible part of the map, to the right of the panel.
+- The map no longer changes size when the panel opens or closes, so there is nothing to redraw. The full-panel view is unchanged: the panel is the page.
+
+**How.** In `src/App.tsx` the panel is positioned over the map (`absolute`) in the split view instead of taking a column. `FoliageMap` takes `panelInset` (432 px: the panel plus its gap) and adds it to the left padding of every camera move. A `panel-floating` class on the map's wrapper shifts the Mapbox logo.
+
+**Why.** The landing page made the map one continuous surface with cards floating on it; the panel now follows the same idea.
+
 
 ### 2026-10-04 · Filter menus open under their pill; phones keep their view
 

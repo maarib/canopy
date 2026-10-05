@@ -192,3 +192,8 @@ body {
 .mapboxgl-ctrl-bottom-right {
   z-index: 11;
 }
+
+/* Desktop, with the panel floating over the map's left side: the Mapbox logo moves out from under it. */
+.panel-floating .mapboxgl-ctrl-bottom-left {
+  left: 432px;
+}
