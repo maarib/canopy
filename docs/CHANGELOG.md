@@ -8,8 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)) |
-| Unreleased | | Filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
+| [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
@@ -53,7 +52,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ---
 
-## Unreleased
+## v1.4
 
 ### 2026-10-04 · Floating panel on desktop
 
