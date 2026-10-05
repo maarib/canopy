@@ -84,6 +84,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
   - The hidden map that draws covers could take keyboard focus; it is now inert.
   - The cover's loading placeholder had a label without a role; nearby photos repeated their caption as alt text.
   - Still open: white text on the orange primary button is 3.25:1 (AA asks for 4.5:1 at that size).
+- **About** gains an Accessibility section: what is in place (contrast, color never the only signal, keyboard, screen-reader names, reduced motion, light and dark), how it was checked, and what is still open. **Data sources** lists its design credits as rows, like the sources.
 
 **How.**
 - `src/components/ExploreSearch.tsx` (new) holds the search card and the landing page; `ExplorePanel.tsx` reuses the card. `SearchBox` and the card's fields take `up` to open above.

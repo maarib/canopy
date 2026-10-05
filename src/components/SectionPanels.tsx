@@ -289,12 +289,32 @@ const SOURCES: { name: string; url: string; what: string; licence: string; refre
   { name: 'Ontario Ministry of Natural Resources', url: 'https://data.ontario.ca/dataset/fishing-access-points', what: 'Provincial park boundaries, fishing access points (Fish ON-Line), Ontario Trail Network', licence: 'Open Government Licence – Ontario', refresh: 'Monthly · weekly' },
   { name: 'Parks Canada', url: 'https://open.canada.ca/data/en/organization/pc', what: 'National park trails', licence: 'Open Government Licence – Canada', refresh: 'Live' },
   { name: 'OpenStreetMap contributors', url: 'https://www.openstreetmap.org/copyright', what: 'Waterfalls, lookouts, lakes, creeks; basemap data', licence: 'ODbL', refresh: 'Weekly' },
-  { name: 'Mapbox', url: 'https://www.mapbox.com/about/maps/', what: 'Basemap, terrain and globe', licence: 'Mapbox terms', refresh: 'Live' },
+  { name: 'Mapbox', url: 'https://www.mapbox.com/about/maps/', what: 'Basemap, satellite imagery and terrain', licence: 'Mapbox terms', refresh: 'Live' },
   { name: 'NASA GIBS', url: 'https://earthdata.nasa.gov/gibs', what: 'VIIRS satellite imagery', licence: 'Public domain', refresh: 'Daily' },
-  { name: 'Open-Meteo', url: 'https://open-meteo.com', what: '7-day outlook', licence: 'CC BY 4.0', refresh: 'Live' },
+  { name: 'Open-Meteo', url: 'https://open-meteo.com', what: '7-day weather forecast', licence: 'CC BY 4.0', refresh: 'Live' },
 ]
 
 /** The story of Canopy, in its maker's words. */
+const DESIGN: { name: string; url?: string; what: string; by: string }[] = [
+  { name: 'Logo and leaf icons', what: 'The maple mark and the thirteen tree icons', by: 'Canopy' },
+  { name: 'Island covers', what: "Each place's real shape as a low-poly island in today's colors", by: 'Canopy' },
+  { name: 'Place icons', what: 'Trails, waterfalls, lookouts, peaks, lakes, rivers and creeks', by: 'Canopy' },
+  { name: 'Activity and facility icons', url: 'https://icons8.com', what: 'Windows 11 Color set', by: 'Icons8' },
+  { name: 'Interface icons', url: 'https://www.npmjs.com/package/relume-icons', what: 'Buttons, menus and navigation', by: 'Relume' },
+  { name: 'Londrina Solid', url: 'https://fonts.google.com/specimen/Londrina+Solid', what: 'Titles and headings', by: 'Google Fonts' },
+  { name: 'Livvic', url: 'https://fonts.google.com/specimen/Livvic', what: 'Everything else', by: 'Google Fonts' },
+]
+
+/** What Canopy does for accessibility today, stated as checked facts, and what is still open. */
+const ACCESS: [string, string][] = [
+  ['Readable text', 'Body text, labels and badges meet WCAG AA contrast (4.5:1) in light and dark. Badges switch between white and dark text to suit their color.'],
+  ['Color is never the only signal', 'Every fall color stage and trail difficulty is written out beside its color.'],
+  ['Keyboard', 'Every button, link, menu and map pin can be reached with Tab and shows a clear focus ring. Escape closes menus.'],
+  ['Screen readers', 'Controls, map pins and loading states have names. The parks, trails and places on the map are also in lists you can read.'],
+  ['Motion', 'Animations switch off when your device asks for reduced motion.'],
+  ['Your settings', 'Light and dark follow your device, and the layout adapts from a phone to a wide screen.'],
+]
+
 export function AboutPanel({ onData }: { onData: () => void }) {
   return (
     <div className="space-y-6 p-5">
@@ -316,6 +336,26 @@ export function AboutPanel({ onData }: { onData: () => void }) {
         </p>
         <p>If it helps you get outside a little more often, it has done its job.</p>
       </div>
+      <section>
+        <h3 className="text-lg">Accessibility</h3>
+        <p className="mt-1 text-sm leading-relaxed">
+          Canopy is built so anyone can plan a day outside with it. It is checked against the WCAG 2.1 AA guidelines with an automated
+          audit across its main pages, in light and dark and on phone and desktop sizes.
+        </p>
+        <ul className={LIST}>
+          {ACCESS.map(([label, detail]) => (
+            <InfoRow key={label} label={label} detail={detail} />
+          ))}
+        </ul>
+        <p className="mt-3 text-xs leading-relaxed text-[var(--ink-soft)]">
+          Still to do: orange buttons and orange links on light backgrounds are below the AA contrast target, menus don't yet respond to arrow keys, and Canopy
+          hasn't had a full test with a screen reader. If something gets in your way,{' '}
+          <a href="https://github.com/maarib/canopy/issues/new" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
+            tell us
+          </a>
+          .
+        </p>
+      </section>
       <p className="text-sm text-[var(--ink-soft)]">
         Everything here is built on open and public data.{' '}
         <button onClick={onData} className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
@@ -355,15 +395,28 @@ export function DataSourcesPanel() {
           />
         ))}
       </ul>
-      <section className="space-y-1 text-sm">
+      <section>
         <h3 className="text-lg">Design</h3>
-        <p className="text-[var(--ink-soft)]">
-          Leaf icons are Canopy's own. Place and activity icons by{' '}
-          <a href="https://icons8.com" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 hover:text-[var(--ink)]">
-            Icons8
-          </a>
-          ; interface icons by Relume. Type: Londrina Solid and Livvic.
-        </p>
+        <ul className={`stagger ${LIST}`}>
+          {DESIGN.map((d) => (
+            <InfoRow
+              key={d.name}
+              label={
+                d.url ? (
+                  <a href={d.url} target="_blank" rel="noreferrer" className="hover:text-brand">
+                    {d.name}
+                    {'\u00a0'}
+                    <ExternalIcon className="inline size-3.5 align-[-2px] text-[var(--ink-soft)]" />
+                  </a>
+                ) : (
+                  d.name
+                )
+              }
+              detail={d.what}
+              value={d.by}
+            />
+          ))}
+        </ul>
       </section>
     </div>
   )
