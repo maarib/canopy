@@ -159,7 +159,7 @@ docs/                  PRD, technical plan, Explore design, change log
 
 ## What's next
 
-The next release (v1.4) is planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
+The next release (v1.5) is planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
 
 ## Releases
 
@@ -167,6 +167,7 @@ Each release is a git tag and a [GitHub Release](https://github.com/maarib/canop
 
 | Version | What's in it |
 |---|---|
+| [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | A floating panel on desktop, phones that keep the view you chose, a Show on map button, and fixes to menu positions and scrolling |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | Explore as a map-first landing page, the Places section, menu-pill filters, satellite at dawn by default, an accessibility and load-size pass |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | Island covers for places, three views, orange brand color, new logo, About and Data sources pages, the nine missing activity icons |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | Pre-drawn covers and island thumbnails in lists |
