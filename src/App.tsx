@@ -112,7 +112,9 @@ export default function App() {
   // The view: the map alone ('peek'), the map with the panel ('half') or the panel alone ('full').
   // On phones these are the sheet's three heights. Explore is the landing page and opens on the
   // map alone, with the search over it; any other page opens with its panel.
-  const [sheet, setSheet] = useState<SnapPoint>(() => (location.pathname === '/' ? 'peek' : 'half'))
+  const [sheet, setSheet] = useState<SnapPoint>(() =>
+    location.pathname === '/' ? 'peek' : !isDesktop && ['/about', '/sources'].includes(location.pathname) ? 'full' : 'half',
+  )
   const [focus, setFocus] = useState<FlyTarget>(null)
 
   // Sightings stream in page by page; a recent copy on the device makes reopening instant.
@@ -338,6 +340,8 @@ export default function App() {
     const isPlace = ['region', 'park', 'trail', 'place', 'fishing', 'loading'].includes(selection?.kind ?? '')
     // Explore always comes back as the landing page: the map, with the search over it.
     if (selectionKey === 'home') setSheet('peek')
+    // About and Data sources are reading pages with nothing on the map: on phones they take the screen.
+    else if (!isDesktop && (selection?.kind === 'about' || selection?.kind === 'sources')) setSheet('full')
     else if (isPlace || sheet !== 'full') setSheet('half')
   }
 
