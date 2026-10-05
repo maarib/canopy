@@ -1,5 +1,5 @@
 import { experimental_streamedQuery as streamedQuery, useQuery } from '@tanstack/react-query'
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { Layers, ProgressActivity } from 'relume-icons'
 import { BottomSheet, type SnapPoint } from './components/BottomSheet'
@@ -29,7 +29,7 @@ import { TripPanel, TripsPanel, type StopInfo } from './components/TripPanels'
 import { PlaceIcon } from './components/PlaceIcon'
 import { TreeIcon } from './components/TreeIcon'
 import { RegionPanel } from './components/RegionPanel'
-import { BackButton, InfoIcon, Logo, PanelSkeleton, ProgressBar, ViewIcon } from './components/ui'
+import { BackButton, InfoIcon, Logo, PanelSkeleton, ProgressBar, ShowOnMap, ViewIcon } from './components/ui'
 import { REGIONS, signatureTree, type Region } from './data/regions'
 import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop, useThrottledWhile } from './hooks'
@@ -112,7 +112,9 @@ export default function App() {
   // The view: the map alone ('peek'), the map with the panel ('half') or the panel alone ('full').
   // On phones these are the sheet's three heights. Explore is the landing page and opens on the
   // map alone, with the search over it; any other page opens with its panel.
-  const [sheet, setSheet] = useState<SnapPoint>(() => (location.pathname === '/' ? 'peek' : 'half'))
+  const [sheet, setSheet] = useState<SnapPoint>(() =>
+    location.pathname === '/' ? 'peek' : !isDesktop && ['/about', '/sources'].includes(location.pathname) ? 'full' : 'half',
+  )
   const [focus, setFocus] = useState<FlyTarget>(null)
 
   // Sightings stream in page by page; a recent copy on the device makes reopening instant.
@@ -330,16 +332,25 @@ export default function App() {
                   : 'home'
 
   // When the page changes, show the map with the panel, so the new content shows. The full panel
-  // is the exception: moving between pages stays in it. Opening a place always shows both, so the
-  // map can fly to it. (Adjusting state during render when the key changes, per React's guidance.)
+  // is the exception: moving between pages stays in it. (Adjusting state during render when the key changes, per React's guidance.)
   const [sheetFor, setSheetFor] = useState(selectionKey)
   if (sheetFor !== selectionKey) {
     setSheetFor(selectionKey)
     const isPlace = ['region', 'park', 'trail', 'place', 'fishing', 'loading'].includes(selection?.kind ?? '')
     // Explore always comes back as the landing page: the map, with the search over it.
     if (selectionKey === 'home') setSheet('peek')
-    else if (isPlace || sheet !== 'full') setSheet('half')
+    // About and Data sources are reading pages with nothing on the map: on phones they take the screen.
+    else if (!isDesktop && (selection?.kind === 'about' || selection?.kind === 'sources')) setSheet('full')
+    // On desktop, opening a place always shows the map with the panel. On phones the view is the
+    // reader's choice and stays put; only the map alone opens the panel, or a tapped pin would do nothing.
+    else if (isPlace ? isDesktop || sheet === 'peek' : sheet !== 'full') setSheet('half')
   }
+
+  // A new page starts at the top of the desktop panel (the phone sheet does the same itself).
+  const asideRef = useRef<HTMLElement>(null)
+  useLayoutEffect(() => {
+    asideRef.current?.scrollTo({ top: 0 })
+  }, [selectionKey])
 
   // Tab titles make shared links and history readable.
   useEffect(() => {
@@ -667,6 +678,9 @@ export default function App() {
     )
 
   const footer = <SiteFooter onNavigate={openSection} />
+  const onPlace = ['region', 'park', 'trail', 'place', 'fishing'].includes(selection?.kind ?? '')
+  /** On phones, a place's page in the full panel offers a way back to the map, which has moved to it. */
+  const showOnMap = !isDesktop && sheet === 'full' && onPlace ? () => setSheet('half') : null
   /** Explore with the panel closed: the search and quick links sit over the map. */
   const landing = selection === null && sheet === 'peek'
   const treeCount = treeFilter === 'trees' ? 0 : 1
@@ -707,7 +721,7 @@ export default function App() {
         {isDesktop && (
           <>
             <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
-            <aside className={`overflow-y-auto border-r border-[var(--line)] ${sheet === 'full' ? 'min-w-0 flex-1' : sheet === 'peek' ? 'hidden' : 'w-[420px] shrink-0'}`}>
+            <aside ref={asideRef} className={`overflow-y-auto border-r border-[var(--line)] ${sheet === 'full' ? 'min-w-0 flex-1' : sheet === 'peek' ? 'hidden' : 'w-[420px] shrink-0'}`}>
               {/* Keyed by page so each new page or place eases in. At least as tall as the panel, so the footer sits at the bottom on short pages. */}
               <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl' : ''}`}>
                 {panel}
@@ -809,7 +823,7 @@ export default function App() {
             {!landing && <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
               {/* At least as tall as the panel, so the footer sits at the bottom on short pages. */}
               <div key={selectionKey} className="animate-panel-in flex min-h-full flex-col">
-                {panel}
+                <ShowOnMap value={showOnMap}>{panel}</ShowOnMap>
                 {footer}
               </div>
             </BottomSheet>}

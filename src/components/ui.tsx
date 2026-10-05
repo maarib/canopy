@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { ArrowBack, ArrowForward, Check, KeyboardArrowDown, Link } from 'relume-icons'
 import { usePresence } from '../hooks'
 import { ICON_TILE, INFO_ROW, inkOn } from '../lib/styles'
@@ -10,11 +11,19 @@ function scrollParent(el: HTMLElement | null): HTMLElement | null {
 }
 
 /**
+ * Set while a place's page covers the map (the full panel on phones): calling it brings the map
+ * back with the place on it. The detail page's top bar shows a "Show on map" button for it.
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export const ShowOnMap = createContext<(() => void) | null>(null)
+
+/**
  * The top bar of a detail page, pinned to the top of the panel: a round back button, and the
  * page's title, which fades in once the page's own heading has scrolled under the bar. Clear while
  * the page is at the top, so the cover shows through; solid once it scrolls.
  */
 export function BackButton({ onClick }: { onClick: () => void }) {
+  const showOnMap = useContext(ShowOnMap)
   const bar = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
   const [title, setTitle] = useState<string | null>(null)
@@ -55,9 +64,18 @@ export function BackButton({ onClick }: { onClick: () => void }) {
       >
         <ArrowBack className="size-5" />
       </button>
-      <span aria-hidden className={`min-w-0 truncate font-display text-xl leading-none transition-opacity duration-200 ${title ? 'opacity-100' : 'opacity-0'}`}>
+      <span aria-hidden className={`min-w-0 flex-1 truncate font-display text-xl leading-none transition-opacity duration-200 ${title ? 'opacity-100' : 'opacity-0'}`}>
         {title}
       </span>
+      {showOnMap && (
+        <button
+          onClick={showOnMap}
+          className="flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 text-sm font-medium shadow-sm transition-[background-color,transform] hover:bg-[var(--surface-2)] active:scale-95"
+        >
+          <ViewIcon view="map" className="size-4" />
+          Show on map
+        </button>
+      )}
     </div>
   )
 }
@@ -378,7 +396,7 @@ export function MenuButton({
   useEffect(() => {
     if (!open) return
     const close = () => setOpen(false)
-    const onDown = (e: PointerEvent) => !root.current?.contains(e.target as Node) && close()
+    const onDown = (e: PointerEvent) => !root.current?.contains(e.target as Node) && !menu.current?.contains(e.target as Node) && close()
     // Escape closes the menu and hands focus back to its pill.
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (close(), button.current?.focus())
     const onScroll = (e: Event) => !menu.current?.contains(e.target as Node) && close()
@@ -412,7 +430,10 @@ export function MenuButton({
         </span>
         <KeyboardArrowDown className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {presence.mounted && (
+      {/* Drawn at the top of the page, not inside the panel: the panel's entrance animation makes
+          it the reference box for anything fixed inside it, which put the menu in the wrong place. */}
+      {presence.mounted &&
+        createPortal(
         <div
           ref={menu}
           role="group"
@@ -421,8 +442,9 @@ export function MenuButton({
           className={`fixed z-40 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl`}
         >
           {children(() => setOpen(false))}
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </div>
   )
 }
