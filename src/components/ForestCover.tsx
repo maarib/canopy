@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState, type ReactNode } from 'react'
 import { coverUrl, useCoverIndex, type CoverIndex } from '../lib/coverIndex'
 import { coverFoliage, coverKey, coverShape, shapeId, shapeIds, type CoverSpec } from '../lib/coverSpec'
-import { COVER_BLEED, COVER_SIZE, forestCover } from '../lib/forestCover'
+import { COVER_BLEED, COVER_SIZE } from '../lib/coverFrame'
 import { fetchOntarioParks } from '../lib/ontarioParks'
 import { MAPBOX_TOKEN } from '../lib/mapStyle'
 import { fetchParkBoundary } from '../lib/parkBoundaries'
@@ -33,7 +33,9 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
   useEffect(() => {
     if (!ready || predrawn || !MAPBOX_TOKEN) return
     const abort = new AbortController()
-    forestCover(coverShape(spec, outlineData), foliage, abort.signal)
+    // The drawing code loads only when a cover has to be drawn here; most are pre-drawn images.
+    import('../lib/forestCover')
+      .then(({ forestCover }) => forestCover(coverShape(spec, outlineData), foliage, abort.signal))
       .then((url) => !abort.signal.aborted && setDrawn({ key, url }))
       .catch(() => {})
     return () => abort.abort()
@@ -57,7 +59,7 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
           className="pointer-events-none absolute max-w-none animate-fade-in select-none"
         />
       ) : (
-        <div className="skeleton size-full rounded-2xl" aria-label="Drawing the cover" />
+        <div className="skeleton size-full rounded-2xl" role="status" aria-label="Drawing the cover" />
       )}
       <figcaption className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[9px] whitespace-nowrap text-[var(--ink-soft)]">
         © Mapbox © OpenStreetMap

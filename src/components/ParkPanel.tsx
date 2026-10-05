@@ -7,8 +7,8 @@ import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { ParkAmenities } from './ParkAmenities'
 import { SaveButton } from './SaveButton'
-import { CalendarToday, LocationOn, Schedule } from 'relume-icons'
-import { BackButton, Badge, LinkButton, ShareButton, Meter } from './ui'
+import { LocationOn, Schedule } from 'relume-icons'
+import { BackButton, Badge, LinkButton, MoreLinks, ShareButton, Meter } from './ui'
 
 export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => void }) {
   const stage = STAGES[park.stage]
@@ -45,13 +45,13 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         </LinkButton>
         <SaveButton stopRef={`park:${park.id}`} name={parkTitle(park)} />
         <ShareButton title={`${parkTitle(park)} fall colors · Canopy`} />
-        <LinkButton href="https://reservations.ontarioparks.ca/" icon={<CalendarToday className="size-4" />} external>
-          Reserve a site
-        </LinkButton>
-        <LinkButton href={park.url} external>
-          Ontario Parks page
-        </LinkButton>
       </section>
+      <MoreLinks
+        links={[
+          { label: 'Reserve a site', href: 'https://reservations.ontarioparks.ca/' },
+          { label: 'Ontario Parks page', href: park.url },
+        ]}
+      />
 
       <section className="space-y-3">
         <Meter label="Color change" value={park.colorChange} color={stage.color} />
@@ -60,6 +60,8 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
           <span className="text-[var(--ink-soft)]">Dominant color:</span> <strong>{park.dominantColor}</strong>
         </p>
       </section>
+
+      <ForecastStrip lat={park.lat} lng={park.lng} />
 
       {park.viewing && (
         <section>
@@ -70,7 +72,6 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
 
       <ParkAmenities shortname={park.shortname} />
 
-      <ForecastStrip lat={park.lat} lng={park.lng} />
       <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} />
 
       <p className="text-[11px] text-[var(--ink-soft)]">

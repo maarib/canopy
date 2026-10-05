@@ -24,11 +24,14 @@ export function SearchBox({
   trails,
   places: explorePlaces,
   onSelect,
+  up,
 }: {
   parks: ParkReport[]
   trails: Trail[]
   places: Place[]
   onSelect: (r: SearchResult) => void
+  /** Open the results above the box (when it sits at the bottom of the screen). */
+  up?: boolean
 }) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -127,7 +130,7 @@ export function SearchBox({
         <ul
           id={listId}
           role="listbox"
-          className="absolute inset-x-0 top-full z-20 mt-2 max-h-[60vh] origin-top animate-pop-in overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-1.5 shadow-xl"
+          className={`absolute inset-x-0 z-20 max-h-[50vh] ${up ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} animate-pop-in overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-1.5 shadow-xl`}
         >
           {results.map((r, i) => (
             <li

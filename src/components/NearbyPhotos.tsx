@@ -29,7 +29,8 @@ export function NearbyPhotos({ lat, lng, radiusKm = 75 }: { lat: number; lng: nu
           (o) =>
             o.photoUrl && (
               <a key={o.id} href={o.url} target="_blank" rel="noreferrer" className="group relative block aspect-square overflow-hidden rounded-lg">
-                <Photo src={o.photoUrl} alt={o.species} />
+                {/* The caption under the photo names it, so the image itself is decorative. */}
+                <Photo src={o.photoUrl} alt="" />
                 <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 px-1.5 pt-4 pb-1 text-[11px] text-white">
                   {o.species}
                 </span>

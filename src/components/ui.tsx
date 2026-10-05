@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ArrowBack, ArrowForward, Check, Link } from 'relume-icons'
-import { ICON_TILE, INFO_ROW } from '../lib/styles'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { ArrowBack, ArrowForward, Check, KeyboardArrowDown, Link } from 'relume-icons'
+import { usePresence } from '../hooks'
+import { ICON_TILE, INFO_ROW, inkOn } from '../lib/styles'
 
 /** The nearest ancestor that scrolls (the desktop panel or the phone sheet). */
 function scrollParent(el: HTMLElement | null): HTMLElement | null {
@@ -64,7 +65,7 @@ export function BackButton({ onClick }: { onClick: () => void }) {
 /** A label inside a fill of its color: a park's color stage, a trail's difficulty. `sm` for list rows. */
 export function Badge({ color, size = 'md', children }: { color: string; size?: 'sm' | 'md'; children: ReactNode }) {
   return (
-    <span className={`shrink-0 rounded-full font-medium text-white ${size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-0.5 text-sm'}`} style={{ background: color }}>
+    <span className={`shrink-0 rounded-full font-medium ${size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-0.5 text-sm'}`} style={{ background: color, color: inkOn(color) }}>
       {children}
     </span>
   )
@@ -105,6 +106,33 @@ export function LinkButton({
       {children}
       {external && <ExternalIcon className="size-3.5 opacity-70" />}
     </a>
+  )
+}
+
+export type MoreLink = { label: string; href?: string; onClick?: () => void }
+
+/**
+ * The secondary links of a detail page, in one compact row under its main buttons (directions,
+ * save, share) and a divider: quiet underlined text, with an arrow on the ones that leave Canopy.
+ */
+export function MoreLinks({ links }: { links: MoreLink[] }) {
+  const cls = 'inline-flex items-center gap-1 underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current'
+  if (!links.length) return null
+  return (
+    <nav aria-label="More links" className="-mt-2 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-[var(--line)] pt-3 text-sm text-[var(--ink-soft)]">
+      {links.map((l) =>
+        l.href ? (
+          <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className={cls}>
+            {l.label}
+            <ExternalIcon className="size-3.5" />
+          </a>
+        ) : (
+          <button key={l.label} onClick={l.onClick} className={cls}>
+            {l.label}
+          </button>
+        ),
+      )}
+    </nav>
   )
 }
 
@@ -306,5 +334,113 @@ export function Logo({ className = 'size-7' }: { className?: string }) {
   )
 }
 /** Three lobes with a tooth on each shoulder and a short stem. Also public/favicon.svg. */
-const LOGO_LEAF =
+export const LOGO_LEAF =
   'M50 6 58 21 66 17 63 39 76 28 79 36 92 34 88 47 95 51 76 66 79 74 53 71 53 94 47 94 47 71 21 74 24 66 5 51 12 47 8 34 21 36 24 28 37 39 34 17 42 21Z'
+
+// ── The standard filter and sort control: a pill that opens a menu ──
+
+/**
+ * A pill button that opens a menu under it: filters ("Region", "Activities · 2") and sorts
+ * ("Sort: Best color"). `value` shows the current choice after the label; `count` shows how many
+ * options are set. The pill fills in when something other than the default is chosen (`active`).
+ */
+export function MenuButton({
+  label,
+  value,
+  count = 0,
+  active = count > 0,
+  icon,
+  width = 260,
+  children,
+}: {
+  label: string
+  value?: string
+  count?: number
+  active?: boolean
+  icon?: ReactNode
+  width?: number
+  children: (close: () => void) => ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+  const [place, setPlace] = useState<CSSProperties>()
+  const presence = usePresence(open)
+  const root = useRef<HTMLDivElement>(null)
+  const button = useRef<HTMLButtonElement>(null)
+  const menu = useRef<HTMLDivElement>(null)
+
+  // Anchored to the viewport, so a scrolling row of pills or the panel's edge never clips it.
+  const openMenu = () => {
+    const r = button.current!.getBoundingClientRect()
+    const w = Math.min(width, window.innerWidth - 24)
+    setPlace({ top: r.bottom + 6, left: Math.max(12, Math.min(r.left, window.innerWidth - w - 12)), width: w, maxHeight: Math.max(160, window.innerHeight - r.bottom - 24) })
+    setOpen(true)
+  }
+  useEffect(() => {
+    if (!open) return
+    const close = () => setOpen(false)
+    const onDown = (e: PointerEvent) => !root.current?.contains(e.target as Node) && close()
+    // Escape closes the menu and hands focus back to its pill.
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (close(), button.current?.focus())
+    const onScroll = (e: Event) => !menu.current?.contains(e.target as Node) && close()
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    window.addEventListener('resize', close)
+    window.addEventListener('scroll', onScroll, true)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+      window.removeEventListener('resize', close)
+      window.removeEventListener('scroll', onScroll, true)
+    }
+  }, [open])
+
+  return (
+    <div ref={root} className="shrink-0">
+      <button
+        ref={button}
+        onClick={() => (open ? setOpen(false) : openMenu())}
+        aria-expanded={open}
+        className={`flex items-center gap-1.5 rounded-full border py-1.5 pr-2 pl-3 text-sm transition active:scale-[0.97] ${
+          active ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]' : `border-[var(--line)] hover:bg-[var(--surface-2)] ${open ? 'bg-[var(--surface-2)]' : ''}`
+        }`}
+      >
+        {icon}
+        <span>
+          {label}
+          {value && <span className="font-medium">: {value}</span>}
+          {count > 0 && ` · ${count}`}
+        </span>
+        <KeyboardArrowDown className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {presence.mounted && (
+        <div
+          ref={menu}
+          role="group"
+          aria-label={label}
+          style={place}
+          className={`fixed z-40 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl`}
+        >
+          {children(() => setOpen(false))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** One choice in a MenuButton's menu. */
+export function MenuOption({ selected, onClick, icon, label, hint }: { selected: boolean; onClick: () => void; icon?: ReactNode; label: string; hint?: string }) {
+  return (
+    <button
+      aria-pressed={selected}
+      onClick={onClick}
+      className={`flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-left text-sm transition-colors ${selected ? 'bg-brand/10' : 'hover:bg-[var(--surface-2)]'}`}
+    >
+      {icon && <span className="flex size-5 shrink-0 items-center justify-center">{icon}</span>}
+      <span className="min-w-0 flex-1">
+        <span className={`block ${selected ? 'font-semibold' : 'font-medium'}`}>{label}</span>
+        {hint && <span className="block text-xs text-[var(--ink-soft)]">{hint}</span>}
+      </span>
+      {selected && <Check className="size-4 shrink-0 text-brand" />}
+    </button>
+  )
+}

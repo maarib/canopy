@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | 2026-10-03 | The first release: everything up to [#108](https://github.com/maarib/canopy/pull/108) |
@@ -16,6 +17,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | [#115](https://github.com/maarib/canopy/pull/115) |
 | 2026-10-04 | [Three views, orange brand color, new logo and navigation polish](#2026-10-04-three-views-orange-brand-color-new-logo-and-navigation-polish) | [#114](https://github.com/maarib/canopy/pull/114) |
 | 2026-10-03 | [About and Data sources pages, footer at the bottom, legend in Layers](#2026-10-03-about-and-data-sources-pages-footer-at-the-bottom-legend-in-layers) | [#112](https://github.com/maarib/canopy/pull/112) |
 | 2026-10-03 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-03-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
@@ -46,6 +48,53 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## v1.3
+
+### 2026-10-04 · Explore landing page, Places, filter menus and a satellite default
+
+**Ref:** [#115](https://github.com/maarib/canopy/pull/115)
+
+**Before.**
+- Explore opened with its panel beside the map (half the screen on phones): a heading, the search card, parks peaking now, short fall hikes and three place links.
+- The map was a globe in Monochrome, with light following the system. Zoomed out, the globe showed as a disc with empty corners, most of all on phones. The map only followed the window's size, so it was left cut off or stretched when the panel opened or closed.
+- Detail pages put every link in the same row of buttons as directions, save and share.
+- The forecast was the "7-day color outlook", with a colored dot per day and a legend, low on the park page.
+- Parks had an Activities toggle that opened an inline box, and two sort chips. Trails had a row of difficulty chips.
+- The third section was called Trails, and Foliage used the detailed maple icon.
+
+**After.**
+- **Explore** opens on the map alone, on desktop and phones. A search card sits bottom-centre over the map, with three quick links under it: Peaking now (Parks, best color first), Easy trails (Places, with Difficulty set to Easy) and Waterfalls & lookouts. Each opens the panel on that list. On phones the card starts as the search box alone, a button reveals Where and Looking for, and the links scroll sideways. The sheet is hidden on the landing page. Results and field lists open upward.
+  - Choosing a park, trail or place from the search opens the map with the panel on that page. A town from the search, or "Explore Ontario", moves the map and stays on the landing page.
+  - Returning to Explore from any page shows the landing page again. Its panel (the same search, parks peaking now, short fall hikes) opens from the view switch.
+- **Map:** flat (Mercator) rather than a globe, **Satellite at dawn** by default; the other styles and lights are still under Layers. The map follows its own box, so it fills its space after any view change.
+- **View switch:** in the middle of the header on desktop (it no longer floats over the map), beside the account menu on phones. On phones the full panel has square top corners, as a page under the header; the other two heights keep the rounded card.
+- **Detail pages:** Get directions (the same label everywhere), Save and Share are the main buttons. Every other link (reserve a site, the park's page, GPX download, official trail info, fishing regulations, OpenStreetMap) sits in one compact row of text links under them, below a divider.
+- **Forecast:** renamed "7-day weather forecast", without the color dots and legend. It sits in the same place on every detail page: right after the page's summary (buttons, links and key figures), before everything else. The Foliage page's sightings figure is labelled "Trees seen turning".
+- **Filters and sorts are menu pills**, the standard control from here on: a pill that opens a menu, shows the current choice after its label, and fills in when a filter is set.
+  - Parks: Region (new), Activities and Sort (Best color, A–Z). Ontario Parks spells two regions both ways ("Northeast", "Northeastern"); the filter treats each pair as one.
+  - Places: Difficulty for trails.
+- **Navigation:** Trails is now **Places** (`/places`; `/trails` still works) with a pin icon. Foliage uses Canopy's own leaf, upright.
+
+- **Lighter first load:** the code that draws a cover in the browser (about 19 kB gzipped) now loads only when a cover has to be drawn; most are pre-drawn images. The main script went from 174 kB to 155 kB gzipped.
+- **Accessibility audit** (axe-core, WCAG 2.1 A/AA and best practices; eleven pages, light and dark, desktop and phone sizes). Fixed:
+  - Stage and difficulty badges used white text on every fill, down to 2.1:1 on yellow. A badge now picks white or dark ink by contrast with its fill.
+  - Colored text for a trail's difficulty and for the kind label above trail and place titles fell to 2.3:1 in dark mode. The difficulty is now a colored dot beside the word; the kind labels use the soft text color.
+  - Map markers were announced as an image called "Map marker", hiding the button inside. The button now carries the name.
+  - The hidden map that draws covers could take keyboard focus; it is now inert.
+  - The cover's loading placeholder had a label without a role; nearby photos repeated their caption as alt text.
+  - Still open: white text on the orange primary button is 3.25:1 (AA asks for 4.5:1 at that size).
+- **About** gains an Accessibility section: what is in place (contrast, color never the only signal, keyboard, screen-reader names, reduced motion, light and dark), how it was checked, and what is still open. **Data sources** lists its design credits as rows, like the sources.
+
+**How.**
+- `src/components/ExploreSearch.tsx` (new) holds the search card and the landing page; `ExplorePanel.tsx` reuses the card. `SearchBox` and the card's fields take `up` to open above.
+- `src/components/ui.tsx` adds `MenuButton` and `MenuOption` (the menu is anchored to the viewport, so a scrolling row never clips it) and `MoreLinks`.
+- `src/App.tsx` starts on the map-only view at `/`, returns to it whenever the page becomes Explore, and draws the landing over the map in that view.
+- `src/components/FoliageMap.tsx` sets `projection="mercator"` and resizes the map from a `ResizeObserver` on its container.
+- `src/lib/mapStyle.ts`: the default style is `satellite` and the default light `dawn`.
+- `src/lib/coverFrame.ts` (new) holds the cover's frame size, so `ForestCover.tsx` can import `lib/forestCover` on demand. `inkOn` in `src/lib/styles.ts` picks a badge's text color.
+
+**Why.** The map is what sets Canopy apart, and the old Explore hid half of it behind a form. One kind of filter control is easier to learn than three. Links that leave Canopy shouldn't compete with the three things people do most on a place's page.
 
 ## v1.2
 

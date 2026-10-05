@@ -10,7 +10,8 @@ import { AccountMenu } from './components/AccountMenu'
 import { SideNav, TabBar, type Section } from './components/AppNav'
 import { TAB_BAR_HEIGHT } from './lib/styles'
 import { FoliagePanel } from './components/FoliagePanel'
-import { ExplorePanel, type ExploreQuery } from './components/ExplorePanel'
+import { ExplorePanel } from './components/ExplorePanel'
+import { ExploreLanding, type ExploreQuery } from './components/ExploreSearch'
 import { LayerOptions, Legend, TreeOptions, type TreeFilterValue } from './components/MapControls'
 import { MapFilters } from './components/MapFilters'
 import { AboutPanel, DataSourcesPanel, ParksPanel, TrailsPanel } from './components/SectionPanels'
@@ -109,8 +110,9 @@ export default function App() {
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   // The view: the map alone ('peek'), the map with the panel ('half') or the panel alone ('full').
-  // On phones these are the sheet's three heights. Starts with both, so Explore's search shows.
-  const [sheet, setSheet] = useState<SnapPoint>('half')
+  // On phones these are the sheet's three heights. Explore is the landing page and opens on the
+  // map alone, with the search over it; any other page opens with its panel.
+  const [sheet, setSheet] = useState<SnapPoint>(() => (location.pathname === '/' ? 'peek' : 'half'))
   const [focus, setFocus] = useState<FlyTarget>(null)
 
   // Sightings stream in page by page; a recent copy on the device makes reopening instant.
@@ -185,7 +187,7 @@ export default function App() {
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
   const fishingMatch = matchPath('/fishing/:slug', location.pathname)
-  const sectionPath = (['/parks', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
+  const sectionPath = (['/parks', '/places', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
   // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
   const fishing = useQuery({
     queryKey: ['fishing-access'],
@@ -200,7 +202,8 @@ export default function App() {
   const onTripsPage = !!tripsMatch
   const selection: Selection = useMemo(() => {
     if (onTripsPage) return { kind: 'trips' }
-    if (sectionPath) return { kind: sectionPath.slice(1) as 'parks' | 'trails' | 'foliage' | 'about' | 'sources' }
+    // Places lives at /places; /trails is its old address and still works.
+    if (sectionPath) return { kind: (sectionPath === '/places' ? 'trails' : sectionPath.slice(1)) as 'parks' | 'trails' | 'foliage' | 'about' | 'sources' }
     if (tripMatch) {
       if (tripMatch.params.id === 'shared') {
         const shared = decodeTrip(params.get('t') ?? '')
@@ -269,6 +272,7 @@ export default function App() {
     (pathname: string) => {
       const next = new URLSearchParams(window.location.search)
       next.delete('map') // the place decides the view
+      next.delete('level') // a list's starting filter doesn't follow you to a place
       next.delete('t') // a shared trip's payload belongs only to /trip/shared
       navigate({ pathname, search: next.toString() })
     },
@@ -332,7 +336,9 @@ export default function App() {
   if (sheetFor !== selectionKey) {
     setSheetFor(selectionKey)
     const isPlace = ['region', 'park', 'trail', 'place', 'fishing', 'loading'].includes(selection?.kind ?? '')
-    if (isPlace || sheet !== 'full') setSheet('half')
+    // Explore always comes back as the landing page: the map, with the search over it.
+    if (selectionKey === 'home') setSheet('peek')
+    else if (isPlace || sheet !== 'full') setSheet('half')
   }
 
   // Tab titles make shared links and history readable.
@@ -351,7 +357,7 @@ export default function App() {
               : selection?.kind === 'parks'
                 ? 'Parks'
               : selection?.kind === 'trails'
-                ? 'Trails'
+                ? 'Places'
               : selection?.kind === 'foliage'
                 ? 'Foliage'
               : selection?.kind === 'about'
@@ -391,8 +397,8 @@ export default function App() {
     else {
       if (selection) goHome()
       setFocus({ id: `${r.id}:${Date.now()}`, lng: r.lng, lat: r.lat, zoom: r.zoom })
-      // The map is what answers this search: on phones it takes the screen, on desktop it stays beside the panel.
-      setSheet(isDesktop ? 'half' : 'peek')
+      // The map is what answers this search.
+      setSheet('peek')
     }
   }
 
@@ -404,9 +410,9 @@ export default function App() {
     setFocus({ id: `province:${q.province}:${exploreSeq.current}`, lng: (bounds[0] + bounds[2]) / 2, lat: (bounds[1] + bounds[3]) / 2, zoom: 6, bounds })
     if (q.what === 'colors') openSection('/foliage', (p) => writeTree(p, q.tree))
     else if (q.what === 'parks') openSection('/parks')
-    else if (q.what === 'trails') openSection('/trails')
-    else if (q.what === 'places') openSection('/trails?show=waterfall')
-    else setSheet(isDesktop ? 'half' : 'peek')
+    else if (q.what === 'trails') openSection('/places')
+    else if (q.what === 'places') openSection('/places?show=waterfall')
+    else setSheet('peek')
   }
 
   /** Which nav item a page belongs to. */
@@ -428,6 +434,7 @@ export default function App() {
       const [pathname, query] = path.split('?')
       const next = new URLSearchParams(window.location.search)
       next.delete('show')
+      next.delete('level')
       next.delete('t')
       new URLSearchParams(query).forEach((v, k) => next.set(k, v))
       change?.(next)
@@ -612,6 +619,7 @@ export default function App() {
         trails={exploreIndex.trails}
         places={exploreIndex.places}
         show={trailsShow}
+        initialDifficulty={params.get('level')}
         onShow={(v) => updateParams((p) => (v === 'trails' ? p.delete('show') : p.set('show', v)))}
         onSelectTrail={selectTrail}
         onSelectPlace={selectPlace}
@@ -659,6 +667,8 @@ export default function App() {
     )
 
   const footer = <SiteFooter onNavigate={openSection} />
+  /** Explore with the panel closed: the search and quick links sit over the map. */
+  const landing = selection === null && sheet === 'peek'
   const treeCount = treeFilter === 'trees' ? 0 : 1
   const layerCount = (Object.keys(DEFAULT_LAYERS) as (keyof MapLayers)[]).filter((k) => layers[k] !== DEFAULT_LAYERS[k]).length
 
@@ -670,6 +680,12 @@ export default function App() {
           <h1 className="text-2xl leading-none font-black tracking-wide">Canopy</h1>
         </button>
         <span className="hidden text-sm text-[var(--ink-soft)] sm:inline">Explore Ontario's outdoors</span>
+        {/* The view switch: in the middle of the header on desktop, beside the account menu on phones. */}
+        {isDesktop && (
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <ViewSwitch view={sheet} onChange={setSheet} />
+          </div>
+        )}
         <div className="ml-auto flex items-center gap-3">
           {sightingsLoading && (
             <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
@@ -693,7 +709,7 @@ export default function App() {
             <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
             <aside className={`overflow-y-auto border-r border-[var(--line)] ${sheet === 'full' ? 'min-w-0 flex-1' : sheet === 'peek' ? 'hidden' : 'w-[420px] shrink-0'}`}>
               {/* Keyed by page so each new page or place eases in. At least as tall as the panel, so the footer sits at the bottom on short pages. */}
-              <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl pb-14' : ''}`}>
+              <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl' : ''}`}>
                 {panel}
                 {footer}
               </div>
@@ -773,23 +789,34 @@ export default function App() {
             </div>
           </div>
 
+          {landing && (
+            <ExploreLanding
+              compact={!isDesktop}
+              parks={parks.data?.parks ?? NO_PARKS}
+              trails={exploreIndex.trails}
+              places={exploreIndex.places}
+              treeCounts={groupCounts}
+              onSearchSelect={onSearch}
+              onSubmit={onExplore}
+              onNavigate={openSection}
+            />
+          )}
         </div>
 
         {!isDesktop && (
           <>
-            <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
+            {/* The landing page has no sheet: the search sits on the map instead. */}
+            {!landing && <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
               {/* At least as tall as the panel, so the footer sits at the bottom on short pages. */}
               <div key={selectionKey} className="animate-panel-in flex min-h-full flex-col">
                 {panel}
                 {footer}
               </div>
-            </BottomSheet>
+            </BottomSheet>}
             <TabBar active={section} onNavigate={openSection} tripCount={trips.length} />
           </>
         )}
 
-        {/* Floats over the bottom of the screen. Phones have no free spot there (the sheet and tab bar), so theirs is in the header. */}
-        {isDesktop && <ViewSwitch view={sheet} onChange={setSheet} floating />}
       </main>
     </div>
   )
@@ -801,14 +828,10 @@ const VIEWS: { snap: SnapPoint; icon: 'map' | 'split' | 'panel'; label: string }
   { snap: 'full', icon: 'panel', label: 'Panel' },
 ]
 
-/** Always on screen: the map alone, the map with the panel, or the panel alone. */
-function ViewSwitch({ view, onChange, floating }: { view: SnapPoint; onChange: (v: SnapPoint) => void; floating?: boolean }) {
+/** Always on screen, in the header: the map alone, the map with the panel, or the panel alone. */
+function ViewSwitch({ view, onChange }: { view: SnapPoint; onChange: (v: SnapPoint) => void }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label="View"
-      className={`flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 ${floating ? 'fixed bottom-4 left-1/2 z-30 -translate-x-1/2 shadow-lg' : ''}`}
-    >
+    <div role="radiogroup" aria-label="View" className="flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1">
       {VIEWS.map((v) => (
         <button
           key={v.snap}
@@ -817,7 +840,7 @@ function ViewSwitch({ view, onChange, floating }: { view: SnapPoint; onChange: (
           aria-label={v.label}
           title={v.label}
           onClick={() => onChange(v.snap)}
-          className={`flex items-center justify-center rounded-full transition-colors active:scale-[0.97] ${floating ? 'h-9 w-11' : 'h-8 w-9'} ${
+          className={`flex items-center justify-center rounded-full transition-colors active:scale-[0.97] h-8 w-9 ${
             view === v.snap ? 'bg-brand text-white' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
           }`}
         >

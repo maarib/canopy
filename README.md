@@ -11,15 +11,15 @@
 ## What it does today
 
 ### Search-first home and sections
-- **Explore (home)** is a search, in the spirit of Airbnb and AllTrails: type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall color) and **Looking for** (everything, fall colors with a tree dropdown, parks, trails, lakes & waterfalls). Below the search: parks peaking now and short fall hikes.
-- **Sections:** Explore, **Parks** (search, activity filter, sort by color or A–Z), **Trails** (trails by difficulty, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Foliage** (official fall color reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
-- **Three views**, switched from a control that is always on screen (floating at the bottom on desktop, in the header on phones): the map alone, the map with the panel, or the panel alone. Opening a place always shows the map with the panel, so the map can fly to it. Moving between pages keeps the full panel if that's the view in use. On phones the three views are the sheet's three heights, and a double tap on its grabber opens the full panel.
+- **Explore (home)** is the landing page: the map takes the screen, with a search card over its lower edge. Type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall color) and **Looking for** (everything, fall colors with a tree dropdown, parks, trails, lakes & waterfalls). On phones the card starts as the search box alone, and a button reveals the two fields. Under it are three quick links (Peaking now, Easy trails, Waterfalls & lookouts) that open the panel on that list. Choosing a place from the search opens the panel on its page. Explore's own panel opens from the view switch.
+- **Sections:** Explore, **Parks** (search, region and activity filters, sort by color or A–Z), **Places** (`/places`: trails with a difficulty filter, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Foliage** (official fall color reports, when each region peaks, tree picker) and **Trips**. A slim rail on the left on desktop; a bottom tab bar on phones. The map stays alongside every section.
+- **Three views**, switched from a control in the header (in the middle on desktop, beside the account menu on phones): the map alone, the map with the panel, or the panel alone. Opening a place always shows the map with the panel, so the map can fly to it. Moving between pages keeps the full panel if that's the view in use. On phones the three views are the sheet's three heights, and a double tap on its grabber opens the full panel.
 - **Three buttons on the map:** Filters (Trees and park Activities), Layers (map style, light and layers) and a round info button that opens the color legend.
 - **Account menu** (avatar, top right): trips, About, Data sources, feedback. Accounts aren't built yet, so trips are saved on the device and accounts are marked as coming soon.
 - **About** (`/about`) tells how Canopy came to be, and **Data sources** (`/sources`) lists every source with what it provides, its licence and how often it refreshes. The footer has the copyright on the left and About, Data sources and maaribs.com on the right, and sits at the bottom of the panel even on short pages.
 
 ### Live color map
-- **Basemap:** Mapbox Standard on a globe, in **Monochrome** by default, so fall colors and pins carry the color. The **Layers** button (next to Filters) offers eight map styles: Monochrome, Paper (Canopy's own palette), Faded, three custom color grades (Autumn film, Bark & spruce, Riso print), Mapbox Standard and Satellite. The choice is remembered on the device. Light follows the system (day, or night in dark mode); dawn, day, dusk and night are under Layers too, directly below the map styles.
+- **Basemap:** a flat (Mercator) map, **Satellite at dawn** by default. The **Layers** button (next to Filters) offers eight map styles: Monochrome, Paper (Canopy's own palette), Faded, three custom color grades (Autumn film, Bark & spruce, Riso print), Mapbox Standard and Satellite. The choice is remembered on the device. Light is dawn by default; auto (day, or night in dark mode), day, dusk and night are under Layers, directly below the map styles.
 - **Official park reports:** Ontario Parks' color % and leaf fall % for about 64 parks, colored by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
 - **Live sightings:** iNaturalist colored-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
 - **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Foliage page).
@@ -33,7 +33,7 @@
 
 ### Fishing access
 - **2,427 public fishing access points** across Ontario (boat launches, shoreline access, docks and piers) from the Ministry of Natural Resources, the data behind Fish ON-Line. They appear on the map from zoom 8; overlapping pins thin out automatically, named sites first.
-- **Each point has its own page** (`/fishing/:id`) with parking, fee, surface, owner and accessibility where known, the 7-day outlook, directions, and links to Fish ON-Line (species and stocking) and Ontario's fishing regulations.
+- **Each point has its own page** (`/fishing/:id`) with parking, fee, surface, owner and accessibility where known, the 7-day weather forecast, directions, and links to Fish ON-Line (species and stocking) and Ontario's fishing regulations.
 - **Layers → Fishing access** turns them off.
 
 ### Places with their own pages
@@ -50,7 +50,7 @@
   - The colors come from the nearest Ontario Parks report within 60 km (how much has turned and fallen, and the dominant color), otherwise from the nearest region's typical peak window.
   - **Pre-drawn:** covers for every fall-report park, region, trail and place are drawn at deploy time in that day's colors and served as plain images (up to about 70 KB each), so those pages show their cover instantly with no map work. Anything else is drawn in the browser once per visit by a single hidden map.
   - **Thumbnails:** park, trail and place list rows show a 4 KB island thumbnail when a pre-drawn one exists, and their usual icon otherwise. Lists never draw covers themselves.
-- **Regions** (15, hand-picked): typical peak window, a 7-day color outlook, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
+- **Regions** (15, hand-picked): typical peak window, a 7-day weather forecast, trees to look for, highlights, nearby photos, plus the region's trails and waterfalls & lookouts where available.
 - **Ontario provincial parks:** the official report (color %, leaf fall %, dominant color, viewing tips), outlook, photos, directions and booking.
 - **Trails** (Algonquin Highway 60 corridor, 17 trails):
   - the track plotted on the map
@@ -69,7 +69,7 @@
 ### Getting around
 - **Search:** regions, parks, trails, places and tree types, plus any town or landmark in Canada.
 - **Shareable links** for every place, filter, layer and map view, with working Back and Forward and a Share button.
-- **Responsive:** a side panel on desktop and a draggable bottom sheet on phones. Skeleton loading states throughout, and the app can be installed (web app manifest).
+- **Responsive:** a side panel on desktop and a draggable bottom sheet on phones (a full page with square corners at its tallest). Skeleton loading states throughout, and the app can be installed (web app manifest).
 
 ---
 
@@ -85,7 +85,7 @@
 | Trails and places (Explore) | Snapshot `public/data/explore/<area>.json`, built by `scripts/build-explore.mjs` | Weekly (GitHub Action) |
 | iNaturalist sightings | Live from API v2 (only the fields used), streamed page by page; cached on the device for 30 min | Live, last 14 days |
 | Nearby photos | Live from iNaturalist | Live |
-| 7-day outlook | Live from Open-Meteo | Live |
+| 7-day weather forecast | Live from Open-Meteo | Live |
 | Parks Canada trails | Live from Parks Canada's ArcGIS service when zoomed in | Live (updated weekly by Parks Canada) |
 | Satellite imagery | NASA GIBS tiles for the chosen date | Daily |
 | Town search | Photon geocoder (OpenStreetMap) | Live |
@@ -134,12 +134,15 @@ npm run dev
 ```
 src/
   App.tsx              routes → selection → panels + map
-  components/          map (FoliageMap), panels (Home, Region, Park, Trail, Place),
-                       search, bottom sheet, elevation chart, icons, skeletons
+  components/          map (FoliageMap), landing page and search (ExploreSearch), panels
+                       (Explore, Parks, Places, Foliage, Trips, Region, Park, Trail, Place,
+                       Fishing), covers (ForestCover), bottom sheet, shared controls (ui)
   data/                regions, tree groups, tree icon ids, amenity icons (Icons8 ids)
   lib/                 data clients (iNaturalist, Ontario Parks, explore, trails, weather),
-                       URL state, search, map style, hexbins, stages
-scripts/               data builders (Ontario Parks reports and facilities, explore areas)
+                       URL state, search, map style, hexbins, stages, cover drawing
+                       (forestCover, placeScenes, diorama, lowPolyTrees)
+scripts/               data builders (Ontario Parks reports, facilities and boundaries,
+                       explore areas) and the cover pre-renderer
 public/data/           built data snapshots
 docs/                  PRD, technical plan, Explore design, change log
 .github/workflows/     CI, deploy, daily parks data, weekly explore data
@@ -154,12 +157,17 @@ docs/                  PRD, technical plan, Explore design, change log
 | [docs/EXPLORE.md](docs/EXPLORE.md) | Trails and places: research (AllTrails, Tripadvisor, Airbnb), identity system, data pipeline, roadmap |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Every change: before, after and why, with measurements |
 
+## What's next
+
+The next release (v1.4) is planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
+
 ## Releases
 
 Each release is a git tag and a [GitHub Release](https://github.com/maarib/canopy/releases); the About page shows the live version. Minor versions (1.1, 1.2) bring new features, patch versions (1.1.1) only fixes, and a major version (2.0) a fundamental change. The version lives in `package.json`, and [docs/CHANGELOG.md](docs/CHANGELOG.md) groups changes by release.
 
 | Version | What's in it |
 |---|---|
+| [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | Explore as a map-first landing page, the Places section, menu-pill filters, satellite at dawn by default, an accessibility and load-size pass |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | Island covers for places, three views, orange brand color, new logo, About and Data sources pages, the nine missing activity icons |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | Pre-drawn covers and island thumbnails in lists |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | The first release |
@@ -179,7 +187,7 @@ Tracked as epics and milestones on the [project board](https://github.com/users/
 - Official color reports are Ontario-only. Other provinces rely on sightings and typical windows.
 - Hexagons show where color is being *reported*, not a percentage of trees changed (see [#29](https://github.com/maarib/canopy/issues/29)).
 - The Mapbox account is on demo access: it can't be charged, but usage caps are low. Moving to standard access before launch is [#79](https://github.com/maarib/canopy/issues/79).
-- The 7-day outlook uses Open-Meteo's free tier, which is for non-commercial use. A switch to Environment Canada GeoMet is planned ([#36](https://github.com/maarib/canopy/issues/36)).
+- The 7-day weather forecast uses Open-Meteo's free tier, which is for non-commercial use. A switch to Environment Canada GeoMet is planned ([#36](https://github.com/maarib/canopy/issues/36)).
 
 ## Data credits
 

@@ -186,3 +186,9 @@ body {
     animation: none;
   }
 }
+
+/* The Mapbox logo and attribution stay on top of the landing page's cards (they must stay legible). */
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right {
+  z-index: 11;
+}

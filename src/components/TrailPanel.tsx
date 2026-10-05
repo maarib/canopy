@@ -1,4 +1,4 @@
-import { CalendarToday, ChevronRight, Description, LocationOn } from 'relume-icons'
+import { ChevronRight, LocationOn } from 'relume-icons'
 import { CoverThumb, ForestCover } from './ForestCover'
 import { trailCover } from '../lib/coverSpec'
 import {
@@ -19,7 +19,7 @@ import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { PlaceIcon } from './PlaceIcon'
 import { SaveButton } from './SaveButton'
-import { BackButton, Badge, LinkButton, ShareButton } from './ui'
+import { BackButton, Badge, LinkButton, MoreLinks, ShareButton } from './ui'
 
 type Props = {
   trail: Trail
@@ -45,7 +45,7 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
       <ForestCover spec={trailCover(trail)} name={trail.name} />
 
       <header>
-        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase" style={{ color: PLACE_KINDS.trail.color }}>
+        <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">
           <PlaceIcon kind="trail" className="size-3.5" />
           Trail · {trail.association ?? area.name}
         </p>
@@ -63,32 +63,17 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
 
       <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(trail.trailhead[1], trail.trailhead[0])} icon={<LocationOn className="size-4" />}>
-          Directions to trailhead
+          Get directions
         </LinkButton>
         <SaveButton stopRef={`trail:${trail.id}`} name={trail.name} />
         <ShareButton title={`${trail.name} · Canopy`} />
-        <button
-          onClick={() =>
-            downloadFile(
-              `${trail.name.replace(/[^\w]+/g, '-')}.gpx`,
-              trailGpx(
-                trail,
-                along.map((a) => a.place),
-              ),
-              'application/gpx+xml',
-            )
-          }
-          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm transition hover:bg-[var(--surface-2)] active:scale-[0.97] disabled:active:scale-100"
-        >
-          <Description className="size-4" />
-          Download GPX
-        </button>
-        {trail.website && (
-          <LinkButton href={trail.website} external icon={<CalendarToday className="size-4" />}>
-            Official trail info
-          </LinkButton>
-        )}
       </section>
+      <MoreLinks
+        links={[
+          { label: 'Download GPX', onClick: () => downloadFile(`${trail.name.replace(/[^\w]+/g, '-')}.gpx`, trailGpx(trail, along.map((a) => a.place)), 'application/gpx+xml') },
+          ...(trail.website ? [{ label: 'Official trail info', href: trail.website }] : []),
+        ]}
+      />
 
       <dl className="grid grid-cols-4 gap-2 text-center">
         {[
@@ -103,6 +88,8 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
           </div>
         ))}
       </dl>
+
+      <ForecastStrip lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
 
       <section>
         <h3 className="mb-2 text-lg">Elevation</h3>
@@ -150,7 +137,6 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         </section>
       )}
 
-      <ForecastStrip lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
       <NearbyPhotos lat={trail.trailhead[1]} lng={trail.trailhead[0]} radiusKm={Math.max(3, Math.round(trail.lengthKm / 2))} />
 
       <p className="text-[11px] leading-relaxed text-[var(--ink-soft)]">
@@ -224,7 +210,9 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium">{trail.name}</span>
         <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
-          <span style={{ color: difficulty.color }} className="font-medium">
+          {/* The color is a dot; the word stays in the text color, which reads in both themes. */}
+          <span className="flex items-center gap-1 font-medium text-[var(--ink)]">
+            <span className="size-2 rounded-full" style={{ background: difficulty.color }} />
             {difficulty.label}
           </span>
           · {trail.lengthKm} km · {formatDuration(trail.durationH)}

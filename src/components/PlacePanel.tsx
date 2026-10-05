@@ -8,7 +8,7 @@ import { NearbyPhotos } from './NearbyPhotos'
 import { PlaceIcon } from './PlaceIcon'
 import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
-import { BackButton, LinkButton, ShareButton } from './ui'
+import { BackButton, LinkButton, MoreLinks, ShareButton } from './ui'
 
 const BLURB: Record<Place['kind'], string> = {
   waterfall: 'Falls are at their most dramatic after rain; fall color on the banks peaks with the surrounding forest.',
@@ -50,7 +50,7 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
           <PlaceIcon kind={place.kind} className="size-9" />
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-medium tracking-wide uppercase" style={{ color: kind.color }}>
+          <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">
             {kind.label}
             {isPhotoSpot(place.kind) && ' · Photo spot'} · {area.name.split(' · ')[0]}
           </p>
@@ -65,12 +65,12 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
         </LinkButton>
         <SaveButton stopRef={`place:${place.id}`} name={place.name} />
         <ShareButton title={`${place.name} · Canopy`} />
-        <LinkButton href={place.osm} external>
-          View on OpenStreetMap
-        </LinkButton>
       </section>
+      <MoreLinks links={[{ label: 'View on OpenStreetMap', href: place.osm }]} />
 
       <p className="text-sm leading-relaxed">{BLURB[place.kind]}</p>
+
+      <ForecastStrip lat={place.lat} lng={place.lng} />
 
       <section>
         <h3 className="mb-1 text-lg">{onTrails.length ? 'Trails that reach it' : 'Trails'}</h3>
@@ -88,7 +88,6 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
         )}
       </section>
 
-      <ForecastStrip lat={place.lat} lng={place.lng} />
       <NearbyPhotos lat={place.lat} lng={place.lng} radiusKm={3} />
 
       <p className="text-[11px] text-[var(--ink-soft)]">Place data © OpenStreetMap contributors.</p>

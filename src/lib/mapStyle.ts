@@ -13,8 +13,8 @@ export type LightPreset = (typeof LIGHT_PRESETS)[number]
 /** 'auto' follows the system color scheme (night in dark mode, day otherwise). */
 export type LightSetting = LightPreset | 'auto'
 
-/** Day light, or night in dark mode. */
-export const DEFAULT_LIGHT: LightSetting = 'auto'
+/** Dawn: warm, low light that suits fall color. 'auto' is still on offer under Layers. */
+export const DEFAULT_LIGHT: LightSetting = 'dawn'
 
 export function resolveLight(setting: LightSetting, dark: boolean): LightPreset {
   return setting === 'auto' ? (dark ? 'night' : 'day') : setting
@@ -68,7 +68,7 @@ export const MAP_STYLES: MapStyle[] = [
   { id: 'satellite', label: 'Satellite', swatch: ['#4a5236', '#2f3d26', '#1f3340', '#c9c2b0'], url: 'mapbox://styles/mapbox/standard-satellite', config: () => ({}) },
 ]
 
-export const DEFAULT_MAP_STYLE: MapStyleId = 'monochrome'
+export const DEFAULT_MAP_STYLE: MapStyleId = 'satellite'
 export const mapStyleById = (id: MapStyleId) => MAP_STYLES.find((s) => s.id === id) ?? MAP_STYLES[0]
 
 /** The `basemap` config for a look under a light preset. */

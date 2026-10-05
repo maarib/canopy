@@ -58,7 +58,8 @@ export function BottomSheet({ snap, onSnap, contentKey, bottomOffset = 0, childr
 
   return (
     <section
-      className="fixed inset-x-0 z-20 flex flex-col rounded-t-3xl border-t border-[var(--line)] bg-[var(--surface)] shadow-[0_-8px_30px_rgba(0,0,0,0.18)]"
+      // The full panel is a page, flush under the header; the other heights are a card over the map.
+      className={`fixed inset-x-0 z-20 flex flex-col border-t border-[var(--line)] bg-[var(--surface)] shadow-[0_-8px_30px_rgba(0,0,0,0.18)] transition-[border-radius] duration-300 ${snap === 'full' && dragHeight === null ? '' : 'rounded-t-3xl'}`}
       style={{ bottom: bottomOffset, height: dragHeight ?? heightFor(snap), // A gentle spring: settles with a hint of overshoot.
         transition: dragHeight === null ? 'height 380ms cubic-bezier(0.3, 1.1, 0.45, 1)' : 'none' }}
     >
