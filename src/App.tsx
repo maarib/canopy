@@ -1,5 +1,5 @@
 import { experimental_streamedQuery as streamedQuery, useQuery } from '@tanstack/react-query'
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { Layers, ProgressActivity } from 'relume-icons'
 import { BottomSheet, type SnapPoint } from './components/BottomSheet'
@@ -345,6 +345,12 @@ export default function App() {
     // reader's choice and stays put; only the map alone opens the panel, or a tapped pin would do nothing.
     else if (isPlace ? isDesktop || sheet === 'peek' : sheet !== 'full') setSheet('half')
   }
+
+  // A new page starts at the top of the desktop panel (the phone sheet does the same itself).
+  const asideRef = useRef<HTMLElement>(null)
+  useLayoutEffect(() => {
+    asideRef.current?.scrollTo({ top: 0 })
+  }, [selectionKey])
 
   // Tab titles make shared links and history readable.
   useEffect(() => {
@@ -720,6 +726,7 @@ export default function App() {
             {/* Beside the map, the panel floats over it as a card: level with the map's buttons, the
                 same gap at its left and bottom. As the full panel it is the page. */}
             <aside
+              ref={asideRef}
               className={`overflow-y-auto bg-[var(--surface)] ${
                 sheet === 'full'
                   ? 'min-w-0 flex-1'

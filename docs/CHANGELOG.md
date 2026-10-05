@@ -86,6 +86,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - **Phones keep the view you chose.** Opening a place from the full panel stays in the full panel, and from the map with the panel stays there. The map still moves to the place underneath. Only the map alone opens the panel, so a tapped pin shows its page. Desktop is unchanged: opening a place shows the map with the panel.
 - **Show on map:** a place's page in the full panel on phones has a button in its top bar that brings the map back, already on the place.
 - On phones, About and Data sources open as the full panel, from a link inside the app or a direct one.
+- **A new page starts at the top.** On desktop the panel kept its scroll position when the page changed, so a page opened from the bottom of another appeared scrolled down. It now resets on every page change, as the phone sheet already did.
 
 **How.**
 - The menu is positioned against the screen (`position: fixed`), but it was drawn inside the panel. The panel's entrance animation moves it with a transform, and an element with a transform becomes the reference box for anything fixed inside it. `MenuButton` in `src/components/ui.tsx` now draws its menu at the top of the page through a portal.
