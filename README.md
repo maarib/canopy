@@ -69,7 +69,7 @@
 ### Getting around
 - **Search:** regions, parks, trails, places and tree types, plus any town or landmark in Canada.
 - **Shareable links** for every place, filter, layer and map view, with working Back and Forward and a Share button.
-- **Responsive:** a side panel on desktop and a draggable bottom sheet on phones. Skeleton loading states throughout, and the app can be installed (web app manifest).
+- **Responsive:** a side panel on desktop and a draggable bottom sheet on phones (a full page with square corners at its tallest). Skeleton loading states throughout, and the app can be installed (web app manifest).
 
 ---
 
@@ -134,12 +134,15 @@ npm run dev
 ```
 src/
   App.tsx              routes → selection → panels + map
-  components/          map (FoliageMap), panels (Home, Region, Park, Trail, Place),
-                       search, bottom sheet, elevation chart, icons, skeletons
+  components/          map (FoliageMap), landing page and search (ExploreSearch), panels
+                       (Explore, Parks, Places, Foliage, Trips, Region, Park, Trail, Place,
+                       Fishing), covers (ForestCover), bottom sheet, shared controls (ui)
   data/                regions, tree groups, tree icon ids, amenity icons (Icons8 ids)
   lib/                 data clients (iNaturalist, Ontario Parks, explore, trails, weather),
-                       URL state, search, map style, hexbins, stages
-scripts/               data builders (Ontario Parks reports and facilities, explore areas)
+                       URL state, search, map style, hexbins, stages, cover drawing
+                       (forestCover, placeScenes, diorama, lowPolyTrees)
+scripts/               data builders (Ontario Parks reports, facilities and boundaries,
+                       explore areas) and the cover pre-renderer
 public/data/           built data snapshots
 docs/                  PRD, technical plan, Explore design, change log
 .github/workflows/     CI, deploy, daily parks data, weekly explore data
@@ -154,12 +157,17 @@ docs/                  PRD, technical plan, Explore design, change log
 | [docs/EXPLORE.md](docs/EXPLORE.md) | Trails and places: research (AllTrails, Tripadvisor, Airbnb), identity system, data pipeline, roadmap |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Every change: before, after and why, with measurements |
 
+## What's next
+
+The next release (v1.4) is planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
+
 ## Releases
 
 Each release is a git tag and a [GitHub Release](https://github.com/maarib/canopy/releases); the About page shows the live version. Minor versions (1.1, 1.2) bring new features, patch versions (1.1.1) only fixes, and a major version (2.0) a fundamental change. The version lives in `package.json`, and [docs/CHANGELOG.md](docs/CHANGELOG.md) groups changes by release.
 
 | Version | What's in it |
 |---|---|
+| [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | Explore as a map-first landing page, the Places section, menu-pill filters, satellite at dawn by default, an accessibility and load-size pass |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | Island covers for places, three views, orange brand color, new logo, About and Data sources pages, the nine missing activity icons |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | Pre-drawn covers and island thumbnails in lists |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | The first release |

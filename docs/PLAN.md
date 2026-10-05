@@ -2,7 +2,7 @@
 
 _A responsive web app for tracking fall colors and leaf drop across Canada: every tree species, every park, live conditions, and when and where to go._
 
-Last updated: 2026-10-01 · This is the original technical plan with its research. Decisions that changed it (map engine, data APIs, performance) are recorded in [CHANGELOG.md](CHANGELOG.md).
+Last updated: 2026-10-04 · This is the original technical plan with its research. Decisions that changed it (map engine, data APIs, performance) are recorded in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -183,6 +183,8 @@ Report   { id, userId, location, colorChangePct, leafFallPct, speciesIds[], phot
 ---
 
 ## 6. Roadmap
+
+> **Status (v1.3, 2026-10-04).** Milestones 0 and 1 are done. Much of Milestone 3 shipped ahead of Milestone 2: waterfalls, lookouts and lakes from OpenStreetMap, trail and place pages, and the trip planner with Google Maps, GPX and calendar exports. Milestone 2 (historical peaks, forecast, timeline) and Milestone 4 (community) have not started. The current release plan and what's next are in [PRD §11](PRD.md#11-release-plan).
 
 ### Milestone 0 — Foundations (this commit)
 - [x] Vite + React + TS + Tailwind + MapLibre/OpenFreeMap scaffold (React Router added when we add routes)

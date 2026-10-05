@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default |
+| [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
 | [v1.0](https://github.com/maarib/canopy/releases/tag/v1.0.0) | 2026-10-03 | The first release: everything up to [#108](https://github.com/maarib/canopy/pull/108) |
@@ -17,7 +17,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | `feat/explore-landing` |
+| 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | [#115](https://github.com/maarib/canopy/pull/115) |
 | 2026-10-04 | [Three views, orange brand color, new logo and navigation polish](#2026-10-04-three-views-orange-brand-color-new-logo-and-navigation-polish) | [#114](https://github.com/maarib/canopy/pull/114) |
 | 2026-10-03 | [About and Data sources pages, footer at the bottom, legend in Layers](#2026-10-03-about-and-data-sources-pages-footer-at-the-bottom-legend-in-layers) | [#112](https://github.com/maarib/canopy/pull/112) |
 | 2026-10-03 | [Island covers for waterfalls, lookouts, peaks, lakes, rivers and creeks](#2026-10-03-island-covers-for-waterfalls-lookouts-peaks-lakes-rivers-and-creeks) | [#111](https://github.com/maarib/canopy/pull/111) |
@@ -49,11 +49,11 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ---
 
-## Unreleased
+## v1.3
 
 ### 2026-10-04 · Explore landing page, Places, filter menus and a satellite default
 
-**Ref:** branch `feat/explore-landing`
+**Ref:** [#115](https://github.com/maarib/canopy/pull/115)
 
 **Before.**
 - Explore opened with its panel beside the map (half the screen on phones): a heading, the search card, parks peaking now, short fall hikes and three place links.

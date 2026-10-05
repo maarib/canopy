@@ -4,7 +4,7 @@
 |---|---|
 | **Product** | Canopy: fall colors across Canada (responsive web app / PWA) |
 | **Owner** | @maarib |
-| **Status** | v1.1 · updated 2026-10-01 |
+| **Status** | v1.3 · updated 2026-10-04 |
 | **Related** | [Technical plan](PLAN.md) · [Explore Ontario](EXPLORE.md) · [Change log](CHANGELOG.md) · [Issues](https://github.com/maarib/canopy/issues) · [Project board](https://github.com/users/maarib/projects/2) |
 
 ---
@@ -15,7 +15,7 @@ Every fall, millions of Canadians and visitors try to answer the same three ques
 
 Canopy is one map-first app that answers all three for all of Canada. It covers every tree type, every park and the trails, with live conditions, forecasts and a trip plan you can take with you.
 
-**What exists today (2026-10-01):** a live color map on Mapbox (globe, light presets, 3D terrain); Ontario Parks official reports refreshed daily; iNaturalist color sightings with a tree-type filter; region, park, trail and place pages; Algonquin trails with plotted tracks, elevation profiles and the waterfalls, lookouts, lakes and creeks along them; search; shareable links; skeleton loading states. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
+**What exists today (v1.3, 2026-10-04):** a map-first landing page (search and quick links over a flat satellite map at dawn); three views (map, map with panel, panel) switched from the header; Ontario Parks official reports refreshed daily; iNaturalist color sightings with a tree-type filter; sections for Parks (region, activity and sort menus), Places (trails, waterfalls, lookouts, lakes, peaks, rivers, creeks), Foliage and Trips; region, park, trail, place and fishing pages, each with an island cover drawn from the place's real shape in today's colors; boundaries, activities and facilities for Ontario's provincial parks; Algonquin trails with plotted tracks, elevation profiles and the stops along them; trips planned by day with Google Maps, GPX, calendar and share links; search; shareable links. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
 
 ---
 
@@ -120,9 +120,11 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 | **Map styling** | Felt, Mapbox Standard, onX | Calm warm basemap; data is the hero; 3D terrain for mountain parks. |
 
 ### Visual language
-- **Palette:** maple `#c8102e`, pumpkin `#e8730c`, birch `#e9b824`, spruce `#2f5d3a`, bark `#3b2f2a`, mist `#f6f1ea`. The stage scale runs green → gold → orange → red → brown and stays color-blind safe (checked with simulators; paired with labels/icons).
+- **Palette:** brand orange `#f2600c` (buttons, links, selection, focus), with pumpkin `#e8730c`, birch `#e9b824`, spruce `#2f5d3a`, bark `#3b2f2a` and mist `#f6f1ea`. Red `#c8102e` is kept for data: the peak stage, hard trails, dense sightings and park boundaries. The stage scale runs green → gold → orange → red → brown and is always paired with a label; colour-blind validation is still to do. Stage and difficulty badges pick white or dark text by contrast with their fill.
 - **Type:** **Londrina Solid** for display titles and headings (400; 900 for the wordmark) and **Livvic** for everything else: body, labels, captions (400–700).
-- **Icons:** [Relume icons](https://www.npmjs.com/package/relume-icons) (MIT, rounded outline style, tree-shaken) for UI controls and actions. Weather keeps its emoji, and the maple-leaf pins stay as the brand mark. The package has 60 icons and no outdoor/POI set, so POI icons (waterfall, lookout, trailhead…) are custom (D-05).
+- **Icons:** [Relume icons](https://www.npmjs.com/package/relume-icons) (MIT, rounded outline style, tree-shaken) for UI controls and actions. Weather keeps its emoji. The logo is a plain one-color maple leaf, also used for Foliage in the navigation. The package has 60 icons and no outdoor/POI set, so place icons (waterfall, lookout, trailhead…) and a few interface icons (info, views, map pin) are custom (D-05). Activity icons are Icons8 *Windows 11 Color*.
+- **Covers:** every place has a low-poly island cover: its real outline as a floating piece of land with trees in today's colors, and its own landform for waterfalls, lookouts, peaks, lakes, rivers and creeks.
+- **Controls:** filters and sorts are menu pills (a pill that opens a menu and shows the current choice). Detail pages lead with Get directions, Save and Share; other links sit in one compact row under a divider.
 - **Motion:** sheet springs, fly-to camera moves, and a falling-leaf micro-animation reserved for "peak" moments only.
 - **Tone:** warm, local, precise. "Algonquin is at peak, about 90% color. Go before Friday's wind."
 
@@ -130,8 +132,9 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 
 ## 8. Information architecture
 
-**Mobile (tab bar):** `Map` · `Explore` · `Trips` · `Report` (centre action) · `Me`
-**Desktop:** top nav with the same destinations; Map/Explore use a split layout.
+**Shipped (v1.3).** Five sections: `Explore` · `Parks` · `Places` · `Foliage` · `Trips`, as a bottom tab bar on phones and a slim rail on desktop. The map stays alongside every section, and a view switch in the header chooses the map alone, the map with the panel, or the panel alone. Explore is the landing page: the map with a search card and quick links over it. About, Data sources and feedback are in the account menu and the footer.
+
+**Planned.** `Report` (a centre action on phones) and `Me` arrive with community reports and accounts (M5). The screens below are the full plan; region, park, trail, place and trips pages exist today.
 
 | Screen | Purpose |
 |---|---|
@@ -159,12 +162,12 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | MAP-1 | Map of Canada with official reports styled by color stage | P0 | ✅ |
 | MAP-2 | Crowd sightings (iNat + ours) as hexes that turn into points when zoomed in | P0 | ✅ |
 | MAP-3 | Tree-type filter | P0 | ✅ |
-| MAP-4 | Layers sheet with map-type thumbnails + overlays (satellite, terrain, trails, weather, smoke) | P1 | 🟡 Layers popover (reports, sightings, trails, satellite, 3D terrain, light presets); no thumbnails yet |
+| MAP-4 | Layers sheet with map-type thumbnails + overlays (satellite, terrain, trails, weather, smoke) | P1 | 🟡 Layers menu with eight map styles as thumbnails, light presets, satellite imagery by date, 3D terrain, trails and fishing access (#108); weather and smoke overlays not yet |
 | MAP-5 | **Season timeline scrubber** (history → today → forecast), animated playback | P0 | ⬜ |
 | MAP-6 | Unified **color status surface**: a continuous % color / % fallen field from blended sources, with confidence | P0 | ⬜ |
 | MAP-7 | "Near me" locate button and first-load centring on the user's region (with permission) | P0 | ⬜ |
 | MAP-8 | Search places (parks, towns, trails) with autocomplete | P0 | ✅ #77, #80 |
-| MAP-9 | Map performance: 60 fps pan on mid-range phones; vector data in PMTiles for national layers | P1 | 🟡 Performance pass #81; PMTiles not started |
+| MAP-9 | Map performance: 60 fps pan on mid-range phones; vector data in PMTiles for national layers | P1 | 🟡 Performance passes #81, #105; PMTiles not started |
 
 ### 9.2 Data coverage and status model
 | ID | Requirement | P | Status |
@@ -192,9 +195,9 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | ID | Requirement | P | Status |
 |---|---|---|---|
 | PLACE-1 | Region and park pages with status, outlook, photos, links | P0 | ✅ |
-| PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | 🟡 Directions, Save, Share, Book; AllTrails not yet |
+| PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | ✅ Get directions, Save and Share as buttons; booking, official pages and GPX as a row of links. An AllTrails hand-off was dropped: Canopy has its own trail pages |
 | PLACE-3 | Trail pages (length, elevation profile, along-the-trail stops, GPX). Ontario Trail Network + OSM; see [EXPLORE.md](EXPLORE.md) | P0 | 🟡 Algonquin |
-| PLACE-4 | Place pages with their own identity: waterfalls, lookouts, peaks, lakes, rivers, creeks (OSM + curated) | P0 | 🟡 Algonquin |
+| PLACE-4 | Place pages with their own identity: waterfalls, lookouts, peaks, lakes, rivers, creeks (OSM + curated) | P0 | 🟡 Algonquin, with a landform cover per kind (#111) |
 | PLACE-5 | Curated content: "Top 5 things to do in X this fall" per region (editorial) | P1 | ⬜ |
 | PLACE-6 | Expand seed regions from 15 → 60+ covering every province | P0 | ⬜ |
 | PLACE-7 | Crowd/busyness hints (weekend vs weekday) where data exists | P2 | ⬜ |
@@ -209,7 +212,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 ### 9.6 Weather and climate
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| WX-1 | 7-day color outlook (vivid / leaf-drop / frost) | P0 | ✅ |
+| WX-1 | 7-day weather forecast on every place page | P0 | ✅ The vivid / leaf-drop / frost dots were removed in v1.3; leaf-drop risk returns as WX-3 |
 | WX-2 | Switch weather source to ECCC GeoMet for commercial safety (Open-Meteo fallback) | P0 | ⬜ |
 | WX-3 | Leaf-drop risk alerts (wind gusts, heavy rain) on place pages and map | P1 | ⬜ |
 | WX-4 | Sunrise/sunset, golden hour, cloud cover (photographer mode) | P1 | ⬜ |
@@ -220,9 +223,9 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | ID | Requirement | P | Status |
 |---|---|---|---|
 | EXP-1 | Ranked "Best right now" and "Best this weekend" lists | P0 | ⬜ |
-| EXP-2 | Filters: drive time from me, tree type, activity (walk/hike/drive/paddle), accessibility | P0 | ⬜ |
+| EXP-2 | Filters: drive time from me, tree type, activity (walk/hike/drive/paddle), accessibility | P0 | 🟡 Tree type; park activities and facilities (#101); park region; trail difficulty. Drive time not yet |
 | EXP-3 | Drive-time isochrones (OpenRouteService / Valhalla) | P1 | ⬜ |
-| EXP-4 | Desktop split list + map, hover sync | P1 | ⬜ |
+| EXP-4 | Desktop split list + map, hover sync | P1 | 🟡 Split list + map, plus map-only and list-only views; hover sync and search-this-area not yet |
 
 ### 9.8 Trips and planning
 | ID | Requirement | P | Status |
@@ -260,7 +263,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | PLAT-3 | Backend API (Cloudflare Workers + D1 + R2 + KV) for reports, saves, cached data | P0 | ⬜ |
 | PLAT-4 | PWA: service worker, offline park/trail pages, install prompt | P1 | 🟡 manifest |
 | PLAT-5 | Bilingual EN/FR, including place names and content | P0 | ⬜ |
-| PLAT-6 | Accessibility WCAG 2.1 AA (keyboard map, screen-reader place lists, contrast) | P0 | ⬜ |
+| PLAT-6 | Accessibility WCAG 2.1 AA (keyboard map, screen-reader place lists, contrast) | P0 | 🟡 Automated audit (axe-core) run and fixed in v1.3. Open: white text on the orange button (3.25:1), arrow keys in menus, a screen-reader pass, axe in CI |
 | PLAT-7 | Privacy-friendly analytics (Plausible/Umami) + event plan | P0 | ⬜ |
 | PLAT-8 | Error monitoring (Sentry) | P0 | ⬜ |
 | PLAT-9 | SEO: prerendered region/park pages, OG images ("Algonquin: Peak · Oct 2") | P1 | ⬜ |
@@ -276,14 +279,36 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 
 ## 11. Release plan
 
+**Shipped so far.** Releases are tagged on GitHub; [CHANGELOG.md](CHANGELOG.md) has the detail.
+
+| Release | Date | What it added |
+|---|---|---|
+| v1.0 | 2026-10-03 | Live color map, Ontario Parks reports, sightings, region/park/trail/place pages, trips, fishing access, park facilities, search-first navigation, park boundaries, map styles |
+| v1.1 | 2026-10-03 | Pre-drawn island covers and thumbnails |
+| v1.2 | 2026-10-04 | Island covers for places, three views, orange brand color and new logo, About and Data sources pages |
+| v1.3 | 2026-10-04 | Explore as a map-first landing page, Places section, menu-pill filters, satellite at dawn, accessibility and load-size pass |
+
+**Next up (v1.4).** The issues labelled [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext), in order:
+
+1. **More of Ontario to explore** ([#85](https://github.com/maarib/canopy/issues/85)): trails and places beyond Algonquin's Highway 60 corridor (Killarney, Bon Echo, Frontenac, Bruce Peninsula…).
+2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)): all 347, not only the ones with fall color reports. Boundaries, activities and facilities are already built for them.
+3. **Near me** ([#22](https://github.com/maarib/canopy/issues/22)): a locate button and distances in lists.
+4. **Best right now / this weekend** ([#43](https://github.com/maarib/canopy/issues/43)): ranked lists for the landing page.
+5. **Accessibility follow-ups** ([#63](https://github.com/maarib/canopy/issues/63)): button contrast, arrow keys in menus, a screen-reader pass, axe in CI.
+6. **Québec** ([#23](https://github.com/maarib/canopy/issues/23)): Bonjour Québec stages and Sépaq parks.
+7. **Named lookouts and curated stops** ([#87](https://github.com/maarib/canopy/issues/87)).
+8. **Weather from Environment Canada** ([#36](https://github.com/maarib/canopy/issues/36)) and a **restricted Mapbox token** ([#79](https://github.com/maarib/canopy/issues/79)), both needed before any commercial use.
+
+**Milestones.** The original plan, still the long-range order:
+
 | Milestone | Theme | Target | Highlights |
 |---|---|---|---|
 | **M0–M1** ✅ | Foundations + live map | Sep 30 2026 | Done |
-| **M2** | Season-now quick wins | **Oct 15 2026** (peak still on in QC/Maritimes/S. ON) | URL routing, search, near me, Québec data, deploy publicly, analytics, quick-action row |
+| **M2** 🟡 | Season-now quick wins | **Oct 15 2026** (peak still on in QC/Maritimes/S. ON) | Done: URL routing, search, public deploy, quick-action row. Open: near me, Québec data, analytics |
 | **M3** | When to go | Feb 2027 | Historical peaks (VIIRS), forecast model, timeline scrubber, best-week badges, curves, 60+ regions |
-| **M4** | Places and trips | Apr 2027 | Trail and POI pages, Explore lists, saves/trips, exports, booking links everywhere |
+| **M4** 🟡 | Places and trips | Apr 2027 | Done early: trail and place pages (Algonquin), saves/trips, exports. Open: more areas, Explore ranked lists, booking links everywhere |
 | **M5** | Community and accounts | Jun 2027 | Backend, accounts, report flow, moderation, photo feed |
-| **M6** | Launch readiness | Aug 2027 | EN/FR, a11y audit, PWA offline, notifications, SEO, perf, data partnerships |
+| **M6** 🟡 | Launch readiness | Aug 2027 | Started: accessibility audit. Open: EN/FR, PWA offline, notifications, SEO, perf, data partnerships |
 | **Launch** | Season 2027 | **Sep 1 2027** | Press push around larch/early peak (mid-Sept) |
 
 Design runs about one milestone ahead of development (see the `design` label).

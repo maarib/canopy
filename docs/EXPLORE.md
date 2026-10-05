@@ -1,7 +1,7 @@
 # Explore Ontario: trails, waterfalls, lookouts, lakes and creeks
 
 _Design and research notes for turning Canopy into a one-stop shop for exploring Ontario._
-Last updated: 2026-10-01 · Related: [PRD](PRD.md) · [PLAN](PLAN.md)
+Last updated: 2026-10-04 · Related: [PRD](PRD.md) · [PLAN](PLAN.md)
 
 ## The job
 
@@ -57,10 +57,17 @@ Per trail the script computes length, loop vs point-to-point (official geometry 
 
 ## Roadmap
 
-1. **More areas:** Killarney, Bon Echo, Frontenac, Arrowhead, Muskoka, Bruce Peninsula, Lake Superior, Algoma Highlands, then province-wide trails as PMTiles.
-2. **Smaller parks:** conservation areas and municipal parks (OSM `leisure=nature_reserve|park`, Conservation Ontario).
-3. **Park pages from official boundaries** for all 347 provincial parks, with their trails and places.
-4. **Trips (Airbnb wishlists):** save trails and places, order them by day, share a plan, export GPX/ICS.
+**Done since this was written**
+- **Trips:** save trails and places, order them by day, share a plan, export GPX and calendar files (#97).
+- **Park boundaries** for all 347 provincial parks on park pages (#107), and their activities and facilities (#100).
+- **Island covers** for trails, parks and every kind of place, drawn from their real shapes (#108, #109, #111).
+- **Places** is its own section (trails with a difficulty filter, plus each kind of place), and Explore is a map-first landing page (v1.3).
+
+**Next**
+1. **More areas** ([#85](https://github.com/maarib/canopy/issues/85)): Killarney, Bon Echo, Frontenac, Arrowhead, Muskoka, Bruce Peninsula, Lake Superior, Algoma Highlands, then province-wide trails as PMTiles.
+2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)), with the trails and places inside it.
+3. **Curated names and waypoints** for lookouts and stops ([#87](https://github.com/maarib/canopy/issues/87)).
+4. **Smaller parks** ([#88](https://github.com/maarib/canopy/issues/88)): conservation areas and municipal parks (OSM `leisure=nature_reserve|park`, Conservation Ontario).
 5. **Photos along the route:** iNaturalist and Wikimedia Commons geotagged photos pinned on the track.
 6. **Conditions and reviews:** dated community reports (mud, closures, color).
 7. **3D flyover** of a trail using Mapbox terrain.
