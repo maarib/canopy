@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { ArrowBack, ArrowForward, Check, KeyboardArrowDown, Link } from 'relume-icons'
 import { usePresence } from '../hooks'
 import { ICON_TILE, INFO_ROW, inkOn } from '../lib/styles'
@@ -378,7 +379,7 @@ export function MenuButton({
   useEffect(() => {
     if (!open) return
     const close = () => setOpen(false)
-    const onDown = (e: PointerEvent) => !root.current?.contains(e.target as Node) && close()
+    const onDown = (e: PointerEvent) => !root.current?.contains(e.target as Node) && !menu.current?.contains(e.target as Node) && close()
     // Escape closes the menu and hands focus back to its pill.
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (close(), button.current?.focus())
     const onScroll = (e: Event) => !menu.current?.contains(e.target as Node) && close()
@@ -412,7 +413,10 @@ export function MenuButton({
         </span>
         <KeyboardArrowDown className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {presence.mounted && (
+      {/* Drawn at the top of the page, not inside the panel: the panel's entrance animation makes
+          it the reference box for anything fixed inside it, which put the menu in the wrong place. */}
+      {presence.mounted &&
+        createPortal(
         <div
           ref={menu}
           role="group"
@@ -421,8 +425,9 @@ export function MenuButton({
           className={`fixed z-40 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl`}
         >
           {children(() => setOpen(false))}
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </div>
   )
 }

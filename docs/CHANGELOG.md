@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Filter menus open under their pill ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
 | [v1.1](https://github.com/maarib/canopy/releases/tag/v1.1.0) | 2026-10-03 | Pre-drawn covers and island thumbnails in lists ([#109](https://github.com/maarib/canopy/pull/109)) |
@@ -17,6 +18,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-04 | [Filter menus open under their pill](#2026-10-04-filter-menus-open-under-their-pill) | [#116](https://github.com/maarib/canopy/pull/116) |
 | 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | [#115](https://github.com/maarib/canopy/pull/115) |
 | 2026-10-04 | [Three views, orange brand color, new logo and navigation polish](#2026-10-04-three-views-orange-brand-color-new-logo-and-navigation-polish) | [#114](https://github.com/maarib/canopy/pull/114) |
 | 2026-10-03 | [About and Data sources pages, footer at the bottom, legend in Layers](#2026-10-03-about-and-data-sources-pages-footer-at-the-bottom-legend-in-layers) | [#112](https://github.com/maarib/canopy/pull/112) |
@@ -48,6 +50,18 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-04 · Filter menus open under their pill
+
+**Ref:** [#116](https://github.com/maarib/canopy/pull/116)
+
+**Before.** The Region, Activities, Sort and Difficulty menus opened in the wrong place: offset from their pill by wherever the panel sat on screen and however far it was scrolled.
+
+**After.** Each menu opens 6 px under its pill, left edges aligned, at any scroll position, on desktop and phones.
+
+**How.** The menu is positioned against the screen (`position: fixed`), but it was drawn inside the panel. The panel's entrance animation moves it with a transform, and an element with a transform becomes the reference box for anything fixed inside it. `MenuButton` in `src/components/ui.tsx` now draws its menu at the top of the page through a portal.
 
 ## v1.3
 
