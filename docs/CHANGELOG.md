@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Floating panel on desktop ([#117](https://github.com/maarib/canopy/pull/117)) |
+| Unreleased | | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)) |
 | Unreleased | | Filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
@@ -19,7 +19,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-10-04 | [Floating panel on desktop](#2026-10-04-floating-panel-on-desktop) | [#117](https://github.com/maarib/canopy/pull/117) |
+| 2026-10-04 | [Floating panel on desktop](#2026-10-04-floating-panel-on-desktop) | [#118](https://github.com/maarib/canopy/pull/118) |
 | 2026-10-04 | [Filter menus open under their pill; phones keep their view](#2026-10-04-filter-menus-open-under-their-pill-phones-keep-their-view) | [#116](https://github.com/maarib/canopy/pull/116) |
 | 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | [#115](https://github.com/maarib/canopy/pull/115) |
 | 2026-10-04 | [Three views, orange brand color, new logo and navigation polish](#2026-10-04-three-views-orange-brand-color-new-logo-and-navigation-polish) | [#114](https://github.com/maarib/canopy/pull/114) |
@@ -57,7 +57,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ### 2026-10-04 · Floating panel on desktop
 
-**Ref:** [#117](https://github.com/maarib/canopy/pull/117)
+**Ref:** [#118](https://github.com/maarib/canopy/pull/118)
 
 **Before.** On desktop, the panel was a full-height column between the navigation rail and the map, and the map started at its right edge.
 
