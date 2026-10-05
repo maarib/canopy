@@ -1,5 +1,5 @@
 import { experimental_streamedQuery as streamedQuery, useQuery } from '@tanstack/react-query'
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { matchPath, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { Layers, ProgressActivity } from 'relume-icons'
 import { BottomSheet, type SnapPoint } from './components/BottomSheet'
@@ -345,6 +345,12 @@ export default function App() {
     // reader's choice and stays put; only the map alone opens the panel, or a tapped pin would do nothing.
     else if (isPlace ? isDesktop || sheet === 'peek' : sheet !== 'full') setSheet('half')
   }
+
+  // A new page starts at the top of the desktop panel (the phone sheet does the same itself).
+  const asideRef = useRef<HTMLElement>(null)
+  useLayoutEffect(() => {
+    asideRef.current?.scrollTo({ top: 0 })
+  }, [selectionKey])
 
   // Tab titles make shared links and history readable.
   useEffect(() => {
@@ -715,7 +721,7 @@ export default function App() {
         {isDesktop && (
           <>
             <SideNav active={section} onNavigate={openSection} tripCount={trips.length} />
-            <aside className={`overflow-y-auto border-r border-[var(--line)] ${sheet === 'full' ? 'min-w-0 flex-1' : sheet === 'peek' ? 'hidden' : 'w-[420px] shrink-0'}`}>
+            <aside ref={asideRef} className={`overflow-y-auto border-r border-[var(--line)] ${sheet === 'full' ? 'min-w-0 flex-1' : sheet === 'peek' ? 'hidden' : 'w-[420px] shrink-0'}`}>
               {/* Keyed by page so each new page or place eases in. At least as tall as the panel, so the footer sits at the bottom on short pages. */}
               <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl' : ''}`}>
                 {panel}
