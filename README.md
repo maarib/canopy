@@ -69,7 +69,7 @@
 ### Getting around
 - **Search:** regions, parks, trails, places and tree types, plus any town or landmark in Canada.
 - **Shareable links** for every place, filter, layer and map view, with working Back and Forward and a Share button.
-- **Responsive:** a side panel on desktop and a draggable bottom sheet on phones (a full page with square corners at its tallest). Skeleton loading states throughout, and the app can be installed (web app manifest).
+- **Responsive:** a panel floating over the map's left side on desktop and a draggable bottom sheet on phones (a full page with square corners at its tallest). Skeleton loading states throughout, and the app can be installed (web app manifest).
 
 ---
 
