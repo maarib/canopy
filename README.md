@@ -156,6 +156,7 @@ docs/                  PRD, technical plan, Explore design, change log
 | [docs/PLAN.md](docs/PLAN.md) | Original technical plan and data-source research |
 | [docs/EXPLORE.md](docs/EXPLORE.md) | Trails and places: research (AllTrails, Tripadvisor, Airbnb), identity system, data pipeline, roadmap |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Every change: before, after and why, with measurements |
+| [docs/RETROS.md](docs/RETROS.md) | Retrospectives: what went well, what didn't, and what to change |
 
 ## What's next
 
