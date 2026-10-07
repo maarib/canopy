@@ -290,6 +290,7 @@ const SOURCES: { name: string; url: string; what: string; licence: string; refre
   { name: 'Parks Canada', url: 'https://open.canada.ca/data/en/organization/pc', what: 'National park trails', licence: 'Open Government Licence – Canada', refresh: 'Live' },
   { name: 'OpenStreetMap contributors', url: 'https://www.openstreetmap.org/copyright', what: 'Waterfalls, lookouts, lakes, creeks; basemap data', licence: 'ODbL', refresh: 'Weekly' },
   { name: 'Mapbox', url: 'https://www.mapbox.com/about/maps/', what: 'Basemap, satellite imagery and terrain', licence: 'Mapbox terms', refresh: 'Live' },
+  { name: 'Natural Earth', url: 'https://www.naturalearthdata.com', what: "Ontario's outline, for the color outlook", licence: 'Public domain', refresh: 'Fixed' },
   { name: 'NASA GIBS', url: 'https://earthdata.nasa.gov/gibs', what: 'VIIRS satellite imagery', licence: 'Public domain', refresh: 'Daily' },
   { name: 'Open-Meteo', url: 'https://open-meteo.com', what: '7-day weather forecast', licence: 'CC BY 4.0', refresh: 'Live' },
 ]

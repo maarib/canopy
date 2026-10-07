@@ -155,6 +155,8 @@ export default function App() {
   const activityParam = params.get('do') ?? ''
   const activities = useMemo(() => readActivities(new URLSearchParams({ do: activityParam })), [activityParam])
   const layers = useMemo(() => readLayers(params), [params])
+  // With the outlook on, the sightings' hexagons step aside: both color the same ground.
+  const mapLayers = useMemo(() => (layers.outlook ? { ...layers, hexes: false } : layers), [layers])
   const satelliteDate = readDate(params)
   const light = readLight(params)
   const [initialView] = useState(() => readMapView(params))
@@ -750,13 +752,15 @@ export default function App() {
           <FoliageMap
             regions={REGIONS}
             parks={filteredParks ?? NO_PARKS}
+            reports={parks.data?.parks ?? NO_PARKS}
             sightings={mapSightings}
-            layers={layers}
+            layers={mapLayers}
             satelliteDate={satelliteDate}
             light={light}
             target={target}
             focus={focus}
             panelInset={floatingPanel ? PANEL_INSET : 0}
+            bottomInset={landing ? (isDesktop ? 230 : 150) : 0}
             initialView={initialView}
             onViewChange={onViewChange}
             parkBoundary={parkBoundary}

@@ -25,6 +25,7 @@ export function SearchBox({
   places: explorePlaces,
   onSelect,
   up,
+  autoFocus,
 }: {
   parks: ParkReport[]
   trails: Trail[]
@@ -32,12 +33,17 @@ export function SearchBox({
   onSelect: (r: SearchResult) => void
   /** Open the results above the box (when it sits at the bottom of the screen). */
   up?: boolean
+  /** Start with the cursor in the box (the landing page, where searching is the point). */
+  autoFocus?: boolean
 }) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listId = useId()
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus({ preventScroll: true })
+  }, [autoFocus])
 
   const trimmed = query.trim()
   const local = useMemo(() => searchLocal(trimmed, parks, trails, explorePlaces), [trimmed, parks, trails, explorePlaces])

@@ -48,16 +48,21 @@ export function hexbin<P extends HexPoint, Props extends Record<string, unknown>
   }
 
   const features: Feature<Polygon, Props>[] = []
-  for (const [key, { q, r, points: pts }] of bins) {
-    const cx = size * SQRT3 * (q + r / 2)
-    const cy = size * 1.5 * r
-    const ring = Array.from({ length: 7 }, (_, i) => {
-      const angle = (Math.PI / 180) * (60 * (i % 6) - 30)
-      return unproject(cx + size * Math.cos(angle), cy + size * Math.sin(angle))
-    })
-    features.push({ type: 'Feature', id: key, geometry: { type: 'Polygon', coordinates: [ring] }, properties: summarize(pts) })
-  }
+  for (const [key, { q, r, points: pts }] of bins)
+    features.push({ type: 'Feature', id: key, geometry: { type: 'Polygon', coordinates: [hexCell(q, r, size).ring] }, properties: summarize(pts) })
   return { type: 'FeatureCollection', features }
+}
+
+/** The hexagon at axial coordinates (q, r): its outline and its centre. */
+export function hexCell(q: number, r: number, size: number) {
+  const cx = size * SQRT3 * (q + r / 2)
+  const cy = size * 1.5 * r
+  const ring = Array.from({ length: 7 }, (_, i) => {
+    const angle = (Math.PI / 180) * (60 * (i % 6) - 30)
+    return unproject(cx + size * Math.cos(angle), cy + size * Math.sin(angle))
+  })
+  const [lng, lat] = unproject(cx, cy)
+  return { ring, lng, lat }
 }
 
 /** Hex size by zoom, so hexes stay a readable size on screen. */

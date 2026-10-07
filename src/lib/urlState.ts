@@ -11,6 +11,8 @@ import { DEFAULT_LIGHT, LIGHT_PRESETS, localDate, type LightSetting } from './ma
 
 export const DEFAULT_LAYERS: MapLayers = {
   reports: true,
+  // Off until asked for, under Layers.
+  outlook: false,
   hexes: true,
   sightings: true,
   trails: true,
