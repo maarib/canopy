@@ -1,11 +1,9 @@
-import { ChevronRight } from 'relume-icons'
 import type { Trail } from '../lib/explore'
-import { parkTitle, type ParkReport } from '../lib/ontarioParks'
-import { STAGES } from '../lib/stage'
-import { LIST, ROW } from '../lib/styles'
+import { type ParkReport } from '../lib/ontarioParks'
+import { LIST } from '../lib/styles'
 import { ExploreSearch, type SearchProps } from './ExploreSearch'
+import { ParkRow } from './rows'
 import { TrailCard } from './TrailPanel'
-import { Badge } from './ui'
 
 // The Explore panel, opened from the landing page's view switch: the same search, then discovery
 // (what's peaking, short hikes).
@@ -44,19 +42,7 @@ export function ExplorePanel(props: Props) {
           <ul className={`stagger ${LIST}`}>
             {peaking.map((p) => (
               <li key={p.id}>
-                <button onClick={() => props.onSelectPark(p)} className={ROW}>
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--surface-2)]">
-                    <span className="size-3.5 rounded-full" style={{ background: STAGES[p.stage].color }} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{parkTitle(p)}</span>
-                    <span className="text-xs text-[var(--ink-soft)]">
-                      {p.colorChange ?? 0}% color · {p.dominantColor}
-                    </span>
-                  </span>
-                  <Badge size="sm" color={STAGES[p.stage].color}>{STAGES[p.stage].label}</Badge>
-                  <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-                </button>
+                <ParkRow park={p} onClick={() => props.onSelectPark(p)} />
               </li>
             ))}
           </ul>

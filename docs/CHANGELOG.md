@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)) |
 | Unreleased | | Color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
@@ -19,6 +20,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-06 | [Trees on the Foliage page, and a page for each](#2026-10-06-trees-on-the-foliage-page-and-a-page-for-each) | [#122](https://github.com/maarib/canopy/pull/122) |
 | 2026-10-06 | [Color outlook across Ontario](#2026-10-06-color-outlook-across-ontario) | [#121](https://github.com/maarib/canopy/pull/121) |
 | 2026-10-04 | [Floating panel on desktop](#2026-10-04-floating-panel-on-desktop) | [#118](https://github.com/maarib/canopy/pull/118) |
 | 2026-10-04 | [Filter menus open under their pill; phones keep their view](#2026-10-04-filter-menus-open-under-their-pill-phones-keep-their-view) | [#116](https://github.com/maarib/canopy/pull/116) |
@@ -56,6 +58,31 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ## Unreleased
 
+### 2026-10-06 · Trees on the Foliage page, and a page for each
+
+**Ref:** [#122](https://github.com/maarib/canopy/pull/122)
+
+**Before.** The Foliage page was two numbers, the park reports and the regions' peak windows. Trees appeared only as a filter for the map's sightings.
+
+**After.**
+- **The Foliage page starts with the trees:** Trees is the first of three tabs (Trees, Park reports, When to go). It lists the 13 groups (maples, oaks, birches and so on, with shrubs and vines last), each row showing its leaf, its fall colors and how many were seen turning in the last two weeks, busiest first.
+- **Each tree has a page** (`/tree/maples`):
+  - the color it turns, when, how to recognise it, where it grows and the species found in Ontario;
+  - **Turning now:** how many were seen in the last two weeks, and the five parks with the most within 40 km, each with its color stage;
+  - the regions known for it, and up to nine recent photos from iNaturalist.
+- While a tree's page is open, the map shows only that tree's turning leaves, grouped by area, whatever the tree filter is set to.
+- **One row per kind of thing, everywhere.** A park, region, place or tree now looks the same wherever it is listed: its island cover (or leaf) on the left, its name and a line of detail, a badge where it has a status, and a chevron. Before, a park had its cover in Parks but a colored dot in Foliage and Explore; regions had a leaf icon; a region's waterfalls and lookouts were chips. Only the line of detail varies by page.
+- A tree in the search opens its page (it used to set the map's filter), and "Trees to look for" on a region page links to them. On phones the page has Show on map in its top bar.
+
+**How.**
+- `src/data/trees.ts` (new) holds the write-up for each tree, keyed to the tree groups in `treeGroups.ts`. Each group's write-up was checked against the genera it covers on iNaturalist.
+- `src/components/TreePanel.tsx` (new) is the page; `FoliagePanel.tsx` gains the Trees tab.
+- `src/components/rows.tsx` (new) holds `ParkRow`, `RegionRow`, `PlaceRow` and `TreeRow`, used by Parks, Places, Foliage, Explore, region pages and tree pages. Trails already shared `TrailCard`.
+- `src/App.tsx` adds the `/tree/:id` route and, on a tree's page, overrides the sightings filter and the map's layers.
+
+**Why.** People look for a tree before they look for a report: "where are the maples red?". The journey can now start from the leaf.
+
+**Limits.** Timing in the write-ups is typical for southern and central Ontario, not a forecast. "Turning now" depends on where iNaturalist observers happen to be, so busy areas near cities are over-represented.
 ### 2026-10-06 · Color outlook across Ontario
 
 **Ref:** [#121](https://github.com/maarib/canopy/pull/121)

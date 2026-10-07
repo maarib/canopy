@@ -62,7 +62,7 @@ export function searchLocal(
   }
   for (const g of TREE_GROUPS) {
     const s = score(q, g.label)
-    if (s) scored.push([s + 0.1, { kind: 'tree', id: g.id, label: g.label, detail: 'Show on map' }])
+    if (s) scored.push([s + 0.1, { kind: 'tree', id: g.id, label: g.label, detail: 'Tree' }])
   }
   return scored
     .sort((a, b) => b[0] - a[0] || a[1].label.localeCompare(b[1].label))

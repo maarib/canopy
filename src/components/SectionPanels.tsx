@@ -1,17 +1,16 @@
 import { useMemo, useState } from 'react'
-import { CoverThumb } from './ForestCover'
-import { parkCover, placeCover } from '../lib/coverSpec'
-import { ChevronRight, FilterList, Search } from 'relume-icons'
+import { FilterList, Search } from 'relume-icons'
 import { PARK_FILTERS } from '../data/amenityIcons'
 import { DIFFICULTY, PLACE_KINDS, type Difficulty, type Place, type PlaceKind, type Trail } from '../lib/explore'
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { normalize } from '../lib/search'
-import { STAGE_ORDER, STAGES } from '../lib/stage'
-import { ICON_TILE, LIST, ROW } from '../lib/styles'
+import { STAGE_ORDER } from '../lib/stage'
+import { LIST } from '../lib/styles'
 import { ActivityOptions } from './ActivityFilter'
 import { PlaceIcon } from './PlaceIcon'
+import { ParkRow, PlaceRow } from './rows'
 import { TrailCard } from './TrailPanel'
-import { Badge, ExternalIcon, InfoRow, MenuButton, MenuOption } from './ui'
+import { ExternalIcon, InfoRow, MenuButton, MenuOption } from './ui'
 
 // Dedicated pages for the Parks and Places sections (and About). Each is a list with its own
 // search, and filters and sorts as menu pills (MenuButton); the map beside it shows the same things.
@@ -133,24 +132,7 @@ export function ParksPanel({
       <ul className={`stagger ${LIST}`}>
         {list.map((p) => (
           <li key={p.id}>
-            <button onClick={() => onSelectPark(p)} className={ROW}>
-              <CoverThumb
-                spec={parkCover(p)}
-                fallback={
-                  <span className={`${ICON_TILE} bg-[var(--surface-2)]`}>
-                    <span className="size-3.5 rounded-full" style={{ background: STAGES[p.stage].color }} />
-                  </span>
-                }
-              />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">{parkTitle(p)}</span>
-                <span className="text-xs text-[var(--ink-soft)]">
-                  {p.region} · {p.colorChange ?? 0}% color
-                </span>
-              </span>
-              <Badge size="sm" color={STAGES[p.stage].color}>{STAGES[p.stage].label}</Badge>
-              <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-            </button>
+            <ParkRow park={p} onClick={() => onSelectPark(p)} />
           </li>
         ))}
       </ul>
@@ -252,25 +234,7 @@ export function TrailsPanel({
           <ul className={`stagger ${LIST}`}>
             {placeList.map((p) => (
               <li key={p.id}>
-                <button onClick={() => onSelectPlace(p)} className={ROW}>
-                  <CoverThumb
-                    spec={placeCover(p)}
-                    fallback={
-                      <span className={`${ICON_TILE} text-white`} style={{ background: PLACE_KINDS[p.kind].color }}>
-                        <PlaceIcon kind={p.kind} className="size-5" />
-                      </span>
-                    }
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{p.name}</span>
-                    <span className="text-xs text-[var(--ink-soft)]">
-                      {PLACE_KINDS[p.kind].label}
-                      {p.ele ? ` · ${p.ele} m` : ''}
-                      {p.trails.length ? ` · on ${p.trails.length} trail${p.trails.length > 1 ? 's' : ''}` : ''}
-                    </span>
-                  </span>
-                  <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-                </button>
+                <PlaceRow place={p} onClick={() => onSelectPlace(p)} />
               </li>
             ))}
           </ul>

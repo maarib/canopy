@@ -30,7 +30,9 @@ import { PlaceIcon } from './components/PlaceIcon'
 import { TreeIcon } from './components/TreeIcon'
 import { RegionPanel } from './components/RegionPanel'
 import { BackButton, InfoIcon, Logo, PanelSkeleton, ProgressBar, ShowOnMap, ViewIcon } from './components/ui'
+import { TREE_BY_ID, treePath, type TreeInfo } from './data/trees'
 import { REGIONS, signatureTree, type Region } from './data/regions'
+import { TreePanel } from './components/TreePanel'
 import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop, useThrottledWhile } from './hooks'
 import {
@@ -88,6 +90,7 @@ const FoliageMap = lazy(() => import('./components/FoliageMap').then((m) => ({ d
 
 type Selection =
   | { kind: 'region'; region: Region }
+  | { kind: 'tree'; tree: TreeInfo }
   | { kind: 'park'; park: ParkReport }
   | { kind: 'loading' }
   | { kind: 'trail'; trail: Trail; area: ExploreArea }
@@ -155,8 +158,6 @@ export default function App() {
   const activityParam = params.get('do') ?? ''
   const activities = useMemo(() => readActivities(new URLSearchParams({ do: activityParam })), [activityParam])
   const layers = useMemo(() => readLayers(params), [params])
-  // With the outlook on, the sightings' hexagons step aside: both color the same ground.
-  const mapLayers = useMemo(() => (layers.outlook ? { ...layers, hexes: false } : layers), [layers])
   const satelliteDate = readDate(params)
   const light = readLight(params)
   const [initialView] = useState(() => readMapView(params))
@@ -187,6 +188,7 @@ export default function App() {
   }
 
   const regionMatch = matchPath('/region/:id', location.pathname)
+  const treeMatch = matchPath('/tree/:id', location.pathname)
   const parkMatch = matchPath('/park/:slug', location.pathname)
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
@@ -216,6 +218,10 @@ export default function App() {
       const trip = trips.find((t) => t.id === tripMatch.params.id)
       return trip ? { kind: 'trip', trip } : { kind: 'missing' }
     }
+    if (treeMatch) {
+      const tree = TREE_BY_ID.get(treeMatch.params.id ?? '')
+      return tree ? { kind: 'tree', tree } : { kind: 'missing' }
+    }
     if (regionMatch) {
       const region = REGIONS.find((r) => r.id === regionMatch.params.id)
       return region ? { kind: 'region', region } : { kind: 'missing' }
@@ -241,7 +247,7 @@ export default function App() {
       return place ? { kind: 'place', place, area: exploreIndex.areaById.get(place.areaId)! } : { kind: 'missing' }
     }
     return null
-  }, [regionMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, fishingMatch?.params.slug, sectionPath, fishing.data, fishing.isError, fishingById, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [regionMatch?.params.id, treeMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, fishingMatch?.params.slug, sectionPath, fishing.data, fishing.isError, fishingById, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Turn a saved trip stop back into something to draw, list and open. */
   const resolveStop = useCallback(
@@ -292,6 +298,7 @@ export default function App() {
   const selectPlace = useCallback((p: Place) => go(placePath(p)), [go])
   const selectFishing = useCallback((a: FishingAccess) => go(fishingPath(a)), [go])
   const selectRegion = useCallback((r: Region) => go(regionPath(r.id)), [go])
+  const selectTree = useCallback((id: string) => go(treePath(id)), [go])
   const selectPark = useCallback((p: ParkReport) => go(parkPath(p)), [go])
   const openTrip = useCallback((t: Trip) => go(`/trip/${t.id}`), [go])
   const openStop = useCallback(
@@ -315,6 +322,8 @@ export default function App() {
   const selectionKey =
     selection?.kind === 'region'
       ? `region:${selection.region.id}`
+      : selection?.kind === 'tree'
+        ? `tree:${selection.tree.id}`
       : selection?.kind === 'park'
         ? `park:${selection.park.id}`
         : selection?.kind === 'trail'
@@ -359,6 +368,8 @@ export default function App() {
     const name =
       selection?.kind === 'region'
         ? selection.region.name
+        : selection?.kind === 'tree'
+          ? selection.tree.name
         : selection?.kind === 'park'
           ? parkTitle(selection.park)
           : selection?.kind === 'trail'
@@ -404,7 +415,7 @@ export default function App() {
   function onSearch(r: SearchResult) {
     if (r.kind === 'region') go(regionPath(r.id))
     else if (r.kind === 'park') go(parkPath(r.park))
-    else if (r.kind === 'tree') updateParams((p) => writeTree(p, r.id))
+    else if (r.kind === 'tree') go(treePath(r.id))
     else if (r.kind === 'trail') go(trailPath(r.trail))
     else if (r.kind === 'explore-place') go(placePath(r.place))
     else {
@@ -436,7 +447,7 @@ export default function App() {
         ? 'parks'
         : selection.kind === 'trails' || selection.kind === 'trail' || selection.kind === 'place'
           ? 'trails'
-          : selection.kind === 'foliage' || selection.kind === 'region'
+          : selection.kind === 'foliage' || selection.kind === 'region' || selection.kind === 'tree'
             ? 'foliage'
             : selection.kind === 'trips' || selection.kind === 'trip' || selection.kind === 'shared-trip'
               ? 'trips'
@@ -482,15 +493,31 @@ export default function App() {
     return all.filter((p) => p.id === selectedParkId || parkMatches(feed, p.shortname, activities))
   }, [parks.data, facilities.data, activities, selectedParkId])
   const activityLabels = activities.map((id) => PARK_FILTERS.get(id)!.label)
+  const openTree = selection?.kind === 'tree' ? selection.tree.id : null
   const visibleSightings = useMemo(
     () =>
       (sightings.data?.items ?? []).filter((o) =>
-        treeFilter === 'all' ? true : treeFilter === 'trees' ? TREE_GROUP_IDS.has(o.group ?? '') : o.group === treeFilter,
+        // A tree's own page shows that tree's turning leaves, whatever the filter says.
+        openTree ? o.group === openTree && o.state === 'colored' : treeFilter === 'all' ? true : treeFilter === 'trees' ? TREE_GROUP_IDS.has(o.group ?? '') : o.group === treeFilter,
       ),
-    [sightings.data, treeFilter],
+    [sightings.data, treeFilter, openTree],
   )
   // While sightings stream in, refresh the map's hexagons at most every 1.5 s rather than per page.
   const mapSightings = useThrottledWhile(visibleSightings, sightingsLoading, 1500)
+  /** How many of each tree were seen turning, for the Foliage page's grid. */
+  const turningByTree = useMemo(() => {
+    if (!sightings.data?.loaded) return undefined
+    const counts = new Map<string, number>()
+    for (const o of sightings.data.items) if (o.group && o.state === 'colored') counts.set(o.group, (counts.get(o.group) ?? 0) + 1)
+    return counts
+  }, [sightings.data])
+  // What the map draws. On a tree's page it is about where that tree is: its sightings by area,
+  // without the outlook. Otherwise, with the outlook on, the sightings' hexagons step aside, since
+  // both color the same ground.
+  const mapLayers = useMemo(
+    () => (openTree ? { ...layers, hexes: true, sightings: true, outlook: false } : layers.outlook ? { ...layers, hexes: false } : layers),
+    [layers, openTree],
+  )
   const treeColorSightings = useMemo(
     () => sightings.data?.items.filter((o) => o.state === 'colored' && TREE_GROUP_IDS.has(o.group ?? '')).length,
     [sightings.data],
@@ -562,7 +589,7 @@ export default function App() {
   }, [selection, tripOnMap, boundaryPending, parkBoundary])
 
   // Unknown paths go home rather than showing a blank page.
-  if (!regionMatch && !parkMatch && !trailMatch && !placeMatch && !fishingMatch && !sectionPath && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
+  if (!regionMatch && !treeMatch && !parkMatch && !trailMatch && !placeMatch && !fishingMatch && !sectionPath && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
 
   const panel =
     selection?.kind === 'region' ? (
@@ -575,6 +602,17 @@ export default function App() {
         places={exploreIndex.placeById}
         onSelectTrail={selectTrail}
         onSelectPlace={selectPlace}
+        onSelectTree={selectTree}
+      />
+    ) : selection?.kind === 'tree' ? (
+      <TreePanel
+        key={selection.tree.id}
+        tree={selection.tree}
+        sightings={sightings.data?.loaded ? sightings.data.items : undefined}
+        parks={parks.data?.parks ?? NO_PARKS}
+        onBack={goBack}
+        onSelectPark={selectPark}
+        onSelectRegion={selectRegion}
       />
     ) : selection?.kind === 'trail' ? (
       <TrailPanel
@@ -650,6 +688,8 @@ export default function App() {
         tree={treeFilter}
         treeCounts={groupCounts}
         onTree={setTreeFilter}
+        turning={turningByTree}
+        onSelectTree={selectTree}
       />
     ) : selection?.kind === 'about' ? (
       <AboutPanel onData={() => openSection('/sources')} />
@@ -682,7 +722,7 @@ export default function App() {
   const footer = <SiteFooter onNavigate={openSection} />
   /** Desktop, map with panel: the panel floats over the map's left side. */
   const floatingPanel = isDesktop && sheet === 'half'
-  const onPlace = ['region', 'park', 'trail', 'place', 'fishing'].includes(selection?.kind ?? '')
+  const onPlace = ['region', 'park', 'trail', 'place', 'fishing', 'tree'].includes(selection?.kind ?? '')
   /** On phones, a place's page in the full panel offers a way back to the map, which has moved to it. */
   const showOnMap = !isDesktop && sheet === 'full' && onPlace ? () => setSheet('half') : null
   /** Explore with the panel closed: the search and quick links sit over the map. */
