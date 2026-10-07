@@ -63,13 +63,14 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **Before.** The map's hexagons only appeared where people had reported turning leaves in the last 14 days, so most of Ontario was blank and the map couldn't say where the color was.
 
 **After.**
-- **An Outlook button on the map**, beside Filters and Layers, covers all of Ontario with hexagons, each filled with its color stage (mostly green, patchy, near peak, peak, past peak, bare). It is off until asked for, so the map opens as it did before; turning it on is kept in the link.
+- **Color outlook**, a new layer under Layers, covers all of Ontario with hexagons, each filled with its color stage (mostly green, patchy, near peak, peak, past peak, bare). It is off until asked for, so the map opens as it did before; turning it on is kept in the link.
 - **How each one is worked out**, and how solid it is drawn:
   - an Ontario Parks report within 60 km: the reports within 200 km blended by distance, drawn solid;
   - no report within 60 km but some within 200 km: the same blend, drawn lighter;
   - nothing within 200 km: the usual stage for that latitude on today's date, drawn lightest.
 - The legend explains the lighter shades. The outlook fades as you zoom in, where park pins and sightings take over.
-- While the outlook is on, the sightings' hexagons step aside, since both color the same ground. The Layers menu and its defaults are unchanged.
+- While the outlook is on, the sightings' hexagons step aside, since both color the same ground.
+- **The Layers menu is grouped**, with a divider between groups: fall color (color outlook, park reports, color sightings, individual sightings), places (Parks Canada trails, fishing access), the daily satellite image, and 3D terrain on its own. The other layers' defaults are unchanged.
 - On the landing page, Ontario is framed above the search card on desktop and phones. On phones it was framed for a half-open sheet the landing page no longer has.
 
 **How.**

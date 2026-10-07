@@ -29,7 +29,7 @@ import { TripPanel, TripsPanel, type StopInfo } from './components/TripPanels'
 import { PlaceIcon } from './components/PlaceIcon'
 import { TreeIcon } from './components/TreeIcon'
 import { RegionPanel } from './components/RegionPanel'
-import { BackButton, HexIcon, InfoIcon, Logo, PanelSkeleton, ProgressBar, ShowOnMap, ViewIcon } from './components/ui'
+import { BackButton, InfoIcon, Logo, PanelSkeleton, ProgressBar, ShowOnMap, ViewIcon } from './components/ui'
 import { REGIONS, signatureTree, type Region } from './data/regions'
 import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop, useThrottledWhile } from './hooks'
@@ -688,8 +688,7 @@ export default function App() {
   /** Explore with the panel closed: the search and quick links sit over the map. */
   const landing = selection === null && sheet === 'peek'
   const treeCount = treeFilter === 'trees' ? 0 : 1
-  // The outlook has its own button on the map, so it doesn't count toward the Layers badge.
-  const layerCount = (Object.keys(DEFAULT_LAYERS) as (keyof MapLayers)[]).filter((k) => k !== 'outlook' && layers[k] !== DEFAULT_LAYERS[k]).length
+  const layerCount = (Object.keys(DEFAULT_LAYERS) as (keyof MapLayers)[]).filter((k) => layers[k] !== DEFAULT_LAYERS[k]).length
 
   return (
     <div className="flex h-full flex-col">
@@ -818,18 +817,6 @@ export default function App() {
                   },
                 ]}
               />
-              <button
-                onClick={() => setLayers({ ...layers, outlook: !layers.outlook })}
-                aria-pressed={layers.outlook}
-                aria-label="Color outlook across Ontario"
-                title="Color outlook across Ontario"
-                className={`flex h-[42px] items-center justify-center gap-1.5 rounded-full border text-sm font-medium shadow-md transition-colors ${isDesktop ? 'px-3.5' : 'w-[42px]'} ${
-                  layers.outlook ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)]' : 'border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--surface-2)]'
-                }`}
-              >
-                <HexIcon className="size-5" />
-                {isDesktop && 'Outlook'}
-              </button>
               <MapFilters label="Legend" iconOnly icon={<InfoIcon className="size-5" />} tabs={[{ id: 'legend', label: 'Legend', active: 0, content: <Legend /> }]} />
             </div>
           </div>
