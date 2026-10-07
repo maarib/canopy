@@ -71,6 +71,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - The legend explains the lighter shades. The outlook fades as you zoom in, where park pins and sightings take over.
 - While the outlook is on, the sightings' hexagons step aside, since both color the same ground.
 - **The Layers menu is grouped**, with a divider between groups: fall color (color outlook, park reports, color sightings, individual sightings), places (Parks Canada trails, fishing access), the daily satellite image, and 3D terrain on its own. The other layers' defaults are unchanged.
+- On the landing page, the search box starts focused, each time Explore opens, so you can type straight away.
 - On the landing page, Ontario is framed above the search card on desktop and phones. On phones it was framed for a half-open sheet the landing page no longer has.
 
 **How.**
