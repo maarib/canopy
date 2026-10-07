@@ -511,8 +511,13 @@ export default function App() {
     for (const o of sightings.data.items) if (o.group && o.state === 'colored') counts.set(o.group, (counts.get(o.group) ?? 0) + 1)
     return counts
   }, [sightings.data])
-  // On a tree's page the map is about where that tree is: its sightings by area, without the outlook.
-  const mapLayers = useMemo(() => (openTree ? { ...layers, hexes: true, sightings: true, outlook: false } : layers), [layers, openTree])
+  // What the map draws. On a tree's page it is about where that tree is: its sightings by area,
+  // without the outlook. Otherwise, with the outlook on, the sightings' hexagons step aside, since
+  // both color the same ground.
+  const mapLayers = useMemo(
+    () => (openTree ? { ...layers, hexes: true, sightings: true, outlook: false } : layers.outlook ? { ...layers, hexes: false } : layers),
+    [layers, openTree],
+  )
   const treeColorSightings = useMemo(
     () => sightings.data?.items.filter((o) => o.state === 'colored' && TREE_GROUP_IDS.has(o.group ?? '')).length,
     [sightings.data],
@@ -787,6 +792,7 @@ export default function App() {
           <FoliageMap
             regions={REGIONS}
             parks={filteredParks ?? NO_PARKS}
+            reports={parks.data?.parks ?? NO_PARKS}
             sightings={mapSightings}
             layers={mapLayers}
             satelliteDate={satelliteDate}
@@ -794,6 +800,7 @@ export default function App() {
             target={target}
             focus={focus}
             panelInset={floatingPanel ? PANEL_INSET : 0}
+            bottomInset={landing ? (isDesktop ? 230 : 150) : 0}
             initialView={initialView}
             onViewChange={onViewChange}
             parkBoundary={parkBoundary}

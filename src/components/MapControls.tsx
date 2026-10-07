@@ -7,14 +7,24 @@ import { STAGES, type Stage } from '../lib/stage'
 import { treeOptions } from '../lib/treeOptions'
 import type { MapLayers } from './FoliageMap'
 
-const LAYER_LABELS: [keyof MapLayers, string, string][] = [
-  ['reports', 'Official park reports', 'Ontario Parks, updated daily'],
-  ['hexes', 'Color sightings', 'iNaturalist, grouped by area'],
-  ['sightings', 'Individual sightings', 'Shown when you zoom in'],
-  ['trails', 'Parks Canada trails', 'Shown when you zoom in'],
-  ['fishing', 'Fishing access', 'Boat launches, shore access and docks · zoom in'],
-  ['satellite', 'Daily satellite image', 'NASA VIIRS true color, by date'],
-  ['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys'],
+/** The layers, grouped by what they show; a divider separates the groups in the menu. */
+const LAYER_GROUPS: [keyof MapLayers, string, string][][] = [
+  // Fall color
+  [
+    ['outlook', 'Color outlook', 'Stage across all of Ontario; lighter where estimated'],
+    ['reports', 'Official park reports', 'Ontario Parks, updated daily'],
+    ['hexes', 'Color sightings', 'iNaturalist, grouped by area'],
+    ['sightings', 'Individual sightings', 'Shown when you zoom in'],
+  ],
+  // Places
+  [
+    ['trails', 'Parks Canada trails', 'Shown when you zoom in'],
+    ['fishing', 'Fishing access', 'Boat launches, shore access and docks · zoom in'],
+  ],
+  // Imagery
+  [['satellite', 'Daily satellite image', 'NASA VIIRS true color, by date']],
+  // Terrain
+  [['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys']],
 ]
 
 /** Map style, light and layers: the map's Layers menu. */
@@ -68,8 +78,9 @@ export function LayerOptions({
           options={(['auto', ...LIGHT_PRESETS] as LightSetting[]).map((l) => ({ id: l, label: <span className="capitalize">{l}</span> }))}
         />
       </div>
-      <ul className="space-y-1">
-        {LAYER_LABELS.map(([key, label, hint]) => (
+      {LAYER_GROUPS.map((group, i) => (
+      <ul key={group[0][0]} className={`space-y-1 ${i ? 'mt-3 border-t border-[var(--line)] pt-3' : ''}`}>
+        {group.map(([key, label, hint]) => (
           <li key={key}>
             <label className="flex cursor-pointer items-start gap-2.5 rounded-lg px-1.5 py-1 hover:bg-[var(--surface-2)]">
               <input
@@ -96,6 +107,7 @@ export function LayerOptions({
           </li>
         ))}
       </ul>
+      ))}
     </div>
   )
 }
@@ -134,6 +146,10 @@ export function Legend() {
           </span>
         ))}
       </div>
+      <p className="mt-1.5 leading-snug text-[var(--ink-soft)]">
+        The color outlook (under Layers) is solid within 60 km of an Ontario Parks report and lighter where it is an estimate from farther reports or the
+        usual timing for that latitude.
+      </p>
       <div className="mt-2 mb-1 font-semibold">Sightings per area</div>
       <div className="flex items-center gap-2">
         <span>few</span>

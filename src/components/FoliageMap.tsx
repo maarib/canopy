@@ -20,6 +20,7 @@ import type { PlaceIconId } from './PlaceIcon'
 import { isPhotoSpot, PLACE_KINDS, type Place, type Trail } from '../lib/explore'
 import { useIsDesktop, usePrefersDark } from '../hooks'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
+import { fetchOutlookGrid, outlookHexes } from '../lib/outlook'
 import type { LeafObservation } from '../lib/inaturalist'
 import {
   basemapConfig,
@@ -58,6 +59,7 @@ function sheetPadding(isDesktop: boolean, placeOpen: boolean, panelInset: number
 
 export type MapLayers = {
   reports: boolean
+  outlook: boolean
   hexes: boolean
   sightings: boolean
   trails: boolean
@@ -81,8 +83,12 @@ export type MapView = { lat: number; lng: number; zoom: number }
 type Props = {
   /** Desktop: how much of the map's left side the floating panel covers (px), so places are framed in what's visible. */
   panelInset?: number
+  /** How much of the map's bottom the landing page's search covers (px); 0 when it isn't showing. */
+  bottomInset?: number
   regions: Region[]
   parks: ParkReport[]
+  /** Every park report, for the color outlook (`parks` may be narrowed by a filter). */
+  reports: ParkReport[]
   sightings: LeafObservation[]
   layers: MapLayers
   satelliteDate: string
@@ -118,10 +124,10 @@ type Props = {
 export type TripPin = { ref: string; n: number; lng: number; lat: number; color: string; name: string }
 
 /** Room for the search bar on top and the sheet/panel elsewhere when fitting a trail. */
-function fitPadding(isDesktop: boolean, panelInset: number) {
+function fitPadding(isDesktop: boolean, panelInset: number, bottomInset = 0) {
   return isDesktop
-    ? { top: 80, bottom: 60, left: 60 + panelInset, right: 60 }
-    : { top: 70, bottom: sheetHalf() + 16, left: 24, right: 24 }
+    ? { top: 80, bottom: 60 + bottomInset, left: 60 + panelInset, right: 60 }
+    : { top: 70, bottom: (bottomInset || sheetHalf()) + 16, left: 24, right: 24 }
 }
 
 /**
@@ -147,6 +153,8 @@ function drawFishingPins() {
 }
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] }
 
+const EMPTY_OUTLOOK: FeatureCollection = { type: 'FeatureCollection', features: [] }
+
 type PopupInfo = { lng: number; lat: number; title: string; lines: string[]; href?: string }
 
 /** Memoized: the app re-renders often (sheet, search, panels); the map only when its props change. */
@@ -156,6 +164,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
   const dark = usePrefersDark()
   const isDesktop = useIsDesktop()
   const panelInset = props.panelInset ?? 0
+  const bottomInset = props.bottomInset ?? 0
   const [zoom, setZoom] = useState(3.3)
   const [bounds, setBounds] = useState<Bounds | null>(null)
   const [hovering, setHovering] = useState(false)
@@ -199,10 +208,10 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           [target.bounds[0], target.bounds[1]],
           [target.bounds[2], target.bounds[3]],
         ],
-        { padding: fitPadding(isDesktop, panelInset), maxZoom: 15, duration: 1500 },
+        { padding: fitPadding(isDesktop, panelInset, bottomInset), maxZoom: 15, duration: 1500 },
       )
     else if (target) map.flyTo({ center: [target.lng, target.lat], zoom: target.zoom, padding, duration: 1600, essential: true })
-    else map.fitBounds(HOME_BOUNDS, { padding: fitPadding(isDesktop, panelInset), duration: 1200 })
+    else map.fitBounds(HOME_BOUNDS, { padding: fitPadding(isDesktop, panelInset, bottomInset), duration: 1200 })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fly only when the target changes identity
   }, [target?.id, mapReady])
 
@@ -258,7 +267,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           [focus.bounds[0], focus.bounds[1]],
           [focus.bounds[2], focus.bounds[3]],
         ],
-        { padding: fitPadding(isDesktop, panelInset), duration: 1600 },
+        { padding: fitPadding(isDesktop, panelInset, bottomInset), duration: 1600 },
       )
     else if (focus)
       mapRef.current?.flyTo({
@@ -287,6 +296,15 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
         return { colored, bare, total: pts.length, bareShare: bare / pts.length, top: top.join(', ') }
       }),
     [props.sightings, hexSize],
+  )
+
+  // The color outlook: every hexagon of Ontario at this zoom band's size. The grid has no 8 km level,
+  // so close in it keeps its 20 km hexagons, which fade out as the sightings' dots take over.
+  const outlookGrid = useQuery({ queryKey: ['outlook-grid'], queryFn: fetchOutlookGrid, staleTime: Infinity, enabled: layers.outlook })
+  const outlookSize = Math.max(hexSize, 20_000)
+  const outlook = useMemo(
+    () => (outlookGrid.data ? outlookHexes(outlookGrid.data, outlookSize, props.reports) : EMPTY_OUTLOOK),
+    [outlookGrid.data, outlookSize, props.reports],
   )
 
   const sightingPoints = useMemo<FeatureCollection<Point>>(
@@ -439,12 +457,12 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       ref={mapRef}
       initialViewState={
         props.target?.bounds
-          ? { bounds: props.target.bounds, fitBoundsOptions: { padding: fitPadding(isDesktop, panelInset) } }
+          ? { bounds: props.target.bounds, fitBoundsOptions: { padding: fitPadding(isDesktop, panelInset, bottomInset) } }
           : props.target
           ? { longitude: props.target.lng, latitude: props.target.lat, zoom: props.target.zoom - 2 }
           : props.initialView
             ? { longitude: props.initialView.lng, latitude: props.initialView.lat, zoom: props.initialView.zoom }
-            : { bounds: HOME_BOUNDS, fitBoundsOptions: { padding: fitPadding(isDesktop, panelInset) } }
+            : { bounds: HOME_BOUNDS, fitBoundsOptions: { padding: fitPadding(isDesktop, panelInset, bottomInset) } }
       }
       mapboxAccessToken={MAPBOX_TOKEN}
       // A flat map: zoomed out, the globe showed as a disc with empty corners, worst on phones.
@@ -608,6 +626,38 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
           slot="top"
           layout={{ 'line-cap': 'round', 'line-join': 'round' }}
           paint={{ 'line-color': '#e8730c', 'line-width': ['interpolate', ['linear'], ['zoom'], 9, 3.5, 15, 7], 'line-emissive-strength': 1 }}
+        />
+      </Source>
+
+      <Source id="outlook" type="geojson" data={outlook}>
+        <Layer
+          id="outlook-fill"
+          type="fill"
+          slot="middle"
+          maxzoom={12}
+          layout={{ visibility: vis(layers.outlook) }}
+          paint={{
+            'fill-color': STAGE_COLOR_EXPRESSION as unknown as string,
+            // Solid where a report is close; lighter for estimates. Everything thins out close in.
+            'fill-opacity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              8,
+              ['match', ['get', 'basis'], 'report', 0.62, 'nearby', 0.4, 0.26],
+              11,
+              ['match', ['get', 'basis'], 'report', 0.16, 'nearby', 0.1, 0.07],
+            ],
+            'fill-emissive-strength': 1,
+          }}
+        />
+        <Layer
+          id="outlook-outline"
+          type="line"
+          slot="middle"
+          maxzoom={12}
+          layout={{ visibility: vis(layers.outlook) }}
+          paint={{ 'line-color': '#fff', 'line-opacity': 0.28, 'line-width': 0.75, 'line-emissive-strength': 1 }}
         />
       </Source>
 

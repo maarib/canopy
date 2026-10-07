@@ -106,7 +106,7 @@ function Option({ selected, disabled, onClick, icon, label, hint }: { selected: 
  * The search card. `up` opens its lists above it (when it sits at the bottom of the screen);
  * `compact` starts with only the search box, and a button reveals Where and Looking for.
  */
-export function ExploreSearch({ up, compact, ...props }: SearchProps & { up?: boolean; compact?: boolean }) {
+export function ExploreSearch({ up, compact, autoFocus, ...props }: SearchProps & { up?: boolean; compact?: boolean; autoFocus?: boolean }) {
   const [province, setProvince] = useState<ProvinceCode>('ON')
   const [what, setWhat] = useState<LookingFor>('everything')
   const [tree, setTree] = useState<TreeFilterValue>('trees')
@@ -120,7 +120,7 @@ export function ExploreSearch({ up, compact, ...props }: SearchProps & { up?: bo
       <section aria-label="Search" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-md">
         <div className="flex items-center gap-1.5 p-1">
           <div className="min-w-0 flex-1">
-            <SearchBox parks={props.parks} trails={props.trails} places={props.places} onSelect={props.onSearchSelect} up={up} />
+            <SearchBox parks={props.parks} trails={props.trails} places={props.places} onSelect={props.onSearchSelect} up={up} autoFocus={autoFocus} />
           </div>
           {compact && (
             <button
@@ -247,7 +247,7 @@ export function ExploreLanding({ compact, onNavigate, ...search }: SearchProps &
   return (
     <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 animate-fade-in px-3 ${compact ? 'pb-10' : 'pb-8'}`}>
       <div className="pointer-events-auto mx-auto max-w-xl">
-        <ExploreSearch {...search} up compact={compact} />
+        <ExploreSearch {...search} up compact={compact} autoFocus />
       </div>
       <QuickLinks onNavigate={onNavigate} compact={compact} />
     </div>
