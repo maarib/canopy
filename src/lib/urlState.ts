@@ -11,7 +11,9 @@ import { DEFAULT_LIGHT, LIGHT_PRESETS, localDate, type LightSetting } from './ma
 
 export const DEFAULT_LAYERS: MapLayers = {
   reports: true,
-  hexes: true,
+  outlook: true,
+  // Off by default: the outlook colors the same ground, and sightings still show as dots up close.
+  hexes: false,
   sightings: true,
   trails: true,
   satellite: false,

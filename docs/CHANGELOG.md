@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
@@ -18,6 +19,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-06 | [Color outlook across Ontario](#2026-10-06-color-outlook-across-ontario) | [#121](https://github.com/maarib/canopy/pull/121) |
 | 2026-10-04 | [Floating panel on desktop](#2026-10-04-floating-panel-on-desktop) | [#118](https://github.com/maarib/canopy/pull/118) |
 | 2026-10-04 | [Filter menus open under their pill; phones keep their view](#2026-10-04-filter-menus-open-under-their-pill-phones-keep-their-view) | [#116](https://github.com/maarib/canopy/pull/116) |
 | 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | [#115](https://github.com/maarib/canopy/pull/115) |
@@ -51,6 +53,33 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-06 · Color outlook across Ontario
+
+**Ref:** [#121](https://github.com/maarib/canopy/pull/121)
+
+**Before.** The map's hexagons only appeared where people had reported turning leaves in the last 14 days, so most of Ontario was blank and the map didn't say where to go.
+
+**After.**
+- **Hexagons cover all of Ontario**, each filled with its color stage (mostly green, patchy, near peak, peak, past peak, bare).
+- **How each one is worked out**, and how solid it is drawn:
+  - an Ontario Parks report within 60 km: the reports within 200 km blended by distance, drawn solid;
+  - no report within 60 km but some within 200 km: the same blend, drawn lighter;
+  - nothing within 200 km: the usual stage for that latitude on today's date, drawn lightest.
+- The legend explains the lighter shades. The outlook is a layer under Layers, on by default. It fades as you zoom in, where park pins and sightings take over.
+- **Sightings by area** (the old hexagons) is now off by default, since it colors the same ground; sightings still show as dots up close.
+- On the landing page, Ontario is framed above the search card on desktop and phones. On phones it was framed for a half-open sheet the landing page no longer has.
+
+**How.**
+- `scripts/build-outlook-grid.mjs` takes Ontario's outline, with the Great Lakes cut out, from Natural Earth (public domain) and writes every hexagon whose centre is on land to `public/data/outlook-grid.json`: 118, 462 and 2,360 hexagons at the three sizes the map uses by zoom (32 kB).
+- `src/lib/outlook.ts` gives each hexagon a stage from the park reports, weighting each by the inverse square of its distance. The latitude fallback puts peak around October 10 at 44°N and four and a half days earlier per degree north.
+- `FoliageMap` draws the hexagons as one fill layer and takes `bottomInset` so the first view clears the search card.
+
+**Why.** The first glance at the map should answer "where is the color?". Only about 64 places report it, so the rest is an estimate, and the map says so.
+
+**Limits.** The estimate knows nothing about elevation, lakeshores or this year's weather. Much of northern Ontario has no report within 200 km and shows the latitude estimate. A measured surface needs satellite data (#30, #32).
 
 ## v1.4
 

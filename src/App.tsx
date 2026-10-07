@@ -750,6 +750,7 @@ export default function App() {
           <FoliageMap
             regions={REGIONS}
             parks={filteredParks ?? NO_PARKS}
+            reports={parks.data?.parks ?? NO_PARKS}
             sightings={mapSightings}
             layers={layers}
             satelliteDate={satelliteDate}
@@ -757,6 +758,7 @@ export default function App() {
             target={target}
             focus={focus}
             panelInset={floatingPanel ? PANEL_INSET : 0}
+            bottomInset={landing ? (isDesktop ? 230 : 150) : 0}
             initialView={initialView}
             onViewChange={onViewChange}
             parkBoundary={parkBoundary}

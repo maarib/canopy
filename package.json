@@ -13,6 +13,7 @@
     "data:park-facilities": "node scripts/scrape-park-facilities.mjs",
     "data:fishing": "node scripts/build-fishing-access.mjs",
     "data:park-boundaries": "node scripts/build-park-boundaries.mjs",
+    "data:outlook-grid": "node scripts/build-outlook-grid.mjs",
     "covers": "node scripts/build-covers.mjs"
   },
   "dependencies": {
