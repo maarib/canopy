@@ -3,11 +3,12 @@ import { ForestCover } from './ForestCover'
 import { regionCover } from '../lib/coverSpec'
 import { directionsUrl, formatWindow, PHASE_STYLE, peakPhase } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
+import { PlaceRow } from './rows'
+import { LIST } from '../lib/styles'
 import { NearbyPhotos } from './NearbyPhotos'
 import { CalendarToday, LocationOn, Star } from 'relume-icons'
 import { treeIconFor } from '../data/treeIcons'
-import { isPhotoSpot, PLACE_KINDS, type ExploreArea, type Place, type Trail } from '../lib/explore'
-import { PlaceIcon } from './PlaceIcon'
+import { isPhotoSpot, type ExploreArea, type Place, type Trail } from '../lib/explore'
 import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
 import { TreeIcon } from './TreeIcon'
@@ -130,21 +131,10 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
       {photoSpots.length > 0 && (
         <section>
           <h3 className="mb-2 text-lg">Waterfalls & lookouts</h3>
-          <ul className="flex flex-wrap gap-1.5">
+          <ul className={LIST}>
             {photoSpots.map((p) => (
               <li key={p.id}>
-                <button
-                  onClick={() => onSelectPlace(p)}
-                  className="flex items-center gap-1.5 rounded-full border border-[var(--line)] py-1 pr-3 pl-1 text-sm hover:bg-[var(--surface-2)]"
-                >
-                  <span
-                    className="flex size-6 items-center justify-center rounded-full text-white"
-                    style={{ background: PLACE_KINDS[p.kind].color }}
-                  >
-                    <PlaceIcon kind={p.kind} className="size-3.5" />
-                  </span>
-                  {p.name}
-                </button>
+                <PlaceRow place={p} onClick={() => onSelectPlace(p)} />
               </li>
             ))}
           </ul>

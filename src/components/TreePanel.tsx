@@ -1,15 +1,13 @@
 import { useMemo } from 'react'
-import { ChevronRight } from 'relume-icons'
 import { REGIONS, type Region } from '../data/regions'
 import { treeIconFor } from '../data/treeIcons'
 import type { TreeInfo } from '../data/trees'
 import type { LeafObservation } from '../lib/inaturalist'
-import { parkTitle, type ParkReport } from '../lib/ontarioParks'
-import { formatWindow } from '../lib/peak'
-import { STAGES } from '../lib/stage'
-import { LIST, ROW } from '../lib/styles'
+import { type ParkReport } from '../lib/ontarioParks'
+import { LIST } from '../lib/styles'
 import { TreeIcon } from './TreeIcon'
-import { BackButton, Badge, Skeleton } from './ui'
+import { ParkRow, RegionRow } from './rows'
+import { BackButton, Skeleton } from './ui'
 
 // A tree's own page: what color it turns and when, how to recognise it, and where it's turning
 // right now. While it's open the map shows only this tree's sightings.
@@ -63,12 +61,12 @@ export function TreePanel({ tree, sightings, parks, onBack, onSelectPark, onSele
       </header>
 
       <dl className="space-y-4 text-sm leading-relaxed">
-        <div>
+        <div className="rounded-2xl bg-[var(--surface-2)] px-4 py-3">
           <dt className="mb-1 font-display text-lg leading-none">Turns</dt>
           <dd className="flex items-start gap-2.5">
             <span className="mt-1 flex shrink-0 -space-x-1" aria-hidden>
               {tree.colors.map((c) => (
-                <span key={c} className="size-4 rounded-full border-2 border-[var(--surface)]" style={{ background: c }} />
+                <span key={c} className="size-4 rounded-full border-2 border-[var(--surface-2)]" style={{ background: c }} />
               ))}
             </span>
             {tree.turns}
@@ -104,19 +102,7 @@ export function TreePanel({ tree, sightings, parks, onBack, onSelectPark, onSele
               <ul className={`stagger ${LIST}`}>
                 {nearParks.map(({ park, n }) => (
                   <li key={park.id}>
-                    <button onClick={() => onSelectPark(park)} className={ROW}>
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--surface-2)]">
-                        <span className="size-3.5 rounded-full" style={{ background: STAGES[park.stage].color }} />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate font-medium">{parkTitle(park)}</span>
-                        <span className="text-xs text-[var(--ink-soft)]">
-                          {n} seen within {NEAR_KM} km
-                        </span>
-                      </span>
-                      <Badge size="sm" color={STAGES[park.stage].color}>{STAGES[park.stage].label}</Badge>
-                      <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-                    </button>
+                    <ParkRow park={park} detail={`${n} seen within ${NEAR_KM} km`} onClick={() => onSelectPark(park)} />
                   </li>
                 ))}
               </ul>
@@ -131,15 +117,7 @@ export function TreePanel({ tree, sightings, parks, onBack, onSelectPark, onSele
           <ul className={LIST}>
             {regions.map((r) => (
               <li key={r.id}>
-                <button onClick={() => onSelectRegion(r)} className={ROW}>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{r.name}</span>
-                    <span className="text-xs text-[var(--ink-soft)]">
-                      {r.province} · usually peaks {formatWindow(r)}
-                    </span>
-                  </span>
-                  <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-                </button>
+                <RegionRow region={r} onClick={() => onSelectRegion(r)} />
               </li>
             ))}
           </ul>

@@ -1,17 +1,16 @@
 import { useState } from 'react'
-import { ChevronRight } from 'relume-icons'
-import { signatureTree, type Region } from '../data/regions'
+import { type Region } from '../data/regions'
 import { TREES } from '../data/trees'
-import { TreeIcon } from './TreeIcon'
-import { parkTitle, type ParkReport } from '../lib/ontarioParks'
-import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/peak'
+import { LIST } from '../lib/styles'
+import { ParkRow, RegionRow, TreeRow } from './rows'
+import { type ParkReport } from '../lib/ontarioParks'
+import { peakPhase, type PeakPhase } from '../lib/peak'
 import { STAGE_ORDER, STAGES } from '../lib/stage'
-import { ROW } from '../lib/styles'
-import { Badge, Segmented, Skeleton } from './ui'
+import { Segmented, Skeleton } from './ui'
 import { TreePicker } from './TreePicker'
 import type { TreeFilterValue } from './MapControls'
 
-type Tab = 'reports' | 'regions'
+type Tab = 'trees' | 'reports' | 'regions'
 const PHASE_ORDER: PeakPhase[] = ['peak', 'approaching', 'early', 'past']
 
 type Props = {
@@ -35,7 +34,7 @@ type Props = {
 
 /** Foliage: official fall color reports, when each region peaks, and which trees are showing. */
 export function FoliagePanel(props: Props) {
-  const [tab, setTab] = useState<Tab>('reports')
+  const [tab, setTab] = useState<Tab>('trees')
 
   return (
     <div className="p-5">
@@ -47,20 +46,22 @@ export function FoliagePanel(props: Props) {
         <TreePicker value={props.tree} counts={props.treeCounts} onChange={props.onTree} />
       </header>
       <SightingsSummary treeColorSightings={props.treeColorSightings} parks={props.parks} />
-      <TreeGrid turning={props.turning} onSelect={props.onSelectTree} />
 
       <Segmented
         className="mb-2"
         value={tab}
         onChange={setTab}
         options={[
+          { id: 'trees', label: 'Trees' },
           { id: 'reports', label: 'Park reports' },
           { id: 'regions', label: 'When to go' },
         ]}
       />
 
       <div key={tab} className="animate-fade-in">
-      {tab === 'reports' ? (
+      {tab === 'trees' ? (
+        <TreeList turning={props.turning} onSelect={props.onSelectTree} />
+      ) : tab === 'reports' ? (
         <>
           {props.activityFilter && (
             <div className="mb-2 flex items-center gap-2 rounded-xl bg-[var(--surface-2)] px-3 py-2 text-sm">
@@ -96,35 +97,20 @@ function SightingsSummary({ treeColorSightings, parks }: Pick<Props, 'treeColorS
 }
 
 /** Every tree, the ones seen turning most first: the way into each tree's own page. */
-function TreeGrid({ turning, onSelect }: { turning: Map<string, number> | undefined; onSelect: (id: string) => void }) {
+function TreeList({ turning, onSelect }: { turning: Map<string, number> | undefined; onSelect: (id: string) => void }) {
   // Trees by how many were seen turning; the shrubs and vines go last, as in the map's tree filter.
   const trees = [...TREES].sort((a, b) => Number(a.id === 'shrubs') - Number(b.id === 'shrubs') || (turning?.get(b.id) ?? 0) - (turning?.get(a.id) ?? 0))
   return (
-    <section className="mb-5">
-      <h3 className="mb-2 text-lg">Trees</h3>
-      <ul className="grid grid-cols-3 gap-2">
-        {trees.map((t) => {
-          const n = turning?.get(t.id) ?? 0
-          return (
-            <li key={t.id}>
-              <button
-                onClick={() => onSelect(t.id)}
-                className="flex h-full w-full flex-col items-center gap-1 rounded-2xl border border-[var(--line)] px-1.5 py-3 text-center transition-colors hover:bg-[var(--surface-2)] active:scale-[0.98]"
-              >
-                <TreeIcon id={t.id} className="size-9" />
-                <span className="text-[13px] leading-tight font-medium">{t.name}</span>
-                <span className="flex -space-x-1" aria-hidden>
-                  {t.colors.map((c) => (
-                    <span key={c} className="size-2.5 rounded-full border border-[var(--surface)]" style={{ background: c }} />
-                  ))}
-                </span>
-                <span className="text-[11px] text-[var(--ink-soft)]">{turning === undefined ? '…' : n ? `${n} turning` : 'None seen'}</span>
-              </button>
-            </li>
-          )
-        })}
+    <>
+      <ul className={`stagger ${LIST}`}>
+        {trees.map((t) => (
+          <li key={t.id}>
+            <TreeRow tree={t} turning={turning ? (turning.get(t.id) ?? 0) : undefined} onClick={() => onSelect(t.id)} />
+          </li>
+        ))}
       </ul>
-    </section>
+      <p className="mt-3 text-[11px] text-[var(--ink-soft)]">Counts are iNaturalist sightings of turning leaves across Canada in the last 14 days.</p>
+    </>
   )
 }
 
@@ -178,20 +164,9 @@ export function ParkList({
       )}
       <ul className="stagger divide-y divide-[var(--line)]">
         {sorted.map((p) => {
-          const stage = STAGES[p.stage]
           return (
             <li key={p.id}>
-              <button onClick={() => onSelect(p)} className={ROW}>
-                <span className="size-3 shrink-0 rounded-full" style={{ background: stage.color }} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">{parkTitle(p)}</span>
-                  <span className="text-xs text-[var(--ink-soft)]">
-                    {p.colorChange ?? 0}% color · {p.leafFall ?? 0}% fallen · {p.dominantColor}
-                  </span>
-                </span>
-                <Badge size="sm" color={stage.color}>{stage.label}</Badge>
-                <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-              </button>
+              <ParkRow park={p} detail={`${p.colorChange ?? 0}% color · ${p.leafFall ?? 0}% fallen · ${p.dominantColor}`} onClick={() => onSelect(p)} />
             </li>
           )
         })}
@@ -214,20 +189,9 @@ function RegionList({ regions, onSelect }: { regions: Region[]; onSelect: (r: Re
     <>
       <ul className="stagger divide-y divide-[var(--line)]">
         {sorted.map((r) => {
-          const phase = PHASE_STYLE[peakPhase(r)]
           return (
             <li key={r.id}>
-              <button onClick={() => onSelect(r)} className={ROW}>
-                <TreeIcon id={signatureTree(r)} className="size-6 shrink-0" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">{r.name}</span>
-                  <span className="text-xs text-[var(--ink-soft)]">
-                    {r.province} · peak {formatWindow(r)}
-                  </span>
-                </span>
-                <Badge size="sm" color={phase.color}>{phase.label}</Badge>
-                <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-              </button>
+              <RegionRow region={r} onClick={() => onSelect(r)} />
             </li>
           )
         })}
