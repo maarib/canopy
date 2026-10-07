@@ -20,9 +20,9 @@
 
 ### Live color map
 - **Basemap:** a flat (Mercator) map, **Satellite at dawn** by default. The **Layers** button (next to Filters) offers eight map styles: Monochrome, Paper (Canopy's own palette), Faded, three custom color grades (Autumn film, Bark & spruce, Riso print), Mapbox Standard and Satellite. The choice is remembered on the device. Light is dawn by default; auto (day, or night in dark mode), day, dusk and night are under Layers, directly below the map styles.
-- **Color outlook:** hexagons across all of Ontario, each filled with its color stage, so the map shows at a glance where the color is. A hexagon is solid where an Ontario Parks report is within 60 km and lighter where it is an estimate: a blend of the reports within 200 km, or beyond that the usual timing for its latitude. The legend says which is which.
+- **Color outlook:** the Outlook button on the map covers all of Ontario with hexagons, each filled with its color stage, to show at a glance where the color is. It is off until you turn it on. A hexagon is solid where an Ontario Parks report is within 60 km and lighter where it is an estimate: a blend of the reports within 200 km, or beyond that the usual timing for its latitude. The legend says which is which.
 - **Official park reports:** Ontario Parks' color % and leaf fall % for about 64 parks, colored by stage (mostly green → patchy → near peak → peak → past peak), refreshed daily in season.
-- **Live sightings:** iNaturalist colored-leaf and leafless sightings across Canada from the last 14 days, shown as individual dots when you zoom in. Grouping them into hexagons is a layer you can switch on.
+- **Live sightings:** iNaturalist colored-leaf and leafless sightings across Canada from the last 14 days. They're grouped into hexagons at low zoom and shown as individual dots up close.
 - **Tree filter:** maples, oaks, birches, aspens & poplars, larches and more, each with its own icon (Filters → Trees, or the Foliage page).
 - **More layers:** Parks Canada trails, a NASA VIIRS satellite view with a date picker, and 3D terrain.
 

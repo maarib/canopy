@@ -332,6 +332,15 @@ export function InfoIcon({ className = 'size-5' }: { className?: string }) {
   )
 }
 
+/** A hexagon, for the map's color outlook. */
+export function HexIcon({ className = 'size-5' }: { className?: string }) {
+  return (
+    <svg {...OUTLINE} className={className}>
+      <path d="M12 3.2 19.6 7.6v8.8L12 20.8 4.4 16.4V7.6Z" />
+    </svg>
+  )
+}
+
 /** The three views: the map alone, the map with the panel, the panel alone. */
 export function ViewIcon({ view, className = 'size-5' }: { view: 'map' | 'split' | 'panel'; className?: string }) {
   return (

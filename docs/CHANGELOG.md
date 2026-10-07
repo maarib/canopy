@@ -60,16 +60,16 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 **Ref:** [#121](https://github.com/maarib/canopy/pull/121)
 
-**Before.** The map's hexagons only appeared where people had reported turning leaves in the last 14 days, so most of Ontario was blank and the map didn't say where to go.
+**Before.** The map's hexagons only appeared where people had reported turning leaves in the last 14 days, so most of Ontario was blank and the map couldn't say where the color was.
 
 **After.**
-- **Hexagons cover all of Ontario**, each filled with its color stage (mostly green, patchy, near peak, peak, past peak, bare).
+- **An Outlook button on the map**, beside Filters and Layers, covers all of Ontario with hexagons, each filled with its color stage (mostly green, patchy, near peak, peak, past peak, bare). It is off until asked for, so the map opens as it did before; turning it on is kept in the link.
 - **How each one is worked out**, and how solid it is drawn:
   - an Ontario Parks report within 60 km: the reports within 200 km blended by distance, drawn solid;
   - no report within 60 km but some within 200 km: the same blend, drawn lighter;
   - nothing within 200 km: the usual stage for that latitude on today's date, drawn lightest.
-- The legend explains the lighter shades. The outlook is a layer under Layers, on by default. It fades as you zoom in, where park pins and sightings take over.
-- **Sightings by area** (the old hexagons) is now off by default, since it colors the same ground; sightings still show as dots up close.
+- The legend explains the lighter shades. The outlook fades as you zoom in, where park pins and sightings take over.
+- While the outlook is on, the sightings' hexagons step aside, since both color the same ground. The Layers menu and its defaults are unchanged.
 - On the landing page, Ontario is framed above the search card on desktop and phones. On phones it was framed for a half-open sheet the landing page no longer has.
 
 **How.**
@@ -77,7 +77,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - `src/lib/outlook.ts` gives each hexagon a stage from the park reports, weighting each by the inverse square of its distance. The latitude fallback puts peak around October 10 at 44°N and four and a half days earlier per degree north.
 - `FoliageMap` draws the hexagons as one fill layer and takes `bottomInset` so the first view clears the search card.
 
-**Why.** The first glance at the map should answer "where is the color?". Only about 64 places report it, so the rest is an estimate, and the map says so.
+**Why.** One tap should answer "where is the color?" for the whole province. Only about 64 places report it, so the rest is an estimate; the map says so, and shows it only when asked.
 
 **Limits.** The estimate knows nothing about elevation, lakeshores or this year's weather. Much of northern Ontario has no report within 200 km and shows the latitude estimate. A measured surface needs satellite data (#30, #32).
 

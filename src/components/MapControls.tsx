@@ -9,8 +9,7 @@ import type { MapLayers } from './FoliageMap'
 
 const LAYER_LABELS: [keyof MapLayers, string, string][] = [
   ['reports', 'Official park reports', 'Ontario Parks, updated daily'],
-  ['outlook', 'Color outlook', 'Stage across Ontario; lighter where estimated'],
-  ['hexes', 'Sightings by area', 'iNaturalist, grouped into hexagons'],
+  ['hexes', 'Color sightings', 'iNaturalist, grouped by area'],
   ['sightings', 'Individual sightings', 'Shown when you zoom in'],
   ['trails', 'Parks Canada trails', 'Shown when you zoom in'],
   ['fishing', 'Fishing access', 'Boat launches, shore access and docks · zoom in'],
@@ -136,7 +135,7 @@ export function Legend() {
         ))}
       </div>
       <p className="mt-1.5 leading-snug text-[var(--ink-soft)]">
-        The outlook is solid within 60 km of an Ontario Parks report and lighter where it is an estimate from farther reports or the
+        The color outlook (the Outlook button on the map) is solid within 60 km of an Ontario Parks report and lighter where it is an estimate from farther reports or the
         usual timing for that latitude.
       </p>
       <div className="mt-2 mb-1 font-semibold">Sightings per area</div>
