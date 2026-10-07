@@ -22,9 +22,10 @@ type Props = {
   places: Map<string, Place>
   onSelectTrail: (t: Trail) => void
   onSelectPlace: (p: Place) => void
+  onSelectTree: (id: string) => void
 }
 
-export function RegionPanel({ region, onBack, area, areaLoading, places, onSelectTrail, onSelectPlace }: Props) {
+export function RegionPanel({ region, onBack, area, areaLoading, places, onSelectTrail, onSelectPlace, onSelectTree }: Props) {
   const photoSpots = (area?.pois ?? []).filter((p) => isPhotoSpot(p.kind) && !/^(Lookout on|Unnamed)/.test(p.name))
   const dayHikes = (area?.trails ?? []).filter((t) => t.difficulty !== 'backpacking')
   const backpacking = (area?.trails ?? []).filter((t) => t.difficulty === 'backpacking')
@@ -65,9 +66,16 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
           {region.species.map((s) => {
             const icon = treeIconFor(s)
             return (
-              <li key={s} className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm">
-                {icon && <TreeIcon id={icon} className="size-[18px]" />}
-                {s}
+              <li key={s}>
+                {/* A tree with its own page links to it. */}
+                {icon ? (
+                  <button onClick={() => onSelectTree(icon)} className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm transition-colors hover:bg-[var(--surface-2)]">
+                    <TreeIcon id={icon} className="size-[18px]" />
+                    {s}
+                  </button>
+                ) : (
+                  <span className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm">{s}</span>
+                )}
               </li>
             )
           })}

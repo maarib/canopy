@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronRight } from 'relume-icons'
 import { signatureTree, type Region } from '../data/regions'
+import { TREES } from '../data/trees'
 import { TreeIcon } from './TreeIcon'
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { formatWindow, PHASE_STYLE, peakPhase, type PeakPhase } from '../lib/peak'
@@ -27,6 +28,9 @@ type Props = {
   tree: TreeFilterValue
   treeCounts: Map<string, number>
   onTree: (v: TreeFilterValue) => void
+  /** How many of each tree were seen turning in the last 14 days; undefined while they load. */
+  turning: Map<string, number> | undefined
+  onSelectTree: (id: string) => void
 }
 
 /** Foliage: official fall color reports, when each region peaks, and which trees are showing. */
@@ -43,6 +47,7 @@ export function FoliagePanel(props: Props) {
         <TreePicker value={props.tree} counts={props.treeCounts} onChange={props.onTree} />
       </header>
       <SightingsSummary treeColorSightings={props.treeColorSightings} parks={props.parks} />
+      <TreeGrid turning={props.turning} onSelect={props.onSelectTree} />
 
       <Segmented
         className="mb-2"
@@ -87,6 +92,39 @@ function SightingsSummary({ treeColorSightings, parks }: Pick<Props, 'treeColorS
       <Stat value={atPeak} label="Ontario parks at peak" dot={STAGES.peak.color} />
       <Stat value={treeColorSightings} label="Trees seen turning" dot="#e8730c" />
     </div>
+  )
+}
+
+/** Every tree, the ones seen turning most first: the way into each tree's own page. */
+function TreeGrid({ turning, onSelect }: { turning: Map<string, number> | undefined; onSelect: (id: string) => void }) {
+  // Trees by how many were seen turning; the shrubs and vines go last, as in the map's tree filter.
+  const trees = [...TREES].sort((a, b) => Number(a.id === 'shrubs') - Number(b.id === 'shrubs') || (turning?.get(b.id) ?? 0) - (turning?.get(a.id) ?? 0))
+  return (
+    <section className="mb-5">
+      <h3 className="mb-2 text-lg">Trees</h3>
+      <ul className="grid grid-cols-3 gap-2">
+        {trees.map((t) => {
+          const n = turning?.get(t.id) ?? 0
+          return (
+            <li key={t.id}>
+              <button
+                onClick={() => onSelect(t.id)}
+                className="flex h-full w-full flex-col items-center gap-1 rounded-2xl border border-[var(--line)] px-1.5 py-3 text-center transition-colors hover:bg-[var(--surface-2)] active:scale-[0.98]"
+              >
+                <TreeIcon id={t.id} className="size-9" />
+                <span className="text-[13px] leading-tight font-medium">{t.name}</span>
+                <span className="flex -space-x-1" aria-hidden>
+                  {t.colors.map((c) => (
+                    <span key={c} className="size-2.5 rounded-full border border-[var(--surface)]" style={{ background: c }} />
+                  ))}
+                </span>
+                <span className="text-[11px] text-[var(--ink-soft)]">{turning === undefined ? '…' : n ? `${n} turning` : 'None seen'}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
   )
 }
 

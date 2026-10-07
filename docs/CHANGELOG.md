@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)) |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
@@ -18,6 +19,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-06 | [Trees on the Foliage page, and a page for each](#2026-10-06-trees-on-the-foliage-page-and-a-page-for-each) | [#122](https://github.com/maarib/canopy/pull/122) |
 | 2026-10-04 | [Floating panel on desktop](#2026-10-04-floating-panel-on-desktop) | [#118](https://github.com/maarib/canopy/pull/118) |
 | 2026-10-04 | [Filter menus open under their pill; phones keep their view](#2026-10-04-filter-menus-open-under-their-pill-phones-keep-their-view) | [#116](https://github.com/maarib/canopy/pull/116) |
 | 2026-10-04 | [Explore landing page, Places, filter menus and a satellite default](#2026-10-04-explore-landing-page-places-filter-menus-and-a-satellite-default) | [#115](https://github.com/maarib/canopy/pull/115) |
@@ -51,6 +53,32 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-06 · Trees on the Foliage page, and a page for each
+
+**Ref:** [#122](https://github.com/maarib/canopy/pull/122)
+
+**Before.** The Foliage page was two numbers, the park reports and the regions' peak windows. Trees appeared only as a filter for the map's sightings.
+
+**After.**
+- **The Foliage page starts with the trees:** a grid of the 13 groups (maples, oaks, birches and so on, with shrubs and vines last), each showing its leaf, its fall colors and how many were seen turning in the last two weeks, busiest first. Park reports and When to go follow.
+- **Each tree has a page** (`/tree/maples`):
+  - the color it turns, when, how to recognise it, where it grows and the species found in Ontario;
+  - **Turning now:** how many were seen in the last two weeks, and the five parks with the most within 40 km, each with its color stage;
+  - the regions known for it, and up to nine recent photos from iNaturalist.
+- While a tree's page is open, the map shows only that tree's turning leaves, grouped by area, whatever the tree filter is set to.
+- A tree in the search opens its page (it used to set the map's filter), and "Trees to look for" on a region page links to them. On phones the page has Show on map in its top bar.
+
+**How.**
+- `src/data/trees.ts` (new) holds the write-up for each tree, keyed to the tree groups in `treeGroups.ts`. Each group's write-up was checked against the genera it covers on iNaturalist.
+- `src/components/TreePanel.tsx` (new) is the page; `FoliagePanel.tsx` gains the grid.
+- `src/App.tsx` adds the `/tree/:id` route and, on a tree's page, overrides the sightings filter and the map's layers.
+
+**Why.** People look for a tree before they look for a report: "where are the maples red?". The journey can now start from the leaf.
+
+**Limits.** Timing in the write-ups is typical for southern and central Ontario, not a forecast. "Turning now" depends on where iNaturalist observers happen to be, so busy areas near cities are over-represented.
 
 ## v1.4
 
