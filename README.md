@@ -168,7 +168,7 @@ docs/                  PRD, technical plan, Explore design, change log
 
 ## What's next
 
-The next release (v1.6) is planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
+The next releases (v1.5.1 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
 
 ## Releases
 

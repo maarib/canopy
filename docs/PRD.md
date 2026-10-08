@@ -290,7 +290,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | v1.4 | 2026-10-04 | Floating panel on desktop, phones keep the chosen view, Show on map, menu and scroll fixes |
 | v1.5 | 2026-10-08 | Covers that turn, with tilt-shift and wildlife; color outlook layer; tree pages; cover fixes |
 
-**Next up (v1.6).** The issues labelled [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext), in order:
+**Next up (from v1.5.1).** Releases now go up by the last number: v1.5.1, v1.5.2 and so on. The issues labelled [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext), in order:
 
 1. **More of Ontario to explore** ([#85](https://github.com/maarib/canopy/issues/85)): trails and places beyond Algonquin's Highway 60 corridor (Killarney, Bon Echo, Frontenac, Bruce Peninsula…).
 2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)): all 347, not only the ones with fall color reports. Boundaries, activities and facilities are already built for them.
