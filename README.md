@@ -49,6 +49,11 @@
     - peaks: terraces rising to a rocky summit with a cairn and flag;
     - lakes: the real outline in a ring of forest, with a dock facing you;
     - rivers and creeks: the real course winding across the island from edge to edge, rivers wide, creeks narrow with rocks.
+  - **Covers turn.** A cover opens as a still image with its far and near edges softly out of focus, like a photo of a miniature. Rest the mouse on it, tap it, or drag it sideways and the 3D scene itself takes the still's place:
+    - drag to turn it (it coasts when let go), double-click to turn it back, or use the left and right arrow keys and Home;
+    - trees lean against the turn and settle; a tap makes them shiver;
+    - three to five white gulls cross overhead from time to time (now and then one falls behind and hurries to catch up), a canoe paddles on lakes with room for it, and a deer stands in the widest clearing;
+    - the 3D is only loaded and run for people who reach for a cover. It rests when scrolled out of view and about half a minute after it was last touched, and with reduced motion set nothing moves but the land under the hand.
   - The colors come from the nearest Ontario Parks report within 60 km (how much has turned and fallen, and the dominant color), otherwise from the nearest region's typical peak window.
   - **Pre-drawn:** covers for every fall-report park, region, trail and place are drawn at deploy time in that day's colors and served as plain images (up to about 70 KB each), so those pages show their cover instantly with no map work. Anything else is drawn in the browser once per visit by a single hidden map.
   - **Thumbnails:** park, trail and place list rows show a 4 KB island thumbnail when a pre-drawn one exists, and their usual icon otherwise. Lists never draw covers themselves.

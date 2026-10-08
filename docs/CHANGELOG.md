@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Covers that turn, with tilt-shift and a little wildlife ([#125](https://github.com/maarib/canopy/pull/125)) |
 | Unreleased | | Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island ([#123](https://github.com/maarib/canopy/pull/123)) |
 | Unreleased | | Trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)) |
 | Unreleased | | Color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
@@ -21,6 +22,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-08 | [Covers that turn, with tilt-shift and a little wildlife](#2026-10-08-covers-that-turn-with-tilt-shift-and-a-little-wildlife) | [#125](https://github.com/maarib/canopy/pull/125) |
 | 2026-10-08 | [Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island](#2026-10-08-cover-fixes-rounded-park-outlines-waterfalls-that-face-you-streams-that-cross-the-island) | [#123](https://github.com/maarib/canopy/pull/123) |
 | 2026-10-06 | [Trees on the Foliage page, and a page for each](#2026-10-06-trees-on-the-foliage-page-and-a-page-for-each) | [#122](https://github.com/maarib/canopy/pull/122) |
 | 2026-10-06 | [Color outlook across Ontario](#2026-10-06-color-outlook-across-ontario) | [#121](https://github.com/maarib/canopy/pull/121) |
@@ -59,6 +61,45 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-10-08 · Covers that turn, with tilt-shift and a little wildlife
+
+**Ref:** [#125](https://github.com/maarib/canopy/pull/125)
+
+**Before.** Every detail page's cover was a still image of a 3D scene.
+
+**After.**
+- **Tilt-shift:** the far and near edges of every cover are softly out of focus (3 px at the edge, fading toward the middle), on the still and on the live scene. Thumbnails in lists are unchanged.
+- **Covers turn.** Reaching for a cover (the mouse resting on it for a quarter of a second, a tap, a sideways drag, or an arrow key) swaps the still for the scene it was taken from, at the same angle and size:
+  - drag sideways to turn it, and it coasts when let go; double-click or Home turns it back; the left and right arrow keys turn it 20° at a time;
+  - trees standing in front of a trail, stream or deck are worked out again for every angle;
+  - a "Drag to turn" label sits in the cover's corner until a cover has been turned once on that device.
+- **Trees respond:** they lean against the turn and swing back to rest; a tap makes them shiver.
+- **Wildlife:**
+  - three to five white gulls cross overhead, each pass from a different side, with a few seconds between passes. About four passes in ten, the last bird falls behind, then beats its wings twice as fast to catch up;
+  - a canoe paddles a slow loop where a lake or river has open water with room for it (not on a waterfall's pool);
+  - a deer stands in the widest gap between the trees, which on a trail is usually beside the path;
+  - a tap hurries the birds along.
+- **Kept light:**
+  - nothing 3D is loaded or run until someone reaches for a cover; vertical scrolling over a cover on a phone does not count;
+  - the animation stops while the cover is out of view, and about 30 seconds after it was last touched (a flock in the air finishes its pass first);
+  - with reduced motion set, there are no birds, lean or coasting, and the canoe and deer stay still;
+  - devices reporting 2 GB of memory or less keep the still.
+
+**How.**
+- `src/lib/forestCover.ts` splits drawing a cover into setting the scene up and taking its picture. `stageCover` sets a scene up and holds the one cover map until released, so no still is drawn on it meanwhile.
+- `src/lib/liveCover.ts` (new) lays the map over the still and handles turning, the lean and when to sleep. `src/lib/coverLife.ts` (new) builds the gull, canoe and deer models and moves them. Both load only when a cover goes live (about 9 kB).
+- `src/components/ForestCover.tsx` draws the tilt-shift bands and decides when a cover has been reached for.
+- A live Mapbox map must show Mapbox's logo, so it appears in the cover's corner while the cover is live.
+
+**Why.** The covers were already 3D scenes that nobody could touch. Turning one is a small delight that costs nothing until someone asks for it.
+
+**Limits.**
+- A cover keeps the still's size at every angle, so long shapes run past the frame's edge when turned.
+- The canoe and deer appear only once a cover is live; they are not in the stills or thumbnails.
+- On dense park covers the deer is mostly hidden by the canopy.
+- Mapbox counts a map load each time a map is created, so a visit in which a cover is brought to life uses two map loads, not one.
+- Checked in desktop and phone-sized Chromium, not yet on a real phone.
 
 ### 2026-10-08 · Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island
 

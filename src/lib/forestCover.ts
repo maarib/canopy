@@ -236,7 +236,36 @@ function blockingTrees(map: MapboxMap, trees: (TreePoint & { properties: { tier:
 /** Turned `rot` eighths of a turn. */
 const BY_ROT = ['match', ['get', 'rot'], ...[1, 2, 3, 4, 5, 6, 7].flatMap((k) => [k, ['literal', [0, 0, k * 45]]]), ['literal', [0, 0, 0]]]
 
-async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
+/** A scene set up on the cover map: what is needed to show it from another side. */
+export type Scenery = {
+  map: MapboxMap
+  /** The scene as placed on the cover map: its land, water and terraces. */
+  scene: Scene
+  trees: (TreePoint & { properties: { tier: number } })[]
+  watch: Scene['watch']
+  tiers: number[]
+  scale: number
+  clearView: boolean
+  /** Which trees are see-through (or left out) now, to skip the work when a turn changes none. */
+  blocking?: string
+}
+
+/**
+ * Shows a scene's trees for the camera's current angle: those standing in front of a trail, stream
+ * or deck from here are drawn see-through, or left out where the scene asks for a clear view.
+ */
+export function showTrees(stage: Scenery) {
+  const { map, trees, clearView } = stage
+  const blocking = blockingTrees(map, trees, stage.watch, stage.tiers, stage.scale)
+  const key = [...blocking].join()
+  if (key === stage.blocking) return
+  stage.blocking = key
+  const shown = clearView ? trees.filter((_, i) => !blocking.has(i)) : trees
+  ;(map.getSource('trees') as GeoJSONSource).setData(collection(shown.map((t, i) => ({ ...t, properties: { ...t.properties, fade: !clearView && blocking.has(i) } }))))
+}
+
+/** Sets a shape up on the cover map, framed as its cover, and waits until it has drawn. */
+async function compose(shape: CoverShape, foliage: Foliage): Promise<Scenery> {
   const map = await coverMap()
 
   // Move to the anchor at a fixed size, then simplify to chunky facets.
@@ -307,13 +336,14 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
 
   map.setCamera({ 'camera-projection': 'orthographic' })
   fill(map, scene.land, scene.front, scene.headroom)
-  const blocking = blockingTrees(map, trees, scene.watch, scene.tiers, scale)
-  const shown = scene.clearView ? trees.filter((_, i) => !blocking.has(i)) : trees
-  ;(map.getSource('trees') as GeoJSONSource).setData(
-    collection(shown.map((t, i) => ({ ...t, properties: { ...t.properties, fade: !scene.clearView && blocking.has(i) } }))),
-  )
+  const stage: Scenery = { map, scene, trees, watch: scene.watch, tiers: scene.tiers, scale, clearView: !!scene.clearView }
+  showTrees(stage)
   await settled(map)
+  return stage
+}
 
+async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
+  const { map } = await compose(shape, foliage)
   const blob = await new Promise<Blob | null>((resolve) => map.getCanvas().toBlob(resolve, 'image/webp', 0.92))
   if (!blob) throw new Error('Cover could not be captured')
   return URL.createObjectURL(blob)
@@ -337,6 +367,41 @@ export function forestCover(shape: CoverShape, foliage: Foliage, signal: AbortSi
   queue = job.catch(() => {})
   job.then(
     () => done.set(key, job),
+    () => {},
+  )
+  return job
+}
+
+/** A scene held on the cover map for a live cover, until it is released. */
+export type Staged = Scenery & {
+  /** Puts the map back out of sight and lets the next cover be drawn. */
+  release: () => void
+}
+
+const OFFSTAGE = { position: 'fixed', left: '-10000px', top: '0', transform: '', pointerEvents: 'none', cursor: '', touchAction: '' }
+
+/**
+ * Sets a shape up on the cover map and keeps it there, for showing the scene itself rather than a
+ * picture of it. Takes its turn with the covers being drawn, and no other cover is drawn until it
+ * is released: there is one cover map, and a live cover has it on the page.
+ */
+export function stageCover(shape: CoverShape, foliage: Foliage, signal: AbortSignal): Promise<Staged> {
+  let free = () => {}
+  const held = new Promise<void>((resolve) => (free = resolve))
+  const job = queue.then(async (): Promise<Staged> => {
+    if (signal.aborted) throw new DOMException('Cover no longer needed', 'AbortError')
+    const scenery = await compose(shape, foliage)
+    const release = () => {
+      const box = scenery.map.getContainer()
+      Object.assign(box.style, OFFSTAGE)
+      box.inert = true
+      document.body.append(box)
+      free()
+    }
+    return { ...scenery, release }
+  })
+  queue = job.then(
+    () => held,
     () => {},
   )
   return job

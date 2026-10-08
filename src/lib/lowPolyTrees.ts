@@ -4,9 +4,9 @@ import type { Feature, MultiPolygon, Point, Polygon } from 'geojson'
 // here (no files to download), instanced by Mapbox's model layer. Trees are planted on a
 // deterministic jittered grid, kept to forest and parkland and out of water.
 
-type Vec3 = [number, number, number]
+export type Vec3 = [number, number, number]
 
-class Mesh {
+export class Mesh {
   positions: number[] = []
   normals: number[] = []
   /** Flat-shaded triangle, wound to face away from `center`. */
@@ -56,7 +56,7 @@ function cone(m: Mesh, r: number, y0: number, y1: number, turn = 0) {
 }
 
 /** An icosahedron with jittered vertices: the classic low-poly crown. */
-function crown(m: Mesh, r: number, cy: number, squash: number, seed: number) {
+export function crown(m: Mesh, r: number, cy: number, squash: number, seed: number) {
   const t = (1 + Math.sqrt(5)) / 2
   const V: Vec3[] = [[-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0], [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t], [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1]]
   const F = [[0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11], [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8], [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9], [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1]]
@@ -76,7 +76,7 @@ const linear = (hex: string) =>
   })
 
 /** A glTF binary with one primitive per part, each in its own flat color. */
-function glb(parts: { mesh: Mesh; color: string }[]): string {
+export function glb(parts: { mesh: Mesh; color: string }[]): string {
   const chunks: ArrayBufferView[] = []
   const accessors: object[] = []
   const views: object[] = []
@@ -133,7 +133,7 @@ function glb(parts: { mesh: Mesh; color: string }[]): string {
 }
 
 /** An axis-aligned box centred at (cx, cy, cz), `w` × `h` × `d`. */
-function box(m: Mesh, [cx, cy, cz]: Vec3, [w, h, d]: Vec3) {
+export function box(m: Mesh, [cx, cy, cz]: Vec3, [w, h, d]: Vec3) {
   const x = [cx - w / 2, cx + w / 2]
   const y = [cy - h / 2, cy + h / 2]
   const z = [cz - d / 2, cz + d / 2]
