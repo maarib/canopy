@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island ([#123](https://github.com/maarib/canopy/pull/123)) |
 | Unreleased | | Trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)) |
 | Unreleased | | Color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
@@ -20,6 +21,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-08 | [Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island](#2026-10-08-cover-fixes-rounded-park-outlines-waterfalls-that-face-you-streams-that-cross-the-island) | [#123](https://github.com/maarib/canopy/pull/123) |
 | 2026-10-06 | [Trees on the Foliage page, and a page for each](#2026-10-06-trees-on-the-foliage-page-and-a-page-for-each) | [#122](https://github.com/maarib/canopy/pull/122) |
 | 2026-10-06 | [Color outlook across Ontario](#2026-10-06-color-outlook-across-ontario) | [#121](https://github.com/maarib/canopy/pull/121) |
 | 2026-10-04 | [Floating panel on desktop](#2026-10-04-floating-panel-on-desktop) | [#118](https://github.com/maarib/canopy/pull/118) |
@@ -57,6 +59,35 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-10-08 · Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island
+
+**Ref:** [#123](https://github.com/maarib/canopy/pull/123)
+
+**Before.**
+- Parks and regions drawn from an official boundary kept every survey corner, so their land had sharp, jagged edges. The rounding added with the place covers ([#111](https://github.com/maarib/canopy/pull/111)) only applied to places.
+- Waterfalls were shown from whichever side filled the frame best, so on some the falling water was hidden behind its own cliff. Where a winding stream crossed the cliff line more than once, the extra stretch was folded back onto the upper terrace and ran along the cliff's edge without falling. Some upper streams stopped a short way behind the falls.
+- Creeks and rivers whose mapped course begins or ends inside the island stopped dead in the forest, and short disconnected scraps of stream were drawn as well. Creeks were narrow enough that their boulders hid most of the water.
+
+**After.**
+- **Parks and regions:** every corner of a boundary is rounded, and so are the shores of lakes inside it.
+- **Waterfalls:**
+  - always seen from downstream and a little to one side, so the falling water faces the viewer;
+  - the stream meets the cliff in one place, at the falls: it comes straight to the lip and leaves straight from the plunge pool;
+  - a stream that would cross the cliff line again is cut where it turns back, and carries straight on to the island's edge;
+  - side streams join only below the falls, clear of the cliff.
+- **Creeks and rivers:**
+  - a course that begins or ends on the island carries straight on to its edge;
+  - pieces shorter than three stream widths are left out (the longest always stays);
+  - creeks are a little wider, with seven boulders (two in the water) where there were ten (four in the water).
+
+**How.**
+- `src/lib/forestCover.ts` rounds the land and lake rings of parks, regions and trails with `soften`, as `placeScene` already did for places.
+- `src/lib/placeScenes.ts`: `waterfallScene` takes the stream's direction over a stretch either side of the falls (one kinked segment no longer turns the cliff), builds the upper and lower stream from that, and sets `front` so the camera faces the falls; `streamScene` filters and extends its runs.
+
+**Why.** The covers are the first thing on every detail page, and these were the ones that looked broken.
+
+**Limits.** Where a stream is carried on to the edge it runs dead straight, which shows on a few covers (Mud Creek, North Madawaska River). The cut-and-extend rule draws the stream's direction from the real course but not its exact path near the falls. Every cover is redrawn on the next deploy, because the drawing code changed.
 
 ### 2026-10-06 · Trees on the Foliage page, and a page for each
 

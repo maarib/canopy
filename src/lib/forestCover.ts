@@ -1,7 +1,7 @@
 import type { Feature, MultiLineString, Position } from 'geojson'
 import type { ExpressionSpecification, GeoJSONSource, Map as MapboxMap, StyleSpecification } from 'mapbox-gl'
 import { COVER_BLEED, COVER_SIZE } from './coverFrame'
-import { bboxOf, DIORAMA_SIZE_M, insideRing, metresToDeg, normalizer, simplify, type Ring } from './diorama'
+import { bboxOf, DIORAMA_SIZE_M, insideRing, metresToDeg, normalizer, simplify, soften, type Ring } from './diorama'
 import type { PlaceKind } from './explore'
 import { foliageKey } from './foliage'
 import { modelExpression, plantTrees, propModels, summitModels, treeModels, type Foliage, type TreePoint } from './lowPolyTrees'
@@ -242,7 +242,8 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
   // Move to the anchor at a fixed size, then simplify to chunky facets.
   const to = normalizer(shape.rings)
   const facet = metresToDeg(DIORAMA_SIZE_M / 90)
-  const land = shape.rings.map((r) => simplify(r.map(to), facet))
+  // A park's boundary is full of survey corners; every corner is rounded, as on the place covers.
+  const land = shape.rings.map((r) => soften(simplify(r.map(to), facet), metresToDeg(DIORAMA_SIZE_M / 12)))
   let scene: Scene
   if (shape.place) {
     const { kind, focus, water, course } = shape.place
@@ -258,7 +259,7 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
     const lakes = await lakesWithin(map, shape.rings)
     scene = islandScene(
       land,
-      lakes.map((r) => simplify(r.map(to), facet / 2)).filter((r) => r.length >= 4),
+      lakes.map((r) => simplify(r.map(to), facet / 2)).filter((r) => r.length >= 4).map((r) => soften(r, metresToDeg(DIORAMA_SIZE_M / 40))),
       shape.path?.coordinates.map((line) => line.map(to)),
     )
   }
