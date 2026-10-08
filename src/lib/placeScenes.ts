@@ -7,6 +7,7 @@ import {
   clipToHull,
   DIORAMA_SIZE_M,
   disc,
+  insideRing,
   insideRuns,
   metresToDeg,
   pathQuads,
@@ -284,9 +285,20 @@ function lakeScene({ island, water: lakes }: PlaceInput): Scene {
 
 /** The stream's real course winding across the forest, smooth; rivers wide, creeks narrow and rocky. */
 function streamScene({ kind, island, focus, water: areas, course }: PlaceInput, rnd: () => number): Scene {
-  const width = m(kind === 'river' ? S / 11 : S / 17)
+  const width = m(kind === 'river' ? S / 11 : S / 14)
   const lines = course.length ? course : areas.length ? [] : madeUpCourse(island, focus, rnd)
-  const runs = insideRuns(lines, island, width / 3)
+  // Scraps of stream too short to read as one are left out (the longest always stays), and a
+  // stream that begins or ends on the island carries straight on to its edge, not a cut-off stub.
+  const pieces = insideRuns(lines, island, width / 3).sort((x, y) => lineLength(y) - lineLength(x))
+  const inland = scaleRing(island, centroid(island), 0.9)
+  const onward = (run: Position[]): Position[] => {
+    const end = run[run.length - 1]
+    if (!insideRing(end, inland)) return []
+    const d = unit(pointAlong([...run].reverse(), width * 2), end)
+    return [[end[0] + d[0] * m(S), end[1] + d[1] * m(S)]]
+  }
+  const whole = pieces.filter((r, i) => i === 0 || lineLength(r) > width * 3).map((r) => [...onward([...r].reverse()), ...r, ...onward(r)])
+  const runs = insideRuns(whole, island, width / 3)
   const shapes = areas.map((r) => clipToHull(r, island)).filter((r) => r.length >= 4)
   const water = within(union([...ribbon(runs, width), ...shapes.map((r): Poly => [r])]), [[island]])
   return {
@@ -295,7 +307,7 @@ function streamScene({ kind, island, focus, water: areas, course }: PlaceInput, 
     tiers: [SLAB_M],
     grow: [{ ring: island, tier: 0 }],
     keepOut: [...water, ...ribbon(runs, width * (kind === 'river' ? 2.4 : 3.4))],
-    props: boulders(runs, width, kind === 'river' ? 6 : 10, rnd, 0, kind === 'creek' ? 4 : 0),
+    props: boulders(runs, width, kind === 'river' ? 6 : 7, rnd, 0, kind === 'creek' ? 2 : 0),
     watch: runs.map((line) => ({ line, tier: 0 })),
     trees: kind === 'river' ? 160 : 130,
     // Seen from the side, the stream runs across the view, with an open bank in front of it.
@@ -312,7 +324,13 @@ function streamScene({ kind, island, focus, water: areas, course }: PlaceInput, 
 function waterfallScene({ island, focus, course }: PlaceInput, rnd: () => number): Scene {
   const width = m(S / 11)
   const lines = course.length ? course : madeUpCourse(island, focus, rnd)
-  const { at: fall, dir, line: main, i: seg } = nearestOnCourse(lines, focus)
+  const { at: fall, dir: here, line: main, i: seg } = nearestOnCourse(lines, focus)
+  // The way the stream is heading over a stretch either side of the falls, not just at them: one
+  // short kinked piece of the line would otherwise turn the whole cliff.
+  const upstream = [fall, ...main.slice(0, seg).reverse()]
+  const downstream = [fall, ...main.slice(seg)]
+  const reach = [pointAlong(upstream, width * 2.5), pointAlong(downstream, width * 2.5)]
+  const dir = Math.hypot(reach[1][0] - reach[0][0], reach[1][1] - reach[0][1]) > width ? unit(reach[0], reach[1]) : here
   const across: Position = [-dir[1], dir[0]]
   // The cliff line through the falls; the upper terrace is on the upstream side (left of a→b). It
   // stands a little inside the island's edge, so the lower terrace shows as a ledge all around it.
@@ -322,19 +340,33 @@ function waterfallScene({ island, focus, course }: PlaceInput, rnd: () => number
   const upper = cut.length ? soften(cut, m(S / 14)) : cut
   const low = SLAB_M
   const high = SLAB_M + TIER_M * 1.4
-  // A winding stream can cross the cliff line more than once. Each side is folded back over the
-  // line where it strays, so the water above the falls stays on the upper terrace and the water
-  // below stays on the lower one.
+  // The stream meets the cliff in one place only, at the falls. It comes straight to the lip and
+  // leaves straight from the pool; a winding stream that would cross the cliff line again is cut
+  // where it turns back, and side streams join only below the falls, clear of the cliff.
   const along = (q: Position) => (q[0] - fall[0]) * dir[0] + (q[1] - fall[1]) * dir[1]
-  const keepTo = (side: 1 | -1) => (q: Position): Position => {
-    const t = along(q)
-    return t * side < 0 ? [q[0] - 2 * t * dir[0], q[1] - 2 * t * dir[1]] : q
+  const ahead = (t: number): Position => [fall[0] + dir[0] * t, fall[1] + dir[1] * t]
+  const oneSide = (pts: Position[], side: 1 | -1, clear: number) => {
+    const out: Position[] = []
+    for (const q of pts.slice(1)) {
+      const t = along(q) * side
+      if (t < 0 && Math.hypot(q[0] - fall[0], q[1] - fall[1]) > width * 3) break
+      if (t < clear) continue
+      out.push(q)
+    }
+    // Cut short on the island, it carries straight on to the edge, so the stream crosses the land.
+    const last = out[out.length - 1] ?? ahead(side * clear)
+    if (insideRing(last, island)) out.push([last[0] + side * dir[0] * m(S), last[1] + side * dir[1] * m(S)])
+    return out
   }
   const others = lines.filter((l) => l !== main)
-  const above = insideRuns([[...main.slice(0, seg).map(keepTo(-1)), fall], ...others.flatMap((l) => runsWhere(l, (q) => along(q) < 0))], upper.length ? upper : island, width / 3)
-  const below = insideRuns([[fall, ...main.slice(seg).map(keepTo(1))], ...others.flatMap((l) => runsWhere(l, (q) => along(q) >= 0))], island, width / 3)
+  const above = insideRuns(
+    [[...oneSide(upstream, -1, width * 1.6).reverse(), ahead(-width * 1.4), fall]],
+    upper.length ? upper : island,
+    width / 3,
+  )
+  const poolAt = ahead(width * 1.1)
+  const below = insideRuns([[fall, poolAt, ahead(width * 2.4), ...oneSide(downstream, 1, width * 2.8)], ...others.flatMap((l) => runsWhere(l, (q) => along(q) > width * 2.8))], island, width / 3)
   const runs = [...above, ...below]
-  const poolAt: Position = [fall[0] + dir[0] * width * 1.1, fall[1] + dir[1] * width * 1.1]
   const pool: Poly = [disc(poolAt, width * 1.25, 12)]
   const upperWater = upper.length ? within(ribbon(above, width), [[upper]]) : []
   const lowerWater = within(union([...ribbon(below, width), pool]), [[island]])
@@ -353,7 +385,22 @@ function waterfallScene({ island, focus, course }: PlaceInput, rnd: () => number
     props: [...boulders(below, width, 4, rnd, 0), ...boulders(above, width, 3, rnd, 1)],
     watch: [...above.map((line) => ({ line, tier: 1 })), ...below.map((line) => ({ line, tier: 0 })), { line: [fall, poolAt], tier: 0 }],
     trees: 150,
+    // Seen from downstream and a little to one side, so the falling water faces the viewer.
+    front: [fall[0] + (dir[0] * 0.9 - across[0] * 0.42) * m(S), fall[1] + (dir[1] * 0.9 - across[1] * 0.42) * m(S)],
   }
+}
+
+const lineLength = (line: Position[]) => line.slice(1).reduce((a, q, i) => a + Math.hypot(q[0] - line[i][0], q[1] - line[i][1]), 0)
+
+/** The point `dist` along `line` from its start, or its far end if the line is shorter. */
+function pointAlong(line: Position[], dist: number): Position {
+  let left = dist
+  for (let i = 1; i < line.length; i++) {
+    const len = Math.hypot(line[i][0] - line[i - 1][0], line[i][1] - line[i - 1][1])
+    if (len >= left && len > 0) return [line[i - 1][0] + ((line[i][0] - line[i - 1][0]) * left) / len, line[i - 1][1] + ((line[i][1] - line[i - 1][1]) * left) / len]
+    left -= len
+  }
+  return line[line.length - 1]
 }
 
 /** Consecutive stretches of `line` where `keep` holds. */

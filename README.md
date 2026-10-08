@@ -40,15 +40,15 @@
 
 ### Places with their own pages
 - **Island covers:** every region, park, trail, place and fishing page opens with an illustrated cover. The place's shape floats as a piece of land in soft colors, seen isometrically, with big low-poly trees in today's fall colors.
-  - A park uses its official boundary, islands included.
+  - A park uses its official boundary, islands included, with its corners rounded.
   - Other places get an organic island; a trail's island hugs its track, which winds through a sparser forest; trees standing in front of it turn see-through so the whole path shows.
   - Real lakes inside the shape are cut in.
   - **Places have their own landforms**, built from their real OpenStreetMap shapes:
-    - waterfalls: two terraces split by a cliff across the real stream, which pours over it into a plunge pool;
+    - waterfalls: two terraces split by a cliff across the real stream, which pours over it into a plunge pool, seen from downstream so the falling water faces you;
     - lookouts: terraces crowding into a cliff, turned to face you, with a wooden viewing deck on the bare rocky top;
     - peaks: terraces rising to a rocky summit with a cairn and flag;
     - lakes: the real outline in a ring of forest, with a dock facing you;
-    - rivers and creeks: the real course winding across the island, rivers wide, creeks narrow with rocks.
+    - rivers and creeks: the real course winding across the island from edge to edge, rivers wide, creeks narrow with rocks.
   - The colors come from the nearest Ontario Parks report within 60 km (how much has turned and fallen, and the dominant color), otherwise from the nearest region's typical peak window.
   - **Pre-drawn:** covers for every fall-report park, region, trail and place are drawn at deploy time in that day's colors and served as plain images (up to about 70 KB each), so those pages show their cover instantly with no map work. Anything else is drawn in the browser once per visit by a single hidden map.
   - **Thumbnails:** park, trail and place list rows show a 4 KB island thumbnail when a pre-drawn one exists, and their usual icon otherwise. Lists never draw covers themselves.
