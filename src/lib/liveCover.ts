@@ -42,12 +42,15 @@ export function liveCover(figure: HTMLElement, above: Element | null, credits: E
   // A live Mapbox map carries Mapbox's logo. It is moved out of the map into the corner of the
   // frame, over the tilt-shift, so it stays sharp; it goes back with the map.
   const logo = box.querySelector<HTMLElement>('.mapboxgl-ctrl-bottom-left')
-  const mark = logo?.firstElementChild as HTMLElement | null | undefined
+  // The logo's wrapper and the logo itself, each with a margin of the map's: the wrapper's pushes it
+  // in from the map's corner, and the logo's own is negative, hanging it 4 px out past its box. Both
+  // go, or the frame (which clips sideways) cuts the logo's left edge off.
+  const marks = logo ? [logo.firstElementChild, logo.querySelector('.mapboxgl-ctrl-logo')].filter((el): el is HTMLElement => el instanceof HTMLElement) : []
   if (logo) {
-    // Without the map's margin, and moved so its middle is level with the middle of the credits.
-    if (mark) mark.style.margin = '0'
+    for (const el of marks) el.style.margin = '0'
     figure.insertBefore(logo, credits)
-    const [m, c] = [(logo.querySelector('.mapboxgl-ctrl-logo') ?? logo).getBoundingClientRect(), credits?.getBoundingClientRect()]
+    // Moved so its middle is level with the middle of the credits.
+    const [m, c] = [(marks[1] ?? logo).getBoundingClientRect(), credits?.getBoundingClientRect()]
     if (c) logo.style.bottom = `${m.top + m.height / 2 - (c.top + c.height / 2)}px`
   }
 
@@ -187,7 +190,7 @@ export function liveCover(figure: HTMLElement, above: Element | null, credits: E
       life.remove()
       if (logo) {
         logo.style.bottom = ''
-        if (mark) mark.style.margin = ''
+        for (const el of marks) el.style.margin = ''
         box.append(logo)
       }
       stage.release()
