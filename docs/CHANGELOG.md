@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Mapbox logo no longer cut off on live covers ([#129](https://github.com/maarib/canopy/pull/129)) |
 | [v1.5](https://github.com/maarib/canopy/releases/tag/v1.5.0) | 2026-10-08 | Covers that turn, with tilt-shift and a little wildlife ([#125](https://github.com/maarib/canopy/pull/125)); cover fixes for parks, waterfalls and streams ([#123](https://github.com/maarib/canopy/pull/123)); trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)); color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
@@ -19,6 +20,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-08 | [Mapbox logo no longer cut off on live covers](#2026-10-08-mapbox-logo-no-longer-cut-off-on-live-covers) | [#129](https://github.com/maarib/canopy/pull/129) |
 | 2026-10-08 | [Covers that turn, with tilt-shift and a little wildlife](#2026-10-08-covers-that-turn-with-tilt-shift-and-a-little-wildlife) | [#125](https://github.com/maarib/canopy/pull/125) |
 | 2026-10-08 | [Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island](#2026-10-08-cover-fixes-rounded-park-outlines-waterfalls-that-face-you-streams-that-cross-the-island) | [#123](https://github.com/maarib/canopy/pull/123) |
 | 2026-10-06 | [Trees on the Foliage page, and a page for each](#2026-10-06-trees-on-the-foliage-page-and-a-page-for-each) | [#122](https://github.com/maarib/canopy/pull/122) |
@@ -56,6 +58,18 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-08 · Mapbox logo no longer cut off on live covers
+
+**Ref:** [#129](https://github.com/maarib/canopy/pull/129)
+
+**Before.** On a live cover, the left 4 px of Mapbox's logo was cut off. The logo carries a negative margin that hangs it 4 px outside its box, and the cover's frame clips anything past its sides.
+
+**After.** The logo sits fully inside the frame, flush with its left edge, and stays level with the credit pills.
+
+**How.** `src/lib/liveCover.ts` clears the logo's own margin as well as its wrapper's while the cover is live, and puts both back when it ends.
 
 ## v1.5
 
