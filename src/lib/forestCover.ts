@@ -35,6 +35,10 @@ export type CoverShape = {
 
 const BLANK: StyleSpecification = {
   version: 8,
+  // Changes apply at once. With the usual 300 ms easing the map keeps redrawing for that long after
+  // every change, at the screen's full rate: wasted on a still, and several times the work on a
+  // live cover, where something changes many times a second.
+  transition: { duration: 0, delay: 0 },
   sources: {},
   layers: [],
   lights: [
@@ -264,8 +268,13 @@ export function showTrees(stage: Scenery) {
   ;(map.getSource('trees') as GeoJSONSource).setData(collection(shown.map((t, i) => ({ ...t, properties: { ...t.properties, fade: !clearView && blocking.has(i) } }))))
 }
 
+/** The scene the cover map holds now, and the view it was framed in: its still was just taken from it. */
+let onStage: { key: string; scenery: Scenery; view: { center: [number, number]; zoom: number; bearing: number } } | undefined
+const sceneKey = (shape: CoverShape, foliage: Foliage) => `${shape.id}:${foliageKey(foliage)}`
+
 /** Sets a shape up on the cover map, framed as its cover, and waits until it has drawn. */
 async function compose(shape: CoverShape, foliage: Foliage): Promise<Scenery> {
+  onStage = undefined
   const map = await coverMap()
 
   // Move to the anchor at a fixed size, then simplify to chunky facets.
@@ -339,7 +348,17 @@ async function compose(shape: CoverShape, foliage: Foliage): Promise<Scenery> {
   const stage: Scenery = { map, scene, trees, watch: scene.watch, tiers: scene.tiers, scale, clearView: !!scene.clearView }
   showTrees(stage)
   await settled(map)
+  const { lng, lat } = map.getCenter()
+  onStage = { key: sceneKey(shape, foliage), scenery: stage, view: { center: [lng, lat], zoom: map.getZoom(), bearing: map.getBearing() } }
   return stage
+}
+
+/** The scene already on the cover map, back in the view its still was taken from. */
+function restage({ scenery, view }: NonNullable<typeof onStage>): Scenery {
+  scenery.map.jumpTo(view)
+  scenery.blocking = undefined
+  showTrees(scenery)
+  return scenery
 }
 
 async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
@@ -357,7 +376,7 @@ let queue: Promise<unknown> = Promise.resolve()
  * Covers are drawn one at a time; a request aborted while it waits is skipped.
  */
 export function forestCover(shape: CoverShape, foliage: Foliage, signal: AbortSignal): Promise<string> {
-  const key = `${shape.id}:${foliageKey(foliage)}`
+  const key = sceneKey(shape, foliage)
   const hit = done.get(key)
   if (hit) return hit
   const job = queue.then(() => {
@@ -390,7 +409,8 @@ export function stageCover(shape: CoverShape, foliage: Foliage, signal: AbortSig
   const held = new Promise<void>((resolve) => (free = resolve))
   const job = queue.then(async (): Promise<Staged> => {
     if (signal.aborted) throw new DOMException('Cover no longer needed', 'AbortError')
-    const scenery = await compose(shape, foliage)
+    // A page that has just drawn its own still left this very scene on the map: no need to build it again.
+    const scenery = onStage?.key === sceneKey(shape, foliage) ? restage(onStage) : await compose(shape, foliage)
     const release = () => {
       const box = scenery.map.getContainer()
       Object.assign(box.style, OFFSTAGE)

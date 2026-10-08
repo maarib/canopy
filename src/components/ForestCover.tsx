@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { coverUrl, useCoverIndex, type CoverIndex } from '../lib/coverIndex'
 import { coverFoliage, coverKey, coverShape, shapeId, shapeIds, type CoverSpec } from '../lib/coverSpec'
 import { COVER_BLEED, COVER_SIZE } from '../lib/coverFrame'
-import type { LiveCover } from '../lib/liveCover'
 import { fetchOntarioParks } from '../lib/ontarioParks'
 import { MAPBOX_TOKEN } from '../lib/mapStyle'
 import { TurnIcon } from './ui'
+import { CAN_GO_LIVE, useLiveCover } from './useLiveCover'
 import { fetchParkBoundary } from '../lib/parkBoundaries'
 
 /**
@@ -28,15 +28,6 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
     staleTime: Infinity,
   })
   const [drawn, setDrawn] = useState<{ key: string; url: string }>()
-  const figure = useRef<HTMLElement>(null)
-  const firstBand = useRef<HTMLDivElement>(null)
-  const credits = useRef<HTMLElement>(null)
-  const scene = useRef<LiveCover>(null)
-  /** The cover someone has reached for, by key; it goes live once its scene is ready. */
-  const [wanted, setWanted] = useState<string>()
-  const [live, setLive] = useState<string>()
-  const dwell = useRef(0)
-  const press = useRef<{ x: number; t: number }>(null)
 
   const { foliage, source } = coverFoliage(spec, parks.data?.parks ?? [])
   const predrawn = parks.data ? findCover(index.data, spec, foliage) : undefined
@@ -59,61 +50,9 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
 
   const url = predrawn ? coverUrl(predrawn.cover) : drawn?.key === key ? drawn.url : undefined
   const canTurn = CAN_GO_LIVE && ready && !!url
-  const reach = () => canTurn && setWanted(key)
-
-  // The scene takes the still's place once it is set up, and leaves with the page.
-  useEffect(() => {
-    if (wanted !== key || !canTurn) return
-    const abort = new AbortController()
-    let cover: LiveCover | undefined
-    Promise.all([import('../lib/forestCover'), import('../lib/liveCover')])
-      .then(async ([{ stageCover }, { liveCover }]) => {
-        const stage = await stageCover(coverShape(spec, outlineData), foliage, abort.signal)
-        if (abort.signal.aborted || !figure.current) return stage.release()
-        cover = scene.current = liveCover(figure.current, firstBand.current, credits.current, stage, REDUCED_MOTION())
-        setLive(key)
-      })
-      .catch(() => {})
-    return () => {
-      abort.abort()
-      cover?.dispose()
-      scene.current = null
-      setLive(undefined)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- the shape and colors are captured by `key`
-  }, [wanted, key, canTurn])
+  const { figure, firstOverlay, credits, isLive, handlers } = useLiveCover(key, canTurn, () => ({ shape: coverShape(spec, outlineData), foliage }))
 
   if (!MAPBOX_TOKEN && !predrawn) return null
-  const isLive = live === key
-
-  // A mouse resting on the cover, a tap, or a sideways drag reaches for it; scrolling past does not.
-  const rest = (e: PointerEvent) => {
-    // Counted from the first movement over it: a page can open with the mouse already there.
-    if (e.pointerType === 'mouse' && !dwell.current) dwell.current = window.setTimeout(reach, 250)
-  }
-  const leave = () => {
-    clearTimeout(dwell.current)
-    dwell.current = 0
-  }
-  const onPointerDown = (e: PointerEvent) => {
-    press.current = { x: e.clientX, t: e.timeStamp }
-  }
-  const onPointerMove = (e: PointerEvent) => {
-    rest(e)
-    if (press.current && Math.abs(e.clientX - press.current.x) > 8) reach()
-  }
-  const onPointerUp = (e: PointerEvent) => {
-    if (press.current && e.timeStamp - press.current.t < 300) reach()
-    press.current = null
-  }
-  const onKeyDown = (e: KeyboardEvent) => {
-    const turn = e.key === 'ArrowLeft' ? -TURN_STEP : e.key === 'ArrowRight' ? TURN_STEP : 0
-    if (!turn && e.key !== 'Home') return
-    e.preventDefault()
-    reach()
-    if (turn) scene.current?.turnBy(turn)
-    else scene.current?.home()
-  }
 
   return (
     // Sideways overflow is clipped at the panel's padding, so the panel never scrolls sideways.
@@ -124,13 +63,7 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
         tabIndex: 0,
         role: 'group',
         'aria-label': `${name}, as a small forested island. Drag it, or use the left and right arrow keys, to turn it.`,
-        onPointerEnter: rest,
-        onPointerLeave: leave,
-        onPointerDown,
-        onPointerMove,
-        onPointerUp,
-        onPointerCancel: () => (press.current = null),
-        onKeyDown,
+        ...handlers,
       })}
     >
       {url ? (
@@ -149,7 +82,7 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
       )}
       {/* Tilt-shift: the far and near edges go soft, like a photo of a miniature. The near bands stop
           at the frame's foot, so the page's text below stays sharp. The live scene goes under these. */}
-      {url && TILT_SHIFT.map((band, i) => <div key={i} ref={i ? undefined : firstBand} aria-hidden="true" className="pointer-events-none absolute" style={band} />)}
+      {url && TILT_SHIFT.map((band, i) => <div key={i} ref={i ? undefined : firstOverlay} aria-hidden="true" className="pointer-events-none absolute" style={band} />)}
       {/* Says the cover can be turned by hand. */}
       {canTurn && (
         <span aria-hidden="true" className="pointer-events-none absolute top-1 right-0 flex size-8 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--ink-soft)]">
@@ -190,12 +123,6 @@ export function CoverThumb({ spec, fallback }: { spec: CoverSpec; fallback: Reac
     </span>
   )
 }
-
-/** Degrees turned by one press of an arrow key. */
-const TURN_STEP = 20
-const REDUCED_MOTION = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-/** Live covers need the map, and are left out on devices with very little memory. */
-const CAN_GO_LIVE = !!MAPBOX_TOKEN && !((navigator as { deviceMemory?: number }).deviceMemory! <= 2)
 
 const pct = (n: number, of: number) => `${(n / of) * 100}%`
 const BLEED = {

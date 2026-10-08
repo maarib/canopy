@@ -11,6 +11,12 @@ import { showTrees, type Staged } from './forestCover'
 const TURN = 0.5
 /** The animals keep moving this long after the cover was last touched, then rest. */
 const AWAKE_MS = 30_000
+/**
+ * With nothing under the hand and no birds in the air, only the canoe is moving, and slowly: ten
+ * steps a second look the same as sixty. Every step makes the map redraw the whole scene (three
+ * times over, as it happens), so this halves the drawing between flocks.
+ */
+const SLOW_FRAME_MS = 100
 
 export type LiveCover = {
   /** Turn by `deg` (arrow keys). */
@@ -80,9 +86,11 @@ export function liveCover(figure: HTMLElement, above: Element | null, credits: E
   let was = map.getBearing()
   let frame = 0
 
+  const atRest = () => Math.abs(spring.lean) < 0.05 && Math.abs(spring.speed) < 0.05
   const tick = (now: number) => {
     frame = 0
-    const dt = before ? Math.min(40, now - before) : 16
+    if (before && !drag && !glide && atRest() && !life.busy() && now - before < SLOW_FRAME_MS) return run()
+    const dt = before ? Math.min(SLOW_FRAME_MS, now - before) : 16
     before = now
     if (glide && !glide(dt)) glide = undefined
     const bearing = map.getBearing()
@@ -94,8 +102,7 @@ export function liveCover(figure: HTMLElement, above: Element | null, credits: E
     const fresh = now < awakeUntil
     life.frame(dt, fresh, calm ? 0 : spring.lean)
     // Asleep once nothing is left to play out: no flock in the air, the trees at rest, no turn.
-    const settled = Math.abs(spring.lean) < 0.05 && Math.abs(spring.speed) < 0.05
-    if (seen && (!calm || glide) && (fresh || life.busy() || glide || drag || !settled)) run()
+    if (seen && (!calm || glide) && (fresh || life.busy() || glide || drag || !atRest())) run()
     else before = 0
   }
   const run = () => {

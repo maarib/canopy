@@ -149,9 +149,6 @@ export function addLife(stage: Scenery, calm: boolean): Life {
       sources.push(`life-${id}`)
     }
     map.addLayer({ id: layer, type: 'model', source: `life-${id}`, layout: { 'model-id': model }, paint: { 'model-scale': [k, k, k], 'model-cast-shadows': true, 'model-receive-shadows': true } })
-    // Moved every frame: the map's usual 300 ms easing between values would leave each animal
-    // trailing behind itself, and a wing position gone before it had arrived.
-    for (const name of ['model-translation-transition', 'model-rotation-transition', 'model-opacity-transition']) map.setPaintProperty(layer, name as never, { duration: 0, delay: 0 } as never)
     layers.push(layer)
   }
   const move = (layer: string, east: number, north: number, up: number, heading: number) => {
@@ -166,7 +163,8 @@ export function addLife(stage: Scenery, calm: boolean): Life {
   const SLOTS = [[0, 0], [-4.2, 3.1], [-4.4, -3], [-8.5, 6.3], [-8.8, -5.9]]
   const BIRD = scale * 0.85
   const wing = (bird: number, beat: number) => `life-bird-${bird}-${beat}`
-  for (let bird = 0; bird < SLOTS.length; bird++) for (let beat = 0; beat < 3; beat++) add(`bird-${bird}`, middle, `life-gull-${bird}-${beat}`, BIRD, wing(bird, beat))
+  // No birds fly with reduced motion, so none are added.
+  if (!calm) for (let bird = 0; bird < SLOTS.length; bird++) for (let beat = 0; beat < 3; beat++) add(`bird-${bird}`, middle, `life-gull-${bird}-${beat}`, BIRD, wing(bird, beat))
   // Each pass comes in from out of view, curves across the land and leaves; then, after a pause,
   // another comes from somewhere else, three to five birds at a time. Distances in metres from the
   // middle of the land. Now and then the last bird falls behind and has to hurry to catch up.
@@ -200,7 +198,12 @@ export function addLife(stage: Scenery, calm: boolean): Life {
     return 13 * drift * drift * (3 - 2 * drift) * (1 - back)
   }
   let pass: Pass | undefined
-  let flockShown = false
+  /** The wing position each bird is showing, or -1 while it waits below the land. */
+  const posed = SLOTS.map(() => -1)
+  const park = (bird: number) => {
+    if (posed[bird] >= 0) move(wing(bird, posed[bird]), 0, 0, -1e6, 0)
+    posed[bird] = -1
+  }
 
   // A canoe on the largest stretch of open water, if there is room to paddle.
   const lakes = scene.solids.filter((x) => x.color === COLORS.water).sort((a, b) => ringArea(b.polygon[0]) - ringArea(a.polygon[0]))
@@ -256,14 +259,21 @@ export function addLife(stage: Scenery, calm: boolean): Life {
   let flying = false
   const tilt = (deg: number) =>
     ['match', ['get', 'rot'], ...[1, 2, 3, 4, 5, 6, 7].flatMap((k) => [k, ['literal', [k % 2 ? deg : -deg * 0.7, k % 3 ? 0 : deg * 0.5, k * 45]]]), ['literal', [-deg * 0.7, deg * 0.5, 0]]] as ExpressionSpecification
+  const treeLayers = Array.from({ length: TREE_TIERS }, (_, tier) => [`trees-${tier}`, `trees-faded-${tier}`]).flat()
+  // The lean is eased a little by the map itself, which takes the edge off it. (Nothing else on
+  // the cover map is eased: see its style in lib/forestCover.)
+  const easeLean = (ms: number) => {
+    for (const id of treeLayers) map.setPaintProperty(id, 'model-rotation-transition' as never, { duration: ms, delay: 0 } as never)
+  }
+  if (!calm) easeLean(300)
   const leanTrees = (deg: number) => {
     if (Math.abs(deg - leaning) < 0.04) return
     leaning = deg
-    for (let tier = 0; tier < TREE_TIERS; tier++) for (const id of [`trees-${tier}`, `trees-faded-${tier}`]) map.setPaintProperty(id, 'model-rotation', tilt(deg))
+    for (const id of treeLayers) map.setPaintProperty(id, 'model-rotation', tilt(deg))
   }
 
   // Until the first flock sets out, every bird waits below the land.
-  for (let bird = 0; bird < SLOTS.length; bird++) for (let k = 0; k < 3; k++) move(wing(bird, k), 0, 0, -1e6, 0)
+  if (!calm) for (let bird = 0; bird < SLOTS.length; bird++) for (let k = 0; k < 3; k++) move(wing(bird, k), 0, 0, -1e6, 0)
 
   return {
     startle: () => (startled = 1),
@@ -294,6 +304,10 @@ export function addLife(stage: Scenery, calm: boolean): Life {
         const heading = (-course * 180) / Math.PI
         const [fx, fy] = [Math.cos(course), Math.sin(course)]
         for (let bird = 0; bird < SLOTS.length; bird++) {
+          if (bird >= pass.birds) {
+            park(bird)
+            continue
+          }
           const last = bird === pass.birds - 1
           const behind = pass.straggler && last ? lag(t) : 0
           // The straggler beats its wings twice as fast while it is making up ground.
@@ -302,22 +316,21 @@ export function addLife(stage: Scenery, calm: boolean): Life {
           const right = SLOTS[bird][1] * BIRD
           const up = pass.up + Math.sin(now / 700 + bird) * scale * 0.8 + startled * scale * 6
           const beat = BEATS[Math.floor(now / ((hurry ? 80 : 170) - 60 * startled) + pass.phase[bird]) % BEATS.length]
-          // One wing position shows at a time; the others wait far below the land. (Hiding a layer
-          // and showing it again takes the map a moment, too long for a wingbeat.)
-          for (let k = 0; k < 3; k++) {
-            const here = bird < pass.birds && k === beat
-            move(wing(bird, k), at(0) + fx * ahead + fy * right, at(1) + fy * ahead - fx * right, here ? up : -1e6, heading)
-            if (here) map.setPaintProperty(wing(bird, k), 'model-opacity', fade)
-          }
+          // One wing position shows at a time; the one before it goes back below the land. (Hiding
+          // a layer and showing it again takes the map a moment, too long for a wingbeat.) Only
+          // the layer on show is moved: every change redraws the scene.
+          if (posed[bird] !== beat) park(bird)
+          posed[bird] = beat
+          move(wing(bird, beat), at(0) + fx * ahead + fy * right, at(1) + fy * ahead - fx * right, up, heading)
+          map.setPaintProperty(wing(bird, beat), 'model-opacity', fade)
         }
-        flockShown = true
-      } else if (flockShown) {
+      } else {
         // Between passes every bird waits below the land.
-        flockShown = false
-        for (let bird = 0; bird < SLOTS.length; bird++) for (let k = 0; k < 3; k++) move(wing(bird, k), 0, 0, -1e6, 0)
+        for (let bird = 0; bird < SLOTS.length; bird++) park(bird)
       }
     },
     remove() {
+      easeLean(0)
       leanTrees(0)
       for (const id of layers) if (map.getLayer(id)) map.removeLayer(id)
       for (const id of sources) if (map.getSource(id)) map.removeSource(id)

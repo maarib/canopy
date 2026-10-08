@@ -90,7 +90,10 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **How.**
 - `src/lib/forestCover.ts` splits drawing a cover into setting the scene up and taking its picture. `stageCover` sets a scene up and holds the one cover map until released, so no still is drawn on it meanwhile.
 - `src/lib/liveCover.ts` (new) lays the map over the still and handles turning, the lean and when to sleep. `src/lib/coverLife.ts` (new) builds the gull, canoe and deer models and moves them. Both load only when a cover goes live (about 9 kB).
-- `src/components/ForestCover.tsx` draws the tilt-shift bands and decides when a cover has been reached for.
+- `src/components/ForestCover.tsx` draws the tilt-shift bands; `src/components/useLiveCover.ts` (new) decides when a cover has been reached for and brings it to life.
+- A page that has just drawn its own still leaves that scene on the cover map, so going live reuses it and does not build it again (about 0.45 s to live in a test, down from 0.8 to 1.3 s).
+- The cover map applies changes at once. With Mapbox's usual 300 ms easing it kept redrawing for that long after each change; without it, drawing twelve waterfall stills took 7 s where it took 30 s, and the images are identical pixel for pixel.
+- Between flocks only the canoe moves, so the scene is updated ten times a second, not sixty. On a lake cover that cut drawing by about 15% over a 24-second sample.
 - A live Mapbox map must show Mapbox's logo, so it appears in the cover's corner while the cover is live, over the tilt-shift so it stays sharp.
 - The cover's credit is now two pills, © Mapbox and © OpenStreetMap, at the cover's bottom right, where it was one pill in the middle. The logo sits at the bottom left, its middle level with the pills'.
 
