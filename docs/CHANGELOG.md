@@ -8,10 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Covers that turn, with tilt-shift and a little wildlife ([#125](https://github.com/maarib/canopy/pull/125)) |
-| Unreleased | | Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island ([#123](https://github.com/maarib/canopy/pull/123)) |
-| Unreleased | | Trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)) |
-| Unreleased | | Color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
+| [v1.5](https://github.com/maarib/canopy/releases/tag/v1.5.0) | 2026-10-08 | Covers that turn, with tilt-shift and a little wildlife ([#125](https://github.com/maarib/canopy/pull/125)); cover fixes for parks, waterfalls and streams ([#123](https://github.com/maarib/canopy/pull/123)); trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)); color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | 2026-10-04 | Explore as a map-first landing page; Places section; filter and sort menus; satellite at dawn by default; accessibility and load-size pass ([#115](https://github.com/maarib/canopy/pull/115)) |
 | [v1.2](https://github.com/maarib/canopy/releases/tag/v1.2.0) | 2026-10-04 | Three views, orange brand color and new logo ([#114](https://github.com/maarib/canopy/pull/114)); About and Data sources as separate pages ([#112](https://github.com/maarib/canopy/pull/112), [#113](https://github.com/maarib/canopy/pull/113)); island covers for places ([#111](https://github.com/maarib/canopy/pull/111)); icons for the nine missing activities ([#110](https://github.com/maarib/canopy/pull/110)) |
@@ -60,7 +57,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ---
 
-## Unreleased
+## v1.5
 
 ### 2026-10-08 · Covers that turn, with tilt-shift and a little wildlife
 
