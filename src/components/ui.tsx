@@ -332,13 +332,11 @@ export function InfoIcon({ className = 'size-5' }: { className?: string }) {
   )
 }
 
-/** Something that can be turned round by hand: an arrow circling a small block of land. */
+/** Something that can be turned round by hand: Material's "360" mark, an arrow looping about an upright axis. */
 export function TurnIcon({ className = 'size-5' }: { className?: string }) {
   return (
-    <svg {...OUTLINE} className={className}>
-      <path d="M12 5.5 15.5 7.5v4L12 13.5 8.5 11.5v-4L12 5.5ZM8.5 7.5 12 9.5l3.5-2M12 9.5v4" />
-      <path d="M5.5 12.5c-1 .7-1.5 1.5-1.5 2.3 0 2.2 3.6 4 8 4 3.9 0 7.1-1.4 7.9-3.2" />
-      <path d="M17.5 13.8l2.5 1.7-.7 2.9" />
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="M12 7C6.48 7 2 9.24 2 12c0 2.24 2.94 4.13 7 4.77V20l4-4-4-4v2.73c-3.15-.56-5-1.9-5-2.73 0-1.06 3.04-3 8-3s8 1.94 8 3c0 .73-1.46 1.89-4 2.53v2.05c3.53-.77 6-2.53 6-4.58 0-2.76-4.48-5-10-5z" />
     </svg>
   )
 }

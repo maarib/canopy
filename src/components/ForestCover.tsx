@@ -152,12 +152,13 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
       {url && TILT_SHIFT.map((band, i) => <div key={i} ref={i ? undefined : firstBand} aria-hidden="true" className="pointer-events-none absolute" style={band} />)}
       {/* Says the cover can be turned by hand. */}
       {canTurn && (
-        <span aria-hidden="true" className="pointer-events-none absolute top-1 right-0 flex size-7 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--ink-soft)]">
-          <TurnIcon className="size-4" />
+        <span aria-hidden="true" className="pointer-events-none absolute top-1 right-0 flex size-8 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--ink-soft)]">
+          <TurnIcon className="size-5" />
         </span>
       )}
-      {/* Credits at the right; a live cover has Mapbox's logo at the left (lib/liveCover). */}
-      <figcaption ref={credits} className="pointer-events-none absolute right-0 bottom-1 flex gap-1 text-[9px] whitespace-nowrap text-[var(--ink-soft)]">
+      {/* Credits at the right; a live cover has Mapbox's logo at the left (lib/liveCover). The row is
+          as tall as the logo, so the pills sit level with its middle. */}
+      <figcaption ref={credits} className="pointer-events-none absolute right-0 bottom-1 flex h-[23px] items-center gap-1 text-[9px] whitespace-nowrap text-[var(--ink-soft)]">
         <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5">© Mapbox</span>
         <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5">© OpenStreetMap</span>
       </figcaption>

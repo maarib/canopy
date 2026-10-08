@@ -151,7 +151,7 @@ export function addLife(stage: Scenery, calm: boolean): Life {
     map.addLayer({ id: layer, type: 'model', source: `life-${id}`, layout: { 'model-id': model }, paint: { 'model-scale': [k, k, k], 'model-cast-shadows': true, 'model-receive-shadows': true } })
     // Moved every frame: the map's usual 300 ms easing between values would leave each animal
     // trailing behind itself, and a wing position gone before it had arrived.
-    for (const name of ['model-translation-transition', 'model-rotation-transition', 'model-opacity-transition', 'model-scale-transition']) map.setPaintProperty(layer, name as never, { duration: 0, delay: 0 } as never)
+    for (const name of ['model-translation-transition', 'model-rotation-transition', 'model-opacity-transition']) map.setPaintProperty(layer, name as never, { duration: 0, delay: 0 } as never)
     layers.push(layer)
   }
   const move = (layer: string, east: number, north: number, up: number, heading: number) => {
@@ -211,27 +211,22 @@ export function addLife(stage: Scenery, calm: boolean): Life {
   const half = 5.2 * scale * CANOE
   const paddleM = open ? (open.room * DEG_M - half) * 0.6 : 0
   const canoe = open && scene.tiers.length === 1 && paddleM > half * 0.5 ? { r: paddleM, up: lake.top } : undefined
-  // The deer and the canoe are set down into the scene as it comes alive, one after the other:
-  // each drops in from a little above, growing from nothing, overshoots its size and settles.
-  type Arrival = { layer: string; k: number; at: number; place: (drop: number) => void; done?: boolean }
+  // The deer and the canoe fade into the scene as it comes alive, one after the other.
+  type Arrival = { layer: string; at: number; done?: boolean }
   const arrivals: Arrival[] = []
-  const ARRIVE_MS = 520
+  const ARRIVE_MS = 600
   const arrive = (a: Arrival, now: number) => {
     const u = Math.max(0, Math.min(1, (now - a.at) / ARRIVE_MS))
-    // Back-out easing: past full size at about two thirds of the way, then back to it.
-    const size = u ? a.k * (1 + 2.70158 * (u - 1) ** 3 + 1.70158 * (u - 1) ** 2) : a.k * 0.001
-    map.setPaintProperty(a.layer, 'model-scale', [size, size, size])
-    a.place((1 - u) ** 2 * 14 * scale)
+    map.setPaintProperty(a.layer, 'model-opacity', u * u * (3 - 2 * u))
     a.done = u >= 1
   }
 
-  let canoeDrop = 0
   const paddle = (t: number) => {
-    if (canoe) move('life-canoe', Math.cos(t) * canoe.r, Math.sin(t) * canoe.r * 0.7, canoe.up + 0.5 + canoeDrop, (-Math.atan2(Math.cos(t) * 0.7, -Math.sin(t)) * 180) / Math.PI)
+    if (canoe) move('life-canoe', Math.cos(t) * canoe.r, Math.sin(t) * canoe.r * 0.7, canoe.up + 0.5, (-Math.atan2(Math.cos(t) * 0.7, -Math.sin(t)) * 180) / Math.PI)
   }
   if (canoe) {
     add('canoe', open!.at, 'life-canoe', scale * CANOE)
-    arrivals.push({ layer: 'life-canoe', k: scale * CANOE, at: 480, place: (drop) => (canoeDrop = drop) })
+    arrivals.push({ layer: 'life-canoe', at: 500 })
   }
   paddle(0)
 
@@ -248,10 +243,8 @@ export function addLife(stage: Scenery, calm: boolean): Life {
   if (gap) {
     add('deer', gap.at, 'life-deer', scale)
     // Side-on to the middle of the land.
-    const facing = (Math.atan2(gap.at[1] - middle[1], gap.at[0] - middle[0]) * 180) / Math.PI + 90
-    const stand = (drop: number) => move('life-deer', 0, 0, scene.tiers[0] + drop, facing)
-    stand(0)
-    arrivals.push({ layer: 'life-deer', k: scale, at: 220, place: stand })
+    move('life-deer', 0, 0, scene.tiers[0], (Math.atan2(gap.at[1] - middle[1], gap.at[0] - middle[0]) * 180) / Math.PI + 90)
+    arrivals.push({ layer: 'life-deer', at: 200 })
   }
   // With reduced motion they are simply there.
   if (!calm) for (const a of arrivals) arrive(a, 0)

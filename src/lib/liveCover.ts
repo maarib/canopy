@@ -36,7 +36,14 @@ export function liveCover(figure: HTMLElement, above: Element | null, credits: E
   // A live Mapbox map carries Mapbox's logo. It is moved out of the map into the corner of the
   // frame, over the tilt-shift, so it stays sharp; it goes back with the map.
   const logo = box.querySelector<HTMLElement>('.mapboxgl-ctrl-bottom-left')
-  if (logo) figure.insertBefore(logo, credits)
+  const mark = logo?.firstElementChild as HTMLElement | null | undefined
+  if (logo) {
+    // Without the map's margin, and moved so its middle is level with the middle of the credits.
+    if (mark) mark.style.margin = '0'
+    figure.insertBefore(logo, credits)
+    const [m, c] = [(logo.querySelector('.mapboxgl-ctrl-logo') ?? logo).getBoundingClientRect(), credits?.getBoundingClientRect()]
+    if (c) logo.style.bottom = `${m.top + m.height / 2 - (c.top + c.height / 2)}px`
+  }
 
   // Exactly over the still: the same margin all round, scaled to the page's width.
   const fit = () => {
@@ -63,9 +70,8 @@ export function liveCover(figure: HTMLElement, above: Element | null, credits: E
   }
 
   const life = addLife(stage, calm)
-  // Trees lean against the turn, then swing back past upright and come to rest. They start with a
-  // shiver, as the scene comes alive.
-  const spring = { lean: 0, speed: calm ? 0 : 2 }
+  // Trees lean against the turn, then swing back past upright and come to rest.
+  const spring = { lean: 0, speed: 0 }
   /** A turn still playing out after the hand has left: coasting, an arrow key's step, the way home. */
   let glide: ((dt: number) => boolean) | undefined
   let seen = true
@@ -172,7 +178,11 @@ export function liveCover(figure: HTMLElement, above: Element | null, credits: E
       watching.disconnect()
       for (const [type, fn] of listeners) box.removeEventListener(type, fn as EventListener)
       life.remove()
-      if (logo) box.append(logo)
+      if (logo) {
+        logo.style.bottom = ''
+        if (mark) mark.style.margin = ''
+        box.append(logo)
+      }
       stage.release()
     },
   }
