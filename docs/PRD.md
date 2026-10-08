@@ -164,7 +164,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | MAP-3 | Tree-type filter | P0 | ✅ |
 | MAP-4 | Layers sheet with map-type thumbnails + overlays (satellite, terrain, trails, weather, smoke) | P1 | 🟡 Layers menu with eight map styles as thumbnails, light presets, satellite imagery by date, 3D terrain, trails and fishing access (#108); weather and smoke overlays not yet |
 | MAP-5 | **Season timeline scrubber** (history → today → forecast), animated playback | P0 | ⬜ |
-| MAP-6 | Unified **color status surface**: a continuous % color / % fallen field from blended sources, with confidence | P0 | ⬜ |
+| MAP-6 | Unified **color status surface**: a continuous % color / % fallen field from blended sources, with confidence | P0 | 🟡 Color outlook layer across Ontario, blended from the official park reports and labelled with what each cell is based on (#121); sightings, satellite history and forecast as inputs, % fallen and other provinces not yet |
 | MAP-7 | "Near me" locate button and first-load centring on the user's region (with permission) | P0 | ⬜ |
 | MAP-8 | Search places (parks, towns, trails) with autocomplete | P0 | ✅ #77, #80 |
 | MAP-9 | Map performance: 60 fps pan on mid-range phones; vector data in PMTiles for national layers | P1 | 🟡 Performance passes #81, #105; PMTiles not started |
@@ -205,7 +205,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 ### 9.5 Trees and species
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| TREE-1 | Tree type pages (colors, timing, ID tips, photos, where turning now) | P1 | ⬜ |
+| TREE-1 | Tree type pages (colors, timing, ID tips, photos, where turning now) | P1 | ✅ A page for each of the 13 tree groups, listed in the Foliage page's Trees tab (#122) |
 | TREE-2 | "What tree is this?" helper linking to iNat ID | P2 | ⬜ |
 | TREE-3 | Species mix per region ("Mostly sugar maple + yellow birch") | P1 | ⬜ |
 
