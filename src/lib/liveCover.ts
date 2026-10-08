@@ -63,8 +63,9 @@ export function liveCover(figure: HTMLElement, above: Element | null, credits: E
   }
 
   const life = addLife(stage, calm)
-  // Trees lean against the turn, then swing back past upright and come to rest.
-  const spring = { lean: 0, speed: 0 }
+  // Trees lean against the turn, then swing back past upright and come to rest. They start with a
+  // shiver, as the scene comes alive.
+  const spring = { lean: 0, speed: calm ? 0 : 2 }
   /** A turn still playing out after the hand has left: coasting, an arrow key's step, the way home. */
   let glide: ((dt: number) => boolean) | undefined
   let seen = true

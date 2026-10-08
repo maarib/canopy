@@ -72,17 +72,19 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - **Tilt-shift:** the far and near edges of every cover are softly out of focus (3 px at the edge, fading toward the middle), on the still and on the live scene. Thumbnails in lists are unchanged.
 - **Covers turn.** Reaching for a cover (the mouse resting on it for a quarter of a second, a tap, a sideways drag, or an arrow key) swaps the still for the scene it was taken from, at the same angle and size:
   - drag sideways to turn it, and it coasts when let go; double-click or Home turns it back; the left and right arrow keys turn it 20° at a time;
-  - trees standing in front of a trail, stream or deck are worked out again for every angle.
+  - trees standing in front of a trail, stream or deck are worked out again for every angle;
+  - a small icon in the cover's top right corner (a block of land with an arrow circling it) says it can be turned.
 - **Trees respond:** they lean against the turn and swing back to rest; a tap makes them shiver.
 - **Wildlife:**
   - three to five white gulls cross overhead, each pass from a different side, with a few seconds between passes. About four passes in ten, the last bird falls behind, then beats its wings twice as fast to catch up;
   - a canoe paddles a slow loop where a lake or river has open water with room for it (not on a waterfall's pool);
   - a deer stands in the widest gap between the trees, which on a trail is usually beside the path;
+  - as a cover comes alive the trees shiver, then the deer and the canoe are set down into the scene one after the other: each drops in from a little above, growing from nothing, overshoots its size and settles;
   - a tap hurries the birds along.
 - **Kept light:**
   - nothing 3D is loaded or run until someone reaches for a cover; vertical scrolling over a cover on a phone does not count;
   - the animation stops while the cover is out of view, and about 30 seconds after it was last touched (a flock in the air finishes its pass first);
-  - with reduced motion set, there are no birds, lean or coasting, and the canoe and deer stay still;
+  - with reduced motion set, there are no birds, lean or coasting, and the canoe and deer are simply there and stay still;
   - devices reporting 2 GB of memory or less keep the still.
 
 **How.**
@@ -90,7 +92,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - `src/lib/liveCover.ts` (new) lays the map over the still and handles turning, the lean and when to sleep. `src/lib/coverLife.ts` (new) builds the gull, canoe and deer models and moves them. Both load only when a cover goes live (about 9 kB).
 - `src/components/ForestCover.tsx` draws the tilt-shift bands and decides when a cover has been reached for.
 - A live Mapbox map must show Mapbox's logo, so it appears in the cover's corner while the cover is live, over the tilt-shift so it stays sharp.
-- The cover's credit is now two pills side by side, © Mapbox and © OpenStreetMap, where it was one.
+- The cover's credit is now two pills, © Mapbox and © OpenStreetMap, at the cover's bottom right, where it was one pill in the middle. The logo sits at the bottom left.
 
 **Why.** The covers were already 3D scenes that nobody could touch. Turning one is a small delight that costs nothing until someone asks for it.
 

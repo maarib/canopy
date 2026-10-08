@@ -6,6 +6,7 @@ import { COVER_BLEED, COVER_SIZE } from '../lib/coverFrame'
 import type { LiveCover } from '../lib/liveCover'
 import { fetchOntarioParks } from '../lib/ontarioParks'
 import { MAPBOX_TOKEN } from '../lib/mapStyle'
+import { TurnIcon } from './ui'
 import { fetchParkBoundary } from '../lib/parkBoundaries'
 
 /**
@@ -149,7 +150,14 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
       {/* Tilt-shift: the far and near edges go soft, like a photo of a miniature. The near bands stop
           at the frame's foot, so the page's text below stays sharp. The live scene goes under these. */}
       {url && TILT_SHIFT.map((band, i) => <div key={i} ref={i ? undefined : firstBand} aria-hidden="true" className="pointer-events-none absolute" style={band} />)}
-      <figcaption ref={credits} className="pointer-events-none absolute bottom-1 left-1/2 flex -translate-x-1/2 gap-1 text-[9px] whitespace-nowrap text-[var(--ink-soft)]">
+      {/* Says the cover can be turned by hand. */}
+      {canTurn && (
+        <span aria-hidden="true" className="pointer-events-none absolute top-1 right-0 flex size-7 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--ink-soft)]">
+          <TurnIcon className="size-4" />
+        </span>
+      )}
+      {/* Credits at the right; a live cover has Mapbox's logo at the left (lib/liveCover). */}
+      <figcaption ref={credits} className="pointer-events-none absolute right-0 bottom-1 flex gap-1 text-[9px] whitespace-nowrap text-[var(--ink-soft)]">
         <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5">© Mapbox</span>
         <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5">© OpenStreetMap</span>
       </figcaption>

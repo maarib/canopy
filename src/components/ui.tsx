@@ -332,6 +332,17 @@ export function InfoIcon({ className = 'size-5' }: { className?: string }) {
   )
 }
 
+/** Something that can be turned round by hand: an arrow circling a small block of land. */
+export function TurnIcon({ className = 'size-5' }: { className?: string }) {
+  return (
+    <svg {...OUTLINE} className={className}>
+      <path d="M12 5.5 15.5 7.5v4L12 13.5 8.5 11.5v-4L12 5.5ZM8.5 7.5 12 9.5l3.5-2M12 9.5v4" />
+      <path d="M5.5 12.5c-1 .7-1.5 1.5-1.5 2.3 0 2.2 3.6 4 8 4 3.9 0 7.1-1.4 7.9-3.2" />
+      <path d="M17.5 13.8l2.5 1.7-.7 2.9" />
+    </svg>
+  )
+}
+
 /** The three views: the map alone, the map with the panel, the panel alone. */
 export function ViewIcon({ view, className = 'size-5' }: { view: 'map' | 'split' | 'panel'; className?: string }) {
   return (
