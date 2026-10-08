@@ -168,7 +168,7 @@ docs/                  PRD, technical plan, Explore design, change log
 
 ## What's next
 
-The next releases (v1.5.1 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
+The next releases (v1.5.2 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
 
 ## Releases
 
@@ -176,6 +176,7 @@ Each release is a git tag and a [GitHub Release](https://github.com/maarib/canop
 
 | Version | What's in it |
 |---|---|
+| [v1.5.1](https://github.com/maarib/canopy/releases/tag/v1.5.1) | Mapbox's logo is no longer cut off on live covers |
 | [v1.5](https://github.com/maarib/canopy/releases/tag/v1.5.0) | Covers you can turn by hand, with tilt-shift, birds, a canoe and a deer; a color outlook layer across Ontario; trees on the Foliage page with a page for each; fixes to park, waterfall and stream covers |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | A floating panel on desktop, phones that keep the view you chose, a Show on map button, and fixes to menu positions and scrolling |
 | [v1.3](https://github.com/maarib/canopy/releases/tag/v1.3.0) | Explore as a map-first landing page, the Places section, menu-pill filters, satellite at dawn by default, an accessibility and load-size pass |
