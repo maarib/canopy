@@ -22,20 +22,21 @@ export type LiveCover = {
 }
 
 /**
- * Lays `stage` over the still in `figure` (before `above`, so the page's own overlays stay on top)
- * and lets it be turned. With `calm` (reduced motion) the land follows the hand and nothing else
- * moves. `onTurn` is called the first time it is turned.
+ * Lays `stage` over the still in `figure` and lets it be turned. The scene goes in before `above`
+ * (the first of the page's overlays, which stay on top of it) and Mapbox's logo before `credits`,
+ * over those overlays. With `calm` (reduced motion) the land follows the hand and nothing else
+ * moves.
  */
-export function liveCover(figure: HTMLElement, above: Element | null, stage: Staged, calm: boolean, onTurn: () => void): LiveCover {
+export function liveCover(figure: HTMLElement, above: Element | null, credits: Element | null, stage: Staged, calm: boolean): LiveCover {
   const { map } = stage
   const box = map.getContainer()
   Object.assign(box.style, { position: 'absolute', transformOrigin: '0 0', pointerEvents: 'auto', cursor: 'grab', touchAction: 'pan-y' })
   box.inert = false
-  // A live Mapbox map carries Mapbox's logo; it sits in the corner of the frame, not of the wider
-  // canvas the scene is drawn on.
-  const logo = box.querySelector<HTMLElement>('.mapboxgl-ctrl-bottom-left')
-  if (logo) Object.assign(logo.style, { left: `${COVER_BLEED}px`, bottom: `${COVER_BLEED}px` })
   figure.insertBefore(box, above)
+  // A live Mapbox map carries Mapbox's logo. It is moved out of the map into the corner of the
+  // frame, over the tilt-shift, so it stays sharp; it goes back with the map.
+  const logo = box.querySelector<HTMLElement>('.mapboxgl-ctrl-bottom-left')
+  if (logo) figure.insertBefore(logo, credits)
 
   // Exactly over the still: the same margin all round, scaled to the page's width.
   const fit = () => {
@@ -52,7 +53,6 @@ export function liveCover(figure: HTMLElement, above: Element | null, stage: Sta
   const [w, s, e, n] = bboxOf(stage.scene.land)
   const middle: [number, number] = [(w + e) / 2, (s + n) / 2]
   const pin = map.project(middle)
-  let turned = false
   const view = (bearing: number) => {
     map.jumpTo({ bearing })
     const at = map.project(middle)
@@ -60,10 +60,6 @@ export function liveCover(figure: HTMLElement, above: Element | null, stage: Sta
     map.jumpTo({ center: map.unproject([centre.x + at.x - pin.x, centre.y + at.y - pin.y]) })
     // Which trees stand in front of the trail or stream changes with the angle.
     showTrees(stage)
-    if (!turned && Math.abs(bearing - home.bearing) > 2) {
-      turned = true
-      onTurn()
-    }
   }
 
   const life = addLife(stage, calm)
@@ -175,7 +171,7 @@ export function liveCover(figure: HTMLElement, above: Element | null, stage: Sta
       watching.disconnect()
       for (const [type, fn] of listeners) box.removeEventListener(type, fn as EventListener)
       life.remove()
-      if (logo) Object.assign(logo.style, { left: '', bottom: '' })
+      if (logo) box.append(logo)
       stage.release()
     },
   }

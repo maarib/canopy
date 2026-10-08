@@ -72,8 +72,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - **Tilt-shift:** the far and near edges of every cover are softly out of focus (3 px at the edge, fading toward the middle), on the still and on the live scene. Thumbnails in lists are unchanged.
 - **Covers turn.** Reaching for a cover (the mouse resting on it for a quarter of a second, a tap, a sideways drag, or an arrow key) swaps the still for the scene it was taken from, at the same angle and size:
   - drag sideways to turn it, and it coasts when let go; double-click or Home turns it back; the left and right arrow keys turn it 20° at a time;
-  - trees standing in front of a trail, stream or deck are worked out again for every angle;
-  - a "Drag to turn" label sits in the cover's corner until a cover has been turned once on that device.
+  - trees standing in front of a trail, stream or deck are worked out again for every angle.
 - **Trees respond:** they lean against the turn and swing back to rest; a tap makes them shiver.
 - **Wildlife:**
   - three to five white gulls cross overhead, each pass from a different side, with a few seconds between passes. About four passes in ten, the last bird falls behind, then beats its wings twice as fast to catch up;
@@ -90,7 +89,8 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - `src/lib/forestCover.ts` splits drawing a cover into setting the scene up and taking its picture. `stageCover` sets a scene up and holds the one cover map until released, so no still is drawn on it meanwhile.
 - `src/lib/liveCover.ts` (new) lays the map over the still and handles turning, the lean and when to sleep. `src/lib/coverLife.ts` (new) builds the gull, canoe and deer models and moves them. Both load only when a cover goes live (about 9 kB).
 - `src/components/ForestCover.tsx` draws the tilt-shift bands and decides when a cover has been reached for.
-- A live Mapbox map must show Mapbox's logo, so it appears in the cover's corner while the cover is live.
+- A live Mapbox map must show Mapbox's logo, so it appears in the cover's corner while the cover is live, over the tilt-shift so it stays sharp.
+- The cover's credit is now two pills side by side, © Mapbox and © OpenStreetMap, where it was one.
 
 **Why.** The covers were already 3D scenes that nobody could touch. Turning one is a small delight that costs nothing until someone asks for it.
 

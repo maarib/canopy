@@ -29,11 +29,11 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
   const [drawn, setDrawn] = useState<{ key: string; url: string }>()
   const figure = useRef<HTMLElement>(null)
   const firstBand = useRef<HTMLDivElement>(null)
+  const credits = useRef<HTMLElement>(null)
   const scene = useRef<LiveCover>(null)
   /** The cover someone has reached for, by key; it goes live once its scene is ready. */
   const [wanted, setWanted] = useState<string>()
   const [live, setLive] = useState<string>()
-  const [turned, setTurned] = useState(hasTurned)
   const dwell = useRef(0)
   const press = useRef<{ x: number; t: number }>(null)
 
@@ -69,10 +69,7 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
       .then(async ([{ stageCover }, { liveCover }]) => {
         const stage = await stageCover(coverShape(spec, outlineData), foliage, abort.signal)
         if (abort.signal.aborted || !figure.current) return stage.release()
-        cover = scene.current = liveCover(figure.current, firstBand.current, stage, REDUCED_MOTION(), () => {
-          setTurned(true)
-          rememberTurned()
-        })
+        cover = scene.current = liveCover(figure.current, firstBand.current, credits.current, stage, REDUCED_MOTION())
         setLive(key)
       })
       .catch(() => {})
@@ -152,13 +149,9 @@ export function ForestCover({ spec, name }: { spec: CoverSpec; name: string }) {
       {/* Tilt-shift: the far and near edges go soft, like a photo of a miniature. The near bands stop
           at the frame's foot, so the page's text below stays sharp. The live scene goes under these. */}
       {url && TILT_SHIFT.map((band, i) => <div key={i} ref={i ? undefined : firstBand} aria-hidden="true" className="pointer-events-none absolute" style={band} />)}
-      {canTurn && !turned && (
-        <span aria-hidden="true" className="pointer-events-none absolute top-1 right-1 rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[11px] whitespace-nowrap text-[var(--ink-soft)]">
-          Drag to turn
-        </span>
-      )}
-      <figcaption className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[9px] whitespace-nowrap text-[var(--ink-soft)]">
-        © Mapbox © OpenStreetMap
+      <figcaption ref={credits} className="pointer-events-none absolute bottom-1 left-1/2 flex -translate-x-1/2 gap-1 text-[9px] whitespace-nowrap text-[var(--ink-soft)]">
+        <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5">© Mapbox</span>
+        <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5">© OpenStreetMap</span>
       </figcaption>
     </figure>
   )
@@ -194,23 +187,6 @@ const TURN_STEP = 20
 const REDUCED_MOTION = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 /** Live covers need the map, and are left out on devices with very little memory. */
 const CAN_GO_LIVE = !!MAPBOX_TOKEN && !((navigator as { deviceMemory?: number }).deviceMemory! <= 2)
-
-// The "Drag to turn" hint goes away for good once someone has turned a cover.
-const TURNED_KEY = 'canopy:cover-turned'
-function hasTurned() {
-  try {
-    return localStorage.getItem(TURNED_KEY) === '1'
-  } catch {
-    return false
-  }
-}
-function rememberTurned() {
-  try {
-    localStorage.setItem(TURNED_KEY, '1')
-  } catch {
-    // Private windows may refuse; the hint then returns next visit.
-  }
-}
 
 const pct = (n: number, of: number) => `${(n / of) * 100}%`
 const BLEED = {
