@@ -9,6 +9,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | Version | Date | What's in it |
 |---|---|---|
 | Unreleased | | Phone tab bar: icons only, gathered in the middle ([#133](https://github.com/maarib/canopy/pull/133)) |
+| Unreleased | | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)) |
 | [v1.5.1](https://github.com/maarib/canopy/releases/tag/v1.5.1) | 2026-10-08 | Mapbox logo no longer cut off on live covers ([#129](https://github.com/maarib/canopy/pull/129)) |
 | [v1.5](https://github.com/maarib/canopy/releases/tag/v1.5.0) | 2026-10-08 | Covers that turn, with tilt-shift and a little wildlife ([#125](https://github.com/maarib/canopy/pull/125)); cover fixes for parks, waterfalls and streams ([#123](https://github.com/maarib/canopy/pull/123)); trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)); color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
@@ -22,6 +23,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | Date | Change | Ref |
 |---|---|---|
 | 2026-10-09 | [Phone tab bar: icons only, gathered in the middle](#2026-10-09-phone-tab-bar-icons-only-gathered-in-the-middle) | [#133](https://github.com/maarib/canopy/pull/133) |
+| 2026-10-09 | [Light, dark or match the device, from the account menu](#2026-10-09-light-dark-or-match-the-device-from-the-account-menu) | [#132](https://github.com/maarib/canopy/pull/132) |
 | 2026-10-08 | [Mapbox logo no longer cut off on live covers](#2026-10-08-mapbox-logo-no-longer-cut-off-on-live-covers) | [#129](https://github.com/maarib/canopy/pull/129) |
 | 2026-10-08 | [Covers that turn, with tilt-shift and a little wildlife](#2026-10-08-covers-that-turn-with-tilt-shift-and-a-little-wildlife) | [#125](https://github.com/maarib/canopy/pull/125) |
 | 2026-10-08 | [Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island](#2026-10-08-cover-fixes-rounded-park-outlines-waterfalls-that-face-you-streams-that-cross-the-island) | [#123](https://github.com/maarib/canopy/pull/123) |
@@ -76,6 +78,25 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - The bar is the same height, and the desktop rail is unchanged.
 
 **How.** `TabBar` in `src/components/AppNav.tsx`.
+### 2026-10-09 · Light, dark or match the device, from the account menu
+
+**Ref:** [#132](https://github.com/maarib/canopy/pull/132)
+
+**Before.** Canopy was light or dark according to the device's setting, with no way to choose.
+
+**After.**
+- The account menu has a **Theme** row with a three-way switch: light, dark, or match the device. It uses the same switch as the header's views.
+- The choice is kept on the device and applied before the page first paints, so a chosen theme never flashes the other one on load.
+- With "match the device" (the default) the app still follows the device, including when the device changes while the app is open.
+- The map follows the theme in force where it used to follow the device: the Auto light setting, hillshade, and trail colors and labels.
+
+**How.**
+- `src/lib/theme.ts` (new) holds the setting, saves it and sets `data-theme` on the page's root; a short script in `index.html` sets it before the app loads.
+- `src/index.css` keys the dark colors and Tailwind's `dark:` classes off `data-theme`, and still follows the device on a page where nothing has set a theme.
+- `src/components/AccountMenu.tsx` has the row; `ThemeIcon` in `ui.tsx` draws the sun, moon and half-filled circle.
+- `usePrefersDark` is replaced by `useDark` from `theme.ts`.
+
+**Why.** A device's setting is not always what someone wants for this app, and there was no way to choose.
 
 ## v1.5.1
 
