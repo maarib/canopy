@@ -123,8 +123,8 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 - **Palette:** brand orange `#f2600c` (buttons, links, selection, focus), with pumpkin `#e8730c`, birch `#e9b824`, spruce `#2f5d3a`, bark `#3b2f2a` and mist `#f6f1ea`. Red `#c8102e` is kept for data: the peak stage, hard trails, dense sightings and park boundaries. The stage scale runs green → gold → orange → red → brown and is always paired with a label; colour-blind validation is still to do. Stage and difficulty badges pick white or dark text by contrast with their fill.
 - **Type:** **Londrina Solid** for display titles and headings (400; 900 for the wordmark) and **Livvic** for everything else: body, labels, captions (400–700).
 - **Icons:** [Relume icons](https://www.npmjs.com/package/relume-icons) (MIT, rounded outline style, tree-shaken) for UI controls and actions. Weather keeps its emoji. The logo is a plain one-color maple leaf, also used for Foliage in the navigation. The package has 60 icons and no outdoor/POI set, so place icons (waterfall, lookout, trailhead…) and a few interface icons (info, views, map pin) are custom (D-05). Activity icons are Icons8 *Windows 11 Color*.
-- **Covers:** every place has a low-poly island cover: its real outline as a floating piece of land with trees in today's colors, and its own landform for waterfalls, lookouts, peaks, lakes, rivers and creeks.
-- **Controls:** filters and sorts are menu pills (a pill that opens a menu and shows the current choice). Detail pages lead with Get Directions, Save and Share; other links sit in one compact row under a divider.
+- **Covers:** every place has a low-poly island cover: its real outline as a floating piece of land with trees in today's colors, and its own landform for waterfalls, lookouts, peaks, lakes, rivers and creeks. A cover can be turned by hand.
+- **Controls:** filters and sorts are menu pills (a pill that opens a menu and shows the current choice). Detail pages lead with Get Directions, Save and Share; other links sit in one compact row under a divider. Button labels are in title case; menu items, tabs, filter pills and text links are in sentence case.
 - **Motion:** sheet springs, fly-to camera moves, and a falling-leaf micro-animation reserved for "peak" moments only.
 - **Tone:** warm, local, precise. "Algonquin is at peak, about 90% color. Go before Friday's wind."
 
@@ -132,7 +132,7 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 
 ## 8. Information architecture
 
-**Shipped (v1.5.1).** Five sections: `Explore` · `Parks` · `Places` · `Foliage` · `Trips`, as a bottom tab bar on phones and a slim rail on desktop. The map stays alongside every section (on desktop the panel floats over it as a card), and a view switch in the header chooses the map alone, the map with the panel, or the panel alone. Explore is the landing page: the map with a search card and quick links over it. About, Data sources and feedback are in the account menu and the footer.
+**Shipped (v1.5.1).** Five sections: `Explore` · `Parks` · `Places` · `Foliage` · `Trips`, as a bottom tab bar of icons on phones and a slim rail on desktop. The map stays alongside every section (on desktop the panel floats over it as a card), and a view switch in the header chooses the map alone, the map with the panel, or the panel alone. Explore is the landing page: the map with a search card and quick links over it. About, Data sources and feedback are in the account menu and the footer; the account menu also has the theme switch (light, dark, or match the device).
 
 **Planned.** `Report` (a centre action on phones) and `Me` arrive with community reports and accounts (M5). The screens below are the full plan; region, park, trail, place and trips pages exist today.
 
