@@ -4,7 +4,7 @@
 |---|---|
 | **Product** | Canopy: fall colors across Canada (responsive web app / PWA) |
 | **Owner** | @maarib |
-| **Status** | v1.5.1 · updated 2026-10-08 |
+| **Status** | v1.5.2 · updated 2026-10-09 |
 | **Related** | [Technical plan](PLAN.md) · [Explore Ontario](EXPLORE.md) · [Change log](CHANGELOG.md) · [Issues](https://github.com/maarib/canopy/issues) · [Project board](https://github.com/users/maarib/projects/2) |
 
 ---
@@ -15,7 +15,7 @@ Every fall, millions of Canadians and visitors try to answer the same three ques
 
 Canopy is one map-first app that answers all three for all of Canada. It covers every tree type, every park and the trails, with live conditions, forecasts and a trip plan you can take with you.
 
-**What exists today (v1.5.1, 2026-10-08):** a map-first landing page (search and quick links over a flat satellite map at dawn); three views (map, map with panel, panel) switched from the header; Ontario Parks official reports refreshed daily; iNaturalist color sightings with a tree-type filter; a color outlook layer across Ontario; a page for each of 13 tree groups; sections for Parks (region, activity and sort menus), Places (trails, waterfalls, lookouts, lakes, peaks, rivers, creeks), Foliage and Trips; region, park, trail, place and fishing pages, each with an island cover drawn from the place's real shape in today's colors, which can be turned by hand; boundaries, activities and facilities for Ontario's provincial parks; Algonquin trails with plotted tracks, elevation profiles and the stops along them; trips planned by day with Google Maps, GPX, calendar and share links; search; shareable links. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
+**What exists today (v1.5.2, 2026-10-09):** a map-first landing page (search and quick links over a flat satellite map at dawn); three views (map, map with panel, panel) switched from the header; Ontario Parks official reports refreshed daily; iNaturalist color sightings with a tree-type filter; a color outlook layer across Ontario; a page for each of 13 tree groups; sections for Parks (region, activity and sort menus), Places (trails, waterfalls, lookouts, lakes, peaks, rivers, creeks), Foliage and Trips; region, park, trail, place and fishing pages, each with an island cover drawn from the place's real shape in today's colors, which can be turned by hand; boundaries, activities and facilities for Ontario's provincial parks; Algonquin trails with plotted tracks, elevation profiles and the stops along them; trips planned by day with Google Maps, GPX, calendar and share links; search; shareable links. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
 
 ---
 
@@ -132,7 +132,7 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 
 ## 8. Information architecture
 
-**Shipped (v1.5.1).** Five sections: `Explore` · `Parks` · `Places` · `Foliage` · `Trips`, as a bottom tab bar of icons on phones and a slim rail on desktop. The map stays alongside every section (on desktop the panel floats over it as a card), and a view switch in the header chooses the map alone, the map with the panel, or the panel alone. Explore is the landing page: the map with a search card and quick links over it. About, Data sources and feedback are in the account menu and the footer; the account menu also has the theme switch (light, dark, or match the device).
+**Shipped (v1.5.2).** Five sections: `Explore` · `Parks` · `Places` · `Foliage` · `Trips`, as a bottom tab bar of icons on phones and a slim rail on desktop. The map stays alongside every section (on desktop the panel floats over it as a card), and a view switch in the header chooses the map alone, the map with the panel, or the panel alone. Explore is the landing page: the map with a search card and quick links over it. About, Data sources and feedback are in the account menu and the footer; the account menu also has the theme switch (light, dark, or match the device).
 
 **Planned.** `Report` (a centre action on phones) and `Me` arrive with community reports and accounts (M5). The screens below are the full plan; region, park, trail, place and trips pages exist today.
 
@@ -290,8 +290,9 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | v1.4 | 2026-10-04 | Floating panel on desktop, phones keep the chosen view, Show on map, menu and scroll fixes |
 | v1.5 | 2026-10-08 | Covers that turn, with tilt-shift and wildlife; color outlook layer; tree pages; cover fixes |
 | v1.5.1 | 2026-10-08 | Mapbox logo no longer cut off on live covers |
+| v1.5.2 | 2026-10-09 | Theme switch, icon-only tab bar on phones, buttons in title case, stacked Trips form on phones |
 
-**Next up (from v1.5.2).** Releases now go up by the last number: v1.5.1, v1.5.2 and so on. The issues labelled [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext), in order:
+**Next up (from v1.5.3).** Releases now go up by the last number: v1.5.1, v1.5.2 and so on. The issues labelled [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext), in order:
 
 1. **More of Ontario to explore** ([#85](https://github.com/maarib/canopy/issues/85)): trails and places beyond Algonquin's Highway 60 corridor (Killarney, Bon Echo, Frontenac, Bruce Peninsula…).
 2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)): all 347, not only the ones with fall color reports. Boundaries, activities and facilities are already built for them.
