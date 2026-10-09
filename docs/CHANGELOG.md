@@ -73,7 +73,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 **Before.** Every cover drawn in the browser (one with no pre-drawn image) was kept in memory for the rest of the visit and never released.
 
-**After.** The twelve most recently shown are kept. Past that, the one shown longest ago is released; going back to its page draws it again. A still is about 40 kB, so this is a small saving that only shows on long visits.
+**After.** The twelve most recently shown are kept. Past that, the one shown longest ago is released; going back to its page draws it again. A still is about 50 kB, so this is a small saving that only shows on long visits.
 
 **How.** `forestCover()` in `src/lib/forestCover.ts` keeps its stills in order of last use and revokes the oldest one's image URL.
 

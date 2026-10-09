@@ -372,7 +372,7 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
 const done = new Map<string, Promise<string>>()
 /**
  * How many stills are kept. Past this, the one shown longest ago is let go and its image freed;
- * going back to its page draws it again. A still is about 40 kB, and a page shows one at a time.
+ * going back to its page draws it again. A still is about 50 kB, and a page shows one at a time.
  */
 const KEEP_STILLS = 12
 let queue: Promise<unknown> = Promise.resolve()
