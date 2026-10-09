@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Buttons in title case; Trips form stacks on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
 | Unreleased | | Phone tab bar: icons only, gathered in the middle ([#133](https://github.com/maarib/canopy/pull/133)) |
 | Unreleased | | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)) |
 | [v1.5.1](https://github.com/maarib/canopy/releases/tag/v1.5.1) | 2026-10-08 | Mapbox logo no longer cut off on live covers ([#129](https://github.com/maarib/canopy/pull/129)) |
@@ -22,6 +23,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-09 | [Buttons in title case; Trips form stacks on phones](#2026-10-09-buttons-in-title-case-trips-form-stacks-on-phones) | [#134](https://github.com/maarib/canopy/pull/134) |
 | 2026-10-09 | [Phone tab bar: icons only, gathered in the middle](#2026-10-09-phone-tab-bar-icons-only-gathered-in-the-middle) | [#133](https://github.com/maarib/canopy/pull/133) |
 | 2026-10-09 | [Light, dark or match the device, from the account menu](#2026-10-09-light-dark-or-match-the-device-from-the-account-menu) | [#132](https://github.com/maarib/canopy/pull/132) |
 | 2026-10-08 | [Mapbox logo no longer cut off on live covers](#2026-10-08-mapbox-logo-no-longer-cut-off-on-live-covers) | [#129](https://github.com/maarib/canopy/pull/129) |
@@ -65,6 +67,20 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ## Unreleased
 
+### 2026-10-09 · Buttons in title case; Trips form stacks on phones
+
+**Ref:** [#134](https://github.com/maarib/canopy/pull/134)
+
+**Before.**
+- Button labels were in sentence case: "Get directions", "Create trip".
+- On phones, the Trips page squeezed the new-trip field and the Create trip button onto one line.
+
+**After.**
+- **Buttons are in title case:** Get Directions, Show on Map, Create Trip, Save to My Trips, Add to Calendar, Delete Trip, Share Trip, Link Copied, Try Again, Show Fewer and Show 5 More.
+- **Trips on phones:** the new-trip field sits above a full-width Create Trip button. From tablet width up they stay side by side.
+- Unchanged, still in sentence case: menu items, tabs, filter pills and their options, the Explore quick links, and text links such as "Reserve a site" and "All reports".
+
+**How.** Label text in the page components, `ui.tsx` and `TripPanels.tsx`; the form in `TripPanels.tsx` stacks below the `md` breakpoint.
 ### 2026-10-09 · Phone tab bar: icons only, gathered in the middle
 
 **Ref:** [#133](https://github.com/maarib/canopy/pull/133)

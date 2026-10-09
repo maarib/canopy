@@ -46,7 +46,7 @@ function Rows({ items, limit }: { items: Amenity[]; limit?: number }) {
           onClick={() => setAll(!all)}
           className="mt-1 rounded-full px-3 py-1.5 text-sm font-medium text-brand transition-colors hover:bg-brand/10"
         >
-          {all ? 'Show fewer' : `Show ${hidden} more`}
+          {all ? 'Show Fewer' : `Show ${hidden} More`}
         </button>
       )}
     </>

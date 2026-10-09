@@ -12,7 +12,7 @@ function scrollParent(el: HTMLElement | null): HTMLElement | null {
 
 /**
  * Set while a place's page covers the map (the full panel on phones): calling it brings the map
- * back with the place on it. The detail page's top bar shows a "Show on map" button for it.
+ * back with the place on it. The detail page's top bar shows a "Show on Map" button for it.
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export const ShowOnMap = createContext<(() => void) | null>(null)
@@ -73,7 +73,7 @@ export function BackButton({ onClick }: { onClick: () => void }) {
           className="flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 text-sm font-medium shadow-sm transition-[background-color,transform] hover:bg-[var(--surface-2)] active:scale-95"
         >
           <ViewIcon view="map" className="size-4" />
-          Show on map
+          Show on Map
         </button>
       )}
     </div>
@@ -196,7 +196,7 @@ export function ShareButton({ title, url: shareUrl, label = 'Share' }: { title: 
       aria-live="polite"
     >
       {copied ? <Check className="size-4 text-spruce dark:text-[#a9cf8f]" /> : <Link className="size-4" />}
-      {copied ? 'Link copied' : label}
+      {copied ? 'Link Copied' : label}
     </button>
   )
 }

@@ -63,7 +63,7 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
 
       <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(trail.trailhead[1], trail.trailhead[0])} icon={<LocationOn className="size-4" />}>
-          Get directions
+          Get Directions
         </LinkButton>
         <SaveButton stopRef={`trail:${trail.id}`} name={trail.name} />
         <ShareButton title={`${trail.name} · Canopy`} />

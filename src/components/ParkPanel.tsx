@@ -41,7 +41,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
 
       <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(park.lat, park.lng)} icon={<LocationOn className="size-4" />}>
-          Get directions
+          Get Directions
         </LinkButton>
         <SaveButton stopRef={`park:${park.id}`} name={parkTitle(park)} />
         <ShareButton title={`${parkTitle(park)} fall colors · Canopy`} />
