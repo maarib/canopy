@@ -9,32 +9,40 @@ import { ActivityOptions } from './components/ActivityFilter'
 import { AccountMenu } from './components/AccountMenu'
 import { SideNav, TabBar, type Section } from './components/AppNav'
 import { TAB_BAR_HEIGHT } from './lib/styles'
-import { FoliagePanel } from './components/FoliagePanel'
-import { ExplorePanel } from './components/ExplorePanel'
 import { ExploreLanding, type ExploreQuery } from './components/ExploreSearch'
 import { LayerOptions, Legend, TreeOptions, type TreeFilterValue } from './components/MapControls'
 import { MapFilters } from './components/MapFilters'
-import { AboutPanel, DataSourcesPanel, ParksPanel, TrailsPanel } from './components/SectionPanels'
 import { PROVINCE_BY_CODE } from './data/provinces'
 import { DEFAULT_LAYERS } from './lib/urlState'
 import { PARK_FILTERS } from './data/amenityIcons'
 import { fetchParkFacilities, parkMatches } from './lib/parkFacilities'
-import { ParkPanel } from './components/ParkPanel'
-import { FishingPanel } from './components/FishingPanel'
-import { PlacePanel } from './components/PlacePanel'
 import { SiteFooter } from './components/SiteFooter'
 import { accessTitle, fetchFishingAccess, fishingIdFromSlug, fishingPath, type FishingAccess } from './lib/fishingAccess'
-import { TrailPanel } from './components/TrailPanel'
-import { TripPanel, TripsPanel, type StopInfo } from './components/TripPanels'
+import type { StopInfo } from './components/TripPanels'
 import { PlaceIcon } from './components/PlaceIcon'
 import { TreeIcon } from './components/TreeIcon'
-import { RegionPanel } from './components/RegionPanel'
 import { BackButton, InfoIcon, Logo, PanelSkeleton, ProgressBar, ShowOnMap, ViewIcon } from './components/ui'
 import { TREE_BY_ID, treePath, type TreeInfo } from './data/trees'
 import { REGIONS, signatureTree, type Region } from './data/regions'
-import { TreePanel } from './components/TreePanel'
 import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop, useThrottledWhile } from './hooks'
+import {
+  AboutPanel,
+  DataSourcesPanel,
+  ExplorePanel,
+  FishingPanel,
+  FoliagePanel,
+  ParkPanel,
+  ParksPanel,
+  PlacePanel,
+  preloadPages,
+  RegionPanel,
+  TrailPanel,
+  TrailsPanel,
+  TreePanel,
+  TripPanel,
+  TripsPanel,
+} from './pages'
 import {
   fetchExploreAreas,
   placeIdFromSlug,
@@ -133,6 +141,8 @@ export default function App() {
     initialData: cached?.data,
     initialDataUpdatedAt: cached?.savedAt,
   })
+  // The pages are fetched in the background once the first screen is up.
+  useEffect(preloadPages, [])
   useEffect(() => {
     if (sightings.data?.complete && sightings.dataUpdatedAt !== cached?.savedAt) writeCachedSightings(sightings.data)
   }, [sightings.data, sightings.dataUpdatedAt, cached?.savedAt])
@@ -591,7 +601,8 @@ export default function App() {
   // Unknown paths go home rather than showing a blank page.
   if (!regionMatch && !treeMatch && !parkMatch && !trailMatch && !placeMatch && !fishingMatch && !sectionPath && !tripsMatch && !tripMatch && location.pathname !== '/') return <Navigate to={{ pathname: '/', search: location.search }} replace />
 
-  const panel =
+  // Pages load on first use (see pages.ts); a placeholder stands in for one still on its way.
+  const page =
     selection?.kind === 'region' ? (
       <RegionPanel
         key={selection.region.id}
@@ -718,6 +729,11 @@ export default function App() {
         onNavigate={openSection}
       />
     )
+  /** Explore with the panel closed: the search and quick links sit over the map. */
+  const landing = selection === null && sheet === 'peek'
+  // On the landing page the panel is closed and Explore's page is not needed yet, so it is not
+  // rendered (or fetched). Every other page stays mounted while hidden, to keep its state.
+  const panel = landing ? null : <Suspense fallback={<PanelSkeleton />}>{page}</Suspense>
 
   const footer = <SiteFooter onNavigate={openSection} />
   /** Desktop, map with panel: the panel floats over the map's left side. */
@@ -725,8 +741,6 @@ export default function App() {
   const onPlace = ['region', 'park', 'trail', 'place', 'fishing', 'tree'].includes(selection?.kind ?? '')
   /** On phones, a place's page in the full panel offers a way back to the map, which has moved to it. */
   const showOnMap = !isDesktop && sheet === 'full' && onPlace ? () => setSheet('half') : null
-  /** Explore with the panel closed: the search and quick links sit over the map. */
-  const landing = selection === null && sheet === 'peek'
   const treeCount = treeFilter === 'trees' ? 0 : 1
   const layerCount = (Object.keys(DEFAULT_LAYERS) as (keyof MapLayers)[]).filter((k) => layers[k] !== DEFAULT_LAYERS[k]).length
 
