@@ -368,24 +368,44 @@ async function draw(shape: CoverShape, foliage: Foliage): Promise<string> {
   return URL.createObjectURL(blob)
 }
 
+/** Stills drawn this visit, least recently shown first. */
 const done = new Map<string, Promise<string>>()
+/**
+ * How many stills are kept. Past this, the one shown longest ago is let go and its image freed;
+ * going back to its page draws it again. A still is about 40 kB, and a page shows one at a time.
+ */
+const KEEP_STILLS = 12
 let queue: Promise<unknown> = Promise.resolve()
 
+function keep(key: string, still: Promise<string>) {
+  // Set again so it counts as the most recent.
+  done.delete(key)
+  done.set(key, still)
+  for (const [oldest, old] of done) {
+    if (done.size <= KEEP_STILLS) break
+    done.delete(oldest)
+    old.then(URL.revokeObjectURL, () => {})
+  }
+}
+
 /**
- * The cover for a shape, drawn once per shape and foliage mix and then kept for the visit.
- * Covers are drawn one at a time; a request aborted while it waits is skipped.
+ * The cover for a shape, drawn once per shape and foliage mix and then kept for a while (see
+ * `KEEP_STILLS`). Covers are drawn one at a time; a request aborted while it waits is skipped.
  */
 export function forestCover(shape: CoverShape, foliage: Foliage, signal: AbortSignal): Promise<string> {
   const key = sceneKey(shape, foliage)
   const hit = done.get(key)
-  if (hit) return hit
+  if (hit) {
+    keep(key, hit)
+    return hit
+  }
   const job = queue.then(() => {
     if (signal.aborted) throw new DOMException('Cover no longer needed', 'AbortError')
     return draw(shape, foliage)
   })
   queue = job.catch(() => {})
   job.then(
-    () => done.set(key, job),
+    () => keep(key, job),
     () => {},
   )
   return job
