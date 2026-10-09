@@ -81,7 +81,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - `src/components/AccountMenu.tsx` has the row; `ThemeIcon` in `ui.tsx` draws the sun, moon and half-filled circle.
 - `usePrefersDark` is replaced by `useDark` from `theme.ts`.
 
-**Why.** People read the app in bright sun and in tents at night, and a device's setting is not always what they want for a map.
+**Why.** A device's setting is not always what someone wants for this app, and there was no way to choose.
 
 ## v1.5.1
 
