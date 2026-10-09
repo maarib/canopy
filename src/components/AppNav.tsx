@@ -3,8 +3,8 @@ import { Search } from 'relume-icons'
 import { LOGO_LEAF } from './ui'
 import { TAB_BAR_HEIGHT } from '../lib/styles'
 
-// The app's sections. Desktop: a slim rail left of the panel. Phones: a bottom tab bar
-// (the pattern Airbnb and AllTrails both use), with the sheet sitting above it.
+// The app's sections. Desktop: a slim rail left of the panel, icon over label. Phones: a bottom
+// tab bar of icons alone, with the sheet sitting above it.
 
 export type Section = 'explore' | 'parks' | 'trails' | 'foliage' | 'trips'
 
@@ -93,9 +93,10 @@ export function TabBar({ active, onNavigate, tripCount }: Props) {
   return (
     <nav
       aria-label="Sections"
-      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-[var(--line)] bg-[var(--surface)] pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-center gap-1 border-t border-[var(--line)] bg-[var(--surface)] pb-[env(safe-area-inset-bottom)]"
       style={{ height: TAB_BAR_HEIGHT }}
     >
+      {/* Icons only, gathered in the middle; the section in view sits in a filled pill. */}
       {SECTIONS.map((s) => {
         const on = active === s.id
         return (
@@ -103,8 +104,10 @@ export function TabBar({ active, onNavigate, tripCount }: Props) {
             key={s.id}
             onClick={() => onNavigate(s.path)}
             aria-current={on ? 'page' : undefined}
-            className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-[10.5px] font-medium transition active:scale-95 ${
-              on ? 'font-semibold text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
+            aria-label={s.label}
+            title={s.label}
+            className={`flex h-11 w-14 items-center justify-center rounded-full transition active:scale-95 ${
+              on ? 'bg-[var(--surface-2)] text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
             }`}
           >
             {/* The selected icon pops as it fills in. */}
@@ -112,7 +115,6 @@ export function TabBar({ active, onNavigate, tripCount }: Props) {
               {ICONS[s.id](on)}
               {s.id === 'trips' && <Badge n={tripCount} />}
             </span>
-            {s.label}
           </button>
         )
       })}
