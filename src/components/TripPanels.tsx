@@ -78,7 +78,8 @@ export function TripsPanel({
           onOpen(tripActions.create(name || 'New trip'))
           setName('')
         }}
-        className="flex gap-2"
+        // Stacked on phones, side by side from tablet width up.
+        className="flex flex-col gap-2 md:flex-row"
       >
         <input
           value={name}
@@ -88,8 +89,8 @@ export function TripsPanel({
           maxLength={80}
           className="min-w-0 flex-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-brand/40"
         />
-        <button type="submit" className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-          <Add className="size-4" /> Create trip
+        <button type="submit" className="inline-flex items-center justify-center gap-1 rounded-full bg-brand px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+          <Add className="size-4" /> Create Trip
         </button>
       </form>
 
@@ -169,7 +170,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-brand/10 p-3 text-sm">
           <span>This trip was shared with you. Save it to make changes.</span>
           <button onClick={onSaveCopy} className="shrink-0 rounded-full bg-brand px-3 py-1.5 font-medium text-white hover:opacity-90">
-            Save to my trips
+            Save to My Trips
           </button>
         </div>
       )}
@@ -211,7 +212,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
               <button
                 onClick={() => tripActions.setDays(id!, trip.days - 1)}
                 disabled={trip.days <= 1}
-                aria-label="Fewer days"
+                aria-label="Fewer Days"
                 className="rounded-md px-2.5 py-1 hover:bg-[var(--surface)] disabled:opacity-40"
               >
                 −
@@ -222,7 +223,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
               <button
                 onClick={() => tripActions.setDays(id!, trip.days + 1)}
                 disabled={trip.days >= 14}
-                aria-label="More days"
+                aria-label="More Days"
                 className="rounded-md px-2.5 py-1 hover:bg-[var(--surface)] disabled:opacity-40"
               >
                 +
@@ -328,7 +329,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
 
       {stops.length > 0 && (
         <section className="flex flex-wrap gap-2">
-          <ShareButton title={`${trip.name} · Canopy trip`} url={sharedTripUrl(trip)} label="Share trip" />
+          <ShareButton title={`${trip.name} · Canopy trip`} url={sharedTripUrl(trip)} label="Share Trip" />
           <button
             onClick={() => downloadFile(`${slug(trip.name)}.gpx`, tripGpx(trip.name, stops), 'application/gpx+xml')}
             className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm transition hover:bg-[var(--surface-2)] active:scale-[0.97] disabled:active:scale-100"
@@ -348,7 +349,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
             title={trip.startDate ? undefined : 'Set a start date to add this trip to your calendar'}
             className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-4 py-2 text-sm hover:bg-[var(--surface-2)] disabled:opacity-50"
           >
-            <CalendarToday className="size-4" /> Add to calendar
+            <CalendarToday className="size-4" /> Add to Calendar
           </button>
         </section>
       )}
@@ -366,7 +367,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
           }}
           className="text-sm text-[var(--ink-soft)] underline hover:text-brand"
         >
-          Delete trip
+          Delete Trip
         </button>
       )}
     </div>

@@ -61,7 +61,7 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
 
       <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(place.lat, place.lng)} icon={<LocationOn className="size-4" />}>
-          Get directions
+          Get Directions
         </LinkButton>
         <SaveButton stopRef={`place:${place.id}`} name={place.name} />
         <ShareButton title={`${place.name} · Canopy`} />

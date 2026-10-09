@@ -47,7 +47,7 @@ export function FishingPanel({ access, onBack }: { access: FishingAccess; onBack
 
       <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(access.lat, access.lng)} icon={<LocationOn className="size-4" />}>
-          Get directions
+          Get Directions
         </LinkButton>
         <ShareButton title={`${accessTitle(access)} · Canopy`} />
       </section>

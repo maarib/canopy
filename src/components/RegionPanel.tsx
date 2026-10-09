@@ -52,7 +52,7 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
 
       <section aria-label="Actions" className="-mt-2 flex flex-wrap gap-2">
         <LinkButton primary href={directionsUrl(region.lat, region.lng)} icon={<LocationOn className="size-4" />}>
-          Get directions
+          Get Directions
         </LinkButton>
         <SaveButton stopRef={`region:${region.id}`} name={region.name} />
         <ShareButton title={`${region.name} fall colors · Canopy`} />

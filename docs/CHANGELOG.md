@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Buttons in title case; Trips form stacks on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
 | [v1.5.1](https://github.com/maarib/canopy/releases/tag/v1.5.1) | 2026-10-08 | Mapbox logo no longer cut off on live covers ([#129](https://github.com/maarib/canopy/pull/129)) |
 | [v1.5](https://github.com/maarib/canopy/releases/tag/v1.5.0) | 2026-10-08 | Covers that turn, with tilt-shift and a little wildlife ([#125](https://github.com/maarib/canopy/pull/125)); cover fixes for parks, waterfalls and streams ([#123](https://github.com/maarib/canopy/pull/123)); trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)); color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
 | [v1.4](https://github.com/maarib/canopy/releases/tag/v1.4.0) | 2026-10-04 | Floating panel on desktop ([#118](https://github.com/maarib/canopy/pull/118)); filter menus open under their pill; phones keep their view ([#116](https://github.com/maarib/canopy/pull/116)) |
@@ -20,6 +21,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-09 | [Buttons in title case; Trips form stacks on phones](#2026-10-09-buttons-in-title-case-trips-form-stacks-on-phones) | [#134](https://github.com/maarib/canopy/pull/134) |
 | 2026-10-08 | [Mapbox logo no longer cut off on live covers](#2026-10-08-mapbox-logo-no-longer-cut-off-on-live-covers) | [#129](https://github.com/maarib/canopy/pull/129) |
 | 2026-10-08 | [Covers that turn, with tilt-shift and a little wildlife](#2026-10-08-covers-that-turn-with-tilt-shift-and-a-little-wildlife) | [#125](https://github.com/maarib/canopy/pull/125) |
 | 2026-10-08 | [Cover fixes: rounded park outlines, waterfalls that face you, streams that cross the island](#2026-10-08-cover-fixes-rounded-park-outlines-waterfalls-that-face-you-streams-that-cross-the-island) | [#123](https://github.com/maarib/canopy/pull/123) |
@@ -58,6 +60,23 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-09 · Buttons in title case; Trips form stacks on phones
+
+**Ref:** [#134](https://github.com/maarib/canopy/pull/134)
+
+**Before.**
+- Button labels were in sentence case: "Get directions", "Create trip".
+- On phones, the Trips page squeezed the new-trip field and the Create trip button onto one line.
+
+**After.**
+- **Buttons are in title case:** Get Directions, Show on Map, Create Trip, Save to My Trips, Add to Calendar, Delete Trip, Share Trip, Link Copied, Try Again, Show Fewer and Show 5 More.
+- **Trips on phones:** the new-trip field sits above a full-width Create Trip button. From tablet width up they stay side by side.
+- Unchanged, still in sentence case: menu items, tabs, filter pills and their options, the Explore quick links, and text links such as "Reserve a site" and "All reports".
+
+**How.** Label text in the page components, `ui.tsx` and `TripPanels.tsx`; the form in `TripPanels.tsx` stacks below the `md` breakpoint.
 
 ## v1.5.1
 

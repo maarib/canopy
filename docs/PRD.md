@@ -124,7 +124,7 @@ Canopy is one map-first app that answers all three for all of Canada. It covers 
 - **Type:** **Londrina Solid** for display titles and headings (400; 900 for the wordmark) and **Livvic** for everything else: body, labels, captions (400–700).
 - **Icons:** [Relume icons](https://www.npmjs.com/package/relume-icons) (MIT, rounded outline style, tree-shaken) for UI controls and actions. Weather keeps its emoji. The logo is a plain one-color maple leaf, also used for Foliage in the navigation. The package has 60 icons and no outdoor/POI set, so place icons (waterfall, lookout, trailhead…) and a few interface icons (info, views, map pin) are custom (D-05). Activity icons are Icons8 *Windows 11 Color*.
 - **Covers:** every place has a low-poly island cover: its real outline as a floating piece of land with trees in today's colors, and its own landform for waterfalls, lookouts, peaks, lakes, rivers and creeks.
-- **Controls:** filters and sorts are menu pills (a pill that opens a menu and shows the current choice). Detail pages lead with Get directions, Save and Share; other links sit in one compact row under a divider.
+- **Controls:** filters and sorts are menu pills (a pill that opens a menu and shows the current choice). Detail pages lead with Get Directions, Save and Share; other links sit in one compact row under a divider.
 - **Motion:** sheet springs, fly-to camera moves, and a falling-leaf micro-animation reserved for "peak" moments only.
 - **Tone:** warm, local, precise. "Algonquin is at peak, about 90% color. Go before Friday's wind."
 
@@ -195,7 +195,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | ID | Requirement | P | Status |
 |---|---|---|---|
 | PLACE-1 | Region and park pages with status, outlook, photos, links | P0 | ✅ |
-| PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | ✅ Get directions, Save and Share as buttons; booking, official pages and GPX as a row of links. An AllTrails hand-off was dropped: Canopy has its own trail pages |
+| PLACE-2 | Quick-action row: Directions · Save · Share · Book · AllTrails | P0 | ✅ Get Directions, Save and Share as buttons; booking, official pages and GPX as a row of links. An AllTrails hand-off was dropped: Canopy has its own trail pages |
 | PLACE-3 | Trail pages (length, elevation profile, along-the-trail stops, GPX). Ontario Trail Network + OSM; see [EXPLORE.md](EXPLORE.md) | P0 | 🟡 Algonquin |
 | PLACE-4 | Place pages with their own identity: waterfalls, lookouts, peaks, lakes, rivers, creeks (OSM + curated) | P0 | 🟡 Algonquin, with a landform cover per kind (#111) |
 | PLACE-5 | Curated content: "Top 5 things to do in X this fall" per region (editorial) | P1 | ⬜ |
