@@ -341,6 +341,27 @@ export function TurnIcon({ className = 'size-5' }: { className?: string }) {
   )
 }
 
+/** The three themes: light, dark, and whichever the device is set to. */
+export function ThemeIcon({ theme, className = 'size-5' }: { theme: 'light' | 'dark' | 'system'; className?: string }) {
+  return (
+    <svg {...OUTLINE} className={className}>
+      {theme === 'light' && (
+        <>
+          <circle cx="12" cy="12" r="3.5" />
+          <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M6 18l1.4-1.4M16.6 7.4 18 6" />
+        </>
+      )}
+      {theme === 'dark' && <path d="M19.5 14.2A7.8 7.8 0 0 1 9.8 4.5a7.8 7.8 0 1 0 9.7 9.7Z" />}
+      {theme === 'system' && (
+        <>
+          <circle cx="12" cy="12" r="8" />
+          <path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" />
+        </>
+      )}
+    </svg>
+  )
+}
+
 /** The three views: the map alone, the map with the panel, the panel alone. */
 export function ViewIcon({ view, className = 'size-5' }: { view: 'map' | 'split' | 'panel'; className?: string }) {
   return (

@@ -277,7 +277,7 @@ const ACCESS: [string, string][] = [
   ['Keyboard', 'Every button, link, menu and map pin can be reached with Tab and shows a clear focus ring. Escape closes menus.'],
   ['Screen readers', 'Controls, map pins and loading states have names. The parks, trails and places on the map are also in lists you can read.'],
   ['Motion', 'Animations switch off when your device asks for reduced motion.'],
-  ['Your settings', 'Light and dark follow your device, and the layout adapts from a phone to a wide screen.'],
+  ['Your settings', 'Light and dark follow your device unless you choose one in the account menu, and the layout adapts from a phone to a wide screen.'],
 ]
 
 export function AboutPanel({ onData }: { onData: () => void }) {

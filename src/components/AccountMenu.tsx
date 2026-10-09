@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePresence } from '../hooks'
 import { Bookmark, Description, KeyboardArrowDown, Mail, Person } from 'relume-icons'
-import { ExternalIcon, InfoIcon } from './ui'
+import { setTheme, useThemeSetting, type ThemeSetting } from '../lib/theme'
+import { ExternalIcon, InfoIcon, ThemeIcon } from './ui'
 
 // Header avatar with an account menu, modelled on Airbnb's and AllTrails' profile menus:
 // your things first (trips), then help and about, then sign-in. Canopy has no accounts yet,
@@ -77,6 +78,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
               Send feedback
             </Item>
           </div>
+          <ThemeRow />
           <div className="border-t border-[var(--line)] pt-1">
             <Item icon={<Person className="size-5" />} disabled>
               Accounts coming soon
@@ -84,6 +86,44 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+const THEMES: { id: ThemeSetting; label: string }[] = [
+  { id: 'light', label: 'Light' },
+  { id: 'dark', label: 'Dark' },
+  { id: 'system', label: 'Match device' },
+]
+
+/** Light, dark, or whichever the device is set to. The same switch as the header's views. */
+function ThemeRow() {
+  const theme = useThemeSetting()
+  return (
+    <div className="flex items-center gap-3 border-t border-[var(--line)] px-2 py-2">
+      <span className="text-[var(--ink-soft)]">
+        <ThemeIcon theme="system" />
+      </span>
+      <span id="theme-label" className="min-w-0 flex-1 text-sm">
+        Theme
+      </span>
+      <div role="radiogroup" aria-labelledby="theme-label" className="flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1">
+        {THEMES.map((t) => (
+          <button
+            key={t.id}
+            role="radio"
+            aria-checked={theme === t.id}
+            aria-label={t.label}
+            title={t.label}
+            onClick={() => setTheme(t.id)}
+            className={`flex h-7 w-9 items-center justify-center rounded-full transition-colors active:scale-[0.97] ${
+              theme === t.id ? 'bg-brand text-white' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
+            }`}
+          >
+            <ThemeIcon theme={t.id} className="size-4" />
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
