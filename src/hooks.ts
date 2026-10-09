@@ -11,7 +11,6 @@ function useMediaQuery(query: string): boolean {
   )
 }
 
-export const usePrefersDark = () => useMediaQuery('(prefers-color-scheme: dark)')
 /** Matches Tailwind's `md` breakpoint. */
 export const useIsDesktop = () => useMediaQuery('(min-width: 768px)')
 

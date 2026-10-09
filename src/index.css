@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* `dark:` classes follow the theme in force, not only the device. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
 @theme {
   /* The brand accent: buttons, links, selection, focus. Red stays for data (peak color, hard trails). */
   --color-brand: #f2600c;
@@ -104,8 +107,18 @@
   --leaf-ink: #2d3550;
 }
 
+/* Dark follows the theme in force (lib/theme.ts sets `data-theme` on the root)… */
+:root[data-theme='dark'] {
+  --surface: #1b1714;
+  --surface-2: #26201b;
+  --ink: #f3ebe2;
+  --ink-soft: #b3a69a;
+  --line: #3a312a;
+  --leaf-ink: #f1e8dd;
+}
+/* …and the device, on a page where nothing has set a theme. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --surface: #1b1714;
     --surface-2: #26201b;
     --ink: #f3ebe2;

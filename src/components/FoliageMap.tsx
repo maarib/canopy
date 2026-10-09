@@ -18,7 +18,8 @@ import { MapSkeleton } from './MapSkeleton'
 import { useHoverPoint } from '../lib/hoverStore'
 import type { PlaceIconId } from './PlaceIcon'
 import { isPhotoSpot, PLACE_KINDS, type Place, type Trail } from '../lib/explore'
-import { useIsDesktop, usePrefersDark } from '../hooks'
+import { useIsDesktop } from '../hooks'
+import { useDark } from '../lib/theme'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
 import { fetchOutlookGrid, outlookHexes } from '../lib/outlook'
 import type { LeafObservation } from '../lib/inaturalist'
@@ -161,7 +162,7 @@ type PopupInfo = { lng: number; lat: number; title: string; lines: string[]; hre
 export const FoliageMap = memo(function FoliageMap(props: Props) {
   const { layers } = props
   const mapRef = useRef<MapRef>(null)
-  const dark = usePrefersDark()
+  const dark = useDark()
   const isDesktop = useIsDesktop()
   const panelInset = props.panelInset ?? 0
   const bottomInset = props.bottomInset ?? 0
