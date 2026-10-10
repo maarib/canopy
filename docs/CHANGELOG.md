@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)) |
 | Unreleased | | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)) |
 | [v1.5.2](https://github.com/maarib/canopy/releases/tag/v1.5.2) | 2026-10-09 | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)); phone tab bar of icons only ([#133](https://github.com/maarib/canopy/pull/133)); buttons in title case, and the Trips form stacked on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
 | [v1.5.1](https://github.com/maarib/canopy/releases/tag/v1.5.1) | 2026-10-08 | Mapbox logo no longer cut off on live covers ([#129](https://github.com/maarib/canopy/pull/129)) |
@@ -22,6 +23,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-09 | [Stills drawn in the browser no longer pile up](#2026-10-09-stills-drawn-in-the-browser-no-longer-pile-up) | [#138](https://github.com/maarib/canopy/pull/138) |
 | 2026-10-09 | [Pages load on demand](#2026-10-09-pages-load-on-demand) | [#137](https://github.com/maarib/canopy/pull/137) |
 | 2026-10-09 | [Buttons in title case; Trips form stacks on phones](#2026-10-09-buttons-in-title-case-trips-form-stacks-on-phones) | [#134](https://github.com/maarib/canopy/pull/134) |
 | 2026-10-09 | [Phone tab bar: icons only, gathered in the middle](#2026-10-09-phone-tab-bar-icons-only-gathered-in-the-middle) | [#133](https://github.com/maarib/canopy/pull/133) |
@@ -67,6 +69,15 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ## Unreleased
 
+### 2026-10-09 · Stills drawn in the browser no longer pile up
+
+**Ref:** [#138](https://github.com/maarib/canopy/pull/138)
+
+**Before.** Every cover drawn in the browser (one with no pre-drawn image) was kept in memory for the rest of the visit and never released.
+
+**After.** The twelve most recently shown are kept. Past that, the one shown longest ago is released; going back to its page draws it again. A still is about 50 kB, so this is a small saving that only shows on long visits.
+
+**How.** `forestCover()` in `src/lib/forestCover.ts` keeps its stills in order of last use and revokes the oldest one's image URL.
 ### 2026-10-09 · Pages load on demand
 
 **Ref:** [#137](https://github.com/maarib/canopy/pull/137)
