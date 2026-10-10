@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | About and Data sources: shorter copy ([#139](https://github.com/maarib/canopy/pull/139)) |
 | Unreleased | | Stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)) |
 | Unreleased | | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)) |
 | [v1.5.2](https://github.com/maarib/canopy/releases/tag/v1.5.2) | 2026-10-09 | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)); phone tab bar of icons only ([#133](https://github.com/maarib/canopy/pull/133)); buttons in title case, and the Trips form stacked on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
@@ -23,6 +24,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-09 | [About and Data sources: shorter copy](#2026-10-09-about-and-data-sources-shorter-copy) | [#139](https://github.com/maarib/canopy/pull/139) |
 | 2026-10-09 | [Stills drawn in the browser no longer pile up](#2026-10-09-stills-drawn-in-the-browser-no-longer-pile-up) | [#138](https://github.com/maarib/canopy/pull/138) |
 | 2026-10-09 | [Pages load on demand](#2026-10-09-pages-load-on-demand) | [#137](https://github.com/maarib/canopy/pull/137) |
 | 2026-10-09 | [Buttons in title case; Trips form stacks on phones](#2026-10-09-buttons-in-title-case-trips-form-stacks-on-phones) | [#134](https://github.com/maarib/canopy/pull/134) |
@@ -68,6 +70,22 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-10-09 · About and Data sources: shorter copy
+
+**Ref:** [#139](https://github.com/maarib/canopy/pull/139)
+
+**Before.**
+- Under the accessibility list, a paragraph named what was still to do (orange buttons and links below the AA contrast target on light backgrounds, menus without arrow keys, no full screen-reader test) and ended "If something gets in your way, tell us."
+- Below it: "Everything here is built on open and public data. See the data sources."
+- On the Data sources page, every row of the Design list had a line of description.
+
+**After.**
+- The first is now just "See something off? Tell us." The three gaps are no longer listed on the page; they are still tracked in [#63](https://github.com/maarib/canopy/issues/63).
+- The second reads "Canopy is built on open and public data." with "See the data sources." on its own line.
+- In the Design list, four rows are now a name and a credit only: Activity and facility icons, Interface icons, Londrina Solid and Livvic. The three rows for Canopy's own work keep their descriptions.
+
+**How.** `AboutPanel` and the `DESIGN` list in `src/components/SectionPanels.tsx`.
 
 ### 2026-10-09 · Stills drawn in the browser no longer pile up
 

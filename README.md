@@ -172,7 +172,7 @@ The next releases (v1.5.3 onward) are planned in [docs/PRD.md §11](docs/PRD.md#
 
 ## Releases
 
-Each release is a git tag and a [GitHub Release](https://github.com/maarib/canopy/releases); the About page shows the live version. Minor versions (1.1, 1.2) bring new features, patch versions (1.1.1) only fixes, and a major version (2.0) a fundamental change. The version lives in `package.json`, and [docs/CHANGELOG.md](docs/CHANGELOG.md) groups changes by release.
+Each release is a git tag and a [GitHub Release](https://github.com/maarib/canopy/releases); the About page shows the live version. Up to v1.5 each release raised the middle number; since then releases go up by the last one (1.5.1, 1.5.2 and so on), whether they bring features or fixes. The version lives in `package.json`, and [docs/CHANGELOG.md](docs/CHANGELOG.md) groups changes by release.
 
 | Version | What's in it |
 |---|---|
