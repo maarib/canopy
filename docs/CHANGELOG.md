@@ -73,7 +73,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ### 2026-10-10 · Phone tab bar: the current tab carries its name
 
-**Ref:** [#PR](https://github.com/maarib/canopy/pull/PR)
+**Ref:** [#140](https://github.com/maarib/canopy/pull/140)
 
 **Before.** The tab bar on phones showed five icons and nothing else. The current section was marked only by its filled pill and filled icon.
 
