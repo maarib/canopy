@@ -4,7 +4,7 @@ import { LOGO_LEAF } from './ui'
 import { TAB_BAR_HEIGHT } from '../lib/styles'
 
 // The app's sections. Desktop: a slim rail left of the panel, icon over label. Phones: a bottom
-// tab bar of icons alone, with the sheet sitting above it.
+// tab bar of icons, the current one named, with the sheet sitting above it.
 
 export type Section = 'explore' | 'parks' | 'trails' | 'foliage' | 'trips'
 
@@ -93,12 +93,14 @@ export function TabBar({ active, onNavigate, tripCount }: Props) {
   return (
     <nav
       aria-label="Sections"
-      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-center gap-1 border-t border-[var(--line)] bg-[var(--surface)] pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-center gap-0.5 border-t min-[360px]:gap-1 border-[var(--line)] bg-[var(--surface)] pb-[env(safe-area-inset-bottom)]"
       style={{ height: TAB_BAR_HEIGHT }}
     >
-      {/* Icons only, gathered in the middle; the section in view sits in a filled pill. */}
+      {/* Icons gathered in the middle. The section in view sits in a filled pill and carries its
+          name; the name slides open as its tab is chosen and closes as the choice moves on. */}
       {SECTIONS.map((s) => {
         const on = active === s.id
+        const badged = s.id === 'trips' && tripCount > 0
         return (
           <button
             key={s.id}
@@ -106,7 +108,7 @@ export function TabBar({ active, onNavigate, tripCount }: Props) {
             aria-current={on ? 'page' : undefined}
             aria-label={s.label}
             title={s.label}
-            className={`flex h-11 w-14 items-center justify-center rounded-full transition active:scale-95 ${
+            className={`flex h-11 items-center justify-center rounded-full px-3 transition min-[360px]:px-3.5 active:scale-95 ${
               on ? 'bg-[var(--surface-2)] text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
             }`}
           >
@@ -114,6 +116,17 @@ export function TabBar({ active, onNavigate, tripCount }: Props) {
             <span className={`relative ${on ? 'animate-icon-pop' : ''}`}>
               {ICONS[s.id](on)}
               {s.id === 'trips' && <Badge n={tripCount} />}
+            </span>
+            {/* A grid column going from nothing to its natural width lets the pill grow with it. */}
+            <span
+              aria-hidden
+              className={`grid transition-[grid-template-columns,opacity] duration-300 ease-out ${
+                on ? 'grid-cols-[1fr] opacity-100' : 'grid-cols-[0fr] opacity-0'
+              }`}
+            >
+              <span className="min-w-0 overflow-hidden text-[13px] font-semibold whitespace-nowrap">
+                <span className={badged ? 'pl-3.5' : 'pl-2'}>{s.label}</span>
+              </span>
             </span>
           </button>
         )
