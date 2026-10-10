@@ -9,6 +9,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | Version | Date | What's in it |
 |---|---|---|
 | Unreleased | | Stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)) |
+| Unreleased | | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)) |
 | [v1.5.2](https://github.com/maarib/canopy/releases/tag/v1.5.2) | 2026-10-09 | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)); phone tab bar of icons only ([#133](https://github.com/maarib/canopy/pull/133)); buttons in title case, and the Trips form stacked on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
 | [v1.5.1](https://github.com/maarib/canopy/releases/tag/v1.5.1) | 2026-10-08 | Mapbox logo no longer cut off on live covers ([#129](https://github.com/maarib/canopy/pull/129)) |
 | [v1.5](https://github.com/maarib/canopy/releases/tag/v1.5.0) | 2026-10-08 | Covers that turn, with tilt-shift and a little wildlife ([#125](https://github.com/maarib/canopy/pull/125)); cover fixes for parks, waterfalls and streams ([#123](https://github.com/maarib/canopy/pull/123)); trees on the Foliage page, and a page for each ([#122](https://github.com/maarib/canopy/pull/122)); color outlook across Ontario ([#121](https://github.com/maarib/canopy/pull/121)) |
@@ -23,6 +24,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | Date | Change | Ref |
 |---|---|---|
 | 2026-10-09 | [Stills drawn in the browser no longer pile up](#2026-10-09-stills-drawn-in-the-browser-no-longer-pile-up) | [#138](https://github.com/maarib/canopy/pull/138) |
+| 2026-10-09 | [Pages load on demand](#2026-10-09-pages-load-on-demand) | [#137](https://github.com/maarib/canopy/pull/137) |
 | 2026-10-09 | [Buttons in title case; Trips form stacks on phones](#2026-10-09-buttons-in-title-case-trips-form-stacks-on-phones) | [#134](https://github.com/maarib/canopy/pull/134) |
 | 2026-10-09 | [Phone tab bar: icons only, gathered in the middle](#2026-10-09-phone-tab-bar-icons-only-gathered-in-the-middle) | [#133](https://github.com/maarib/canopy/pull/133) |
 | 2026-10-09 | [Light, dark or match the device, from the account menu](#2026-10-09-light-dark-or-match-the-device-from-the-account-menu) | [#132](https://github.com/maarib/canopy/pull/132) |
@@ -76,6 +78,19 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **After.** The twelve most recently shown are kept. Past that, the one shown longest ago is released; going back to its page draws it again. A still is about 50 kB, so this is a small saving that only shows on long visits.
 
 **How.** `forestCover()` in `src/lib/forestCover.ts` keeps its stills in order of last use and revokes the oldest one's image URL.
+### 2026-10-09 · Pages load on demand
+
+**Ref:** [#137](https://github.com/maarib/canopy/pull/137)
+
+**Before.** The code for every page (Parks, Places, Foliage, Trips, About, Data sources and each kind of detail page) was part of the first download, although a visit starts on the map with a search card.
+
+**After.**
+- Each page's code is fetched when the page is first opened. The first download of app code is 141 kB compressed where it was 158 kB (11% less); the map engine is unchanged.
+- Once the first screen is up and the browser is idle, the pages are fetched in the background, so opening one does not wait on the network. This is skipped for people who have asked their browser to save data.
+- A page opened before its code has arrived shows the usual loading placeholder.
+- On the landing page the closed panel is no longer rendered at all. Every other page still stays in place while the panel is hidden, so a list keeps its search and filters.
+
+**How.** `src/pages.ts` (new) declares the pages with `lazy` and holds `preloadPages`; `src/App.tsx` wraps the panel in `Suspense`.
 
 ## v1.5.2
 
