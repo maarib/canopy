@@ -313,16 +313,16 @@ export function AboutPanel({ onData }: { onData: () => void }) {
           ))}
         </ul>
         <p className="mt-3 text-xs leading-relaxed text-[var(--ink-soft)]">
-          Still to do: orange buttons and orange links on light backgrounds are below the AA contrast target, menus don't yet respond to arrow keys, and Canopy
-          hasn't had a full test with a screen reader. If something gets in your way,{' '}
+          See something off?{' '}
           <a href="https://github.com/maarib/canopy/issues/new" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
-            tell us
+            Tell us
           </a>
           .
         </p>
       </section>
       <p className="text-sm text-[var(--ink-soft)]">
-        Everything here is built on open and public data.{' '}
+        Canopy is built on open and public data.
+        <br />
         <button onClick={onData} className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
           See the data sources
         </button>
