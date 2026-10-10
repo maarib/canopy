@@ -270,7 +270,7 @@ const DESIGN: { name: string; url?: string; what?: string; by: string }[] = [
   { name: 'Livvic', url: 'https://fonts.google.com/specimen/Livvic', by: 'Google Fonts' },
 ]
 
-/** What Canopy does for accessibility today, stated as checked facts, and what is still open. */
+/** What Canopy does for accessibility today, stated as checked facts. What is still open is tracked in issue #63, not on the page. */
 const ACCESS: [string, string][] = [
   ['Readable text', 'Body text, labels and badges meet WCAG AA contrast (4.5:1) in light and dark. Badges switch between white and dark text to suit their color.'],
   ['Color is never the only signal', 'Every fall color stage and trail difficulty is written out beside its color.'],
