@@ -79,7 +79,8 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 **After.**
 - The current tab shows its name beside the icon, inside the pill (for example the bookmark and "Trips").
-- Choosing another tab animates the change over 0.3 seconds: the new tab's pill widens as its name slides open and fades in, while the old one's name fades out and its pill closes back to the icon.
+- Choosing another tab animates the change over 0.25 seconds: the new tab's pill widens as its name slides open and fades in, while the old one's name fades out and its pill closes back to the icon.
+- The tapped tab is marked at once, and its page opens when the name has finished sliding (0.25 seconds after the tap). Explore opens no page, so it changes straight away. Before this, the page was built while the name was sliding, and the slide stuttered or jumped to its end on every tab but Explore.
 - With reduced motion set on the device, the name appears and disappears at once.
 - Below 360 px wide, the tabs sit slightly closer together so the row still fits.
 
