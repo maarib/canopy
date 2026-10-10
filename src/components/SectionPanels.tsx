@@ -260,14 +260,14 @@ const SOURCES: { name: string; url: string; what: string; licence: string; refre
 ]
 
 /** The story of Canopy, in its maker's words. */
-const DESIGN: { name: string; url?: string; what: string; by: string }[] = [
+const DESIGN: { name: string; url?: string; what?: string; by: string }[] = [
   { name: 'Logo and leaf icons', what: 'The maple mark and the thirteen tree icons', by: 'Canopy' },
   { name: 'Island covers', what: "Each place's real shape as a low-poly island in today's colors", by: 'Canopy' },
   { name: 'Place icons', what: 'Trails, waterfalls, lookouts, peaks, lakes, rivers and creeks', by: 'Canopy' },
-  { name: 'Activity and facility icons', url: 'https://icons8.com', what: 'Windows 11 Color set', by: 'Icons8' },
-  { name: 'Interface icons', url: 'https://www.npmjs.com/package/relume-icons', what: 'Buttons, menus and navigation', by: 'Relume' },
-  { name: 'Londrina Solid', url: 'https://fonts.google.com/specimen/Londrina+Solid', what: 'Titles and headings', by: 'Google Fonts' },
-  { name: 'Livvic', url: 'https://fonts.google.com/specimen/Livvic', what: 'Everything else', by: 'Google Fonts' },
+  { name: 'Activity and facility icons', url: 'https://icons8.com', by: 'Icons8' },
+  { name: 'Interface icons', url: 'https://www.npmjs.com/package/relume-icons', by: 'Relume' },
+  { name: 'Londrina Solid', url: 'https://fonts.google.com/specimen/Londrina+Solid', by: 'Google Fonts' },
+  { name: 'Livvic', url: 'https://fonts.google.com/specimen/Livvic', by: 'Google Fonts' },
 ]
 
 /** What Canopy does for accessibility today, stated as checked facts, and what is still open. */
