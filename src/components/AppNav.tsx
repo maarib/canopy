@@ -1,10 +1,10 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Search } from 'relume-icons'
 import { LOGO_LEAF } from './ui'
 import { TAB_BAR_HEIGHT } from '../lib/styles'
 
 // The app's sections. Desktop: a slim rail left of the panel, icon over label. Phones: a bottom
-// tab bar of icons alone, with the sheet sitting above it.
+// tab bar of icons, the current one named, with the sheet sitting above it.
 
 export type Section = 'explore' | 'parks' | 'trails' | 'foliage' | 'trips'
 
@@ -89,24 +89,43 @@ export function SideNav({ active, onNavigate, tripCount }: Props) {
   )
 }
 
+/** How long the current tab's name takes to slide open or closed. */
+const LABEL_MS = 250
+
 export function TabBar({ active, onNavigate, tripCount }: Props) {
+  // The tapped tab is marked at once and its page opens when the name has finished sliding.
+  // Building a page keeps the browser busy, and a name sliding at the same moment would stutter;
+  // Explore opens no page, so it goes straight away.
+  const [picked, setPicked] = useState<Section | null>(null)
+  const opening = useRef<number | undefined>(undefined)
+  useEffect(() => setPicked(null), [active])
+  useEffect(() => () => window.clearTimeout(opening.current), [])
+  const shown = picked ?? active
+  const pick = (id: Section, path: string) => {
+    window.clearTimeout(opening.current)
+    if (id === shown || id === 'explore') return onNavigate(path)
+    setPicked(id)
+    opening.current = window.setTimeout(() => onNavigate(path), LABEL_MS)
+  }
   return (
     <nav
       aria-label="Sections"
-      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-center gap-1 border-t border-[var(--line)] bg-[var(--surface)] pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-center gap-0.5 border-t border-[var(--line)] bg-[var(--surface)] pb-[env(safe-area-inset-bottom)] min-[360px]:gap-1"
       style={{ height: TAB_BAR_HEIGHT }}
     >
-      {/* Icons only, gathered in the middle; the section in view sits in a filled pill. */}
+      {/* Icons gathered in the middle. The section in view sits in a filled pill and carries its
+          name; the name slides open as its tab is chosen and closes as the choice moves on. */}
       {SECTIONS.map((s) => {
-        const on = active === s.id
+        const on = shown === s.id
+        const badged = s.id === 'trips' && tripCount > 0
         return (
           <button
             key={s.id}
-            onClick={() => onNavigate(s.path)}
+            onClick={() => pick(s.id, s.path)}
             aria-current={on ? 'page' : undefined}
             aria-label={s.label}
             title={s.label}
-            className={`flex h-11 w-14 items-center justify-center rounded-full transition active:scale-95 ${
+            className={`flex h-11 items-center justify-center rounded-full px-3 transition min-[360px]:px-3.5 active:scale-95 ${
               on ? 'bg-[var(--surface-2)] text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
             }`}
           >
@@ -114,6 +133,18 @@ export function TabBar({ active, onNavigate, tripCount }: Props) {
             <span className={`relative ${on ? 'animate-icon-pop' : ''}`}>
               {ICONS[s.id](on)}
               {s.id === 'trips' && <Badge n={tripCount} />}
+            </span>
+            {/* A grid column going from nothing to its natural width lets the pill grow with it. */}
+            <span
+              aria-hidden
+              style={{ transitionDuration: `${LABEL_MS}ms` }}
+              className={`grid transition-[grid-template-columns,opacity] ease-out ${
+                on ? 'grid-cols-[1fr] opacity-100' : 'grid-cols-[0fr] opacity-0'
+              }`}
+            >
+              <span className="min-w-0 overflow-hidden text-[13px] font-semibold whitespace-nowrap">
+                <span className={badged ? 'pl-3.5' : 'pl-2'}>{s.label}</span>
+              </span>
             </span>
           </button>
         )
