@@ -9,12 +9,13 @@ export type StopKind = 'groceries' | 'eat' | 'gas' | 'alcohol' | 'outfitter'
 export type Stop = { name: string; kind: StopKind; type: string; town?: string; lat: number; lng: number }
 export type NearStop = Stop & { km: number }
 
-export const STOP_KINDS: { id: StopKind; title: string; icon: PackIcon }[] = [
-  { id: 'groceries', title: 'Groceries and supplies', icon: 'park-store' },
-  { id: 'eat', title: 'Places to eat', icon: 'food' },
-  { id: 'gas', title: 'Gas', icon: 'gas' },
-  { id: 'alcohol', title: 'Beer, wine and spirits', icon: 'liquor' },
-  { id: 'outfitter', title: 'Outfitters', icon: 'outfitter' },
+/** `title` heads a group of stops; `one` names a single stop (on a trip). */
+export const STOP_KINDS: { id: StopKind; title: string; one: string; icon: PackIcon }[] = [
+  { id: 'groceries', title: 'Groceries and supplies', one: 'Groceries', icon: 'park-store' },
+  { id: 'eat', title: 'Places to eat', one: 'Place to eat', icon: 'food' },
+  { id: 'gas', title: 'Gas', one: 'Gas', icon: 'gas' },
+  { id: 'alcohol', title: 'Beer, wine and spirits', one: 'Beer, wine and spirits', icon: 'liquor' },
+  { id: 'outfitter', title: 'Outfitters', one: 'Outfitter', icon: 'outfitter' },
 ]
 
 // These three match scripts/build-nearby-stops.mjs.
@@ -49,6 +50,6 @@ export function stopsNear(stops: Stop[], lat: number, lng: number): { kind: (typ
 }
 
 /** The stop in Google Maps, for hours, reviews and directions. */
-export const stopMapsUrl = (s: Stop) => `https://www.google.com/maps/search/${encodeURIComponent(s.name)}/@${s.lat},${s.lng},15z`
+export const stopMapsUrl = (s: Pick<Stop, 'name' | 'lat' | 'lng'>) => `https://www.google.com/maps/search/${encodeURIComponent(s.name)}/@${s.lat},${s.lng},15z`
 
 export const stopDistance = (d: number) => (d < 10 ? `${d.toFixed(1)} km` : `${Math.round(d)} km`)

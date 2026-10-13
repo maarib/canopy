@@ -4,10 +4,11 @@ import { Add, Bookmark, Check } from 'relume-icons'
 import { tripActions, tripsContaining, useTrips, type StopRef } from '../lib/trips'
 
 /**
- * Save a region, park, trail or place to one or more trips (Airbnb-wishlist style).
- * With no trips yet, the first save creates "My trip".
+ * Save a region, park, trail, place or nearby stop to one or more trips (Airbnb-wishlist style).
+ * With no trips yet, the first save creates "My trip". `compact` is the bookmark alone, for the
+ * end of a list row; its menu opens toward the left.
  */
-export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }) {
+export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRef; name: string; compact?: boolean }) {
   const trips = useTrips()
   const saved = tripsContaining(trips, stopRef)
   const [open, setOpen] = useState(false)
@@ -59,12 +60,14 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
         aria-haspopup={trips.length ? 'menu' : undefined}
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition active:scale-[0.97] ${
+        aria-label={compact ? (isSaved ? `${name}: saved to a trip` : `Save ${name} to a trip`) : undefined}
+        title={compact ? (isSaved ? 'Saved to a trip' : 'Save to a trip') : undefined}
+        className={`inline-flex items-center rounded-full border text-sm transition active:scale-[0.97] ${compact ? 'size-9 justify-center' : 'gap-1.5 px-4 py-2'} ${
           isSaved ? 'border-brand bg-brand/10 font-medium text-brand hover:bg-brand/15' : 'border-[var(--line)] hover:bg-[var(--surface-2)]'
         }`}
       >
         <Bookmark className="size-4" />
-        {isSaved ? 'Saved' : 'Save'}
+        {!compact && (isSaved ? 'Saved' : 'Save')}
       </button>
 
       {presence.mounted && (
@@ -72,7 +75,7 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
           id={menuId}
           role="menu"
           aria-label={`Save ${name} to a trip`}
-          className={`absolute top-full left-0 z-30 mt-2 w-64 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}
+          className={`absolute top-full z-30 mt-2 w-64 ${compact ? 'right-0 origin-top-right' : 'left-0 origin-top-left'} ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}
         >
           <p className="px-2 pt-1 pb-2 text-xs font-semibold">Save to a trip</p>
           <ul className="max-h-56 overflow-y-auto">
@@ -120,7 +123,7 @@ export function SaveButton({ stopRef, name }: { stopRef: StopRef; name: string }
       )}
 
       {toast && (
-        <span role="status" className="absolute bottom-full left-0 z-30 mb-1.5 origin-bottom-left animate-pop-in whitespace-nowrap rounded-full bg-[var(--ink)] px-3 py-1 text-xs text-[var(--surface)] shadow-lg">
+        <span role="status" className={`absolute bottom-full z-30 mb-1.5 animate-pop-in whitespace-nowrap ${compact ? 'right-0 origin-bottom-right' : 'left-0 origin-bottom-left'} rounded-full bg-[var(--ink)] px-3 py-1 text-xs text-[var(--surface)] shadow-lg`}>
           {toast}
         </span>
       )}

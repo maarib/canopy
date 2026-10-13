@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { ChevronRight } from 'relume-icons'
 import { fetchNearbyStops, REACH_KM, stopDistance, stopMapsUrl, stopsNear } from '../lib/nearbyStops'
-import { ICON_TILE, LIST, ROW } from '../lib/styles'
+import { ICON_TILE, LIST, ROW_BESIDE } from '../lib/styles'
+import { stopRefFor } from '../lib/trips'
 import { AmenityIcon } from './ParkAmenities'
+import { SaveButton } from './SaveButton'
 import { Skeleton } from './ui'
 
 /** Groceries, places to eat, gas, beer and wine, and outfitters near a point. */
@@ -37,8 +38,8 @@ export function NearbyStops({ lat, lng }: { lat: number; lng: number }) {
             <h4 className="text-xs font-semibold tracking-wide text-[var(--ink-soft)] uppercase">{kind.title}</h4>
             <ul className={LIST}>
               {stops.map((s) => (
-                <li key={`${s.name}-${s.lat}-${s.lng}`}>
-                  <a href={stopMapsUrl(s)} target="_blank" rel="noreferrer" className={ROW}>
+                <li key={`${s.name}-${s.lat}-${s.lng}`} className="flex items-center gap-2">
+                  <a href={stopMapsUrl(s)} target="_blank" rel="noreferrer" className={ROW_BESIDE}>
                     <span className={`${ICON_TILE} bg-[var(--surface-2)]`}>
                       <AmenityIcon icon={kind.icon} size={26} />
                     </span>
@@ -47,9 +48,9 @@ export function NearbyStops({ lat, lng }: { lat: number; lng: number }) {
                       <span className="block truncate text-xs text-[var(--ink-soft)]">{s.town ? `${s.type} · ${s.town}` : s.type}</span>
                     </span>
                     <span className="shrink-0 text-sm tabular-nums text-[var(--ink-soft)]">{stopDistance(s.km)}</span>
-                    <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
                     <span className="sr-only">Opens in Google Maps</span>
                   </a>
+                  <SaveButton compact stopRef={stopRefFor(s)} name={s.name} />
                 </li>
               ))}
             </ul>
@@ -57,7 +58,7 @@ export function NearbyStops({ lat, lng }: { lat: number; lng: number }) {
         ))
       )}
       <p className="text-[11px] text-[var(--ink-soft)]">
-        Distances are in a straight line; a stop further than {REACH_KM} km is shown only when nothing is closer. Each row opens in Google Maps for hours and directions. Stops from ©{' '}
+        Distances are in a straight line; a stop further than {REACH_KM} km is shown only when nothing is closer. Each row opens in Google Maps for hours and directions; the bookmark saves it to a trip. Stops from ©{' '}
         <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
           OpenStreetMap
         </a>{' '}
