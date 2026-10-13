@@ -21,7 +21,7 @@ export type LookingFor = 'everything' | 'colors' | 'parks' | 'trails' | 'places'
 const WHAT: { id: LookingFor; label: string; hint: string; icon: ReactNode; ontarioOnly?: boolean }[] = [
   { id: 'everything', label: 'Everything', hint: 'Show it all on the map', icon: <Search className="size-5" /> },
   { id: 'colors', label: 'Fall colors', hint: 'Peak timing, reports and tree sightings', icon: <TreeIcon id="maples" className="size-5" /> },
-  { id: 'parks', label: 'Parks', hint: 'Provincial parks with color reports', icon: <PlaceIcon kind="peak" className="size-5" />, ontarioOnly: true },
+  { id: 'parks', label: 'Parks', hint: 'Every Ontario provincial park', icon: <PlaceIcon kind="peak" className="size-5" />, ontarioOnly: true },
   { id: 'trails', label: 'Trails', hint: 'Day hikes and backpacking routes', icon: <PlaceIcon kind="trail" className="size-5" />, ontarioOnly: true },
   { id: 'places', label: 'Lakes & waterfalls', hint: 'Falls, lookouts, lakes and peaks', icon: <PlaceIcon kind="waterfall" className="size-5" />, ontarioOnly: true },
 ]

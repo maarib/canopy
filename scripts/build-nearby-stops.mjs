@@ -94,9 +94,11 @@ for (const [kind, tags] of Object.entries(KINDS)) {
 
 // 2. The parks, trails and places a page can be opened for.
 const parks = JSON.parse(await readFile(new URL('../public/data/ontario-parks.json', import.meta.url), 'utf8')).parks
+const everyPark = JSON.parse(await readFile(new URL('../public/data/parks-index.json', import.meta.url), 'utf8')).parks
 const explore = JSON.parse(await readFile(new URL('../public/data/explore/algonquin.json', import.meta.url), 'utf8'))
 const anchors = [
   ...parks.map((p) => [p.lat, p.lng]),
+  ...everyPark.map((p) => [p.lat, p.lng]),
   ...explore.pois.map((p) => [p.lat, p.lng]),
   ...explore.trails.map((t) => [t.trailhead[1], t.trailhead[0]]),
 ]

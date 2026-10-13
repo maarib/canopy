@@ -4,7 +4,7 @@ import { signatureTree, type Region } from '../data/regions'
 import type { TreeInfo } from '../data/trees'
 import { parkCover, placeCover, regionCover } from '../lib/coverSpec'
 import { PLACE_KINDS, type Place } from '../lib/explore'
-import { parkTitle, type ParkReport } from '../lib/ontarioParks'
+import { parkColor, parkDetail, parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { formatWindow, peakPhase, PHASE_STYLE } from '../lib/peak'
 import { STAGES } from '../lib/stage'
 import { ICON_TILE, ROW } from '../lib/styles'
@@ -32,7 +32,7 @@ function Row({ cover, name, detail, badge, onClick }: { cover: ReactNode; name: 
   )
 }
 
-/** A park: its island, its region and color (or `detail`), and its stage. */
+/** A park: its island, its region and color (or `detail`), and its stage. A park with no report has no badge. */
 export function ParkRow({ park, detail, onClick }: { park: ParkReport; detail?: ReactNode; onClick: () => void }) {
   const stage = STAGES[park.stage]
   return (
@@ -42,14 +42,14 @@ export function ParkRow({ park, detail, onClick }: { park: ParkReport; detail?: 
           spec={parkCover(park)}
           fallback={
             <span className={`${ICON_TILE} bg-[var(--surface-2)]`}>
-              <span className="size-3.5 rounded-full" style={{ background: stage.color }} />
+              <span className="size-3.5 rounded-full" style={{ background: parkColor(park) }} />
             </span>
           }
         />
       }
       name={parkTitle(park)}
-      detail={detail ?? `${park.region} · ${park.colorChange ?? 0}% color`}
-      badge={<Badge size="sm" color={stage.color}>{stage.label}</Badge>}
+      detail={detail ?? `${park.region} · ${parkDetail(park)}`}
+      badge={park.report ? <Badge size="sm" color={stage.color}>{stage.label}</Badge> : undefined}
       onClick={onClick}
     />
   )

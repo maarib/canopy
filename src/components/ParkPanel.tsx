@@ -25,11 +25,11 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
 
       <header>
         <p className="text-xs font-medium tracking-wide text-[var(--ink-soft)] uppercase">
-          ON · {park.region} · Provincial park
+          ON · {park.region} · {park.classification && !park.report ? `${park.classification} park` : 'Provincial park'}
         </p>
         <h2 className="text-3xl leading-tight">{parkTitle(park)}</h2>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-          <Badge color={stage.color}>{stage.label}</Badge>
+          {park.report && <Badge color={stage.color}>{stage.label}</Badge>}
           {reported && (
             <span className="flex items-center gap-1 text-[var(--ink-soft)]" title="Official report date">
               <Schedule className="size-4" />
@@ -49,18 +49,25 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
       </section>
       <MoreLinks
         links={[
-          { label: 'Reserve a site', href: 'https://reservations.ontarioparks.ca/' },
-          { label: 'Ontario Parks page', href: park.url },
+          // Parks with a report are the ones Ontario Parks runs with campgrounds and gates.
+          ...(park.report ? [{ label: 'Reserve a site', href: 'https://reservations.ontarioparks.ca/' }] : []),
+          ...(park.url ? [{ label: 'Ontario Parks page', href: park.url }] : []),
         ]}
       />
 
-      <section className="space-y-3">
-        <Meter label="Color change" value={park.colorChange} color={stage.color} />
-        <Meter label="Leaf fall" value={park.leafFall} color={STAGES.past.color} />
-        <p className="text-sm">
-          <span className="text-[var(--ink-soft)]">Dominant color:</span> <strong>{park.dominantColor}</strong>
+      {park.report ? (
+        <section className="space-y-3">
+          <Meter label="Color change" value={park.colorChange} color={stage.color} />
+          <Meter label="Leaf fall" value={park.leafFall} color={STAGES.past.color} />
+          <p className="text-sm">
+            <span className="text-[var(--ink-soft)]">Dominant color:</span> <strong>{park.dominantColor}</strong>
+          </p>
+        </section>
+      ) : (
+        <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
+          Ontario Parks publishes no fall color report for this park. The colors on its cover are an estimate from the reports around it.
         </p>
-      </section>
+      )}
 
       <ForecastStrip lat={park.lat} lng={park.lng} />
 
@@ -77,13 +84,15 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
 
       <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} />
 
-      <p className="text-[11px] text-[var(--ink-soft)]">
-        Color data from the{' '}
-        <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
-          Ontario Parks Fall Colour Report
-        </a>
-        .
-      </p>
+      {park.report && (
+        <p className="text-[11px] text-[var(--ink-soft)]">
+          Color data from the{' '}
+          <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
+            Ontario Parks Fall Colour Report
+          </a>
+          .
+        </p>
+      )}
     </div>
   )
 }

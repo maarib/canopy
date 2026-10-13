@@ -26,7 +26,8 @@ export type CoverSpec = {
   place?: { id: string; kind: Place['kind']; water: Position[][]; course: Position[][] }
 }
 
-export const parkCover = (p: ParkReport): CoverSpec => ({ lat: p.lat, lng: p.lng, boundary: p.shortname, radiusKm: 2.5, park: p })
+/** A park without a report takes its colors from the reports around it, like any other place. */
+export const parkCover = (p: ParkReport): CoverSpec => ({ lat: p.lat, lng: p.lng, boundary: p.shortname, radiusKm: 2.5, ...(p.report ? { park: p } : null) })
 export const regionCover = (r: Region): CoverSpec => ({ lat: r.lat, lng: r.lng, boundary: r.id.replace(/-/g, ''), radiusKm: 18 })
 /** Island size for each kind of place, in km; a lake's island is sized to the lake instead. */
 const PLACE_RADIUS_KM: Record<Place['kind'], number> = { waterfall: 0.45, viewpoint: 0.7, peak: 0.9, lake: 1, river: 1, creek: 0.6 }
