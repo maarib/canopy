@@ -1,0 +1,30 @@
+name: Nearby stops (OpenStreetMap)
+on:
+  schedule:
+    # Monthly, 2nd at 11:00 UTC. Shops open and close slowly; the request covers all of Ontario.
+    - cron: '0 11 2 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm run data:nearby
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/nearby-stops.json
+          # The build script leaves the file untouched when no stop changed.
+          if ! git diff --cached --quiet; then
+            git commit -m "Update nearby stops"
+            git push
+          fi

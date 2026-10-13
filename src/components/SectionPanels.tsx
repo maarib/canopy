@@ -252,7 +252,7 @@ const SOURCES: { name: string; url: string; what: string; licence: string; refre
   { name: 'iNaturalist', url: 'https://www.inaturalist.org', what: 'Tree sightings and nearby photos', licence: "Observers' CC licences", refresh: 'Live' },
   { name: 'Ontario Ministry of Natural Resources', url: 'https://data.ontario.ca/dataset/fishing-access-points', what: 'Provincial park boundaries, fishing access points (Fish ON-Line), Ontario Trail Network', licence: 'Open Government Licence – Ontario', refresh: 'Monthly · weekly' },
   { name: 'Parks Canada', url: 'https://open.canada.ca/data/en/organization/pc', what: 'National park trails', licence: 'Open Government Licence – Canada', refresh: 'Live' },
-  { name: 'OpenStreetMap contributors', url: 'https://www.openstreetmap.org/copyright', what: 'Waterfalls, lookouts, lakes, creeks; basemap data', licence: 'ODbL', refresh: 'Weekly' },
+  { name: 'OpenStreetMap contributors', url: 'https://www.openstreetmap.org/copyright', what: 'Waterfalls, lookouts, lakes, creeks; nearby groceries, places to eat, gas and outfitters; basemap data', licence: 'ODbL', refresh: 'Weekly · monthly' },
   { name: 'Mapbox', url: 'https://www.mapbox.com/about/maps/', what: 'Basemap, satellite imagery and terrain', licence: 'Mapbox terms', refresh: 'Live' },
   { name: 'Natural Earth', url: 'https://www.naturalearthdata.com', what: "Ontario's outline, for the color outlook", licence: 'Public domain', refresh: 'Fixed' },
   { name: 'NASA GIBS', url: 'https://earthdata.nasa.gov/gibs', what: 'VIIRS satellite imagery', licence: 'Public domain', refresh: 'Daily' },

@@ -33,6 +33,11 @@
 - **Park boundaries:** opening a park outlines its regulated boundary on the map (a red-and-white dashed edge over a light wash, islands and separate parcels included) and fits the map to the whole park. Outlines come from the Ministry of Natural Resources for all 347 provincial parks.
 - **Icons:** activities and facilities use the Icons8 *Windows 11 Color* set (locked in `icons8.json`); trees keep Canopy's own leaf icons. Where the set has no icon, Canopy composes one from two of its icons (main plus corner badge: mountain biking, rock climbing, disc golf, whitewater, snowmobiling, cidery) or draws one in its style (kayaking, paddleboarding, in `public/icons/`).
 
+### Nearby stops
+- **Park, trail and place pages list what's nearby:** groceries and supplies, places to eat, gas, beer wine and spirits, and outfitters. Up to three of each within 40 km, closest first, each with its kind, its town and the straight-line distance. Where a kind has nothing within 40 km, the single closest within 120 km is shown instead.
+- **Each row opens the stop in Google Maps** for hours, reviews and directions. Canopy shows no opening hours: too few stops have them on record.
+- **From OpenStreetMap**, gathered for all of Ontario and trimmed to the stops closest to each park, trail and place (about 1,050). Stops cannot be added to a trip yet.
+
 ### Fishing access
 - **2,427 public fishing access points** across Ontario (boat launches, shoreline access, docks and piers) from the Ministry of Natural Resources, the data behind Fish ON-Line. They appear on the map from zoom 8; overlapping pins thin out automatically, named sites first.
 - **Each point has its own page** (`/fishing/:id`) with parking, fee, surface, owner and accessibility where known, the 7-day weather forecast, directions, and links to Fish ON-Line (species and stocking) and Ontario's fishing regulations.
@@ -89,6 +94,7 @@
 | Provincial park boundaries | One file per park in `public/data/park-boundaries/<shortname>.json`, built by `scripts/build-park-boundaries.mjs` from the Land Information Ontario layer; a park page loads only its own outline | Monthly (GitHub Action) |
 | Cover images | Drawn at deploy time by `scripts/build-covers.mjs` into `dist/covers/` (not committed): the app's own cover code in headless Chromium, for every fall-report park, region and trail. Only covers whose shape or colors changed are redrawn; the rest come from the previous deploy (GitHub Actions cache) | Every deploy |
 | Fishing access points | Snapshot `public/data/fishing-access.json`, built by `scripts/build-fishing-access.mjs` from the Land Information Ontario layer (public points only) | Monthly (GitHub Action) |
+| Nearby stops | Snapshot `public/data/nearby-stops.json`, built by `scripts/build-nearby-stops.mjs` from OpenStreetMap (Overpass API); only the stops closest to a listed park, trail or place are kept | Monthly (GitHub Action) |
 | Trails and places (Explore) | Snapshot `public/data/explore/<area>.json`, built by `scripts/build-explore.mjs` | Weekly (GitHub Action) |
 | iNaturalist sightings | Live from API v2 (only the fields used), streamed page by page; cached on the device for 30 min | Live, last 14 days |
 | Nearby photos | Live from iNaturalist | Live |
@@ -130,6 +136,7 @@ npm run dev
 | `npm run data:ontario-parks` | Refresh the Ontario Parks snapshot |
 | `npm run data:explore [area]` | Rebuild trails and places (all areas, or one) |
 | `npm run data:fishing` | Refresh fishing access points |
+| `npm run data:nearby` | Refresh nearby stops (takes about ten minutes) |
 | `npm run data:park-boundaries` | Refresh provincial park boundaries |
 | `npm run data:outlook-grid` | Rebuild the grid of Ontario hexagons for the color outlook (only needed if the hexagon sizes change) |
 | `npm run covers [out] [--reuse dir]` | Pre-draw cover images (default `dist/covers`); `--reuse` copies unchanged covers from a previous run |
@@ -213,7 +220,7 @@ Tracked as epics and milestones on the [project board](https://github.com/users/
 - **Activity and facility icons:** [Icons8](https://icons8.com) (Windows 11 Color)
 - **Trails (Ontario):** [Ontario Trail Network](https://data.ontario.ca/dataset/ontario-trail-network), Ministry of Natural Resources, Open Government Licence – Ontario
 - **Trails (national parks):** [Parks Canada](https://open.canada.ca/data/en/dataset/64a90e8d-5bc0-4027-8645-b5881b4068d4), Open Government Licence – Canada
-- **Waterfalls, lookouts, lakes, creeks:** © OpenStreetMap contributors (ODbL)
+- **Waterfalls, lookouts, lakes, creeks; nearby stops:** © OpenStreetMap contributors (ODbL)
 - **Sightings and photos:** [iNaturalist](https://www.inaturalist.org) observers (individual CC licences)
 - **Weather:** [Open-Meteo](https://open-meteo.com) (CC BY 4.0)
 - **Satellite imagery:** [NASA GIBS](https://www.earthdata.nasa.gov/gibs) · **Elevation:** Mapzen Terrarium / AWS Open Data

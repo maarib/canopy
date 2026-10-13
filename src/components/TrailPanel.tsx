@@ -17,6 +17,7 @@ import { ROW } from '../lib/styles'
 import { ElevationChart } from './ElevationChart'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
+import { NearbyStops } from './NearbyStops'
 import { PlaceIcon } from './PlaceIcon'
 import { SaveButton } from './SaveButton'
 import { BackButton, Badge, LinkButton, MoreLinks, ShareButton } from './ui'
@@ -136,6 +137,8 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
           <p className="mt-2 text-xs text-[var(--ink-soft)]">Allowed: {trail.uses}</p>
         </section>
       )}
+
+      <NearbyStops lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
 
       <NearbyPhotos lat={trail.trailhead[1]} lng={trail.trailhead[0]} radiusKm={Math.max(3, Math.round(trail.lengthKm / 2))} />
 

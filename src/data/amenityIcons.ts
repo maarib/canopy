@@ -57,6 +57,9 @@ export const AMENITY_ICONS = {
   'ev-charging': '5XZRgEg2SRb9',
   pool: '1GkaoxFfL9wx',
   tobogganing: '1mENOaB0HTpp',
+  gas: '9JHIJk60xdLp',
+  liquor: 'afMrhPmVhNz9',
+  outfitter: 'Pjn4ujEOB8wo',
 } as const
 
 /**

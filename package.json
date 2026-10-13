@@ -14,6 +14,7 @@
     "data:fishing": "node scripts/build-fishing-access.mjs",
     "data:park-boundaries": "node scripts/build-park-boundaries.mjs",
     "data:outlook-grid": "node scripts/build-outlook-grid.mjs",
+    "data:nearby": "node scripts/build-nearby-stops.mjs",
     "covers": "node scripts/build-covers.mjs"
   },
   "dependencies": {
