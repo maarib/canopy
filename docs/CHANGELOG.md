@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Trips: save nearby stops ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
 | [v1.5.2](https://github.com/maarib/canopy/releases/tag/v1.5.2) | 2026-10-09 | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)); phone tab bar of icons only ([#133](https://github.com/maarib/canopy/pull/133)); buttons in title case, and the Trips form stacked on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
@@ -23,6 +24,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-13 | [Trips: save nearby stops](#2026-10-13-trips-save-nearby-stops) | [#147](https://github.com/maarib/canopy/pull/147) |
 | 2026-10-12 | [Nearby: where to buy food, eat and fill up](#2026-10-12-nearby-where-to-buy-food-eat-and-fill-up) | [#143](https://github.com/maarib/canopy/pull/143) |
 | 2026-10-10 | [Phone tab bar: the current tab carries its name](#2026-10-10-phone-tab-bar-the-current-tab-carries-its-name) | [#140](https://github.com/maarib/canopy/pull/140) |
 | 2026-10-09 | [About and Data sources: shorter copy](#2026-10-09-about-and-data-sources-shorter-copy) | [#139](https://github.com/maarib/canopy/pull/139) |
@@ -69,6 +71,27 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-13 · Trips: save nearby stops
+
+**Ref:** [#147](https://github.com/maarib/canopy/pull/147) · issue [#142](https://github.com/maarib/canopy/issues/142)
+
+**Before.** A trip could hold regions, parks, trails and places. The shops, places to eat and gas stations in a Nearby list could only be opened in Google Maps.
+
+**After.**
+- **A bookmark at the end of every Nearby row** saves that stop to a trip. With no trips yet it creates "My trip"; otherwise it opens the same menu as the Save button on pages, opening toward the left. The row's chevron made way for it.
+- **On a trip** a stop is listed with its icon and kind ("Groceries", "Gas"), numbered on the map in slate grey, and included in the day's Google Maps route, the GPX file and the calendar entry.
+- **Opening a stop from a trip** goes to Google Maps in a new tab, since a stop has no page of its own.
+- **Share links** carry stops.
+
+**How.** A stop's trip reference holds everything about it, `stop:<kind>~<lat>~<lng>~<name>`, so a saved or shared trip still shows the stop if it later leaves the data. `decodeTrip` accepts that form alongside the existing ones. `SaveButton` gained a `compact` form (the bookmark alone).
+
+**Limits.**
+- A stop saved to a trip keeps the name and position it had when saved; it is not updated if the shop is renamed or moves.
+- The stop's town is not shown on the trip.
+- An older copy of Canopy opening a shared link drops the stops and keeps the rest.
 
 ## v1.5.4
 
