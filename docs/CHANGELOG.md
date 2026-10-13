@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
 | [v1.5.2](https://github.com/maarib/canopy/releases/tag/v1.5.2) | 2026-10-09 | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)); phone tab bar of icons only ([#133](https://github.com/maarib/canopy/pull/133)); buttons in title case, and the Trips form stacked on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
@@ -23,6 +24,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-13 | [Near me: your location on the map and distances in lists](#2026-10-13-near-me-your-location-on-the-map-and-distances-in-lists) | [#145](https://github.com/maarib/canopy/pull/145) |
 | 2026-10-12 | [Nearby: where to buy food, eat and fill up](#2026-10-12-nearby-where-to-buy-food-eat-and-fill-up) | [#143](https://github.com/maarib/canopy/pull/143) |
 | 2026-10-10 | [Phone tab bar: the current tab carries its name](#2026-10-10-phone-tab-bar-the-current-tab-carries-its-name) | [#140](https://github.com/maarib/canopy/pull/140) |
 | 2026-10-09 | [About and Data sources: shorter copy](#2026-10-09-about-and-data-sources-shorter-copy) | [#139](https://github.com/maarib/canopy/pull/139) |
@@ -69,6 +71,29 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-13 · Near me: your location on the map and distances in lists
+
+**Ref:** [#145](https://github.com/maarib/canopy/pull/145) · issue [#22](https://github.com/maarib/canopy/issues/22)
+
+**Before.** Canopy never asked where you were. Lists gave no sense of how far anything was.
+
+**After.**
+- **A locate button** under the map's zoom buttons. Pressing it asks the browser for your location, flies the map there (zoom 9 or closer) and marks the spot with a blue dot. Pressing it again comes back to the dot.
+- **Distances in lists.** Once located, park, region and place rows and trail cards end with the straight-line distance, for example "· 54 km away". Before that, rows look as they did.
+- **Parks → Sort → Nearest** orders parks by distance. Choosing it asks for your location if it is not known yet.
+- **Blocked or unavailable:** a note beside the button (and under the Parks filters when sorting by Nearest) says location is blocked and how to allow it, or that it could not be found. The note by the button leaves after six seconds.
+- **Returning visitors** who allowed location before are located again without a prompt, when the browser can confirm permission is still granted.
+
+**How.** One small store (`src/lib/location.ts`) follows the position with `watchPosition` at low accuracy and ignores moves under about 20 m, so lists do not redraw for jitter. The button is a Mapbox control group rendered into from React (`LocateControl` in `FoliageMap.tsx`). The position is kept in memory only; a flag in `localStorage` (`canopy:near-me`) records that it was turned on.
+
+**Limits.**
+- Distances are straight lines, not by road.
+- The map does not centre on you when the app first opens; that part of MAP-7 is not built.
+- There is no control to turn it off again short of blocking location in the browser.
+- Checked in headless Chromium with a set position; not on a real phone.
 
 ## v1.5.4
 
