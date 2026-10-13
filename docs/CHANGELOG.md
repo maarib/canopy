@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | A page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
 | [v1.5.2](https://github.com/maarib/canopy/releases/tag/v1.5.2) | 2026-10-09 | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)); phone tab bar of icons only ([#133](https://github.com/maarib/canopy/pull/133)); buttons in title case, and the Trips form stacked on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
@@ -23,6 +24,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-13 | [A page for every Ontario provincial park](#2026-10-13-a-page-for-every-ontario-provincial-park) | [#146](https://github.com/maarib/canopy/pull/146) |
 | 2026-10-12 | [Nearby: where to buy food, eat and fill up](#2026-10-12-nearby-where-to-buy-food-eat-and-fill-up) | [#143](https://github.com/maarib/canopy/pull/143) |
 | 2026-10-10 | [Phone tab bar: the current tab carries its name](#2026-10-10-phone-tab-bar-the-current-tab-carries-its-name) | [#140](https://github.com/maarib/canopy/pull/140) |
 | 2026-10-09 | [About and Data sources: shorter copy](#2026-10-09-about-and-data-sources-shorter-copy) | [#139](https://github.com/maarib/canopy/pull/139) |
@@ -69,6 +71,33 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-13 · A page for every Ontario provincial park
+
+**Ref:** [#146](https://github.com/maarib/canopy/pull/146) · issue [#86](https://github.com/maarib/canopy/issues/86)
+
+**Before.** Only parks with a fall color report had a page, a list row and a search result: 61 in the Parks list. The other parks had boundaries, activities and facilities on file with nowhere to show them. Four parks with reports (Algonquin, Lake Superior, Rainbow Falls, Bronte Creek) were also missing from the Parks list, because none of their report locations is marked as the main one.
+
+**After.**
+- **All 347 parks have a page.** A park without a report shows its class in the heading ("Cultural Heritage park"), its boundary on the map, activities and facilities, the forecast, nearby stops and photos. In place of the color meters it says Ontario Parks publishes no fall color report for it. Its cover is drawn from its real boundary, with colors estimated from the reports around it.
+- **Parks list:** 348 entries (Lake Superior has two report locations). Parks with a report come first under "Best color"; the rest follow by name, with their class in place of a percentage and no stage badge. A new **Show** menu narrows the list to parks with a color report. The activity filter and its counts cover every park.
+- **Search** finds every park.
+- **Trips:** any park can be saved to a trip.
+- **The four missing parks** are in the list and in search.
+- **Nearby stops** now cover every park: the data went from 1,046 to 2,476 stops (278 kB, 49 kB compressed).
+
+**How.**
+- `scripts/build-parks-index.mjs` writes `public/data/parks-index.json` (347 parks, 13 kB compressed) from files already in the repo: the boundary gives the position (the middle of the largest piece), the Ontario Parks page gives name, class, size, year and link. It makes no requests and runs after the boundary and facility jobs.
+- A park without a report is given the same shape as a report location (`allParks` in `src/lib/ontarioParks.ts`) with `report: false`, keyed by its Ontario Parks shortname, so `/park/petroglyphs` opens it. Lists, search, trips and the park page treat both alike and check `report` where color is shown.
+
+**Limits.**
+- On the map, only parks with a report have a pin; the others appear when opened.
+- A park without a report has no pre-drawn cover, so its list row shows a grey dot and its page draws the cover in the browser.
+- Its region is that of the nearest park with a report, since Ontario Parks only assigns regions on its color report.
+- Seven parks have no Ontario Parks page (Alfred Bog, Hay Marsh, Uxbridge and four additions), so they have no activities, facilities or link.
+- Names in French, Ojibwe and Cree, and operating status, are not shown.
 
 ## v1.5.4
 
