@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
 | [v1.5.2](https://github.com/maarib/canopy/releases/tag/v1.5.2) | 2026-10-09 | Light, dark or match the device, from the account menu ([#132](https://github.com/maarib/canopy/pull/132)); phone tab bar of icons only ([#133](https://github.com/maarib/canopy/pull/133)); buttons in title case, and the Trips form stacked on phones ([#134](https://github.com/maarib/canopy/pull/134)) |
 | [v1.5.1](https://github.com/maarib/canopy/releases/tag/v1.5.1) | 2026-10-08 | Mapbox logo no longer cut off on live covers ([#129](https://github.com/maarib/canopy/pull/129)) |
@@ -22,6 +23,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-12 | [Nearby: where to buy food, eat and fill up](#2026-10-12-nearby-where-to-buy-food-eat-and-fill-up) | [#143](https://github.com/maarib/canopy/pull/143) |
 | 2026-10-10 | [Phone tab bar: the current tab carries its name](#2026-10-10-phone-tab-bar-the-current-tab-carries-its-name) | [#140](https://github.com/maarib/canopy/pull/140) |
 | 2026-10-09 | [About and Data sources: shorter copy](#2026-10-09-about-and-data-sources-shorter-copy) | [#139](https://github.com/maarib/canopy/pull/139) |
 | 2026-10-09 | [Stills drawn in the browser no longer pile up](#2026-10-09-stills-drawn-in-the-browser-no-longer-pile-up) | [#138](https://github.com/maarib/canopy/pull/138) |
@@ -67,6 +69,35 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-12 · Nearby: where to buy food, eat and fill up
+
+**Ref:** [#143](https://github.com/maarib/canopy/pull/143) · issue [#142](https://github.com/maarib/canopy/issues/142)
+
+**Before.** A park, trail or place page said nothing about where to buy food, eat or get gas on the way.
+
+**After.**
+- **A "Nearby" list** on park, trail and place pages, in five groups: groceries and supplies, places to eat, gas, beer wine and spirits, outfitters. A group with nothing to show is left out.
+- **Up to three stops per group within 40 km**, closest first. Each row has the stop's name, its kind and town ("General store · Cloyne") and the straight-line distance.
+- **Remote places:** where a group has nothing within 40 km, the single closest within 120 km is shown, so Lake Superior's south end lists gas 41 km away instead of nothing.
+- **Each row opens the stop in Google Maps.** No opening hours are shown; OpenStreetMap has them for too few stops.
+- **Three new icons** from the same set as the rest: a gas station, a wine bottle and a rucksack.
+
+**How.**
+- `scripts/build-nearby-stops.mjs` asks OpenStreetMap (Overpass) for every named stop of those kinds in Ontario (about 42,000), keeps the four closest of each kind to each of 150 parks, trails and places, and names each one's town from the nearest settlement. The result, `public/data/nearby-stops.json`, holds 1,046 stops (117 kB, 20 kB compressed) and is fetched only when a page shows the list.
+- The script writes nothing if an answer comes back short. Overpass can answer with part of the data when it runs out of time; the first run returned 101 of 1,091 beer and wine stores that way.
+- A page finds its own nearest stops by distance (`src/lib/nearbyStops.ts`), so trails and places need no data of their own.
+- Refreshed monthly by `.github/workflows/nearby-stops.yml`.
+
+**Limits.**
+- Distances are straight lines, not by road.
+- Whether a listed stop is still open has not been checked.
+- Some kinds are wrong at the source: Algonquin's nearest "gas" is an outfitter's store.
+- 98 of the 1,046 stops have no town, mostly ones inside a park.
+- Stops cannot be added to a trip.
+- Fishing access and region pages do not have the list.
 
 ## v1.5.3
 
