@@ -5,6 +5,7 @@ import type { TreeInfo } from '../data/trees'
 import { parkCover, placeCover, regionCover } from '../lib/coverSpec'
 import { PLACE_KINDS, type Place } from '../lib/explore'
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
+import { useAway } from '../lib/location'
 import { formatWindow, peakPhase, PHASE_STYLE } from '../lib/peak'
 import { STAGES } from '../lib/stage'
 import { ICON_TILE, ROW } from '../lib/styles'
@@ -18,18 +19,27 @@ import { Badge } from './ui'
 // Parks, Foliage, Explore and on a tree's page; only the line of detail may differ. (Trails have
 // TrailCard in TrailPanel, built the same way.)
 
-function Row({ cover, name, detail, badge, onClick }: { cover: ReactNode; name: string; detail: ReactNode; badge?: ReactNode; onClick: () => void }) {
+function Row({ cover, name, detail, at, badge, onClick }: { cover: ReactNode; name: string; detail: ReactNode; at?: { lat: number; lng: number }; badge?: ReactNode; onClick: () => void }) {
   return (
     <button onClick={onClick} className={ROW}>
       {cover}
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium">{name}</span>
-        <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">{detail}</span>
+        <span className="flex items-center gap-1.5 text-xs text-[var(--ink-soft)]">
+          {at ? <span className="truncate">{detail}</span> : detail}
+          {at && <Away lat={at.lat} lng={at.lng} />}
+        </span>
       </span>
       {badge}
       <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
     </button>
   )
+}
+
+/** "· 42 km away" once the person has been located (the locate button on the map); nothing before. */
+export function Away({ lat, lng }: { lat: number; lng: number }) {
+  const away = useAway(lat, lng)
+  return away ? <span className="shrink-0">· {away}</span> : null
 }
 
 /** A park: its island, its region and color (or `detail`), and its stage. */
@@ -49,6 +59,7 @@ export function ParkRow({ park, detail, onClick }: { park: ParkReport; detail?: 
       }
       name={parkTitle(park)}
       detail={detail ?? `${park.region} · ${park.colorChange ?? 0}% color`}
+      at={park}
       badge={<Badge size="sm" color={stage.color}>{stage.label}</Badge>}
       onClick={onClick}
     />
@@ -72,6 +83,7 @@ export function RegionRow({ region, onClick }: { region: Region; onClick: () => 
       }
       name={region.name}
       detail={`${region.province} · peak ${formatWindow(region)}`}
+      at={region}
       badge={<Badge size="sm" color={phase.color}>{phase.label}</Badge>}
       onClick={onClick}
     />
@@ -95,6 +107,7 @@ export function PlaceRow({ place, onClick }: { place: Place; onClick: () => void
       }
       name={place.name}
       detail={`${kind.label}${place.ele ? ` · ${place.ele} m` : ''}${place.trails.length ? ` · on ${place.trails.length} trail${place.trails.length > 1 ? 's' : ''}` : ''}`}
+      at={place}
       onClick={onClick}
     />
   )

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { FeatureCollection, Point } from 'geojson'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { memo, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
+import { createPortal } from 'react-dom'
 import Map, {
   AttributionControl,
   Layer,
@@ -9,10 +10,13 @@ import Map, {
   NavigationControl,
   Popup,
   Source,
+  useControl,
+  useMap,
   type MapMouseEvent,
   type MapRef,
 } from 'react-map-gl/mapbox'
-import { ExternalIcon } from './ui'
+import { ExternalIcon, LocateIcon } from './ui'
+import { locate, LOCATION_HELP, useLocation } from '../lib/location'
 import { signatureTree, type Region } from '../data/regions'
 import { MapSkeleton } from './MapSkeleton'
 import { useHoverPoint } from '../lib/hoverStore'
@@ -500,6 +504,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
       terrain={layers.terrain3d ? { source: 'mapbox-dem', exaggeration: 1.4 } : undefined}
     >
       <NavigationControl position="top-right" visualizePitch />
+      <LocateControl />
       <AttributionControl compact position="bottom-right" />
 
       {/*
@@ -962,3 +967,68 @@ function MissingToken() {
   )
 }
 
+
+/**
+ * "Near me": a button under the zoom buttons that asks for the person's position, flies to it
+ * and marks it with a dot. Pressing it again comes back to the dot. If the browser says no, a
+ * note beside the button says how to allow it.
+ */
+function LocateControl() {
+  const here = useLocation()
+  const { current: map } = useMap()
+  // The button lives in a Mapbox control group, so it lines up with the zoom buttons.
+  const [box] = useState(() => {
+    const el = document.createElement('div')
+    el.className = 'mapboxgl-ctrl mapboxgl-ctrl-group'
+    return el
+  })
+  useControl(() => ({ onAdd: () => box, onRemove: () => box.remove() }), { position: 'top-right' })
+
+  // Fly to the position when it first arrives after a press, not on every update.
+  const wanted = useRef(false)
+  const position = here.status === 'on' ? here : null
+  useEffect(() => {
+    if (!position || !wanted.current) return
+    wanted.current = false
+    map?.flyTo({ center: [position.lng, position.lat], zoom: Math.max(map.getZoom(), 9), duration: 1200 })
+  }, [position, map])
+
+  const failed = here.status === 'denied' || here.status === 'unavailable'
+  // The note goes away by itself after a few seconds, and comes back on the next failed try.
+  const [seen, setSeen] = useState<typeof here | null>(null)
+  useEffect(() => {
+    if (!failed) return
+    const t = setTimeout(() => setSeen(here), 6000)
+    return () => clearTimeout(t)
+  }, [failed, here])
+  const note = failed && seen !== here
+
+  function press() {
+    if (position) return void map?.flyTo({ center: [position.lng, position.lat], zoom: Math.max(map.getZoom(), 9), duration: 1200 })
+    wanted.current = true
+    locate()
+  }
+
+  return (
+    <>
+      {createPortal(
+        <>
+          <button type="button" onClick={press} aria-label={position ? 'Go to my location' : 'Show my location'} title={position ? 'Go to my location' : 'Show my location'} aria-busy={here.status === 'asking'}>
+            <span className={`flex size-full items-center justify-center ${position ? 'text-[#1a73e8]' : 'text-[#333]'} ${here.status === 'asking' ? 'animate-pulse' : ''}`}>
+              <LocateIcon on={!!position} />
+            </span>
+          </button>
+          <p role="status" className={`absolute top-0 right-full mr-2 w-56 rounded-xl bg-[var(--surface)] px-3 py-2 text-xs leading-snug text-[var(--ink)] shadow-lg ${note ? '' : 'hidden'}`}>
+            {failed ? LOCATION_HELP[here.status] : ''}
+          </p>
+        </>,
+        box,
+      )}
+      {position && (
+        <Marker longitude={position.lng} latitude={position.lat} anchor="center" style={{ pointerEvents: 'none' }}>
+          <span className="block size-4 rounded-full border-[3px] border-white bg-[#1a73e8] shadow-[0_0_0_6px_rgb(26_115_232/0.2),0_1px_4px_rgb(0_0_0/0.4)]" role="img" aria-label="Your location" />
+        </Marker>
+      )}
+    </>
+  )
+}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { FilterList, Search } from 'relume-icons'
 import { PARK_FILTERS } from '../data/amenityIcons'
+import { distanceKm, locate, LOCATION_HELP, useLocation } from '../lib/location'
 import { DIFFICULTY, PLACE_KINDS, type Difficulty, type Place, type PlaceKind, type Trail } from '../lib/explore'
 import { parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { normalize } from '../lib/search'
@@ -58,8 +59,8 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
 /** Ontario Parks writes two of its regions both ways ("Northeast" and "Northeastern"); the filter treats each pair as one. */
 const regionOf = (p: ParkReport) => p.region.replace(/^(North(?:east|west))$/, '$1ern')
 
-type ParkSort = 'color' | 'name'
-const PARK_SORTS: Record<ParkSort, string> = { color: 'Best color', name: 'A–Z' }
+type ParkSort = 'color' | 'near' | 'name'
+const PARK_SORTS: Record<ParkSort, string> = { color: 'Best color', near: 'Nearest', name: 'A–Z' }
 
 export function ParksPanel({
   parks,
@@ -82,16 +83,23 @@ export function ParksPanel({
   const [region, setRegion] = useState<string | null>(null)
   const regions = useMemo(() => [...new Set((parks ?? []).filter((p) => p.main).map(regionOf))].sort(), [parks])
 
+  const here = useLocation()
+  const origin = here.status === 'on' ? here : null
+
   const list = useMemo(() => {
     const q = normalize(query)
+    const byColor = (a: ParkReport, b: ParkReport) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0)
     return (parks ?? [])
       .filter((p) => p.main && (!region || regionOf(p) === region) && (!q || normalize(parkTitle(p)).includes(q)))
       .sort((a, b) =>
         sort === 'name'
           ? parkTitle(a).localeCompare(parkTitle(b))
-          : STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0),
+          : // Until the position is known, "Nearest" keeps the usual order.
+            sort === 'near' && origin
+            ? distanceKm(origin.lat, origin.lng, a.lat, a.lng) - distanceKm(origin.lat, origin.lng, b.lat, b.lng)
+            : byColor(a, b),
       )
-  }, [parks, query, sort, region])
+  }, [parks, query, sort, region, origin])
 
   return (
     <div className="space-y-4 p-5">
@@ -114,10 +122,14 @@ export function ParksPanel({
         </MenuButton>
         <MenuButton label="Sort" value={PARK_SORTS[sort]} active={false}>
           {(close) =>
-            (Object.keys(PARK_SORTS) as ParkSort[]).map((id) => <MenuOption key={id} selected={sort === id} label={PARK_SORTS[id]} onClick={() => (setSort(id), close())} />)
+            (Object.keys(PARK_SORTS) as ParkSort[]).map((id) => <MenuOption key={id} selected={sort === id} label={PARK_SORTS[id]} onClick={() => (id === 'near' && locate(), setSort(id), close())} />)
           }
         </MenuButton>
       </div>
+
+      {sort === 'near' && (here.status === 'denied' || here.status === 'unavailable') && (
+        <p role="status" className="text-sm text-[var(--ink-soft)]">{LOCATION_HELP[here.status]}</p>
+      )}
 
       {activities.length > 0 && (
         <p className="text-sm">
