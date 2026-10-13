@@ -381,6 +381,14 @@
         "id": "1mENOaB0HTpp",
         "label": "Tobogganing (winter landscape: a snowy hill)",
         "standIn": true
+      },
+      "liquor": {
+        "id": "afMrhPmVhNz9",
+        "label": "Beer, wine and spirits (wine bottle)"
+      },
+      "outfitter": {
+        "id": "Pjn4ujEOB8wo",
+        "label": "Outfitter (rucksack)"
       }
     },
     "note": "Tree and leaf icons are Canopy's own (src/lib/leafShapes.ts). Every other place, activity and facility uses this pack. Where the pack has no icon: `composed` pairs two pack icons (main + corner badge, the pack's own pattern), and `drawn` icons are Canopy-made in the pack's style.",

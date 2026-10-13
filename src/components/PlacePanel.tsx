@@ -5,6 +5,7 @@ import { isPhotoSpot, PLACE_KINDS, type ExploreArea, type Place, type Trail } fr
 import { directionsUrl } from '../lib/peak'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
+import { NearbyStops } from './NearbyStops'
 import { PlaceIcon } from './PlaceIcon'
 import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
@@ -87,6 +88,8 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
           <p className="text-sm text-[var(--ink-soft)]">No mapped trail passes here. It may be reachable by road, canoe or an unofficial path.</p>
         )}
       </section>
+
+      <NearbyStops lat={place.lat} lng={place.lng} />
 
       <NearbyPhotos lat={place.lat} lng={place.lng} radiusKm={3} />
 

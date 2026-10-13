@@ -5,6 +5,7 @@ import { directionsUrl } from '../lib/peak'
 import { STAGES } from '../lib/stage'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
+import { NearbyStops } from './NearbyStops'
 import { ParkAmenities } from './ParkAmenities'
 import { SaveButton } from './SaveButton'
 import { LocationOn, Schedule } from 'relume-icons'
@@ -71,6 +72,8 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
       )}
 
       <ParkAmenities shortname={park.shortname} />
+
+      <NearbyStops lat={park.lat} lng={park.lng} />
 
       <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} />
 
