@@ -213,7 +213,7 @@ export function ExploreSearch({ up, compact, autoFocus, ...props }: SearchProps 
 }
 
 const QUICK: { label: string; path: string; icon: ReactNode; color: string }[] = [
-  { label: 'Peaking now', path: '/parks', icon: <TreeIcon id="maples" tone="mono" className="size-4" />, color: STAGES.peak.color },
+  { label: 'Best right now', path: '/best', icon: <TreeIcon id="maples" tone="mono" className="size-4" />, color: STAGES.peak.color },
   { label: 'Easy trails', path: '/places?level=easy', icon: <PlaceIcon kind="trail" className="size-4" />, color: PLACE_KINDS.trail.color },
   { label: 'Waterfalls & lookouts', path: '/places?show=waterfall', icon: <PlaceIcon kind="waterfall" className="size-4" />, color: PLACE_KINDS.waterfall.color },
 ]

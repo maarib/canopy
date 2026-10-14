@@ -28,6 +28,7 @@ import { TREE_GROUP_IDS } from './data/treeGroups'
 import { useIsDesktop, useThrottledWhile } from './hooks'
 import {
   AboutPanel,
+  BestPanel,
   DataSourcesPanel,
   ExplorePanel,
   FishingPanel,
@@ -107,6 +108,7 @@ type Selection =
   | { kind: 'place'; place: Place; area: ExploreArea }
   | { kind: 'fishing'; access: FishingAccess }
   | { kind: 'parks' }
+  | { kind: 'best' }
   | { kind: 'trails' }
   | { kind: 'foliage' }
   | { kind: 'about' }
@@ -209,7 +211,7 @@ export default function App() {
   const trailMatch = matchPath('/trail/:slug', location.pathname)
   const placeMatch = matchPath('/place/:slug', location.pathname)
   const fishingMatch = matchPath('/fishing/:slug', location.pathname)
-  const sectionPath = (['/parks', '/places', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
+  const sectionPath = (['/parks', '/best', '/places', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
   // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
   const fishing = useQuery({
     queryKey: ['fishing-access'],
@@ -225,7 +227,7 @@ export default function App() {
   const selection: Selection = useMemo(() => {
     if (onTripsPage) return { kind: 'trips' }
     // Places lives at /places; /trails is its old address and still works.
-    if (sectionPath) return { kind: (sectionPath === '/places' ? 'trails' : sectionPath.slice(1)) as 'parks' | 'trails' | 'foliage' | 'about' | 'sources' }
+    if (sectionPath) return { kind: (sectionPath === '/places' ? 'trails' : sectionPath.slice(1)) as 'parks' | 'best' | 'trails' | 'foliage' | 'about' | 'sources' }
     if (tripMatch) {
       if (tripMatch.params.id === 'shared') {
         const shared = decodeTrip(params.get('t') ?? '')
@@ -361,7 +363,7 @@ export default function App() {
             ? `place:${selection.place.id}`
             : selection?.kind === 'fishing'
               ? `fishing:${selection.access.id}`
-            : selection?.kind === 'parks' || selection?.kind === 'trails' || selection?.kind === 'foliage' || selection?.kind === 'about' || selection?.kind === 'sources'
+            : selection?.kind === 'parks' || selection?.kind === 'best' || selection?.kind === 'trails' || selection?.kind === 'foliage' || selection?.kind === 'about' || selection?.kind === 'sources'
               ? selection.kind
             : selection?.kind === 'trips'
               ? 'trips'
@@ -409,6 +411,8 @@ export default function App() {
                 ? accessTitle(selection.access)
               : selection?.kind === 'parks'
                 ? 'Parks'
+              : selection?.kind === 'best'
+                ? 'Best right now'
               : selection?.kind === 'trails'
                 ? 'Places'
               : selection?.kind === 'foliage'
@@ -470,7 +474,7 @@ export default function App() {
 
   /** Which nav item a page belongs to. */
   const section: Section | null =
-    selection === null || selection.kind === 'fishing'
+    selection === null || selection.kind === 'fishing' || selection.kind === 'best'
       ? 'explore'
       : selection.kind === 'parks' || selection.kind === 'park'
         ? 'parks'
@@ -701,6 +705,8 @@ export default function App() {
         onOpenStop={openStop}
         onSaveCopy={() => openTrip(tripActions.importShared(selection.trip))}
       />
+    ) : selection?.kind === 'best' ? (
+      <BestPanel parks={everyPark} onSelectPark={selectPark} />
     ) : selection?.kind === 'parks' ? (
       <ParksPanel
         parks={listedParks}

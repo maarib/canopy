@@ -6,6 +6,7 @@ import { lazy } from 'react'
 
 const load = {
   explore: () => import('./components/ExplorePanel'),
+  best: () => import('./components/BestPanel'),
   sections: () => import('./components/SectionPanels'),
   foliage: () => import('./components/FoliagePanel'),
   trips: () => import('./components/TripPanels'),
@@ -18,6 +19,7 @@ const load = {
 }
 
 export const ExplorePanel = lazy(() => load.explore().then((m) => ({ default: m.ExplorePanel })))
+export const BestPanel = lazy(() => load.best().then((m) => ({ default: m.BestPanel })))
 export const ParksPanel = lazy(() => load.sections().then((m) => ({ default: m.ParksPanel })))
 export const TrailsPanel = lazy(() => load.sections().then((m) => ({ default: m.TrailsPanel })))
 export const AboutPanel = lazy(() => load.sections().then((m) => ({ default: m.AboutPanel })))
