@@ -179,7 +179,7 @@ docs/                  PRD, technical plan, Explore design, change log
 
 ## What's next
 
-The next releases (v1.5.5 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
+The next releases (v1.5.6 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
 
 ## Releases
 
@@ -187,6 +187,7 @@ Each release is a git tag and a [GitHub Release](https://github.com/maarib/canop
 
 | Version | What's in it |
 |---|---|
+| [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | Near me (your location on the map, distances in lists, a Nearest sort), a page for every Ontario provincial park, and nearby stops saved to trips |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | Nearby stops on park, trail and place pages: groceries, places to eat, gas, beer and wine, and outfitters |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | Pages that load on demand, a cap on stills kept in memory, shorter copy on About and Data sources, and the current tab named on the phone tab bar |
 | [v1.5.2](https://github.com/maarib/canopy/releases/tag/v1.5.2) | A theme switch (light, dark or match the device), an icon-only tab bar on phones, buttons in title case, and a stacked new-trip form on phones |
