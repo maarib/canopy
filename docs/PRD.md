@@ -165,7 +165,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | MAP-4 | Layers sheet with map-type thumbnails + overlays (satellite, terrain, trails, weather, smoke) | P1 | 🟡 Layers menu with eight map styles as thumbnails, light presets, satellite imagery by date, 3D terrain, trails and fishing access (#108); weather and smoke overlays not yet |
 | MAP-5 | **Season timeline scrubber** (history → today → forecast), animated playback | P0 | ⬜ |
 | MAP-6 | Unified **color status surface**: a continuous % color / % fallen field from blended sources, with confidence | P0 | 🟡 Color outlook layer across Ontario, blended from the official park reports and labelled with what each cell is based on (#121); sightings, satellite history and forecast as inputs, % fallen and other provinces not yet |
-| MAP-7 | "Near me" locate button and first-load centring on the user's region (with permission) | P0 | ⬜ |
+| MAP-7 | "Near me" locate button and first-load centring on the user's region (with permission) | P0 | 🟡 Button, dot, distances in lists and a Nearest sort; the map does not centre on the user at first load |
 | MAP-8 | Search places (parks, towns, trails) with autocomplete | P0 | ✅ #77, #80 |
 | MAP-9 | Map performance: 60 fps pan on mid-range phones; vector data in PMTiles for national layers | P1 | 🟡 Performance passes #81, #105; PMTiles not started |
 
@@ -297,7 +297,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 **Next up (from v1.5.5).** Releases now go up by the last number: v1.5.1, v1.5.2 and so on. The issues labelled [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext), in order:
 
 1. **More of Ontario to explore** ([#85](https://github.com/maarib/canopy/issues/85)): trails and places beyond Algonquin's Highway 60 corridor (Killarney, Bon Echo, Frontenac, Bruce Peninsula…).
-2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)): all 347, not only the ones with fall color reports. Boundaries, activities and facilities are already built for them.
+2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)): ✅ pages, list and search for all 347. Still open there: pins or outlines on the map for parks without a report, and names in French, Ojibwe and Cree.
 3. **Near me** ([#22](https://github.com/maarib/canopy/issues/22)): a locate button and distances in lists.
 4. **Best right now / this weekend** ([#43](https://github.com/maarib/canopy/issues/43)): ranked lists for the landing page.
 5. **Accessibility follow-ups** ([#63](https://github.com/maarib/canopy/issues/63)): button contrast, arrow keys in menus, a screen-reader pass, axe in CI.
