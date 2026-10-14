@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)) |
 | Unreleased | | A page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
@@ -24,6 +25,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-13 | [Near me: your location on the map and distances in lists](#2026-10-13-near-me-your-location-on-the-map-and-distances-in-lists) | [#145](https://github.com/maarib/canopy/pull/145) |
 | 2026-10-13 | [A page for every Ontario provincial park](#2026-10-13-a-page-for-every-ontario-provincial-park) | [#146](https://github.com/maarib/canopy/pull/146) |
 | 2026-10-12 | [Nearby: where to buy food, eat and fill up](#2026-10-12-nearby-where-to-buy-food-eat-and-fill-up) | [#143](https://github.com/maarib/canopy/pull/143) |
 | 2026-10-10 | [Phone tab bar: the current tab carries its name](#2026-10-10-phone-tab-bar-the-current-tab-carries-its-name) | [#140](https://github.com/maarib/canopy/pull/140) |
@@ -74,6 +76,26 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ## Unreleased
 
+### 2026-10-13 · Near me: your location on the map and distances in lists
+
+**Ref:** [#145](https://github.com/maarib/canopy/pull/145) · issue [#22](https://github.com/maarib/canopy/issues/22)
+
+**Before.** Canopy never asked where you were. Lists gave no sense of how far anything was.
+
+**After.**
+- **A locate button** under the map's zoom buttons. Pressing it asks the browser for your location, flies the map there (zoom 9 or closer) and marks the spot with a blue dot. Pressing it while on opens two choices: **Go to My Location** and **Turn Off**.
+- **Distances in lists.** Once located, park, region and place rows and trail cards end with the straight-line distance, for example "· 54 km away". Before that, rows look as they did.
+- **Parks → Sort → Nearest** orders parks by distance. Choosing it asks for your location if it is not known yet.
+- **Blocked or unavailable:** a note beside the button (and under the Parks filters when sorting by Nearest) says location is blocked and how to allow it, or that it could not be found. The note by the button leaves after six seconds.
+- **Turn Off** stops following you, removes the dot and the distances, and deletes the remembered setting, so Canopy does not locate you again on the next visit until you press the button.
+- **Returning visitors** who allowed location before are located again without a prompt, when the browser can confirm permission is still granted.
+
+**How.** One small store (`src/lib/location.ts`) follows the position with `watchPosition` at low accuracy and ignores moves under about 20 m, so lists do not redraw for jitter. The button is a Mapbox control group rendered into from React (`LocateControl` in `FoliageMap.tsx`). The position is kept in memory only and is never stored or sent; a flag in `localStorage` (`canopy:near-me`), holding no coordinates, records that it was turned on.
+
+**Limits.**
+- Distances are straight lines, not by road.
+- The map does not centre on you when the app first opens; that part of MAP-7 is not built.
+- Checked in headless Chromium with a set position; not on a real phone.
 ### 2026-10-13 · A page for every Ontario provincial park
 
 **Ref:** [#146](https://github.com/maarib/canopy/pull/146) · issue [#86](https://github.com/maarib/canopy/issues/86)

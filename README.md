@@ -81,6 +81,7 @@
 
 ### Getting around
 - **Search:** regions, parks, trails, places and tree types, plus any town or landmark in Canada.
+- **Near me:** a button under the map's zoom buttons asks for your location, flies there and marks it with a blue dot. Once located, park, region, place and trail rows show how far each is in a straight line ("· 54 km away"), and Parks can be sorted by Nearest. Pressing the button again offers Go to My Location or Turn Off. The position is held in memory only, never stored or sent; the only thing saved on the device is a note that Near me was turned on, which Turn Off deletes. If location is blocked, a note says how to allow it. A returning visitor who allowed it before is located again without a prompt.
 - **Shareable links** for every place, filter, layer and map view, with working Back and Forward and a Share button.
 - **Responsive:** a panel floating over the map's left side on desktop and a draggable bottom sheet on phones (a full page with square corners at its tallest). Skeleton loading states throughout, and the app can be installed (web app manifest).
 

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { FilterList, Search } from 'relume-icons'
 import { PARK_FILTERS } from '../data/amenityIcons'
+import { distanceKm, locate, LOCATION_HELP, useLocation } from '../lib/location'
 import { DIFFICULTY, PLACE_KINDS, type Difficulty, type Place, type PlaceKind, type Trail } from '../lib/explore'
 import { isListed, parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { normalize } from '../lib/search'
@@ -58,11 +59,11 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
 /** Ontario Parks writes two of its regions both ways ("Northeast" and "Northeastern"); the filter treats each pair as one. */
 const regionOf = (p: ParkReport) => p.region.replace(/^(North(?:east|west))$/, '$1ern')
 
-type ParkSort = 'color' | 'name'
+type ParkSort = 'color' | 'near' | 'name'
 /** Which parks the list shows: all of them, or only those with a fall color report. */
 type ParkScope = 'all' | 'reports'
 const PARK_SCOPES: Record<ParkScope, string> = { all: 'All parks', reports: 'With a color report' }
-const PARK_SORTS: Record<ParkSort, string> = { color: 'Best color', name: 'A–Z' }
+const PARK_SORTS: Record<ParkSort, string> = { color: 'Best color', near: 'Nearest', name: 'A–Z' }
 
 export function ParksPanel({
   parks,
@@ -86,18 +87,26 @@ export function ParksPanel({
   const [scope, setScope] = useState<ParkScope>('all')
   const regions = useMemo(() => [...new Set((parks ?? []).filter(isListed).map(regionOf))].sort(), [parks])
 
+  const here = useLocation()
+  const origin = here.status === 'on' ? here : null
+
   const list = useMemo(() => {
     const q = normalize(query)
+    // Parks with a report first, best color on top; the rest follow by name.
+    const byColor = (a: ParkReport, b: ParkReport) =>
+      Number(b.report) - Number(a.report) ||
+      (a.report ? STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0) : parkTitle(a).localeCompare(parkTitle(b)))
     return (parks ?? [])
       .filter((p) => isListed(p) && (scope === 'all' || p.report) && (!region || regionOf(p) === region) && (!q || normalize(parkTitle(p)).includes(q)))
       .sort((a, b) =>
         sort === 'name'
           ? parkTitle(a).localeCompare(parkTitle(b))
-          : // Parks with a report first, best color on top; the rest follow by name.
-            Number(b.report) - Number(a.report) ||
-            (a.report ? STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0) : parkTitle(a).localeCompare(parkTitle(b))),
+          : // Until the position is known, "Nearest" keeps the usual order.
+            sort === 'near' && origin
+            ? distanceKm(origin.lat, origin.lng, a.lat, a.lng) - distanceKm(origin.lat, origin.lng, b.lat, b.lng)
+            : byColor(a, b),
       )
-  }, [parks, query, sort, region, scope])
+  }, [parks, query, sort, region, scope, origin])
 
   return (
     <div className="space-y-4 p-5">
@@ -125,10 +134,14 @@ export function ParksPanel({
         </MenuButton>
         <MenuButton label="Sort" value={PARK_SORTS[sort]} active={false}>
           {(close) =>
-            (Object.keys(PARK_SORTS) as ParkSort[]).map((id) => <MenuOption key={id} selected={sort === id} label={PARK_SORTS[id]} onClick={() => (setSort(id), close())} />)
+            (Object.keys(PARK_SORTS) as ParkSort[]).map((id) => <MenuOption key={id} selected={sort === id} label={PARK_SORTS[id]} onClick={() => (id === 'near' && locate(), setSort(id), close())} />)
           }
         </MenuButton>
       </div>
+
+      {sort === 'near' && (here.status === 'denied' || here.status === 'unavailable') && (
+        <p role="status" className="text-sm text-[var(--ink-soft)]">{LOCATION_HELP[here.status]}</p>
+      )}
 
       {activities.length > 0 && (
         <p className="text-sm">
