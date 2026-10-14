@@ -81,18 +81,18 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **Before.** Canopy never asked where you were. Lists gave no sense of how far anything was.
 
 **After.**
-- **A locate button** under the map's zoom buttons. Pressing it asks the browser for your location, flies the map there (zoom 9 or closer) and marks the spot with a blue dot. Pressing it again comes back to the dot.
+- **A locate button** under the map's zoom buttons. Pressing it asks the browser for your location, flies the map there (zoom 9 or closer) and marks the spot with a blue dot. Pressing it while on opens two choices: **Go to My Location** and **Turn Off**.
 - **Distances in lists.** Once located, park, region and place rows and trail cards end with the straight-line distance, for example "· 54 km away". Before that, rows look as they did.
 - **Parks → Sort → Nearest** orders parks by distance. Choosing it asks for your location if it is not known yet.
 - **Blocked or unavailable:** a note beside the button (and under the Parks filters when sorting by Nearest) says location is blocked and how to allow it, or that it could not be found. The note by the button leaves after six seconds.
+- **Turn Off** stops following you, removes the dot and the distances, and deletes the remembered setting, so Canopy does not locate you again on the next visit until you press the button.
 - **Returning visitors** who allowed location before are located again without a prompt, when the browser can confirm permission is still granted.
 
-**How.** One small store (`src/lib/location.ts`) follows the position with `watchPosition` at low accuracy and ignores moves under about 20 m, so lists do not redraw for jitter. The button is a Mapbox control group rendered into from React (`LocateControl` in `FoliageMap.tsx`). The position is kept in memory only; a flag in `localStorage` (`canopy:near-me`) records that it was turned on.
+**How.** One small store (`src/lib/location.ts`) follows the position with `watchPosition` at low accuracy and ignores moves under about 20 m, so lists do not redraw for jitter. The button is a Mapbox control group rendered into from React (`LocateControl` in `FoliageMap.tsx`). The position is kept in memory only and is never stored or sent; a flag in `localStorage` (`canopy:near-me`), holding no coordinates, records that it was turned on.
 
 **Limits.**
 - Distances are straight lines, not by road.
 - The map does not centre on you when the app first opens; that part of MAP-7 is not built.
-- There is no control to turn it off again short of blocking location in the browser.
 - Checked in headless Chromium with a set position; not on a real phone.
 
 ## v1.5.4

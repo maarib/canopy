@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import type { FeatureCollection, Point } from 'geojson'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { memo, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
+import { memo, useEffect, useId, useMemo, useRef, useState, type ComponentProps } from 'react'
 import { createPortal } from 'react-dom'
 import Map, {
   AttributionControl,
@@ -16,7 +16,7 @@ import Map, {
   type MapRef,
 } from 'react-map-gl/mapbox'
 import { ExternalIcon, LocateIcon } from './ui'
-import { locate, LOCATION_HELP, useLocation } from '../lib/location'
+import { locate, LOCATION_HELP, stopLocating, useLocation } from '../lib/location'
 import { signatureTree, type Region } from '../data/regions'
 import { MapSkeleton } from './MapSkeleton'
 import { useHoverPoint } from '../lib/hoverStore'
@@ -970,16 +970,17 @@ function MissingToken() {
 
 /**
  * "Near me": a button under the zoom buttons that asks for the person's position, flies to it
- * and marks it with a dot. Pressing it again comes back to the dot. If the browser says no, a
- * note beside the button says how to allow it.
+ * and marks it with a dot. Once it is on, the button opens a choice: go back to the dot, or
+ * turn it off. If the browser says no, a note beside the button says how to allow it.
  */
 function LocateControl() {
   const here = useLocation()
   const { current: map } = useMap()
   // The button lives in a Mapbox control group, so it lines up with the zoom buttons.
+  // Its menu and note sit beside the group, not in it, so Mapbox's button styles leave them alone.
   const [box] = useState(() => {
     const el = document.createElement('div')
-    el.className = 'mapboxgl-ctrl mapboxgl-ctrl-group'
+    el.className = 'mapboxgl-ctrl relative font-sans'
     return el
   })
   useControl(() => ({ onAdd: () => box, onRemove: () => box.remove() }), { position: 'top-right' })
@@ -1003,21 +1004,65 @@ function LocateControl() {
   }, [failed, here])
   const note = failed && seen !== here
 
+  const [menu, setMenu] = useState(false)
+  const menuId = useId()
+  useEffect(() => {
+    if (!menu) return
+    const onDown = (e: PointerEvent) => !box.contains(e.target as Node) && setMenu(false)
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenu(false)
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [menu, box])
+
   function press() {
-    if (position) return void map?.flyTo({ center: [position.lng, position.lat], zoom: Math.max(map.getZoom(), 9), duration: 1200 })
+    if (position) return setMenu(!menu)
     wanted.current = true
     locate()
   }
+  const option = 'block w-full rounded-lg px-3 py-2 text-left text-sm whitespace-nowrap text-[var(--ink)] hover:bg-[var(--surface-2)]'
 
   return (
     <>
       {createPortal(
         <>
-          <button type="button" onClick={press} aria-label={position ? 'Go to my location' : 'Show my location'} title={position ? 'Go to my location' : 'Show my location'} aria-busy={here.status === 'asking'}>
-            <span className={`flex size-full items-center justify-center ${position ? 'text-[#1a73e8]' : 'text-[#333]'} ${here.status === 'asking' ? 'animate-pulse' : ''}`}>
-              <LocateIcon on={!!position} />
-            </span>
-          </button>
+          <div className="mapboxgl-ctrl-group">
+            <button
+              type="button"
+              onClick={press}
+              aria-label={position ? 'My location' : 'Show my location'}
+              title={position ? 'My location' : 'Show my location'}
+              aria-busy={here.status === 'asking'}
+              aria-haspopup={position ? 'menu' : undefined}
+              aria-expanded={position ? menu : undefined}
+              aria-controls={menu ? menuId : undefined}
+            >
+              <span className={`flex size-full items-center justify-center ${position ? 'text-[#1a73e8]' : 'text-[#333]'} ${here.status === 'asking' ? 'animate-pulse' : ''}`}>
+                <LocateIcon on={!!position} />
+              </span>
+            </button>
+          </div>
+          {menu && position && (
+            <div id={menuId} role="menu" aria-label="My location" className="absolute top-0 right-full mr-2 origin-top-right animate-pop-in rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl">
+              <button
+                type="button"
+                role="menuitem"
+                className={option}
+                onClick={() => {
+                  setMenu(false)
+                  map?.flyTo({ center: [position.lng, position.lat], zoom: Math.max(map.getZoom(), 9), duration: 1200 })
+                }}
+              >
+                Go to My Location
+              </button>
+              <button type="button" role="menuitem" className={option} onClick={() => (setMenu(false), stopLocating())}>
+                Turn Off
+              </button>
+            </div>
+          )}
           <p role="status" className={`absolute top-0 right-full mr-2 w-56 rounded-xl bg-[var(--surface)] px-3 py-2 text-xs leading-snug text-[var(--ink)] shadow-lg ${note ? '' : 'hidden'}`}>
             {failed ? LOCATION_HELP[here.status] : ''}
           </p>
