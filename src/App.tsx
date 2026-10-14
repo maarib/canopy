@@ -65,11 +65,10 @@ import {
   streamSeasonSightings,
   writeCachedSightings,
 } from './lib/inaturalist'
-import { fetchOntarioParks, parkTitle, type ParkReport } from './lib/ontarioParks'
+import { allParks, fetchOntarioParks, fetchParksIndex, parkColor, parkDetail, parkTitle, type ParkReport } from './lib/ontarioParks'
 import { fetchParkBoundary } from './lib/parkBoundaries'
 import { readMapStyle, writeMapStyle, type LightSetting, type MapStyleId } from './lib/mapStyle'
 import { PHASE_STYLE, peakPhase } from './lib/peak'
-import { STAGES } from './lib/stage'
 import { decodeTrip, tripActions, useTrips, type SharedTrip, type StopRef, type Trip } from './lib/trips'
 import type { SearchResult } from './lib/search'
 import {
@@ -148,6 +147,10 @@ export default function App() {
   }, [sightings.data, sightings.dataUpdatedAt, cached?.savedAt])
   const sightingsLoading = sightings.isFetching && !sightings.data?.complete
   const parks = useQuery({ queryKey: ['ontario-parks'], queryFn: fetchOntarioParks })
+  // Every provincial park, for search, the Parks list, trips and park pages. Parks with a fall
+  // color report come first; the map's park pins stay with those.
+  const parksIndex = useQuery({ queryKey: ['parks-index'], queryFn: fetchParksIndex, staleTime: Infinity })
+  const everyPark = useMemo(() => (parks.data && parksIndex.data ? allParks(parks.data.parks, parksIndex.data) : parks.data?.parks), [parks.data, parksIndex.data])
   const explore = useQuery({ queryKey: ['explore'], queryFn: fetchExploreAreas, staleTime: Infinity })
   const facilities = useQuery({ queryKey: ['park-facilities'], queryFn: fetchParkFacilities, staleTime: Infinity })
 
@@ -239,8 +242,10 @@ export default function App() {
     if (parkMatch) {
       if (!parks.data) return parks.isError ? { kind: 'missing' } : { kind: 'loading' }
       const id = parkIdFromSlug(parkMatch.params.slug ?? '')
-      const park = parks.data.parks.find((p) => p.id === id)
-      return park ? { kind: 'park', park } : { kind: 'missing' }
+      const park = everyPark?.find((p) => p.id === id)
+      if (park) return { kind: 'park', park }
+      // Not a report location: it may be one of the other parks, once that list has arrived.
+      return parksIndex.isPending ? { kind: 'loading' } : { kind: 'missing' }
     }
     if (fishingMatch) {
       if (!fishing.data) return fishing.isError ? { kind: 'missing' } : { kind: 'loading' }
@@ -257,7 +262,7 @@ export default function App() {
       return place ? { kind: 'place', place, area: exploreIndex.areaById.get(place.areaId)! } : { kind: 'missing' }
     }
     return null
-  }, [regionMatch?.params.id, treeMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, fishingMatch?.params.slug, sectionPath, fishing.data, fishing.isError, fishingById, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [regionMatch?.params.id, treeMatch?.params.id, parkMatch?.params.slug, trailMatch?.params.slug, placeMatch?.params.slug, fishingMatch?.params.slug, sectionPath, fishing.data, fishing.isError, fishingById, onTripsPage, tripMatch?.params.id, trips, params, parks.data, parks.isError, everyPark, parksIndex.isPending, explore.data, explore.isError, exploreIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Turn a saved trip stop back into something to draw, list and open. */
   const resolveStop = useCallback(
@@ -270,9 +275,9 @@ export default function App() {
         return { ref, kind, name: r.name, lng: r.lng, lat: r.lat, color, icon: <TreeIcon id={signatureTree(r)} tone="mono" className="size-4" />, detail: `${r.province} · Region` }
       }
       if (kind === 'park') {
-        const p = parks.data?.parks.find((x) => x.id === id)
+        const p = everyPark?.find((x) => x.id === id)
         if (!p) return null
-        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: STAGES[p.stage].color, icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${p.colorChange ?? 0}% color` }
+        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: parkColor(p), icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${parkDetail(p)}` }
       }
       if (kind === 'trail') {
         const t = exploreIndex.trailById.get(id)
@@ -283,7 +288,7 @@ export default function App() {
       if (!pl) return null
       return { ref, kind: 'place', name: pl.name, lng: pl.lng, lat: pl.lat, color: PLACE_KINDS[pl.kind].color, icon: <PlaceIcon kind={pl.kind} className="size-4" />, detail: PLACE_KINDS[pl.kind].label }
     },
-    [parks.data, exploreIndex],
+    [everyPark, exploreIndex],
   )
 
   /** Navigate to a place (new history entry), keeping filters and layers. */
@@ -316,7 +321,7 @@ export default function App() {
       const [kind, id] = ref.split(/:(.+)/)
       if (kind === 'region') return go(regionPath(id))
       if (kind === 'park') {
-        const p = parks.data?.parks.find((x) => x.id === id)
+        const p = everyPark?.find((x) => x.id === id)
         return p && go(parkPath(p))
       }
       if (kind === 'trail') {
@@ -326,7 +331,7 @@ export default function App() {
       const pl = exploreIndex.placeById.get(id)
       return pl && go(placePath(pl))
     },
-    [go, parks.data, exploreIndex],
+    [go, everyPark, exploreIndex],
   )
 
   const selectionKey =
@@ -494,6 +499,15 @@ export default function App() {
     },
     [parks.data, facilities.data],
   )
+  /** The same count over every park, for the Parks list. */
+  const countListedWith = useCallback(
+    (ids: string[]) => {
+      if (!everyPark || !facilities.data) return 0
+      const feed = facilities.data
+      return new Set(everyPark.filter((p) => parkMatches(feed, p.shortname, ids)).map((p) => p.shortname)).size
+    },
+    [everyPark, facilities.data],
+  )
   const selectedParkId = selection?.kind === 'park' ? selection.park.id : null
   /** Report locations matching the filter; the open park stays on the map either way. */
   const filteredParks = useMemo(() => {
@@ -502,6 +516,12 @@ export default function App() {
     const feed = facilities.data
     return all.filter((p) => p.id === selectedParkId || parkMatches(feed, p.shortname, activities))
   }, [parks.data, facilities.data, activities, selectedParkId])
+  /** The Parks list: every park, narrowed the same way. */
+  const listedParks = useMemo(() => {
+    if (!everyPark || !activities.length || !facilities.data) return everyPark
+    const feed = facilities.data
+    return everyPark.filter((p) => parkMatches(feed, p.shortname, activities))
+  }, [everyPark, facilities.data, activities])
   const activityLabels = activities.map((id) => PARK_FILTERS.get(id)!.label)
   const openTree = selection?.kind === 'tree' ? selection.tree.id : null
   const visibleSightings = useMemo(
@@ -669,10 +689,10 @@ export default function App() {
       />
     ) : selection?.kind === 'parks' ? (
       <ParksPanel
-        parks={filteredParks}
+        parks={listedParks}
         activities={activities}
         onActivities={setActivities}
-        countWith={countParksWith}
+        countWith={countListedWith}
         facilitiesReady={!!facilities.data && !!parks.data}
         onSelectPark={selectPark}
       />
@@ -718,7 +738,7 @@ export default function App() {
       </div>
     ) : (
       <ExplorePanel
-        parks={parks.data?.parks ?? NO_PARKS}
+        parks={everyPark ?? NO_PARKS}
         trails={exploreIndex.trails}
         places={exploreIndex.places}
         treeCounts={groupCounts}
@@ -878,7 +898,7 @@ export default function App() {
           {landing && (
             <ExploreLanding
               compact={!isDesktop}
-              parks={parks.data?.parks ?? NO_PARKS}
+              parks={everyPark ?? NO_PARKS}
               trails={exploreIndex.trails}
               places={exploreIndex.places}
               treeCounts={groupCounts}

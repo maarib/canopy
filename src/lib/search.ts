@@ -1,7 +1,7 @@
 import { REGIONS } from '../data/regions'
 import { TREE_GROUPS } from '../data/treeGroups'
 import { formatDuration, PLACE_KINDS, type Place, type Trail } from './explore'
-import { parkTitle, type ParkReport } from './ontarioParks'
+import { isListed, parkDetail, parkTitle, type ParkReport } from './ontarioParks'
 
 export type SearchResult =
   | { kind: 'region'; id: string; label: string; detail: string }
@@ -43,9 +43,9 @@ export function searchLocal(
     const s = Math.max(score(q, r.name), score(q, r.highlights.join(' ')) && 1)
     if (s) scored.push([s + 0.3, { kind: 'region', id: r.id, label: r.name, detail: `${r.province} · Region` }])
   }
-  for (const p of parks.filter((p) => p.main)) {
+  for (const p of parks.filter(isListed)) {
     const s = score(q, parkTitle(p))
-    if (s) scored.push([s + 0.2, { kind: 'park', park: p, label: parkTitle(p), detail: `ON · Provincial park · ${p.colorChange ?? 0}% color` }])
+    if (s) scored.push([s + 0.2, { kind: 'park', park: p, label: parkTitle(p), detail: `ON · Provincial park · ${parkDetail(p)}` }])
   }
   for (const t of trails) {
     const s = score(q, t.name)

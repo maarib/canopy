@@ -3,7 +3,7 @@ import { FilterList, Search } from 'relume-icons'
 import { PARK_FILTERS } from '../data/amenityIcons'
 import { distanceKm, locate, LOCATION_HELP, useLocation } from '../lib/location'
 import { DIFFICULTY, PLACE_KINDS, type Difficulty, type Place, type PlaceKind, type Trail } from '../lib/explore'
-import { parkTitle, type ParkReport } from '../lib/ontarioParks'
+import { isListed, parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { normalize } from '../lib/search'
 import { STAGE_ORDER } from '../lib/stage'
 import { LIST } from '../lib/styles'
@@ -60,6 +60,9 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
 const regionOf = (p: ParkReport) => p.region.replace(/^(North(?:east|west))$/, '$1ern')
 
 type ParkSort = 'color' | 'near' | 'name'
+/** Which parks the list shows: all of them, or only those with a fall color report. */
+type ParkScope = 'all' | 'reports'
+const PARK_SCOPES: Record<ParkScope, string> = { all: 'All parks', reports: 'With a color report' }
 const PARK_SORTS: Record<ParkSort, string> = { color: 'Best color', near: 'Nearest', name: 'A–Z' }
 
 export function ParksPanel({
@@ -81,16 +84,20 @@ export function ParksPanel({
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<ParkSort>('color')
   const [region, setRegion] = useState<string | null>(null)
-  const regions = useMemo(() => [...new Set((parks ?? []).filter((p) => p.main).map(regionOf))].sort(), [parks])
+  const [scope, setScope] = useState<ParkScope>('all')
+  const regions = useMemo(() => [...new Set((parks ?? []).filter(isListed).map(regionOf))].sort(), [parks])
 
   const here = useLocation()
   const origin = here.status === 'on' ? here : null
 
   const list = useMemo(() => {
     const q = normalize(query)
-    const byColor = (a: ParkReport, b: ParkReport) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0)
+    // Parks with a report first, best color on top; the rest follow by name.
+    const byColor = (a: ParkReport, b: ParkReport) =>
+      Number(b.report) - Number(a.report) ||
+      (a.report ? STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0) : parkTitle(a).localeCompare(parkTitle(b)))
     return (parks ?? [])
-      .filter((p) => p.main && (!region || regionOf(p) === region) && (!q || normalize(parkTitle(p)).includes(q)))
+      .filter((p) => isListed(p) && (scope === 'all' || p.report) && (!region || regionOf(p) === region) && (!q || normalize(parkTitle(p)).includes(q)))
       .sort((a, b) =>
         sort === 'name'
           ? parkTitle(a).localeCompare(parkTitle(b))
@@ -99,11 +106,11 @@ export function ParksPanel({
             ? distanceKm(origin.lat, origin.lng, a.lat, a.lng) - distanceKm(origin.lat, origin.lng, b.lat, b.lng)
             : byColor(a, b),
       )
-  }, [parks, query, sort, region, origin])
+  }, [parks, query, sort, region, scope, origin])
 
   return (
     <div className="space-y-4 p-5">
-      <PageHeader title="Parks" subtitle="Ontario Parks with fall color reports, facilities and activities" />
+      <PageHeader title="Parks" subtitle="Every Ontario provincial park, with its fall color report where there is one" />
       <FilterInput value={query} onChange={setQuery} placeholder="Find a park" />
 
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -116,6 +123,11 @@ export function ParksPanel({
               ))}
             </>
           )}
+        </MenuButton>
+        <MenuButton label="Show" value={scope === 'all' ? undefined : PARK_SCOPES[scope]} active={scope !== 'all'}>
+          {(close) =>
+            (Object.keys(PARK_SCOPES) as ParkScope[]).map((id) => <MenuOption key={id} selected={scope === id} label={PARK_SCOPES[id]} onClick={() => (setScope(id), close())} />)
+          }
         </MenuButton>
         <MenuButton label="Activities" count={activities.length} icon={<FilterList className="size-4" />} width={340}>
           {() => <ActivityOptions value={activities} onChange={onActivities} countWith={countWith} ready={facilitiesReady} />}

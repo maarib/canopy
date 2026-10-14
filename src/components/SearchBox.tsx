@@ -4,9 +4,8 @@ import { Close, LocationOn, ProgressActivity, Search } from 'relume-icons'
 import { signatureTree, REGIONS } from '../data/regions'
 import type { TreeIconId } from '../data/treeIcons'
 import { PLACE_KINDS, type Place, type Trail } from '../lib/explore'
-import type { ParkReport } from '../lib/ontarioParks'
+import { parkColor, type ParkReport } from '../lib/ontarioParks'
 import { searchLocal, searchPlaces, type SearchResult } from '../lib/search'
-import { STAGES } from '../lib/stage'
 import { PlaceIcon } from './PlaceIcon'
 import { TreeIcon } from './TreeIcon'
 
@@ -182,7 +181,7 @@ function ResultIcon({ result }: { result: SearchResult }) {
   if (result.kind === 'park')
     return (
       <span className={box}>
-        <span className="size-3 rounded-full" style={{ background: STAGES[result.park.stage].color }} />
+        <span className="size-3 rounded-full" style={{ background: parkColor(result.park) }} />
       </span>
     )
   if (result.kind === 'trail' || result.kind === 'explore-place') {
