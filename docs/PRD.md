@@ -311,8 +311,8 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | Milestone | Theme | Target | Highlights |
 |---|---|---|---|
 | **M0–M1** ✅ | Foundations + live map | Sep 30 2026 | Done |
-| **M2** 🟡 | Season-now quick wins | **Oct 15 2026** (peak still on in QC/Maritimes/S. ON) | Done: URL routing, search, public deploy, quick-action row, near me. Open: Québec data, analytics |
-| **M3** | When to go | Feb 2027 | Historical peaks (VIIRS), forecast model, timeline scrubber, best-week badges, curves, 60+ regions |
+| **M2** ✅ | Season-now quick wins | Oct 15 2026 | Done: URL routing, search, public deploy, quick-action row, near me. Closed on Oct 14 with six issues moved to M3: Québec data, analytics, freshness labels, hosting and CI, and two design items |
+| **M3** | When to go | Feb 2027 | Historical peaks (VIIRS), forecast model, timeline scrubber, best-week badges, curves, 60+ regions; plus what M2 left: Québec data, analytics, freshness labels, hosting and CI |
 | **M4** 🟡 | Places and trips | Apr 2027 | Done early: trail and place pages (Algonquin), saves/trips, exports. Open: more areas, Explore ranked lists, booking links everywhere |
 | **M5** | Community and accounts | Jun 2027 | Backend, accounts, report flow, moderation, photo feed |
 | **M6** 🟡 | Launch readiness | Aug 2027 | Started: accessibility audit. Open: EN/FR, PWA offline, notifications, SEO, perf, data partnerships |
