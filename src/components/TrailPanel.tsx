@@ -19,6 +19,7 @@ import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { NearbyStops } from './NearbyStops'
 import { PlaceIcon } from './PlaceIcon'
+import { Away } from './rows'
 import { SaveButton } from './SaveButton'
 import { BackButton, Badge, LinkButton, MoreLinks, ShareButton } from './ui'
 
@@ -224,6 +225,7 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
               <PlaceIcon kind={k} className="size-3.5" />
             </span>
           ))}
+          <Away lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
         </span>
       </span>
       <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />

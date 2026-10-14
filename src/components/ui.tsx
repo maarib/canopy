@@ -332,6 +332,17 @@ export function InfoIcon({ className = 'size-5' }: { className?: string }) {
   )
 }
 
+/** "Near me": a crosshair, filled at the centre once the position is known. */
+export function LocateIcon({ on = false, className = 'size-5' }: { on?: boolean; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden>
+      <circle cx="12" cy="12" r="6.5" />
+      <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" />
+      <circle cx="12" cy="12" r="2.6" fill={on ? 'currentColor' : 'none'} stroke={on ? 'none' : 'currentColor'} />
+    </svg>
+  )
+}
+
 /** Something that can be turned round by hand: Material's "360" mark, an arrow looping about an upright axis. */
 export function TurnIcon({ className = 'size-5' }: { className?: string }) {
   return (
