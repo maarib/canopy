@@ -37,7 +37,7 @@
 ### Nearby stops
 - **Park, trail and place pages list what's nearby:** groceries and supplies, places to eat, gas, beer wine and spirits, and outfitters. Up to three of each within 40 km, closest first, each with its kind, its town and the straight-line distance. Where a kind has nothing within 40 km, the single closest within 120 km is shown instead.
 - **Each row opens the stop in Google Maps** for hours, reviews and directions. Canopy shows no opening hours: too few stops have them on record.
-- **From OpenStreetMap**, gathered for all of Ontario and trimmed to the stops closest to each park, trail and place (about 2,500). Stops cannot be added to a trip yet.
+- **From OpenStreetMap**, gathered for all of Ontario and trimmed to the stops closest to each park, trail and place (about 2,500). Each stop has a bookmark to save it to a trip.
 
 ### Fishing access
 - **2,427 public fishing access points** across Ontario (boat launches, shoreline access, docks and piers) from the Ministry of Natural Resources, the data behind Fish ON-Line. They appear on the map from zoom 8; overlapping pins thin out automatically, named sites first.
@@ -74,7 +74,7 @@
 - **Waterfalls, lookouts, peaks, lakes, rivers and creeks:** each has its own icon, color and page, with the trails that reach it.
 
 ### Trips
-- **Save** any region, park, trail or place to one or more trips (bookmark button on every page).
+- **Save** any region, park, trail or place to one or more trips (bookmark button on every page), and any nearby stop (the bookmark at the end of its row). A saved stop is numbered on the trip's map and route like the rest; opening it goes to Google Maps.
 - **Plan by day:** set a start date and number of days, then reorder stops or move them between days. Totals show trail km and time on foot, and the map shows numbered stops with the trip's trails highlighted.
 - **Take it with you:** Google Maps route per day, GPX of every trail and stop, calendar (`.ics`) with one event per day, and a share link that opens a read-only copy anyone can save.
 - Trips are stored on the device; no account needed.

@@ -14,7 +14,7 @@ import { LayerOptions, Legend, TreeOptions, type TreeFilterValue } from './compo
 import { MapFilters } from './components/MapFilters'
 import { PROVINCE_BY_CODE } from './data/provinces'
 import { DEFAULT_LAYERS } from './lib/urlState'
-import { PARK_FILTERS } from './data/amenityIcons'
+import { amenityIconUrl, PARK_FILTERS } from './data/amenityIcons'
 import { fetchParkFacilities, parkMatches } from './lib/parkFacilities'
 import { SiteFooter } from './components/SiteFooter'
 import { accessTitle, fetchFishingAccess, fishingIdFromSlug, fishingPath, type FishingAccess } from './lib/fishingAccess'
@@ -69,7 +69,8 @@ import { allParks, fetchOntarioParks, fetchParksIndex, parkColor, parkDetail, pa
 import { fetchParkBoundary } from './lib/parkBoundaries'
 import { readMapStyle, writeMapStyle, type LightSetting, type MapStyleId } from './lib/mapStyle'
 import { PHASE_STYLE, peakPhase } from './lib/peak'
-import { decodeTrip, tripActions, useTrips, type SharedTrip, type StopRef, type Trip } from './lib/trips'
+import { decodeTrip, parseStopRef, tripActions, useTrips, type SharedTrip, type StopRef, type Trip } from './lib/trips'
+import { STOP_KINDS, stopMapsUrl } from './lib/nearbyStops'
 import type { SearchResult } from './lib/search'
 import {
   formatMapView,
@@ -90,6 +91,8 @@ import {
 
 /** Stable empty list, so memoized children don't re-render while parks load. */
 const NO_PARKS: ParkReport[] = []
+/** A nearby stop's pin and number on a trip: a quiet slate, apart from the stage and place colors. */
+const STOP_COLOR = '#5c6b73'
 const NO_FISHING: FishingAccess[] = []
 
 // The map engine (~500 KB gzipped) loads in parallel while the panels render.
@@ -279,6 +282,12 @@ export default function App() {
         if (!p) return null
         return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: parkColor(p), icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${parkDetail(p)}` }
       }
+      if (kind === 'stop') {
+        const s = parseStopRef(ref)
+        const k = s && STOP_KINDS.find((x) => x.id === s.kind)
+        if (!s || !k) return null
+        return { ref, kind, name: s.name, lng: s.lng, lat: s.lat, color: STOP_COLOR, icon: <img src={amenityIconUrl(k.icon, 16)} width={16} height={16} alt="" />, detail: k.one }
+      }
       if (kind === 'trail') {
         const t = exploreIndex.trailById.get(id)
         if (!t) return null
@@ -323,6 +332,11 @@ export default function App() {
       if (kind === 'park') {
         const p = everyPark?.find((x) => x.id === id)
         return p && go(parkPath(p))
+      }
+      if (kind === 'stop') {
+        // A stop has no page of its own: it opens in Google Maps, like its row in a Nearby list.
+        const s = parseStopRef(ref)
+        return s && window.open(stopMapsUrl(s), '_blank', 'noopener')
       }
       if (kind === 'trail') {
         const t = exploreIndex.trailById.get(id)

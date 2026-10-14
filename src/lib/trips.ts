@@ -1,9 +1,22 @@
 import { useSyncExternalStore } from 'react'
 
-// Trips: saved regions, parks, trails and places, organised by day. Stored on the device
+// Trips: saved regions, parks, trails, places and nearby stops, organised by day. Stored on the device
 // (localStorage) so they work without an account; shared as a self-contained link.
 
-export type StopRef = `${'region' | 'park' | 'trail' | 'place'}:${string}`
+export type StopRef = `${'region' | 'park' | 'trail' | 'place' | 'stop'}:${string}`
+
+// A nearby stop (a shop, a place to eat, a gas station) carries everything about itself in its
+// ref, `stop:<kind>~<lat>~<lng>~<name>`, so a saved or shared trip still shows it if the stop
+// later drops out of the data.
+const STOP_REF = /^stop:(groceries|eat|gas|alcohol|outfitter)~(-?\d{1,2}(?:\.\d{1,5})?)~(-?\d{1,3}(?:\.\d{1,5})?)~([^~]{1,80})$/
+
+export const stopRefFor = (s: { kind: string; lat: number; lng: number; name: string }): StopRef =>
+  `stop:${s.kind}~${s.lat}~${s.lng}~${s.name.replace(/~/g, '-').slice(0, 80)}`
+
+export function parseStopRef(ref: string): { kind: 'groceries' | 'eat' | 'gas' | 'alcohol' | 'outfitter'; lat: number; lng: number; name: string } | null {
+  const m = STOP_REF.exec(ref)
+  return m ? { kind: m[1] as 'groceries', lat: Number(m[2]), lng: Number(m[3]), name: m[4] } : null
+}
 
 export type TripItem = { ref: StopRef; day: number }
 
@@ -174,7 +187,7 @@ export function decodeTrip(code: string): SharedTrip | null {
       startDate: typeof c.s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(c.s) ? c.s : null,
       days: Math.max(1, Math.min(14, Number(c.d) || 1)),
       items: c.i
-        .filter(([ref]) => typeof ref === 'string' && /^(region|park|trail|place):[\w-]+$/.test(ref))
+        .filter(([ref]) => typeof ref === 'string' && (/^(region|park|trail|place):[\w-]+$/.test(ref) || STOP_REF.test(ref)))
         .map(([ref, day]) => ({ ref, day: Math.max(1, Math.min(14, Number(day) || 1)) })),
     }
   } catch {
@@ -186,7 +199,7 @@ export function decodeTrip(code: string): SharedTrip | null {
 
 export type ResolvedStop = {
   ref: StopRef
-  kind: 'region' | 'park' | 'trail' | 'place'
+  kind: 'region' | 'park' | 'trail' | 'place' | 'stop'
   name: string
   lng: number
   lat: number

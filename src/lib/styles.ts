@@ -5,6 +5,10 @@
 export const ROW =
   '-mx-2 flex min-h-14 w-[calc(100%+1rem)] items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-[var(--surface-2)] active:bg-[var(--line)]'
 
+/** A row that shares its line with a control on its right (a save button). */
+export const ROW_BESIDE =
+  '-ml-2 flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-[var(--surface-2)] active:bg-[var(--line)]'
+
 /** Non-interactive row with the same size and layout as ROW (facts, facilities, activities). */
 export const INFO_ROW = 'flex min-h-14 items-center gap-3 py-2'
 
