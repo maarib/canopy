@@ -39,7 +39,7 @@ export function NearbyPhotos({ lat, lng, radiusKm = 75 }: { lat: number; lng: nu
         )}
       </div>
       {!!photos.data?.length && (
-        <p className="mt-1.5 text-[11px] text-[var(--ink-soft)]">Photos from iNaturalist observers (CC licences, tap for credit).</p>
+        <p className="mt-1.5 text-[11px] text-[var(--ink-soft)]">© iNaturalist observers · tap a photo for its credit</p>
       )}
     </section>
   )
