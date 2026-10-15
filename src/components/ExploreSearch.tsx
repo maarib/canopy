@@ -173,6 +173,7 @@ export function ExploreSearch({ up, autoFocus, ...props }: SearchProps & { up?: 
                     selected={t.id === tree}
                     icon={t.icon ? <TreeIcon id={t.icon} className="size-5" /> : <TreeIcon id="maples" tone="mono" className="size-4" />}
                     label={t.label}
+                    hint={t.n ? `${t.n} seen turning, last 14 days` : undefined}
                     onClick={() => {
                       setTree(t.id)
                       close()

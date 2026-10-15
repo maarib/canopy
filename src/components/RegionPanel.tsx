@@ -114,6 +114,9 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
       {area && (
         <section>
           <h3 className="text-lg">Trails</h3>
+          <p className="mb-1 text-xs text-[var(--ink-soft)]">
+            {dayHikes.length} day hikes{backpacking.length ? ` · ${backpacking.length} backpacking` : ''}
+          </p>
           <ul className="divide-y divide-[var(--line)]">
             {[...dayHikes, ...backpacking].map((t) => (
               <li key={t.id}>
