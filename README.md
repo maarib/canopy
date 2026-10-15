@@ -117,7 +117,7 @@ The deploy workflow republishes the site after each data refresh.
 - **Data fetching:** TanStack Query, including streamed queries for sightings
 - **Routing:** React Router
 - **Map:** Mapbox GL JS v3 through `react-map-gl`, using the Mapbox Standard style
-- **Type:** Londrina Solid (headings) and Livvic (body)
+- **Type:** Zalando Sans Expanded (headings and the wordmark) and Livvic (body)
 - **Icons:** [`relume-icons`](https://www.npmjs.com/package/relume-icons) (MIT) for controls, plus custom tree and place icons
 - **Hosting:** GitHub Pages via GitHub Actions; CI runs lint and build
 

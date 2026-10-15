@@ -282,7 +282,7 @@ const DESIGN: { name: string; url?: string; what?: string; by: string }[] = [
   { name: 'Place icons', what: 'Trails, waterfalls, lookouts, peaks, lakes, rivers and creeks', by: 'Canopy' },
   { name: 'Activity and facility icons', url: 'https://icons8.com', by: 'Icons8' },
   { name: 'Interface icons', url: 'https://www.npmjs.com/package/relume-icons', by: 'Relume' },
-  { name: 'Londrina Solid', url: 'https://fonts.google.com/specimen/Londrina+Solid', by: 'Google Fonts' },
+  { name: 'Zalando Sans Expanded', url: 'https://fonts.google.com/specimen/Zalando+Sans+Expanded', by: 'Google Fonts' },
   { name: 'Livvic', url: 'https://fonts.google.com/specimen/Livvic', by: 'Google Fonts' },
 ]
 
