@@ -151,6 +151,7 @@ export function ParksPanel({
         </p>
       )}
 
+      <p className="text-xs text-[var(--ink-soft)]">{parks ? `${list.length} parks` : 'Loading parks…'}</p>
       <ul className={`stagger ${LIST}`}>
         {list.map((p) => (
           <li key={p.id}>
@@ -238,6 +239,7 @@ export function TrailsPanel({
               )}
             </MenuButton>
           </div>
+          <p className="text-xs text-[var(--ink-soft)]">{trailList.length} trails · shortest first</p>
           <ul className={`stagger ${LIST}`}>
             {trailList.map((t) => (
               <li key={t.id}>
@@ -248,6 +250,7 @@ export function TrailsPanel({
         </>
       ) : (
         <>
+          <p className="text-xs text-[var(--ink-soft)]">{placeList.length} {PLACE_KINDS[show].plural.toLowerCase()}</p>
           <ul className={`stagger ${LIST}`}>
             {placeList.map((p) => (
               <li key={p.id}>
