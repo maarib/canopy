@@ -87,6 +87,113 @@
 .stagger > :nth-child(9) { animation-delay: 200ms; }
 .stagger > :nth-child(n + 10) { animation-delay: 225ms; }
 
+/* Page transitions (src/lib/pageTransition.ts). Only the panel's page moves; the rest of the
+   screen (map, header, rail, tab bar) is swapped without animation. */
+.page-move {
+  view-transition-name: page;
+}
+/* The transition replaces the page's own rise-in. */
+html[data-page-move] .page-move {
+  animation: none;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-group(page) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-out-soft);
+}
+/* Deeper: the new page slides in from the right over the old, which drifts a third left and dims. */
+html[data-page-move='forward']::view-transition-new(page) {
+  animation: 320ms var(--ease-out-soft) both page-from-right;
+}
+html[data-page-move='forward']::view-transition-old(page) {
+  animation: 320ms var(--ease-out-soft) both page-to-left;
+}
+/* Back: the old page slides away to the right, uncovering the one before it. */
+html[data-page-move='back']::view-transition-old(page) {
+  animation: 300ms var(--ease-out-soft) both page-to-right;
+  z-index: 1;
+}
+html[data-page-move='back']::view-transition-new(page) {
+  animation: 300ms var(--ease-out-soft) both page-from-left;
+}
+/* Tabs: a quick crossfade, as in a tab bar app. */
+html[data-page-move='tab']::view-transition-old(page) {
+  animation: 140ms ease-out both fade-out;
+}
+html[data-page-move='tab']::view-transition-new(page) {
+  animation: 200ms var(--ease-out-soft) 60ms both fade-in;
+}
+/* Desktop: the panel is a card beside the map, so the same moves are short, a slide of 32 px
+   with a fade, rather than a page crossing the screen. */
+@media (min-width: 768px) {
+  html[data-page-move='forward']::view-transition-new(page) {
+    animation: 260ms var(--ease-out-soft) both page-near-from-right;
+  }
+  html[data-page-move='forward']::view-transition-old(page) {
+    animation: 160ms ease-in both page-near-to-left;
+  }
+  html[data-page-move='back']::view-transition-old(page) {
+    animation: 160ms ease-in both page-near-to-right;
+  }
+  html[data-page-move='back']::view-transition-new(page) {
+    animation: 260ms var(--ease-out-soft) both page-near-from-left;
+  }
+}
+@keyframes page-near-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+@keyframes page-near-to-left {
+  to {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+}
+@keyframes page-near-to-right {
+  to {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+@keyframes page-near-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+}
+@keyframes page-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes page-to-left {
+  to {
+    transform: translateX(-30%);
+    opacity: 0.6;
+  }
+}
+@keyframes page-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes page-from-left {
+  from {
+    transform: translateX(-30%);
+    opacity: 0.6;
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

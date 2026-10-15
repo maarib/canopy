@@ -69,6 +69,7 @@ import { allParks, fetchOntarioParks, fetchParksIndex, parkColor, parkDetail, pa
 import { fetchParkBoundary } from './lib/parkBoundaries'
 import { readMapStyle, writeMapStyle, type LightSetting, type MapStyleId } from './lib/mapStyle'
 import { PHASE_STYLE, peakPhase } from './lib/peak'
+import { movePage, pageShown, type PageMove } from './lib/pageTransition'
 import { decodeTrip, parseStopRef, tripActions, useTrips, type SharedTrip, type StopRef, type Trip } from './lib/trips'
 import { STOP_KINDS, stopMapsUrl } from './lib/nearbyStops'
 import type { SearchResult } from './lib/search'
@@ -303,19 +304,19 @@ export default function App() {
   /** Navigate to a place (new history entry), keeping filters and layers. */
   // Stable callbacks, so the memoized map doesn't re-render when the app does.
   const go = useCallback(
-    (pathname: string) => {
+    (pathname: string, move: PageMove = 'forward') => {
       const next = new URLSearchParams(window.location.search)
       next.delete('map') // the place decides the view
       next.delete('level') // a list's starting filter doesn't follow you to a place
       next.delete('t') // a shared trip's payload belongs only to /trip/shared
-      navigate({ pathname, search: next.toString() })
+      movePage(move, () => navigate({ pathname, search: next.toString() }))
     },
     [navigate],
   )
-  const goHome = useCallback(() => go('/'), [go])
+  const goHome = useCallback(() => go('/', 'back'), [go])
   /** Back to wherever the user came from inside the app (e.g. region → trail → back), else home. */
   const goBack = useCallback(
-    () => ((window.history.state as { idx?: number } | null)?.idx ? navigate(-1) : goHome()),
+    () => ((window.history.state as { idx?: number } | null)?.idx ? movePage('back', () => navigate(-1)) : goHome()),
     [navigate, goHome],
   )
   const selectTrail = useCallback((t: Trail) => go(trailPath(t)), [go])
@@ -385,6 +386,9 @@ export default function App() {
     // reader's choice and stays put; only the map alone opens the panel, or a tapped pin would do nothing.
     else if (isPlace ? isDesktop || sheet === 'peek' : sheet !== 'full') setSheet('half')
   }
+
+  // A page transition (phones) takes its picture of the new page once it is in place.
+  useLayoutEffect(pageShown, [selectionKey])
 
   // A new page starts at the top of the desktop panel (the phone sheet does the same itself).
   const asideRef = useRef<HTMLElement>(null)
@@ -491,7 +495,7 @@ export default function App() {
       next.delete('t')
       new URLSearchParams(query).forEach((v, k) => next.set(k, v))
       change?.(next)
-      navigate({ pathname, search: next.toString() ? `?${next}` : '' })
+      movePage('tab', () => navigate({ pathname, search: next.toString() ? `?${next}` : '' }))
     },
     [navigate],
   )
@@ -826,7 +830,7 @@ export default function App() {
               }`}
             >
               {/* Keyed by page so each new page or place eases in. At least as tall as the panel, so the footer sits at the bottom on short pages. */}
-              <div key={selectionKey} className={`animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl' : ''}`}>
+              <div key={selectionKey} className={`page-move animate-panel-in flex min-h-full flex-col ${sheet === 'full' ? 'mx-auto max-w-3xl' : ''}`}>
                 {panel}
                 {footer}
               </div>
@@ -928,7 +932,7 @@ export default function App() {
             {/* The landing page has no sheet: the search sits on the map instead. */}
             {!landing && <BottomSheet snap={sheet} onSnap={setSheet} contentKey={selectionKey} bottomOffset={TAB_BAR_HEIGHT}>
               {/* At least as tall as the panel, so the footer sits at the bottom on short pages. */}
-              <div key={selectionKey} className="animate-panel-in flex min-h-full flex-col">
+              <div key={selectionKey} className="page-move animate-panel-in flex min-h-full flex-col">
                 <ShowOnMap value={showOnMap}>{panel}</ShowOnMap>
                 {footer}
               </div>
