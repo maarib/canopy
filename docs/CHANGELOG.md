@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
@@ -24,6 +25,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-14 | [Page transitions on phones and desktop](#2026-10-14-page-transitions-on-phones-and-desktop) | [#155](https://github.com/maarib/canopy/pull/155) |
 | 2026-10-13 | [Near me: your location on the map and distances in lists](#2026-10-13-near-me-your-location-on-the-map-and-distances-in-lists) | [#145](https://github.com/maarib/canopy/pull/145) |
 | 2026-10-13 | [A page for every Ontario provincial park](#2026-10-13-a-page-for-every-ontario-provincial-park) | [#146](https://github.com/maarib/canopy/pull/146) |
 | 2026-10-13 | [Trips: save nearby stops](#2026-10-13-trips-save-nearby-stops) | [#147](https://github.com/maarib/canopy/pull/147) |
@@ -73,6 +75,25 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-14 · Page transitions on phones and desktop
+
+**Ref:** [#155](https://github.com/maarib/canopy/pull/155)
+
+**Before.** Every new page rose into place with the same short fade, whichever way you were going; the old page vanished at once.
+
+**After.** Moving between pages animates both pages, the way native apps do:
+- **Going deeper** (a park from a list, a trail from a region, a stop from a trip): on phones the new page slides in from the right over the old one, which drifts a third of the way left and dims (320 ms). On desktop it is a 32 px slide with a fade inside the panel.
+- **Going back** (the back button): the reverse; on phones the page slides away to the right and uncovers the one before it.
+- **Switching sections** (tab bar, rail, account menu links): a quick crossfade.
+- The map, header, side rail and tab bar stay still; only the panel's page moves.
+- With reduced motion set, pages change without animation. Browsers without View Transitions (Firefox today) change page as before.
+
+**How.** `src/lib/pageTransition.ts` wraps navigation in the browser's View Transitions API and marks the direction on `<html>`; `index.css` animates only the element named `page`. Because the router updates the page in a React transition, the new picture is taken when the app reports the new page is in place, or after 300 ms at most.
+
+**Limits.** The system back gesture and browser Back button use the browser's own behavior, not these animations. On a first visit to a page type, the slide waits for that page's code to load.
 
 ## v1.5.5
 
