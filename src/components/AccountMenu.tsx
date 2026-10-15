@@ -57,10 +57,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
             <span className="flex size-10 items-center justify-center rounded-full bg-[var(--surface-2)]">
               <Person className="size-6 text-[var(--ink-soft)]" />
             </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold">Maarib</span>
-              <span className="block text-xs text-[var(--ink-soft)]">Your trips are saved on this device</span>
-            </span>
+            <span className="min-w-0 text-sm font-semibold">Maarib</span>
           </div>
           <div className="border-t border-[var(--line)] py-1">
             <Item icon={<Bookmark className="size-5" />} onClick={() => go('/trips')} meta={tripCount ? String(tripCount) : undefined}>

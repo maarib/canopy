@@ -135,7 +135,7 @@ export function TreePanel({ tree, sightings, parks, onBack, onSelectPark, onSele
               </a>
             ))}
           </div>
-          <p className="mt-2 text-xs text-[var(--ink-soft)]">Photos from iNaturalist observers (CC licences, tap for credit).</p>
+          <p className="mt-2 text-xs text-[var(--ink-soft)]">© iNaturalist observers · tap a photo for its credit</p>
         </section>
       )}
     </div>
