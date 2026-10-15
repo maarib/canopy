@@ -92,34 +92,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
       )}
       {presence.mounted && isDesktop && (
         <div role="menu" className={`absolute top-full right-0 z-40 mt-2 w-72 origin-top-right ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}>
-          <div className="flex items-center gap-3 px-2 pt-1 pb-3">
-            <span className="flex size-10 items-center justify-center rounded-full bg-[var(--surface-2)]">
-              <Person className="size-6 text-[var(--ink-soft)]" />
-            </span>
-            <span className="min-w-0 text-sm font-semibold">Maarib</span>
-          </div>
-          <div className="border-t border-[var(--line)] py-1">
-            <Item icon={<Bookmark className="size-5" />} onClick={() => go('/trips')} meta={tripCount ? String(tripCount) : undefined}>
-              Trips
-            </Item>
-          </div>
-          <div className="border-t border-[var(--line)] py-1">
-            <Item icon={<InfoIcon className="size-5" />} onClick={() => go('/about')}>
-              About
-            </Item>
-            <Item icon={<Description className="size-5" />} onClick={() => go('/sources')}>
-              Data sources
-            </Item>
-            <Item icon={<Mail className="size-5" />} href={FEEDBACK}>
-              Send feedback
-            </Item>
-          </div>
-          <ThemeRow />
-          <div className="border-t border-[var(--line)] pt-1">
-            <Item icon={<Person className="size-5" />} disabled>
-              Accounts coming soon
-            </Item>
-          </div>
+          {items}
         </div>
       )}
     </div>
