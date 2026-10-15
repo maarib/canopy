@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Less text: credits, counts, subtitles and helper lines ([#151](https://github.com/maarib/canopy/pull/151)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
@@ -24,6 +25,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-14 | [Less text: credits, counts, subtitles and helper lines](#2026-10-14-less-text-credits-counts-subtitles-and-helper-lines) | [#151](https://github.com/maarib/canopy/pull/151) |
 | 2026-10-13 | [Near me: your location on the map and distances in lists](#2026-10-13-near-me-your-location-on-the-map-and-distances-in-lists) | [#145](https://github.com/maarib/canopy/pull/145) |
 | 2026-10-13 | [A page for every Ontario provincial park](#2026-10-13-a-page-for-every-ontario-provincial-park) | [#146](https://github.com/maarib/canopy/pull/146) |
 | 2026-10-13 | [Trips: save nearby stops](#2026-10-13-trips-save-nearby-stops) | [#147](https://github.com/maarib/canopy/pull/147) |
@@ -73,6 +75,22 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-14 · Less text: credits, counts, subtitles and helper lines
+
+**Ref:** [#151](https://github.com/maarib/canopy/pull/151)
+
+**Before.** Pages carried lines that repeated their title, counted what was already listed, explained what was already clear, or credited a data provider at the foot of the page.
+
+**After.**
+- **Credits** live on the Data sources page only. Removed from the foot of park, trail, place and fishing pages, the Nearby list and the Foliage reports. Two stay where they are, because the providers' terms ask for them on the content: © Mapbox and © OpenStreetMap on maps and covers, and a short "© iNaturalist observers · tap a photo for its credit" under photo grids.
+- **Subtitles** under the Parks, Places, Foliage, About, Data sources and Explore titles are gone.
+- **Counts** are gone: "348 parks", "17 trails · shortest first", the place count, "N day hikes · tap one…" on region pages, "N photo spots" on trail pages, "N stops" on a trip (its trail distance and time stay), and the turning counts in Explore's tree menu.
+- **Helper lines** are gone: the Foliage sightings and peak-window notes, the Parks note about facility data, Places' "Algonquin's Highway 60 corridor for now", "Some facilities are seasonal…", the account menu's "Your trips are saved on this device", and the hints under Explore's Where and Looking for options and most Layers. Layers keep "Shown when you zoom in" where a layer would otherwise look empty, and Looking for keeps "Ontario only for now" on options that are off outside Ontario.
+- **Shorter messages:** a park without a report says "No fall color report for this park."; empty lists say "No parks match.", "No mapped trail passes here.", "Nothing nearby."
+- **Kept:** the version line on About, the header's "Explore Ontario's outdoors" on desktop, error messages, and "Set a start date to add this trip to your calendar."
 
 ## v1.5.5
 
