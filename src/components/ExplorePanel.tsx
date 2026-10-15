@@ -26,7 +26,6 @@ export function ExplorePanel(props: Props) {
     <div className="space-y-7 p-5">
       <header>
         <h2 className="text-4xl leading-none">Find your next fall adventure</h2>
-        <p className="mt-2 text-sm text-[var(--ink-soft)]">Parks, trails, lakes and peak color across Ontario, with fall color across Canada.</p>
       </header>
 
       <ExploreSearch {...props} />

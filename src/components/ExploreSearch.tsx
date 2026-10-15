@@ -18,12 +18,12 @@ import { TreeIcon } from './TreeIcon'
 
 export type LookingFor = 'everything' | 'colors' | 'parks' | 'trails' | 'places'
 
-const WHAT: { id: LookingFor; label: string; hint: string; icon: ReactNode; ontarioOnly?: boolean }[] = [
-  { id: 'everything', label: 'Everything', hint: 'Show it all on the map', icon: <Search className="size-5" /> },
-  { id: 'colors', label: 'Fall colors', hint: 'Peak timing, reports and tree sightings', icon: <TreeIcon id="maples" className="size-5" /> },
-  { id: 'parks', label: 'Parks', hint: 'Every Ontario provincial park', icon: <PlaceIcon kind="peak" className="size-5" />, ontarioOnly: true },
-  { id: 'trails', label: 'Trails', hint: 'Day hikes and backpacking routes', icon: <PlaceIcon kind="trail" className="size-5" />, ontarioOnly: true },
-  { id: 'places', label: 'Lakes & waterfalls', hint: 'Falls, lookouts, lakes and peaks', icon: <PlaceIcon kind="waterfall" className="size-5" />, ontarioOnly: true },
+const WHAT: { id: LookingFor; label: string; icon: ReactNode; ontarioOnly?: boolean }[] = [
+  { id: 'everything', label: 'Everything', icon: <Search className="size-5" /> },
+  { id: 'colors', label: 'Fall colors', icon: <TreeIcon id="maples" className="size-5" /> },
+  { id: 'parks', label: 'Parks', icon: <PlaceIcon kind="peak" className="size-5" />, ontarioOnly: true },
+  { id: 'trails', label: 'Trails', icon: <PlaceIcon kind="trail" className="size-5" />, ontarioOnly: true },
+  { id: 'places', label: 'Lakes & waterfalls', icon: <PlaceIcon kind="waterfall" className="size-5" />, ontarioOnly: true },
 ]
 
 export type ExploreQuery = { province: ProvinceCode; what: LookingFor; tree: TreeFilterValue }
@@ -129,7 +129,6 @@ export function ExploreSearch({ up, autoFocus, ...props }: SearchProps & { up?: 
                   key={p.code}
                   selected={p.code === province}
                   label={p.name}
-                  hint={p.full ? 'Parks, trails, fishing and fall color' : 'Fall color regions and sightings'}
                   onClick={() => {
                     setProvince(p.code)
                     if (!p.full && WHAT.find((w) => w.id === what)?.ontarioOnly) setWhat('colors')
@@ -149,7 +148,7 @@ export function ExploreSearch({ up, autoFocus, ...props }: SearchProps & { up?: 
                   disabled={w.ontarioOnly && !full}
                   icon={w.icon}
                   label={w.label}
-                  hint={w.ontarioOnly && !full ? 'Ontario only for now' : w.hint}
+                  hint={w.ontarioOnly && !full ? 'Ontario only for now' : undefined}
                   onClick={() => {
                     setWhat(w.id)
                     close()
@@ -174,7 +173,6 @@ export function ExploreSearch({ up, autoFocus, ...props }: SearchProps & { up?: 
                     selected={t.id === tree}
                     icon={t.icon ? <TreeIcon id={t.icon} className="size-5" /> : <TreeIcon id="maples" tone="mono" className="size-4" />}
                     label={t.label}
-                    hint={t.n ? `${t.n} seen turning, last 14 days` : undefined}
                     onClick={() => {
                       setTree(t.id)
                       close()

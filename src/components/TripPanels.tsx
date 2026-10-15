@@ -189,10 +189,11 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
         ) : (
           <h2 className="text-3xl leading-tight">{trip.name}</h2>
         )}
-        <p className="mt-1 text-sm text-[var(--ink-soft)]">
-          {stops.length} stop{stops.length === 1 ? '' : 's'}
-          {sum.trails ? ` · ${sum.trails} trail${sum.trails > 1 ? 's' : ''}, ${sum.km} km · about ${formatDuration(sum.hours)} on foot` : ''}
-        </p>
+        {sum.trails > 0 && (
+          <p className="mt-1 text-sm text-[var(--ink-soft)]">
+            {sum.trails} trail{sum.trails > 1 ? 's' : ''}, {sum.km} km · about {formatDuration(sum.hours)} on foot
+          </p>
+        )}
       </header>
 
       {editable && (
