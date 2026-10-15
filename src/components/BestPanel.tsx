@@ -26,12 +26,14 @@ export function BestPanel({ parks, onSelectPark }: { parks: ParkReport[] | undef
   const origin = here.status === 'on' ? here : null
 
   const reported = useMemo(() => (parks ?? []).filter((p) => p.report && isListed(p)), [parks])
-  // One request for every park's week; it covers both lists. Refreshed after an hour.
+  // One request for every park's week; it covers both lists. Refreshed after an hour. The list
+  // never waits for it: parks are ranked by color first and re-ranked when the forecast arrives.
   const forecasts = useQuery({
     queryKey: ['best-forecasts', reported.map((p) => p.id).join()],
     queryFn: () => fetchForecasts(reported),
     enabled: reported.length > 0,
     staleTime: 60 * 60 * 1000,
+    retry: 1,
   })
   const byPark = useMemo(() => (forecasts.data ? new Map(reported.map((p, i) => [p.id, forecasts.data[i] ?? []])) : null), [forecasts.data, reported])
 
@@ -79,9 +81,22 @@ export function BestPanel({ parks, onSelectPark }: { parks: ParkReport[] | undef
         )}
       </div>
       {(here.status === 'denied' || here.status === 'unavailable') && <p role="status" className="text-sm text-[var(--ink-soft)]">{LOCATION_HELP[here.status]}</p>}
-      {forecasts.isError && <p className="text-sm text-[var(--ink-soft)]">The forecast could not be loaded, so this ranking uses color alone.</p>}
+      {forecasts.isError ? (
+        <p className="text-sm text-[var(--ink-soft)]">
+          The forecast could not be loaded, so this ranking uses color alone.{' '}
+          <button onClick={() => forecasts.refetch()} className="font-medium text-brand hover:underline">
+            Try Again
+          </button>
+        </p>
+      ) : (
+        forecasts.isFetching && (
+          <p role="status" className="animate-pulse text-sm text-[var(--ink-soft)]">
+            Checking the forecast…
+          </p>
+        )
+      )}
 
-      {!parks || forecasts.isPending ? (
+      {!parks ? (
         <div role="status" aria-label="Ranking parks" className="space-y-2">
           {Array.from({ length: 6 }, (_, i) => (
             <div key={i} className="flex min-h-14 items-center gap-3">

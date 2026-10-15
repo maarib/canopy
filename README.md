@@ -22,7 +22,7 @@
 - **`/best` ranks Ontario's parks with a fall color report** for today and tomorrow, or for the coming Saturday and Sunday. Each park's place comes from its color stage, the forecast for those days (dry is best; showers and rain count against it, and heavy rain or strong wind, which strip leaves, count most), and a report more than ten days old counts for less.
 - **Each row says why:** its stage as a badge, then the weather in a few words ("Dry all weekend", "Rain Sat, dry Sun").
 - **Near me:** "Rank by Distance Too" locates you; nearer parks then rank higher, each row shows its distance, and a Distance menu limits the list to 100, 200 or 400 km.
-- **Opened** from the landing page's first quick link and from the Explore panel. The forecast for every park comes from Open-Meteo in one request; if it fails, the list is ranked by color alone and says so.
+- **Opened** from the landing page's first quick link and from the Explore panel. The forecast for every park comes from Open-Meteo in one request. The list shows at once, ranked by color, and re-ranks when the forecast arrives; if it fails, it stays ranked by color and says so, with Try Again.
 
 ### Live color map
 - **Basemap:** a flat (Mercator) map, **Satellite at dawn** by default. The **Layers** button (next to Filters) offers eight map styles: Monochrome, Paper (Canopy's own palette), Faded, three custom color grades (Autumn film, Bark & spruce, Riso print), Mapbox Standard and Satellite. The choice is remembered on the device. Light is dawn by default; auto (day, or night in dark mode), day, dusk and night are under Layers, directly below the map styles.

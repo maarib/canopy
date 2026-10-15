@@ -46,7 +46,7 @@ export async function fetchForecasts(points: { lat: number; lng: number }[]): Pr
     timezone: 'America/Toronto',
     forecast_days: '7',
   })
-  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`)
+  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: AbortSignal.timeout(10_000) })
   if (!res.ok) throw new Error(`Open-Meteo ${res.status}`)
   const json = await res.json()
   return (Array.isArray(json) ? json : [json]).map(({ daily: d }) =>
