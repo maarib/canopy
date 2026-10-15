@@ -78,11 +78,6 @@ export function FishingPanel({ access, onBack }: { access: FishingAccess; onBack
           and lake.
         </p>
       </section>
-
-      <p className="text-[11px] text-[var(--ink-soft)]">
-        Access point data: Ontario Ministry of Natural Resources (Fish ON-Line), Open Government Licence – Ontario. Details can change;
-        check local signs.
-      </p>
     </div>
   )
 }

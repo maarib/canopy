@@ -19,7 +19,6 @@ type Props = {
   /** Parks after the activity filter (the summary above always counts every park). */
   listParks: ParkReport[] | undefined
   activityFilter?: { labels: string[]; onClear: () => void }
-  parksFetchedAt: string | undefined
   treeColorSightings: number | undefined
   onSelectRegion: (r: Region) => void
   onSelectPark: (p: ParkReport) => void
@@ -41,7 +40,6 @@ export function FoliagePanel(props: Props) {
       <header className="mb-4 flex items-end justify-between gap-3">
         <div>
           <h2 className="text-3xl leading-tight">Foliage</h2>
-          <p className="text-sm text-[var(--ink-soft)]">Fall color reports, peak timing and live tree sightings</p>
         </div>
         <TreePicker value={props.tree} counts={props.treeCounts} onChange={props.onTree} />
       </header>
@@ -76,7 +74,7 @@ export function FoliagePanel(props: Props) {
               </button>
             </div>
           )}
-          <ParkList parks={props.listParks} fetchedAt={props.parksFetchedAt} onSelect={props.onSelectPark} filtered={!!props.activityFilter} />
+          <ParkList parks={props.listParks} onSelect={props.onSelectPark} filtered={!!props.activityFilter} />
         </>
       ) : (
         <RegionList regions={props.regions} onSelect={props.onSelectRegion} />
@@ -109,7 +107,6 @@ function TreeList({ turning, onSelect }: { turning: Map<string, number> | undefi
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-[11px] text-[var(--ink-soft)]">Counts are iNaturalist sightings of turning leaves across Canada in the last 14 days.</p>
     </>
   )
 }
@@ -128,12 +125,10 @@ function Stat({ value, label, dot }: { value: number | undefined; label: string;
 
 export function ParkList({
   parks,
-  fetchedAt,
   onSelect,
   filtered,
 }: {
   parks: ParkReport[] | undefined
-  fetchedAt: string | undefined
   onSelect: (p: ParkReport) => void
   filtered: boolean
 }) {
@@ -160,7 +155,7 @@ export function ParkList({
   return (
     <>
       {filtered && !sorted.length && (
-        <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No reporting park offers all of these. Try removing one.</p>
+        <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No park with a report offers all of these.</p>
       )}
       <ul className="stagger divide-y divide-[var(--line)]">
         {sorted.map((p) => {
@@ -171,14 +166,6 @@ export function ParkList({
           )
         })}
       </ul>
-      <p className="mt-3 text-[11px] text-[var(--ink-soft)]">
-        Source:{' '}
-        <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
-          Ontario Parks Fall Colour Report
-        </a>
-        {fetchedAt && ` · updated ${new Date(fetchedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}`}. Other
-        provinces coming soon.
-      </p>
     </>
   )
 }
@@ -196,9 +183,6 @@ function RegionList({ regions, onSelect }: { regions: Region[]; onSelect: (r: Re
           )
         })}
       </ul>
-      <p className="mt-3 text-[11px] text-[var(--ink-soft)]">
-        Typical peak windows are approximate, based on past seasons.
-      </p>
     </>
   )
 }

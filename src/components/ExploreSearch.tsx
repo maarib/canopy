@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, FilterList, KeyboardArrowDown, Search } from 'relume-icons'
+import { Check, KeyboardArrowDown, Search } from 'relume-icons'
 import { PROVINCES, PROVINCE_BY_CODE, type ProvinceCode } from '../data/provinces'
 import type { TreeIconId } from '../data/treeIcons'
 import { useIsDesktop, usePresence } from '../hooks'
@@ -19,12 +19,12 @@ import { TreeIcon } from './TreeIcon'
 
 export type LookingFor = 'everything' | 'colors' | 'parks' | 'trails' | 'places'
 
-const WHAT: { id: LookingFor; label: string; hint: string; icon: ReactNode; ontarioOnly?: boolean }[] = [
-  { id: 'everything', label: 'Everything', hint: 'Show it all on the map', icon: <Search className="size-5" /> },
-  { id: 'colors', label: 'Fall colors', hint: 'Peak timing, reports and tree sightings', icon: <TreeIcon id="maples" className="size-5" /> },
-  { id: 'parks', label: 'Parks', hint: 'Every Ontario provincial park', icon: <PlaceIcon kind="peak" className="size-5" />, ontarioOnly: true },
-  { id: 'trails', label: 'Trails', hint: 'Day hikes and backpacking routes', icon: <PlaceIcon kind="trail" className="size-5" />, ontarioOnly: true },
-  { id: 'places', label: 'Lakes & waterfalls', hint: 'Falls, lookouts, lakes and peaks', icon: <PlaceIcon kind="waterfall" className="size-5" />, ontarioOnly: true },
+const WHAT: { id: LookingFor; label: string; icon: ReactNode; ontarioOnly?: boolean }[] = [
+  { id: 'everything', label: 'Everything', icon: <Search className="size-5" /> },
+  { id: 'colors', label: 'Fall colors', icon: <TreeIcon id="maples" className="size-5" /> },
+  { id: 'parks', label: 'Parks', icon: <PlaceIcon kind="peak" className="size-5" />, ontarioOnly: true },
+  { id: 'trails', label: 'Trails', icon: <PlaceIcon kind="trail" className="size-5" />, ontarioOnly: true },
+  { id: 'places', label: 'Lakes & waterfalls', icon: <PlaceIcon kind="waterfall" className="size-5" />, ontarioOnly: true },
 ]
 
 export type ExploreQuery = { province: ProvinceCode; what: LookingFor; tree: TreeFilterValue }
@@ -110,38 +110,24 @@ function Option({ selected, disabled, onClick, icon, label, hint }: { selected: 
 }
 
 /**
- * The search card. `up` opens its lists above it (when it sits at the bottom of the screen);
- * `compact` starts with only the search box, and a button reveals Where and Looking for.
+ * The search card, with Where and Looking for always shown (on phones too). `up` opens its lists
+ * above it (when it sits at the bottom of the screen).
  */
-export function ExploreSearch({ up, compact, autoFocus, ...props }: SearchProps & { up?: boolean; compact?: boolean; autoFocus?: boolean }) {
+export function ExploreSearch({ up, autoFocus, ...props }: SearchProps & { up?: boolean; autoFocus?: boolean }) {
   const [province, setProvince] = useState<ProvinceCode>('ON')
   const [what, setWhat] = useState<LookingFor>('everything')
   const [tree, setTree] = useState<TreeFilterValue>('trees')
-  const [expanded, setExpanded] = useState(false)
   const full = PROVINCE_BY_CODE.get(province)!.full
   const whatItem = WHAT.find((w) => w.id === what)!
   const trees = treeOptions(props.treeCounts)
   const treeItem = trees.find((t) => t.id === tree) ?? trees[0]
-  const showFields = !compact || expanded
   return (
       <section aria-label="Search" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-md">
         <div className="flex items-center gap-1.5 p-1">
           <div className="min-w-0 flex-1">
             <SearchBox parks={props.parks} trails={props.trails} places={props.places} onSelect={props.onSearchSelect} up={up} autoFocus={autoFocus} />
           </div>
-          {compact && (
-            <button
-              onClick={() => setExpanded(!expanded)}
-              aria-expanded={expanded}
-              aria-label="Where and what to look for"
-              className={`flex size-[42px] shrink-0 items-center justify-center rounded-full border border-[var(--line)] transition-colors hover:bg-[var(--surface-2)] ${expanded ? 'bg-[var(--surface-2)]' : ''}`}
-            >
-              <FilterList className="size-5" />
-            </button>
-          )}
         </div>
-        {showFields && (
-          <>
         <div className="relative mt-1 flex gap-1 border-t border-[var(--line)] pt-1">
           <Field up={up} label="Where" value={PROVINCE_BY_CODE.get(province)!.name}>
             {(close) =>
@@ -150,7 +136,6 @@ export function ExploreSearch({ up, compact, autoFocus, ...props }: SearchProps 
                   key={p.code}
                   selected={p.code === province}
                   label={p.name}
-                  hint={p.full ? 'Parks, trails, fishing and fall color' : 'Fall color regions and sightings'}
                   onClick={() => {
                     setProvince(p.code)
                     if (!p.full && WHAT.find((w) => w.id === what)?.ontarioOnly) setWhat('colors')
@@ -170,7 +155,7 @@ export function ExploreSearch({ up, compact, autoFocus, ...props }: SearchProps 
                   disabled={w.ontarioOnly && !full}
                   icon={w.icon}
                   label={w.label}
-                  hint={w.ontarioOnly && !full ? 'Ontario only for now' : w.hint}
+                  hint={w.ontarioOnly && !full ? 'Ontario only for now' : undefined}
                   onClick={() => {
                     setWhat(w.id)
                     close()
@@ -195,7 +180,6 @@ export function ExploreSearch({ up, compact, autoFocus, ...props }: SearchProps 
                     selected={t.id === tree}
                     icon={t.icon ? <TreeIcon id={t.icon} className="size-5" /> : <TreeIcon id="maples" tone="mono" className="size-4" />}
                     label={t.label}
-                    hint={t.n ? `${t.n} seen turning, last 14 days` : undefined}
                     onClick={() => {
                       setTree(t.id)
                       close()
@@ -213,8 +197,6 @@ export function ExploreSearch({ up, compact, autoFocus, ...props }: SearchProps 
           <Search className="size-5" />
           {what === 'everything' ? `Explore ${PROVINCE_BY_CODE.get(province)!.name}` : `Show ${whatItem.label.toLowerCase()}`}
         </button>
-          </>
-        )}
       </section>
   )
 }
@@ -254,7 +236,7 @@ export function ExploreLanding({ compact, onNavigate, ...search }: SearchProps &
   return (
     <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 animate-fade-in px-3 ${compact ? 'pb-10' : 'pb-8'}`}>
       <div className="pointer-events-auto mx-auto max-w-xl">
-        <ExploreSearch {...search} up compact={compact} autoFocus />
+        <ExploreSearch {...search} up autoFocus />
       </div>
       <QuickLinks onNavigate={onNavigate} compact={compact} />
     </div>

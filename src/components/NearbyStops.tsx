@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { fetchNearbyStops, REACH_KM, stopDistance, stopMapsUrl, stopsNear } from '../lib/nearbyStops'
+import { fetchNearbyStops, stopDistance, stopMapsUrl, stopsNear } from '../lib/nearbyStops'
 import { ICON_TILE, LIST, ROW_BESIDE } from '../lib/styles'
 import { stopRefFor } from '../lib/trips'
 import { AmenityIcon } from './ParkAmenities'
@@ -31,7 +31,7 @@ export function NearbyStops({ lat, lng }: { lat: number; lng: number }) {
     <section className="space-y-3">
       <h3 className="text-lg">Nearby</h3>
       {groups.length === 0 ? (
-        <p className="text-sm leading-relaxed text-[var(--ink-soft)]">Nothing on the map for a long way. Stock up and fill the tank before you set out.</p>
+        <p className="text-sm leading-relaxed text-[var(--ink-soft)]">Nothing nearby.</p>
       ) : (
         groups.map(({ kind, stops }) => (
           <div key={kind.id}>
@@ -57,13 +57,6 @@ export function NearbyStops({ lat, lng }: { lat: number; lng: number }) {
           </div>
         ))
       )}
-      <p className="text-[11px] text-[var(--ink-soft)]">
-        Distances are in a straight line; a stop further than {REACH_KM} km is shown only when nothing is closer. Each row opens in Google Maps for hours and directions; the bookmark saves it to a trip. Stops from ©{' '}
-        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
-          OpenStreetMap
-        </a>{' '}
-        contributors.
-      </p>
     </section>
   )
 }

@@ -65,7 +65,7 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         </section>
       ) : (
         <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
-          Ontario Parks publishes no fall color report for this park. The colors on its cover are an estimate from the reports around it.
+          No fall color report for this park.
         </p>
       )}
 
@@ -83,16 +83,6 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
       <NearbyStops lat={park.lat} lng={park.lng} />
 
       <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} />
-
-      {park.report && (
-        <p className="text-[11px] text-[var(--ink-soft)]">
-          Color data from the{' '}
-          <a href="https://www.ontarioparks.ca/fallcolour" target="_blank" rel="noreferrer" className="underline decoration-[var(--line)] underline-offset-2 transition-colors hover:text-[var(--ink)] hover:decoration-current">
-            Ontario Parks Fall Colour Report
-          </a>
-          .
-        </p>
-      )}
     </div>
   )
 }

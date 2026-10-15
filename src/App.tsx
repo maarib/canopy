@@ -726,7 +726,6 @@ export default function App() {
         parks={parks.data?.parks}
         listParks={filteredParks}
         activityFilter={activities.length ? { labels: activityLabels, onClear: () => setActivities([]) } : undefined}
-        parksFetchedAt={parks.data?.fetchedAt}
         treeColorSightings={sightings.data?.loaded ? treeColorSightings : undefined}
         onSelectRegion={selectRegion}
         onSelectPark={selectPark}

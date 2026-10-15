@@ -7,24 +7,25 @@ import { STAGES, type Stage } from '../lib/stage'
 import { treeOptions } from '../lib/treeOptions'
 import type { MapLayers } from './FoliageMap'
 
-/** The layers, grouped by what they show; a divider separates the groups in the menu. */
+/** The layers, grouped by what they show; a divider separates the groups in the menu. A hint
+ * appears only where a layer would otherwise look empty. */
 const LAYER_GROUPS: [keyof MapLayers, string, string][][] = [
   // Fall color
   [
-    ['outlook', 'Color outlook', 'Stage across all of Ontario; lighter where estimated'],
-    ['reports', 'Official park reports', 'Ontario Parks, updated daily'],
-    ['hexes', 'Color sightings', 'iNaturalist, grouped by area'],
+    ['outlook', 'Color outlook', ''],
+    ['reports', 'Official park reports', ''],
+    ['hexes', 'Color sightings', ''],
     ['sightings', 'Individual sightings', 'Shown when you zoom in'],
   ],
   // Places
   [
     ['trails', 'Parks Canada trails', 'Shown when you zoom in'],
-    ['fishing', 'Fishing access', 'Boat launches, shore access and docks · zoom in'],
+    ['fishing', 'Fishing access', 'Shown when you zoom in'],
   ],
   // Imagery
-  [['satellite', 'Daily satellite image', 'NASA VIIRS true color, by date']],
+  [['satellite', 'Daily satellite image', '']],
   // Terrain
-  [['terrain3d', '3D terrain', 'Tilts the map to show hills and valleys']],
+  [['terrain3d', '3D terrain', '']],
 ]
 
 /** Map style, light and layers: the map's Layers menu. */
@@ -91,7 +92,7 @@ export function LayerOptions({
               />
               <span>
                 <span className="block text-sm font-medium">{label}</span>
-                <span className="block text-xs text-[var(--ink-soft)]">{hint}</span>
+                {hint && <span className="block text-xs text-[var(--ink-soft)]">{hint}</span>}
               </span>
             </label>
             {key === 'satellite' && layers.satellite && (
