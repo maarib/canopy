@@ -85,7 +85,7 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-[var(--ink-soft)]">No mapped trail passes here. It may be reachable by road, canoe or an unofficial path.</p>
+          <p className="text-sm text-[var(--ink-soft)]">No mapped trail passes here.</p>
         )}
       </section>
 
@@ -93,7 +93,6 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
 
       <NearbyPhotos lat={place.lat} lng={place.lng} radiusKm={3} />
 
-      <p className="text-[11px] text-[var(--ink-soft)]">Place data © OpenStreetMap contributors.</p>
     </div>
   )
 }
