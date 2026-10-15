@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Display font: Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
@@ -24,6 +25,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-14 | [Display font: Zalando Sans Expanded](#2026-10-14-display-font-zalando-sans-expanded) | [#153](https://github.com/maarib/canopy/pull/153) |
 | 2026-10-13 | [Near me: your location on the map and distances in lists](#2026-10-13-near-me-your-location-on-the-map-and-distances-in-lists) | [#145](https://github.com/maarib/canopy/pull/145) |
 | 2026-10-13 | [A page for every Ontario provincial park](#2026-10-13-a-page-for-every-ontario-provincial-park) | [#146](https://github.com/maarib/canopy/pull/146) |
 | 2026-10-13 | [Trips: save nearby stops](#2026-10-13-trips-save-nearby-stops) | [#147](https://github.com/maarib/canopy/pull/147) |
@@ -73,6 +75,22 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-14 · Display font: Zalando Sans Expanded
+
+**Ref:** [#153](https://github.com/maarib/canopy/pull/153)
+
+**Before.** Titles, headings, stat figures and the wordmark used Londrina Solid (400; 900 for the wordmark).
+
+**After.**
+- **Zalando Sans Expanded** for all of them, loaded from Google Fonts as one variable file (weights 400 to 900).
+- **Weight 700** for titles, headings and stat figures: at 400 this wide face reads light next to Londrina's heavy strokes. The wordmark stays at 900.
+- The small extra letter-spacing on headings is gone; the face is already wide.
+- Livvic is unchanged for everything else. The Data sources page credits the new font.
+
+**Limit.** The face is wider, so long titles wrap sooner: Oxtongue-River Ragged Falls Hiking Trail now takes three lines on a 390 px phone.
 
 ## v1.5.5
 
