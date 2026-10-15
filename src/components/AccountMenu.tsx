@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { useIsDesktop, usePresence } from '../hooks'
+import { usePresence } from '../hooks'
 import { Bookmark, Description, KeyboardArrowDown, Mail, Person } from 'relume-icons'
 import { setTheme, useThemeSetting, type ThemeSetting } from '../lib/theme'
-import { ExternalIcon, FullScreenMenu, InfoIcon, ThemeIcon } from './ui'
+import { ExternalIcon, InfoIcon, ThemeIcon } from './ui'
 
 // Header avatar with an account menu, modelled on Airbnb's and AllTrails' profile menus:
 // your things first (trips), then help and about, then sign-in. Canopy has no accounts yet,
@@ -15,7 +15,6 @@ type Props = { tripCount: number; onNavigate: (path: string) => void }
 export function AccountMenu({ tripCount, onNavigate }: Props) {
   const [open, setOpen] = useState(false)
   const presence = usePresence(open)
-  const isDesktop = useIsDesktop()
   const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -35,39 +34,6 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
     onNavigate(path)
   }
 
-  // The menu's options: in a popover on desktop, filling the screen on phones.
-  const items = (
-    <>
-      <div className="flex items-center gap-3 px-2 pt-1 pb-3">
-        <span className="flex size-10 items-center justify-center rounded-full bg-[var(--surface-2)]">
-          <Person className="size-6 text-[var(--ink-soft)]" />
-        </span>
-        <span className="min-w-0 text-sm font-semibold">Maarib</span>
-      </div>
-      <div className="border-t border-[var(--line)] py-1">
-        <Item icon={<Bookmark className="size-5" />} onClick={() => go('/trips')} meta={tripCount ? String(tripCount) : undefined}>
-          Trips
-        </Item>
-      </div>
-      <div className="border-t border-[var(--line)] py-1">
-        <Item icon={<InfoIcon className="size-5" />} onClick={() => go('/about')}>
-          About
-        </Item>
-        <Item icon={<Description className="size-5" />} onClick={() => go('/sources')}>
-          Data sources
-        </Item>
-        <Item icon={<Mail className="size-5" />} href={FEEDBACK}>
-          Send feedback
-        </Item>
-      </div>
-      <ThemeRow />
-      <div className="border-t border-[var(--line)] pt-1">
-        <Item icon={<Person className="size-5" />} disabled>
-          Accounts coming soon
-        </Item>
-      </div>
-    </>
-  )
   return (
     <div ref={root} className="relative">
       <button
@@ -85,12 +51,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
         <KeyboardArrowDown className={`size-4 text-[var(--ink-soft)] transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
-      {presence.mounted && !isDesktop && (
-        <FullScreenMenu title="Account" closing={presence.closing} onClose={() => setOpen(false)}>
-          {items}
-        </FullScreenMenu>
-      )}
-      {presence.mounted && isDesktop && (
+      {presence.mounted && (
         <div role="menu" className={`absolute top-full right-0 z-40 mt-2 w-72 origin-top-right ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}>
           <div className="flex items-center gap-3 px-2 pt-1 pb-3">
             <span className="flex size-10 items-center justify-center rounded-full bg-[var(--surface-2)]">

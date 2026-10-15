@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowBack, ArrowForward, Check, KeyboardArrowDown, Link } from 'relume-icons'
-import { useIsDesktop, usePresence } from '../hooks'
+import { usePresence } from '../hooks'
 import { ICON_TILE, INFO_ROW, inkOn } from '../lib/styles'
 
 /** The nearest ancestor that scrolls (the desktop panel or the phone sheet). */
@@ -403,46 +403,6 @@ export const LOGO_LEAF =
  * ("Sort: Best color"). `value` shows the current choice after the label; `count` shows how many
  * options are set. The pill fills in when something other than the default is chosen (`active`).
  */
-/**
- * A menu on a phone: the whole screen, with its title and a Done button at the top. Pointer
- * presses inside it stop here, so the outside-click handlers of whatever opened it (which look
- * for the press in their own element, not in this portal) leave it open.
- */
-export function FullScreenMenu({ title, closing, onClose, children, ref }: { title: string; closing: boolean; onClose: () => void; children: ReactNode; ref?: React.Ref<HTMLDivElement> }) {
-  const own = useRef<HTMLDivElement>(null)
-  const done = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    const el = own.current!
-    const stop = (e: PointerEvent) => e.stopPropagation()
-    el.addEventListener('pointerdown', stop)
-    done.current?.focus()
-    return () => el.removeEventListener('pointerdown', stop)
-  }, [])
-  const setRefs = (el: HTMLDivElement | null) => {
-    own.current = el
-    if (typeof ref === 'function') ref(el)
-    else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = el
-  }
-  return createPortal(
-    <div
-      ref={setRefs}
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className={`fixed inset-0 z-50 flex flex-col bg-[var(--surface)] text-[var(--ink)] ${closing ? 'pointer-events-none animate-sheet-out' : 'animate-sheet-in'}`}
-    >
-      <header className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3">
-        <h2 className="truncate text-2xl leading-tight">{title}</h2>
-        <button ref={done} onClick={onClose} className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold text-brand transition-colors hover:bg-brand/10">
-          Done
-        </button>
-      </header>
-      <div className="min-h-0 flex-1 overflow-y-auto px-3 pt-2 pb-[max(env(safe-area-inset-bottom),1.5rem)]">{children}</div>
-    </div>,
-    document.body,
-  )
-}
-
 export function MenuButton({
   label,
   value,
@@ -463,7 +423,6 @@ export function MenuButton({
   const [open, setOpen] = useState(false)
   const [place, setPlace] = useState<CSSProperties>()
   const presence = usePresence(open)
-  const isDesktop = useIsDesktop()
   const root = useRef<HTMLDivElement>(null)
   const button = useRef<HTMLButtonElement>(null)
   const menu = useRef<HTMLDivElement>(null)
@@ -514,13 +473,7 @@ export function MenuButton({
       </button>
       {/* Drawn at the top of the page, not inside the panel: the panel's entrance animation makes
           it the reference box for anything fixed inside it, which put the menu in the wrong place. */}
-      {presence.mounted && !isDesktop && (
-        <FullScreenMenu ref={menu} title={label} closing={presence.closing} onClose={() => setOpen(false)}>
-          {children(() => setOpen(false))}
-        </FullScreenMenu>
-      )}
       {presence.mounted &&
-        isDesktop &&
         createPortal(
         <div
           ref={menu}
