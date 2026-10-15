@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { FilterList } from 'relume-icons'
-import { usePresence } from '../hooks'
-import { Segmented } from './ui'
+import { useIsDesktop, usePresence } from '../hooks'
+import { FullScreenMenu, Segmented } from './ui'
 
 export type FilterTab = { id: string; label: string; active: number; content: ReactNode }
 
@@ -18,6 +18,7 @@ export function MapFilters({ tabs, label = 'Filters', icon = <FilterList classNa
   const button = useRef<HTMLButtonElement>(null)
   const total = tabs.reduce((n, t) => n + t.active, 0)
   const presence = usePresence(open)
+  const isDesktop = useIsDesktop()
 
   // Anchor to the viewport: below the button, left-aligned to it, never past either edge.
   const openMenu = () => {
@@ -43,6 +44,28 @@ export function MapFilters({ tabs, label = 'Filters', icon = <FilterList classNa
   }, [open])
 
   const current = tabs.find((t) => t.id === tab) ?? tabs[0]
+  // The tabs and their content: in a popover on desktop, filling the screen on phones.
+  const body = (
+    <>
+      {tabs.length > 1 && <Segmented
+        className="m-2"
+        value={current.id}
+        onChange={setTab}
+        options={tabs.map((t) => ({
+          id: t.id,
+          label: (
+            <>
+              {t.label}
+              {t.active > 0 && <span className="rounded-full bg-brand px-1.5 text-[10px] leading-4 text-white">{t.active}</span>}
+            </>
+          ),
+        }))}
+      />}
+      <div key={current.id} role={tabs.length > 1 ? 'tabpanel' : undefined} className={`min-h-0 animate-fade-in overflow-y-auto px-2 pb-3 ${tabs.length > 1 ? '' : 'pt-3'}`}>
+        {current.content}
+      </div>
+    </>
+  )
   return (
     <div ref={root} className="relative">
       <button
@@ -61,28 +84,17 @@ export function MapFilters({ tabs, label = 'Filters', icon = <FilterList classNa
         {total > 0 && <span className="rounded-full bg-[var(--surface)] px-1.5 text-xs leading-5 text-[var(--ink)]">{total}</span>}
       </button>
 
-      {presence.mounted && (
+      {presence.mounted && !isDesktop && (
+        <FullScreenMenu title={label} closing={presence.closing} onClose={() => setOpen(false)}>
+          {body}
+        </FullScreenMenu>
+      )}
+      {presence.mounted && isDesktop && (
         <div
           style={place}
           className={`fixed z-40 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} flex max-h-[min(72vh,600px)] flex-col rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-xl`}
         >
-          {tabs.length > 1 && <Segmented
-            className="m-2"
-            value={current.id}
-            onChange={setTab}
-            options={tabs.map((t) => ({
-              id: t.id,
-              label: (
-                <>
-                  {t.label}
-                  {t.active > 0 && <span className="rounded-full bg-brand px-1.5 text-[10px] leading-4 text-white">{t.active}</span>}
-                </>
-              ),
-            }))}
-          />}
-          <div key={current.id} role={tabs.length > 1 ? 'tabpanel' : undefined} className={`min-h-0 animate-fade-in overflow-y-auto px-2 pb-3 ${tabs.length > 1 ? '' : 'pt-3'}`}>
-            {current.content}
-          </div>
+          {body}
         </div>
       )}
     </div>

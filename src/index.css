@@ -27,6 +27,8 @@
   --animate-fade-in: fade-in 200ms var(--ease-out-soft) both;
   --animate-icon-pop: icon-pop 320ms var(--ease-spring) both;
   --animate-pin-in: pin-in 280ms var(--ease-spring) both;
+  --animate-sheet-in: sheet-in 240ms var(--ease-out-soft) both;
+  --animate-sheet-out: sheet-out 120ms ease-in both;
 }
 
 /* Menus and dropdowns grow from their anchor (set transform-origin where they open). */
@@ -40,6 +42,18 @@
   to {
     opacity: 0;
     transform: translateY(-4px) scale(0.97);
+  }
+}
+/* On phones a menu fills the screen, sliding up from the bottom edge. */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-out {
+  to {
+    opacity: 0;
+    transform: translateY(24px);
   }
 }
 /* A new page or panel eases up into place. */
