@@ -2,8 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, KeyboardArrowDown, Search } from 'relume-icons'
 import { PROVINCES, PROVINCE_BY_CODE, type ProvinceCode } from '../data/provinces'
 import type { TreeIconId } from '../data/treeIcons'
-import { useIsDesktop, usePresence } from '../hooks'
-import { FullScreenMenu } from './ui'
+import { usePresence } from '../hooks'
 import { PLACE_KINDS, type Place, type Trail } from '../lib/explore'
 import type { ParkReport } from '../lib/ontarioParks'
 import { STAGES } from '../lib/stage'
@@ -38,11 +37,13 @@ export type SearchProps = {
   onSubmit: (q: ExploreQuery) => void
 }
 
-/** A labelled field that opens a list below it, like Airbnb's search segments. */
+/**
+ * A labelled field that opens a list below it, like Airbnb's search segments. Unlike the app's
+ * other menus, it stays a list on phones too: the choices are short and sit right over the card.
+ */
 function Field({ label, value, icon, up, children }: { label: string; value: string; icon?: ReactNode; /** Open the list above the row. */ up?: boolean; children: (close: () => void) => ReactNode }) {
   const [open, setOpen] = useState(false)
   const presence = usePresence(open)
-  const isDesktop = useIsDesktop()
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
@@ -71,12 +72,7 @@ function Field({ label, value, icon, up, children }: { label: string; value: str
         </span>
         <KeyboardArrowDown className={`size-4 shrink-0 text-[var(--ink-soft)] transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {presence.mounted && !isDesktop && (
-        <FullScreenMenu title={label} closing={presence.closing} onClose={() => setOpen(false)}>
-          <div role="listbox">{children(() => setOpen(false))}</div>
-        </FullScreenMenu>
-      )}
-      {presence.mounted && isDesktop && (
+      {presence.mounted && (
         <div
           role="listbox"
           className={`absolute inset-x-0 z-30 max-h-80 ${up ? 'bottom-full mb-1 origin-bottom' : 'top-full mt-1 origin-top'} ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl`}
