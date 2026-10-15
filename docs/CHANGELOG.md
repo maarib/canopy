@@ -90,9 +90,9 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - **Reasons on every row:** the stage as the badge, then the weather in a few words, for example "Dry all weekend" or "Rain Sat, dry Sun".
 - **Distance:** "Rank by Distance Too" locates you. Nearer parks then rank higher (no change within 60 km, falling to 30% by about 410 km), every row shows its distance, and a Distance menu limits the list to 100, 200 or 400 km.
 - **Entry points:** the landing page's first quick link is now "Best right now" (it was "Peaking now", which opened Parks), and the Explore panel's "Peaking now" section links to it.
-- **The list never waits for the weather.** Parks appear ranked by color at once, with "Checking the forecast…" above them, and are re-ranked when the forecast arrives. If it cannot be loaded (ten-second limit, one retry), the list stays ranked by color and says so, with a Try Again button.
+- **The list never waits for the weather.** Parks appear ranked by color at once, with "Checking the forecast…" above them, and are re-ranked when the forecast arrives. If it cannot be loaded (fifteen-second limit per batch, one retry), the list stays ranked by color and says so, with a Try Again button.
 
-**How.** `src/lib/bestNow.ts` ranks; `BestPanel.tsx` is the page, loaded on demand like the others. Open-Meteo takes a list of coordinates, so the week's forecast for every listed park comes in one request (refreshed after an hour) and serves both tabs.
+**How.** `src/lib/bestNow.ts` ranks; `BestPanel.tsx` is the page, loaded on demand like the others. Open-Meteo takes a list of coordinates but works through them one after another (about half a second each), so a single request for 46 parks took 22 to 25 seconds. The parks are split into batches of eight, fetched side by side, and the week's forecast (refreshed after an hour) serves both tabs. A batch that fails only leaves its parks without weather.
 
 **Limits.**
 - Distances are straight lines, not drive times.

@@ -36,9 +36,11 @@ export function daysFor(when: When, now = new Date()): { date: string; name: str
   return toSat === 0 ? [day(local, 'today'), day(plus(1), 'tomorrow')] : [day(plus(toSat), 'Saturday', 'Sat'), day(plus(toSat + 1), 'Sunday', 'Sun')]
 }
 
-/** One forecast per point, in one request (Open-Meteo takes a list of places). */
-export async function fetchForecasts(points: { lat: number; lng: number }[]): Promise<DayForecast[][]> {
-  if (!points.length) return []
+/** Parks per forecast request. Open-Meteo works through the places in a request one after another
+ * (about half a second each), so 46 in one request took over 20 seconds; batches run side by side. */
+const BATCH = 8
+
+async function fetchBatch(points: { lat: number; lng: number }[]): Promise<DayForecast[][]> {
   const params = new URLSearchParams({
     latitude: points.map((p) => p.lat.toFixed(3)).join(','),
     longitude: points.map((p) => p.lng.toFixed(3)).join(','),
@@ -46,7 +48,7 @@ export async function fetchForecasts(points: { lat: number; lng: number }[]): Pr
     timezone: 'America/Toronto',
     forecast_days: '7',
   })
-  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: AbortSignal.timeout(10_000) })
+  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: AbortSignal.timeout(15_000) })
   if (!res.ok) throw new Error(`Open-Meteo ${res.status}`)
   const json = await res.json()
   return (Array.isArray(json) ? json : [json]).map(({ daily: d }) =>
@@ -59,6 +61,18 @@ export async function fetchForecasts(points: { lat: number; lng: number }[]): Pr
       weatherCode: d.weather_code[i],
     })),
   )
+}
+
+/**
+ * One forecast per point (empty where its batch failed), in batches fetched side by side.
+ * Fails only if every batch does.
+ */
+export async function fetchForecasts(points: { lat: number; lng: number }[]): Promise<DayForecast[][]> {
+  if (!points.length) return []
+  const batches = Array.from({ length: Math.ceil(points.length / BATCH) }, (_, i) => points.slice(i * BATCH, (i + 1) * BATCH))
+  const results = await Promise.allSettled(batches.map(fetchBatch))
+  if (results.every((r) => r.status === 'rejected')) throw (results[0] as PromiseRejectedResult).reason
+  return results.flatMap((r, i) => (r.status === 'fulfilled' ? r.value : batches[i].map(() => [])))
 }
 
 type DayCall = { word: string; worth: number }
