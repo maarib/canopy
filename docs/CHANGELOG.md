@@ -128,11 +128,12 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **After.** Below 768 px wide, every menu with options to choose from fills the screen, sliding up from the bottom, with its title at the top left and **Done** at the top right:
 - the map's **Filters**, **Layers** and **Legend**;
 - the list menus: Parks' Region, Show, Activities and Sort, and the other pill menus that use the same button;
-- Explore's **Where**, **Looking for** and **Trees**;
 - Foliage's **Trees** picker;
 - the **account menu**;
 - **Save to a trip** (the Save button and the bookmark on Nearby rows);
 - the locate button's **My location** menu.
+
+Explore's **Where**, **Looking for** and **Trees** stay as lists that open over the search card, as before ([#157](https://github.com/maarib/canopy/pull/157)): their choices are short and sit right by the card.
 
 Single-choice menus close as soon as something is picked; menus with several choices (Filters, Layers, Activities, Save to a trip) stay open until Done. Escape also closes them. On desktop nothing changes.
 
