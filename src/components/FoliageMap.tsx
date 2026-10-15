@@ -15,7 +15,7 @@ import Map, {
   type MapMouseEvent,
   type MapRef,
 } from 'react-map-gl/mapbox'
-import { ExternalIcon, FullScreenMenu, LocateIcon } from './ui'
+import { ExternalIcon, LocateIcon } from './ui'
 import { locate, LOCATION_HELP, stopLocating, useLocation } from '../lib/location'
 import { signatureTree, type Region } from '../data/regions'
 import { MapSkeleton } from './MapSkeleton'
@@ -1005,7 +1005,6 @@ function LocateControl() {
   const note = failed && seen !== here
 
   const [menu, setMenu] = useState(false)
-  const isDesktop = useIsDesktop()
   const menuId = useId()
   useEffect(() => {
     if (!menu) return
@@ -1026,25 +1025,6 @@ function LocateControl() {
   }
   const option = 'block w-full rounded-lg px-3 py-2 text-left text-sm whitespace-nowrap text-[var(--ink)] hover:bg-[var(--surface-2)]'
 
-  // The menu's options: in a popover on desktop, filling the screen on phones.
-  const choices = (
-    <>
-      <button
-        type="button"
-        role="menuitem"
-        className={option}
-        onClick={() => {
-          setMenu(false)
-          if (position) map?.flyTo({ center: [position.lng, position.lat], zoom: Math.max(map.getZoom(), 9), duration: 1200 })
-        }}
-      >
-        Go to My Location
-      </button>
-      <button type="button" role="menuitem" className={option} onClick={() => (setMenu(false), stopLocating())}>
-        Turn Off
-      </button>
-    </>
-  )
   return (
     <>
       {createPortal(
@@ -1065,14 +1045,22 @@ function LocateControl() {
               </span>
             </button>
           </div>
-          {menu && position && !isDesktop && (
-            <FullScreenMenu title="My location" closing={false} onClose={() => setMenu(false)}>
-              {choices}
-            </FullScreenMenu>
-          )}
-          {menu && position && isDesktop && (
+          {menu && position && (
             <div id={menuId} role="menu" aria-label="My location" className="absolute top-0 right-full mr-2 origin-top-right animate-pop-in rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl">
-              {choices}
+              <button
+                type="button"
+                role="menuitem"
+                className={option}
+                onClick={() => {
+                  setMenu(false)
+                  map?.flyTo({ center: [position.lng, position.lat], zoom: Math.max(map.getZoom(), 9), duration: 1200 })
+                }}
+              >
+                Go to My Location
+              </button>
+              <button type="button" role="menuitem" className={option} onClick={() => (setMenu(false), stopLocating())}>
+                Turn Off
+              </button>
             </div>
           )}
           <p role="status" className={`absolute top-0 right-full mr-2 w-56 rounded-xl bg-[var(--surface)] px-3 py-2 text-xs leading-snug text-[var(--ink)] shadow-lg ${note ? '' : 'hidden'}`}>
