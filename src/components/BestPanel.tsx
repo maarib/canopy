@@ -41,14 +41,14 @@ export function BestPanel({ parks, onSelectPark }: { parks: ParkReport[] | undef
   }, [reported, byPark, when, origin, reach])
 
   const days = daysFor(when)
-  const dayNames = days.map((d) => d.name[0].toUpperCase() + d.name.slice(1)).join(' and ')
+  const dayNames = days.map((d) => d.name).join(' and ')
 
   return (
     <div className="space-y-4 p-5">
       <header>
         <h2 className="text-3xl leading-tight">{when === 'now' ? 'Best right now' : 'Best this weekend'}</h2>
         <p className="text-sm text-[var(--ink-soft)]">
-          Ontario's parks with a fall color report, ranked by their color, the forecast for {dayNames.toLowerCase()}
+          Ontario's parks with a fall color report, ranked by their color, the forecast for {dayNames}
           {origin ? ' and how far they are from you' : ''}.
         </p>
       </header>

@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Best right now and this weekend ([#150](https://github.com/maarib/canopy/pull/150)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
@@ -24,6 +25,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-14 | [Best right now and this weekend](#2026-10-14-best-right-now-and-this-weekend) | [#150](https://github.com/maarib/canopy/pull/150) |
 | 2026-10-13 | [Near me: your location on the map and distances in lists](#2026-10-13-near-me-your-location-on-the-map-and-distances-in-lists) | [#145](https://github.com/maarib/canopy/pull/145) |
 | 2026-10-13 | [A page for every Ontario provincial park](#2026-10-13-a-page-for-every-ontario-provincial-park) | [#146](https://github.com/maarib/canopy/pull/146) |
 | 2026-10-13 | [Trips: save nearby stops](#2026-10-13-trips-save-nearby-stops) | [#147](https://github.com/maarib/canopy/pull/147) |
@@ -73,6 +75,30 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-14 · Best right now and this weekend
+
+**Ref:** [#150](https://github.com/maarib/canopy/pull/150) · issue [#43](https://github.com/maarib/canopy/issues/43)
+
+**Before.** "Peaking now" on the landing page opened the Parks list sorted by color. Nothing took the weather or the coming weekend into account.
+
+**After.**
+- **A new page, `/best`,** with two tabs: **Right Now** (today and tomorrow) and **This Weekend** (the coming Saturday and Sunday; on a Saturday, today and tomorrow; on a Sunday, today).
+- **Ranking:** each park with a fall color report gets a score from its stage (peak highest, then near peak, past peak, patchy, mostly green), multiplied by the weather on those days: dry 1, frost 0.8, showers 0.75, rain 0.5, and heavy rain or strong wind (which strip leaves) 0.25. A report more than ten days old counts 20% less and says so.
+- **Reasons on every row:** the stage as the badge, then the weather in a few words, for example "Dry all weekend" or "Rain Sat, dry Sun".
+- **Distance:** "Rank by Distance Too" locates you. Nearer parks then rank higher (no change within 60 km, falling to 30% by about 410 km), every row shows its distance, and a Distance menu limits the list to 100, 200 or 400 km.
+- **Entry points:** the landing page's first quick link is now "Best right now" (it was "Peaking now", which opened Parks), and the Explore panel's "Peaking now" section links to it.
+- **No forecast:** if the forecast cannot be loaded, the list is ranked by color alone and says so.
+
+**How.** `src/lib/bestNow.ts` ranks; `BestPanel.tsx` is the page, loaded on demand like the others. Open-Meteo takes a list of coordinates, so the week's forecast for every listed park comes in one request (refreshed after an hour) and serves both tabs.
+
+**Limits.**
+- Distances are straight lines, not drive times.
+- On a phone, a few rows cut off the end of their weather phrase.
+- Only parks with a color report are ranked; on October 14 Ontario Parks reported 46 locations.
+- No filters yet for tree type, activity or accessibility (the rest of EXP-2).
 
 ## v1.5.5
 

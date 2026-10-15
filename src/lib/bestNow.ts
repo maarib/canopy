@@ -20,7 +20,7 @@ const STALE_DAYS = 10
 export type Ranked = { park: ParkReport; score: number; reasons: string[]; km: number | null }
 
 /** The days a list is about, as YYYY-MM-DD in Ontario time, with their names. */
-export function daysFor(when: When, now = new Date()): { date: string; name: string }[] {
+export function daysFor(when: When, now = new Date()): { date: string; name: string; short: string }[] {
   const local = new Date(now.toLocaleString('en-US', { timeZone: 'America/Toronto' }))
   const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   const plus = (n: number) => {
@@ -28,14 +28,12 @@ export function daysFor(when: When, now = new Date()): { date: string; name: str
     d.setDate(d.getDate() + n)
     return d
   }
-  if (when === 'now') return [{ date: iso(local), name: 'today' }, { date: iso(plus(1)), name: 'tomorrow' }]
+  const day = (date: Date, name: string, short = name) => ({ date: iso(date), name, short })
+  if (when === 'now') return [day(local, 'today'), day(plus(1), 'tomorrow')]
   const dow = local.getDay() // 0 Sunday … 6 Saturday
-  if (dow === 0) return [{ date: iso(local), name: 'Sunday' }]
+  if (dow === 0) return [day(local, 'today')]
   const toSat = 6 - dow
-  return [
-    { date: iso(plus(toSat)), name: toSat === 0 ? 'today' : 'Saturday' },
-    { date: iso(plus(toSat + 1)), name: toSat === 0 ? 'tomorrow' : 'Sunday' },
-  ]
+  return toSat === 0 ? [day(local, 'today'), day(plus(1), 'tomorrow')] : [day(plus(toSat), 'Saturday', 'Sat'), day(plus(toSat + 1), 'Sunday', 'Sun')]
 }
 
 /** One forecast per point, in one request (Open-Meteo takes a list of places). */
@@ -67,17 +65,20 @@ type DayCall = { word: string; worth: number }
 
 /** What a day's weather means for a visit and for the leaves. */
 function judge(day: DayForecast): DayCall {
-  if (colorOutlook(day) === 'leaf-drop') return { word: day.gustKmh >= 50 ? 'strong wind' : 'heavy rain', worth: 0.25 }
+  if (colorOutlook(day) === 'leaf-drop') return { word: day.gustKmh >= 50 ? 'windy' : 'heavy rain', worth: 0.25 }
   if (day.precipMm >= 5) return { word: 'rain', worth: 0.5 }
   if (day.precipMm >= 1) return { word: 'showers', worth: 0.75 }
-  if (day.tMin <= -2) return { word: 'a hard frost', worth: 0.8 }
+  if (day.tMin <= -2) return { word: 'frost', worth: 0.8 }
   return { word: 'dry', worth: 1 }
 }
 
-/** "dry today and tomorrow", "rain Saturday, dry Sunday". */
-function weatherPhrase(calls: (DayCall & { name: string })[]): string {
-  if (calls.every((c) => c.word === calls[0].word)) return `${calls[0].word} ${calls.map((c) => c.name).join(' and ')}`
-  return calls.map((c) => `${c.word} ${c.name}`).join(', ')
+/** Short enough for a phone row: "dry all weekend", "rain Sat, dry Sun", "dry today, showers tomorrow". */
+function weatherPhrase(calls: (DayCall & { name: string; short: string })[], when: When): string {
+  if (calls.every((c) => c.word === calls[0].word)) {
+    if (when === 'weekend' && calls.length > 1) return `${calls[0].word} all weekend`
+    return `${calls[0].word} ${calls.map((c) => c.short).join(' and ')}`
+  }
+  return calls.map((c) => `${c.word} ${c.short}`).join(', ')
 }
 
 /** How much nearer is better: no change within 60 km, then less and less, to a floor of 0.3 by about 410 km. */
@@ -107,11 +108,11 @@ export function rankParks(
       const forecast = forecasts?.get(park.id)
       const calls = days.flatMap((d) => {
         const f = forecast?.find((x) => x.date === d.date)
-        return f ? [{ ...judge(f), name: d.name }] : []
+        return f ? [{ ...judge(f), name: d.name, short: d.short }] : []
       })
       if (calls.length) {
         score *= calls.reduce((s, c) => s + c.worth, 0) / calls.length
-        const phrase = weatherPhrase(calls)
+        const phrase = weatherPhrase(calls, when)
         reasons.unshift(phrase[0].toUpperCase() + phrase.slice(1))
       }
 
