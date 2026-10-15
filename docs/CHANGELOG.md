@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Phones: every menu opens full screen ([#154](https://github.com/maarib/canopy/pull/154)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
@@ -24,6 +25,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-14 | [Phones: every menu opens full screen](#2026-10-14-phones-every-menu-opens-full-screen) | [#154](https://github.com/maarib/canopy/pull/154) |
 | 2026-10-13 | [Near me: your location on the map and distances in lists](#2026-10-13-near-me-your-location-on-the-map-and-distances-in-lists) | [#145](https://github.com/maarib/canopy/pull/145) |
 | 2026-10-13 | [A page for every Ontario provincial park](#2026-10-13-a-page-for-every-ontario-provincial-park) | [#146](https://github.com/maarib/canopy/pull/146) |
 | 2026-10-13 | [Trips: save nearby stops](#2026-10-13-trips-save-nearby-stops) | [#147](https://github.com/maarib/canopy/pull/147) |
@@ -73,6 +75,27 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-14 · Phones: every menu opens full screen
+
+**Ref:** [#154](https://github.com/maarib/canopy/pull/154)
+
+**Before.** On phones, menus opened as small popovers under their button, the same as on desktop.
+
+**After.** Below 768 px wide, every menu with options to choose from fills the screen, sliding up from the bottom, with its title at the top left and **Done** at the top right:
+- the map's **Filters**, **Layers** and **Legend**;
+- the list menus: Parks' Region, Show, Activities and Sort, and the other pill menus that use the same button;
+- Explore's **Where**, **Looking for** and **Trees**;
+- Foliage's **Trees** picker;
+- the **account menu**;
+- **Save to a trip** (the Save button and the bookmark on Nearby rows);
+- the locate button's **My location** menu.
+
+Single-choice menus close as soon as something is picked; menus with several choices (Filters, Layers, Activities, Save to a trip) stay open until Done. Escape also closes them. On desktop nothing changes.
+
+**How.** `FullScreenMenu` in `ui.tsx` draws the screen in a portal and stops pointer presses at its edge, so each menu's own outside-click handling keeps working unchanged. Each menu renders its options once and shows them either in its popover (desktop) or in the full screen (phones).
 
 ## v1.5.5
 
