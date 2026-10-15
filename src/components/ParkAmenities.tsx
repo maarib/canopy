@@ -102,7 +102,6 @@ export function ParkAmenities({ shortname }: { shortname: string }) {
           <Group title="Camping" items={park.camping} />
           <Group title="On site" items={park.amenities} />
           <Group title="Rentals" items={park.rentals} />
-          <p className="text-[11px] text-[var(--ink-soft)]">Some facilities are seasonal or limited to parts of the park.</p>
         </section>
       )}
     </>

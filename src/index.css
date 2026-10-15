@@ -11,9 +11,9 @@
   --color-spruce: #2f5d3a;
   --color-bark: #3b2f2a;
   --color-mist: #f6f1ea;
-  /* Livvic for everything; Londrina Solid for display titles and headings. */
+  /* Livvic for everything; Zalando Sans Expanded for display titles and headings. */
   --font-sans: 'Livvic', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Londrina Solid', 'Livvic', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Zalando Sans Expanded', 'Livvic', ui-sans-serif, system-ui, sans-serif;
 
   /*
    * Motion. Short and quick: things appear from where they come from and settle without bounce,
@@ -27,6 +27,8 @@
   --animate-fade-in: fade-in 200ms var(--ease-out-soft) both;
   --animate-icon-pop: icon-pop 320ms var(--ease-spring) both;
   --animate-pin-in: pin-in 280ms var(--ease-spring) both;
+  --animate-sheet-in: sheet-in 240ms var(--ease-out-soft) both;
+  --animate-sheet-out: sheet-out 120ms ease-in both;
 }
 
 /* Menus and dropdowns grow from their anchor (set transform-origin where they open). */
@@ -40,6 +42,18 @@
   to {
     opacity: 0;
     transform: translateY(-4px) scale(0.97);
+  }
+}
+/* On phones a menu fills the screen, sliding up from the bottom edge. */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-out {
+  to {
+    opacity: 0;
+    transform: translateY(24px);
   }
 }
 /* A new page or panel eases up into place. */
@@ -267,9 +281,14 @@ html[data-page-move='tab']::view-transition-new(page) {
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: 0.01em;
+    font-weight: 700;
   }
+}
+
+/* The display face is wide and light at its regular weight; bold gives titles and stat figures
+   the same presence wherever it is used. The wordmark asks for 900 itself. */
+.font-display {
+  font-weight: 700;
 }
 
 html,

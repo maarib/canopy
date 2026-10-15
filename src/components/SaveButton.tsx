@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { usePresence } from '../hooks'
+import { useIsDesktop, usePresence } from '../hooks'
 import { Add, Bookmark, Check } from 'relume-icons'
+import { FullScreenMenu } from './ui'
 import { tripActions, tripsContaining, useTrips, type StopRef } from '../lib/trips'
 
 /**
@@ -13,6 +14,7 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
   const saved = tripsContaining(trips, stopRef)
   const [open, setOpen] = useState(false)
   const presence = usePresence(open)
+  const isDesktop = useIsDesktop()
   const [newName, setNewName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
   const root = useRef<HTMLDivElement>(null)
@@ -52,6 +54,52 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
     flash(`Saved to ${trip.name}`)
   }
 
+  // The menu's options: in a popover on desktop, filling the screen on phones.
+  const choices = (
+    <>
+      <ul className="max-h-56 overflow-y-auto">
+        {trips.map((t) => {
+          const inTrip = saved.some((s) => s.id === t.id)
+          return (
+            <li key={t.id}>
+              <button
+                role="menuitemcheckbox"
+                aria-checked={inTrip}
+                onClick={() => {
+                  tripActions.toggle(t.id, stopRef)
+                  flash(inTrip ? `Removed from ${t.name}` : `Saved to ${t.name}`)
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-[var(--surface-2)]"
+              >
+                <span
+                  className={`flex size-5 shrink-0 items-center justify-center rounded-md border ${
+                    inTrip ? 'border-brand bg-brand text-white' : 'border-[var(--line)]'
+                  }`}
+                >
+                  {inTrip && <Check className="size-3.5" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate">{t.name}</span>
+                <span className="text-xs text-[var(--ink-soft)]">{t.items.length}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+      <form onSubmit={createTrip} className="mt-1 flex items-center gap-1 border-t border-[var(--line)] pt-2">
+        <input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          placeholder="New trip name"
+          aria-label="New trip name"
+          maxLength={80}
+          className="min-w-0 flex-1 rounded-lg bg-[var(--surface-2)] px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-brand/40"
+        />
+        <button type="submit" aria-label="Create trip and save" className="rounded-lg bg-brand p-1.5 text-white hover:opacity-90">
+          <Add className="size-4" />
+        </button>
+      </form>
+    </>
+  )
   const isSaved = saved.length > 0
   return (
     <div ref={root} className="relative">
@@ -70,7 +118,12 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
         {!compact && (isSaved ? 'Saved' : 'Save')}
       </button>
 
-      {presence.mounted && (
+      {presence.mounted && !isDesktop && (
+        <FullScreenMenu title="Save to a trip" closing={presence.closing} onClose={() => setOpen(false)}>
+          {choices}
+        </FullScreenMenu>
+      )}
+      {presence.mounted && isDesktop && (
         <div
           id={menuId}
           role="menu"
@@ -78,47 +131,7 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
           className={`absolute top-full z-30 mt-2 w-64 ${compact ? 'right-0 origin-top-right' : 'left-0 origin-top-left'} ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}
         >
           <p className="px-2 pt-1 pb-2 text-xs font-semibold">Save to a trip</p>
-          <ul className="max-h-56 overflow-y-auto">
-            {trips.map((t) => {
-              const inTrip = saved.some((s) => s.id === t.id)
-              return (
-                <li key={t.id}>
-                  <button
-                    role="menuitemcheckbox"
-                    aria-checked={inTrip}
-                    onClick={() => {
-                      tripActions.toggle(t.id, stopRef)
-                      flash(inTrip ? `Removed from ${t.name}` : `Saved to ${t.name}`)
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-[var(--surface-2)]"
-                  >
-                    <span
-                      className={`flex size-5 shrink-0 items-center justify-center rounded-md border ${
-                        inTrip ? 'border-brand bg-brand text-white' : 'border-[var(--line)]'
-                      }`}
-                    >
-                      {inTrip && <Check className="size-3.5" />}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate">{t.name}</span>
-                    <span className="text-xs text-[var(--ink-soft)]">{t.items.length}</span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-          <form onSubmit={createTrip} className="mt-1 flex items-center gap-1 border-t border-[var(--line)] pt-2">
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="New trip name"
-              aria-label="New trip name"
-              maxLength={80}
-              className="min-w-0 flex-1 rounded-lg bg-[var(--surface-2)] px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-brand/40"
-            />
-            <button type="submit" aria-label="Create trip and save" className="rounded-lg bg-brand p-1.5 text-white hover:opacity-90">
-              <Add className="size-4" />
-            </button>
-          </form>
+          {choices}
         </div>
       )}
 

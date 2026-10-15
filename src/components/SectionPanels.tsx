@@ -16,11 +16,10 @@ import { ExternalIcon, InfoRow, MenuButton, MenuOption } from './ui'
 // Dedicated pages for the Parks and Places sections (and About). Each is a list with its own
 // search, and filters and sorts as menu pills (MenuButton); the map beside it shows the same things.
 
-function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
+function PageHeader({ title }: { title: string }) {
   return (
     <header>
       <h2 className="text-3xl leading-tight">{title}</h2>
-      <p className="text-sm text-[var(--ink-soft)]">{subtitle}</p>
     </header>
   )
 }
@@ -110,7 +109,7 @@ export function ParksPanel({
 
   return (
     <div className="space-y-4 p-5">
-      <PageHeader title="Parks" subtitle="Every Ontario provincial park, with its fall color report where there is one" />
+      <PageHeader title="Parks" />
       <FilterInput value={query} onChange={setQuery} placeholder="Find a park" />
 
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -152,7 +151,6 @@ export function ParksPanel({
         </p>
       )}
 
-      <p className="text-xs text-[var(--ink-soft)]">{parks ? `${list.length} parks` : 'Loading parks…'}</p>
       <ul className={`stagger ${LIST}`}>
         {list.map((p) => (
           <li key={p.id}>
@@ -160,10 +158,7 @@ export function ParksPanel({
           </li>
         ))}
       </ul>
-      {parks && !list.length && <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No parks match. Try another region, fewer activities or another name.</p>}
-      <p className="text-[11px] text-[var(--ink-soft)]">
-        All 340 Ontario Parks have facility data; the ones with fall color reports are shown here and on the map. The rest are coming.
-      </p>
+      {parks && !list.length && <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No parks match.</p>}
     </div>
   )
 }
@@ -207,7 +202,7 @@ export function TrailsPanel({
 
   return (
     <div className="space-y-4 p-5">
-      <PageHeader title="Places" subtitle="Trails, waterfalls, lookouts, lakes and peaks, with what's along each trail" />
+      <PageHeader title="Places" />
       <FilterInput value={query} onChange={setQuery} placeholder={show === 'trails' ? 'Find a trail' : `Find a ${PLACE_KINDS[show].label.toLowerCase()}`} />
 
       <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -243,7 +238,6 @@ export function TrailsPanel({
               )}
             </MenuButton>
           </div>
-          <p className="text-xs text-[var(--ink-soft)]">{trailList.length} trails · shortest first</p>
           <ul className={`stagger ${LIST}`}>
             {trailList.map((t) => (
               <li key={t.id}>
@@ -254,7 +248,6 @@ export function TrailsPanel({
         </>
       ) : (
         <>
-          <p className="text-xs text-[var(--ink-soft)]">{placeList.length} {PLACE_KINDS[show].plural.toLowerCase()}</p>
           <ul className={`stagger ${LIST}`}>
             {placeList.map((p) => (
               <li key={p.id}>
@@ -264,7 +257,6 @@ export function TrailsPanel({
           </ul>
         </>
       )}
-      <p className="text-[11px] text-[var(--ink-soft)]">Algonquin's Highway 60 corridor for now; more areas are on the way.</p>
     </div>
   )
 }
@@ -290,7 +282,7 @@ const DESIGN: { name: string; url?: string; what?: string; by: string }[] = [
   { name: 'Place icons', what: 'Trails, waterfalls, lookouts, peaks, lakes, rivers and creeks', by: 'Canopy' },
   { name: 'Activity and facility icons', url: 'https://icons8.com', by: 'Icons8' },
   { name: 'Interface icons', url: 'https://www.npmjs.com/package/relume-icons', by: 'Relume' },
-  { name: 'Londrina Solid', url: 'https://fonts.google.com/specimen/Londrina+Solid', by: 'Google Fonts' },
+  { name: 'Zalando Sans Expanded', url: 'https://fonts.google.com/specimen/Zalando+Sans+Expanded', by: 'Google Fonts' },
   { name: 'Livvic', url: 'https://fonts.google.com/specimen/Livvic', by: 'Google Fonts' },
 ]
 
@@ -307,7 +299,7 @@ const ACCESS: [string, string][] = [
 export function AboutPanel({ onData }: { onData: () => void }) {
   return (
     <div className="space-y-6 p-5">
-      <PageHeader title="About Canopy" subtitle="A one-stop shop for nature lovers and explorers" />
+      <PageHeader title="About Canopy" />
       <div className="space-y-4 text-sm leading-relaxed">
         <p>
           Canopy started as something I made for myself. Every fall I wanted to know where the color was, and every trip meant the
@@ -366,7 +358,7 @@ export function AboutPanel({ onData }: { onData: () => void }) {
 export function DataSourcesPanel() {
   return (
     <div className="space-y-6 p-5">
-      <PageHeader title="Data sources" subtitle="Where everything in Canopy comes from" />
+      <PageHeader title="Data sources" />
       <ul className={`stagger ${LIST}`}>
         {SOURCES.map((s) => (
           <InfoRow

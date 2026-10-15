@@ -8,6 +8,10 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Less text: credits, counts, subtitles and helper lines ([#151](https://github.com/maarib/canopy/pull/151)) |
+| Unreleased | | Explore on phones: the search card stays open ([#152](https://github.com/maarib/canopy/pull/152)) |
+| Unreleased | | Display font: Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)) |
+| Unreleased | | Phones: every menu opens full screen ([#154](https://github.com/maarib/canopy/pull/154)) |
 | Unreleased | | Page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
@@ -25,6 +29,10 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-14 | [Less text: credits, counts, subtitles and helper lines](#2026-10-14-less-text-credits-counts-subtitles-and-helper-lines) | [#151](https://github.com/maarib/canopy/pull/151) |
+| 2026-10-14 | [Explore on phones: the search card stays open](#2026-10-14-explore-on-phones-the-search-card-stays-open) | [#152](https://github.com/maarib/canopy/pull/152) |
+| 2026-10-14 | [Display font: Zalando Sans Expanded](#2026-10-14-display-font-zalando-sans-expanded) | [#153](https://github.com/maarib/canopy/pull/153) |
+| 2026-10-14 | [Phones: every menu opens full screen](#2026-10-14-phones-every-menu-opens-full-screen) | [#154](https://github.com/maarib/canopy/pull/154) |
 | 2026-10-14 | [Page transitions on phones and desktop](#2026-10-14-page-transitions-on-phones-and-desktop) | [#155](https://github.com/maarib/canopy/pull/155) |
 | 2026-10-13 | [Near me: your location on the map and distances in lists](#2026-10-13-near-me-your-location-on-the-map-and-distances-in-lists) | [#145](https://github.com/maarib/canopy/pull/145) |
 | 2026-10-13 | [A page for every Ontario provincial park](#2026-10-13-a-page-for-every-ontario-provincial-park) | [#146](https://github.com/maarib/canopy/pull/146) |
@@ -78,6 +86,57 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ## Unreleased
 
+### 2026-10-14 · Less text: credits, counts, subtitles and helper lines
+
+**Ref:** [#151](https://github.com/maarib/canopy/pull/151)
+
+**Before.** Pages carried lines that repeated their title, counted what was already listed, explained what was already clear, or credited a data provider at the foot of the page.
+
+**After.**
+- **Credits** live on the Data sources page only. Removed from the foot of park, trail, place and fishing pages, the Nearby list and the Foliage reports. Two stay where they are, because the providers' terms ask for them on the content: © Mapbox and © OpenStreetMap on maps and covers, and a short "© iNaturalist observers · tap a photo for its credit" under photo grids.
+- **Subtitles** under the Parks, Places, Foliage, About, Data sources and Explore titles are gone.
+- **Counts** are gone: "348 parks", "17 trails · shortest first", the place count, "N day hikes · tap one…" on region pages, "N photo spots" on trail pages, "N stops" on a trip (its trail distance and time stay), and the turning counts in Explore's tree menu.
+- **Helper lines** are gone: the Foliage sightings and peak-window notes, the Parks note about facility data, Places' "Algonquin's Highway 60 corridor for now", "Some facilities are seasonal…", the account menu's "Your trips are saved on this device", and the hints under Explore's Where and Looking for options and most Layers. Layers keep "Shown when you zoom in" where a layer would otherwise look empty, and Looking for keeps "Ontario only for now" on options that are off outside Ontario.
+- **Shorter messages:** a park without a report says "No fall color report for this park."; empty lists say "No parks match.", "No mapped trail passes here.", "Nothing nearby."
+- **Kept:** the version line on About, the header's "Explore Ontario's outdoors" on desktop, error messages, and "Set a start date to add this trip to your calendar."
+### 2026-10-14 · Explore on phones: the search card stays open
+
+**Ref:** [#152](https://github.com/maarib/canopy/pull/152)
+
+**Before.** On phones the landing page's search card showed only the search box, with a filter button beside it that revealed Where and Looking for.
+
+**After.** The card shows the search box, Where, Looking for and the Explore button on phones too, as on desktop. The filter button is gone. The card is 178 px tall; on a 375 × 667 screen its top sits at 332 px, with the quick links under it.
+### 2026-10-14 · Display font: Zalando Sans Expanded
+
+**Ref:** [#153](https://github.com/maarib/canopy/pull/153)
+
+**Before.** Titles, headings, stat figures and the wordmark used Londrina Solid (400; 900 for the wordmark).
+
+**After.**
+- **Zalando Sans Expanded** for all of them, loaded from Google Fonts as one variable file (weights 400 to 900).
+- **Weight 700** for titles, headings and stat figures: at 400 this wide face reads light next to Londrina's heavy strokes. The wordmark stays at 900.
+- The small extra letter-spacing on headings is gone; the face is already wide.
+- Livvic is unchanged for everything else. The Data sources page credits the new font.
+
+**Limit.** The face is wider, so long titles wrap sooner: Oxtongue-River Ragged Falls Hiking Trail now takes three lines on a 390 px phone.
+### 2026-10-14 · Phones: every menu opens full screen
+
+**Ref:** [#154](https://github.com/maarib/canopy/pull/154)
+
+**Before.** On phones, menus opened as small popovers under their button, the same as on desktop.
+
+**After.** Below 768 px wide, every menu with options to choose from fills the screen, sliding up from the bottom, with its title at the top left and **Done** at the top right:
+- the map's **Filters**, **Layers** and **Legend**;
+- the list menus: Parks' Region, Show, Activities and Sort, and the other pill menus that use the same button;
+- Explore's **Where**, **Looking for** and **Trees**;
+- Foliage's **Trees** picker;
+- the **account menu**;
+- **Save to a trip** (the Save button and the bookmark on Nearby rows);
+- the locate button's **My location** menu.
+
+Single-choice menus close as soon as something is picked; menus with several choices (Filters, Layers, Activities, Save to a trip) stay open until Done. Escape also closes them. On desktop nothing changes.
+
+**How.** `FullScreenMenu` in `ui.tsx` draws the screen in a portal and stops pointer presses at its edge, so each menu's own outside-click handling keeps working unchanged. Each menu renders its options once and shows them either in its popover (desktop) or in the full screen (phones).
 ### 2026-10-14 · Page transitions on phones and desktop
 
 **Ref:** [#155](https://github.com/maarib/canopy/pull/155)

@@ -11,7 +11,7 @@
 ## What it does today
 
 ### Search-first home and sections
-- **Explore (home)** is the landing page: the map takes the screen, with a search card over its lower edge. Type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall color) and **Looking for** (everything, fall colors with a tree dropdown, parks, trails, lakes & waterfalls). On phones the card starts as the search box alone, and a button reveals the two fields. Under it are three quick links (Peaking now, Easy trails, Waterfalls & lookouts) that open the panel on that list. Choosing a place from the search opens the panel on its page. Explore's own panel opens from the view switch.
+- **Explore (home)** is the landing page: the map takes the screen, with a search card over its lower edge. Type a park, trail, lake or town, or pick **Where** (province; Ontario has everything, other provinces have fall color) and **Looking for** (everything, fall colors with a tree dropdown, parks, trails, lakes & waterfalls). On phones the card shows both fields too. Under it are three quick links (Peaking now, Easy trails, Waterfalls & lookouts) that open the panel on that list. Choosing a place from the search opens the panel on its page. Explore's own panel opens from the view switch.
 - **Sections:** Explore, **Parks** (all 347 provincial parks: search, region and activity filters, a filter for parks with a color report, sort by color or A–Z), **Places** (`/places`: trails with a difficulty filter, plus waterfalls, lookouts, lakes, peaks, rivers and creeks), **Foliage** (three tabs: trees, each leading to its own page; official fall color reports; when each region peaks) and **Trips**. A slim rail on the left on desktop, each section an icon over its name; a bottom tab bar on phones, with the five icons gathered in the middle and the current section in a filled pill beside its name, which slides open when the tab is chosen and closes when another is. The map stays alongside every section.
 - **Three views**, switched from a control in the header (in the middle on desktop, beside the account menu on phones): the map alone, the map with the panel, or the panel alone. On desktop, opening a place always shows the map with the panel, so the map can fly to it. On phones the view you chose stays put: a place opened from the full panel stays in the full panel, with a Show on Map button in its top bar. Moving between pages keeps the full panel if that's the view in use; About and Data sources always open as the full panel on phones. On phones the three views are the sheet's three heights, and a double tap on its grabber opens the full panel.
 - **Three buttons on the map:** Filters (Trees and park Activities), Layers (map style, light and layers) and a round info button that opens the color legend.
@@ -84,7 +84,7 @@
 - **Near me:** a button under the map's zoom buttons asks for your location, flies there and marks it with a blue dot. Once located, park, region, place and trail rows show how far each is in a straight line ("· 54 km away"), and Parks can be sorted by Nearest. Pressing the button again offers Go to My Location or Turn Off. The position is held in memory only, never stored or sent; the only thing saved on the device is a note that Near me was turned on, which Turn Off deletes. If location is blocked, a note says how to allow it. A returning visitor who allowed it before is located again without a prompt.
 - **Shareable links** for every place, filter, layer and map view, with working Back and Forward and a Share button.
 - **Page transitions:** going deeper slides the new page in from the right (a short slide and fade on desktop), going back reverses it, and switching sections crossfades; only the panel moves.
-- **Responsive:** a panel floating over the map's left side on desktop and a draggable bottom sheet on phones (a full page with square corners at its tallest). Skeleton loading states throughout, and the app can be installed (web app manifest).
+- **Responsive:** a panel floating over the map's left side on desktop and a draggable bottom sheet on phones (a full page with square corners at its tallest). On phones every menu (filters, layers, sort, Where and Looking for, the account menu, Save to a trip) opens full screen with a Done button. Skeleton loading states throughout, and the app can be installed (web app manifest).
 
 ---
 
@@ -118,7 +118,7 @@ The deploy workflow republishes the site after each data refresh.
 - **Data fetching:** TanStack Query, including streamed queries for sightings
 - **Routing:** React Router
 - **Map:** Mapbox GL JS v3 through `react-map-gl`, using the Mapbox Standard style
-- **Type:** Londrina Solid (headings) and Livvic (body)
+- **Type:** Zalando Sans Expanded (headings and the wordmark) and Livvic (body)
 - **Icons:** [`relume-icons`](https://www.npmjs.com/package/relume-icons) (MIT) for controls, plus custom tree and place icons
 - **Hosting:** GitHub Pages via GitHub Actions; CI runs lint and build
 

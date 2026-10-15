@@ -38,7 +38,6 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
     const place = places.get(a.poi)
     return place ? [{ ...a, place }] : []
   })
-  const photoSpots = along.filter((a) => isPhotoSpot(a.place.kind))
 
   return (
     <div className="space-y-6 p-5">
@@ -55,11 +54,6 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           <Badge color={difficulty.color}>{difficulty.label}</Badge>
           <span className="text-[var(--ink-soft)]">{trail.loop ? 'Loop' : 'Point to point'}</span>
-          {photoSpots.length > 0 && (
-            <span className="text-[var(--ink-soft)]">
-              · {photoSpots.length} photo spot{photoSpots.length > 1 ? 's' : ''}
-            </span>
-          )}
         </div>
       </header>
 
@@ -142,11 +136,6 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
       <NearbyStops lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
 
       <NearbyPhotos lat={trail.trailhead[1]} lng={trail.trailhead[0]} radiusKm={Math.max(3, Math.round(trail.lengthKm / 2))} />
-
-      <p className="text-[11px] leading-relaxed text-[var(--ink-soft)]">
-        Trail: Ontario Trail Network (Open Government Licence – Ontario). Places © OpenStreetMap contributors. Elevation:
-        Terrarium/AWS. Times are estimates for a relaxed pace.
-      </p>
     </div>
   )
 }
