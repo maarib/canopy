@@ -35,8 +35,8 @@ export function ExplorePanel(props: Props) {
         <section>
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg">Peaking now in Ontario</h3>
-            <button onClick={() => props.onNavigate('/foliage')} className="text-sm font-medium text-brand hover:underline">
-              All reports
+            <button onClick={() => props.onNavigate('/best')} className="text-sm font-medium text-brand hover:underline">
+              Best right now
             </button>
           </div>
           <ul className={`stagger ${LIST}`}>

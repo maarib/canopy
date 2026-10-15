@@ -222,7 +222,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 ### 9.7 Discovery and Explore
 | ID | Requirement | P | Status |
 |---|---|---|---|
-| EXP-1 | Ranked "Best right now" and "Best this weekend" lists | P0 | ⬜ |
+| EXP-1 | Ranked "Best right now" and "Best this weekend" lists | P0 | ✅ `/best`: color stage, forecast for the days, report age and (once located) distance, with reasons on each row |
 | EXP-2 | Filters: drive time from me, tree type, activity (walk/hike/drive/paddle), accessibility | P0 | 🟡 Tree type; park activities and facilities (#101); park region; trail difficulty. Drive time not yet |
 | EXP-3 | Drive-time isochrones (OpenRouteService / Valhalla) | P1 | ⬜ |
 | EXP-4 | Desktop split list + map, hover sync | P1 | 🟡 Split list + map, plus map-only and list-only views; hover sync and search-this-area not yet |
@@ -300,7 +300,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 1. **More of Ontario to explore** ([#85](https://github.com/maarib/canopy/issues/85)): trails and places beyond Algonquin's Highway 60 corridor (Killarney, Bon Echo, Frontenac, Bruce Peninsula…).
 2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)): ✅ pages, list and search for all 347. Still open there: pins or outlines on the map for parks without a report, and names in French, Ojibwe and Cree.
 3. **Near me** ([#22](https://github.com/maarib/canopy/issues/22)): ✅ shipped in v1.5.5.
-4. **Best right now / this weekend** ([#43](https://github.com/maarib/canopy/issues/43)): ranked lists for the landing page.
+4. **Best right now / this weekend** ([#43](https://github.com/maarib/canopy/issues/43)): ✅ ranked lists at `/best`. Still open there: filters by tree type, activity and accessibility.
 5. **Accessibility follow-ups** ([#63](https://github.com/maarib/canopy/issues/63)): button contrast, arrow keys in menus, a screen-reader pass, axe in CI.
 6. **Québec** ([#23](https://github.com/maarib/canopy/issues/23)): Bonjour Québec stages and Sépaq parks.
 7. **Named lookouts and curated stops** ([#87](https://github.com/maarib/canopy/issues/87)).
