@@ -4,7 +4,7 @@
 |---|---|
 | **Product** | Canopy: fall colors across Canada (responsive web app / PWA) |
 | **Owner** | @maarib |
-| **Status** | v1.5.5 · updated 2026-10-14 |
+| **Status** | v1.5.6 · updated 2026-10-16 |
 | **Related** | [Technical plan](PLAN.md) · [Explore Ontario](EXPLORE.md) · [Change log](CHANGELOG.md) · [Issues](https://github.com/maarib/canopy/issues) · [Project board](https://github.com/users/maarib/projects/2) |
 
 ---
@@ -15,7 +15,7 @@ Every fall, millions of Canadians and visitors try to answer the same three ques
 
 Canopy is one map-first app that answers all three for all of Canada. It covers every tree type, every park and the trails, with live conditions, forecasts and a trip plan you can take with you.
 
-**What exists today (v1.5.5, 2026-10-14):** a map-first landing page (search and quick links over a flat satellite map at dawn); three views (map, map with panel, panel) switched from the header; Ontario Parks official reports refreshed daily; iNaturalist color sightings with a tree-type filter; a color outlook layer across Ontario; a page for each of 13 tree groups; sections for Parks (region, activity and sort menus), Places (trails, waterfalls, lookouts, lakes, peaks, rivers, creeks), Foliage and Trips; region, park (all 347 provincial parks), trail, place and fishing pages, each with an island cover drawn from the place's real shape in today's colors, which can be turned by hand; nearby groceries, places to eat, gas and outfitters on park, trail and place pages; a locate button with distances in lists; boundaries, activities and facilities for Ontario's provincial parks; Algonquin trails with plotted tracks, elevation profiles and the stops along them; trips planned by day (nearby stops included) with Google Maps, GPX, calendar and share links; search; shareable links. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
+**What exists today (v1.5.6, 2026-10-16):** a map-first landing page (search and quick links over a flat satellite map at dawn); three views (map, map with panel, panel) switched from the header; Ontario Parks official reports refreshed daily; iNaturalist color sightings with a tree-type filter; a color outlook layer across Ontario; a page for each of 13 tree groups; sections for Parks (region, activity and sort menus), Places (trails, waterfalls, lookouts, lakes, peaks, rivers, creeks), Foliage and Trips; region, park (all 347 provincial parks), trail, place and fishing pages, each with an island cover drawn from the place's real shape in today's colors, which can be turned by hand; nearby groceries, places to eat, gas and outfitters on park, trail and place pages; a locate button with distances in lists; boundaries, activities and facilities for Ontario's provincial parks; Algonquin trails with plotted tracks, elevation profiles and the stops along them; trips planned by day (nearby stops included) with Google Maps, GPX, calendar and share links; search; shareable links. Live at https://maarib.github.io/canopy/. See [CHANGELOG.md](CHANGELOG.md) for how it got here.
 
 ---
 
@@ -294,8 +294,9 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | v1.5.3 | 2026-10-11 | Pages load on demand, cap on stills kept in memory, shorter About and Data sources copy, current tab named on the phone tab bar |
 | v1.5.4 | 2026-10-12 | Nearby stops (groceries, places to eat, gas, beer and wine, outfitters) on park, trail and place pages |
 | v1.5.5 | 2026-10-14 | Near me, a page for every provincial park, nearby stops saved to trips |
+| v1.5.6 | 2026-10-16 | Less text, Explore search card open on phones, display font Zalando Sans Expanded, page transitions |
 
-**Next up (from v1.5.6).** Releases now go up by the last number: v1.5.1, v1.5.2 and so on. The issues labelled [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext), in order:
+**Next up (from v1.5.7).** Releases now go up by the last number: v1.5.1, v1.5.2 and so on. The issues labelled [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext), in order:
 
 1. **More of Ontario to explore** ([#85](https://github.com/maarib/canopy/issues/85)): trails and places beyond Algonquin's Highway 60 corridor (Killarney, Bon Echo, Frontenac, Bruce Peninsula…).
 2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)): ✅ pages, list and search for all 347. Still open there: pins or outlines on the map for parks without a report, and names in French, Ojibwe and Cree.

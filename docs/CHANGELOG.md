@@ -8,10 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Less text: credits, counts, subtitles and helper lines ([#151](https://github.com/maarib/canopy/pull/151)) |
-| Unreleased | | Explore on phones: the search card stays open ([#152](https://github.com/maarib/canopy/pull/152)) |
-| Unreleased | | Display font: Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)) |
-| Unreleased | | Page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
+| [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
 | [v1.5.3](https://github.com/maarib/canopy/releases/tag/v1.5.3) | 2026-10-11 | Pages load on demand ([#137](https://github.com/maarib/canopy/pull/137)); stills drawn in the browser no longer pile up ([#138](https://github.com/maarib/canopy/pull/138)); shorter copy on About and Data sources ([#139](https://github.com/maarib/canopy/pull/139)); the current tab named on the phone tab bar ([#140](https://github.com/maarib/canopy/pull/140)) |
@@ -82,7 +79,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ---
 
-## Unreleased
+## v1.5.6
 
 ### 2026-10-14 · Less text: credits, counts, subtitles and helper lines
 
