@@ -63,8 +63,11 @@ function Group({ title, items }: { title: string; items: Amenity[] }) {
   )
 }
 
-/** Activities and facilities from the park's Ontario Parks page. */
-export function ParkAmenities({ shortname }: { shortname: string }) {
+/**
+ * Activities and facilities from the park's Ontario Parks page. `part` shows one of the two
+ * without its heading, for a tab of that name.
+ */
+export function ParkAmenities({ shortname, part }: { shortname: string; part?: 'activities' | 'facilities' }) {
   const feed = useQuery({ queryKey: ['park-facilities'], queryFn: fetchParkFacilities, staleTime: Infinity })
 
   if (feed.isPending)
@@ -84,17 +87,17 @@ export function ParkAmenities({ shortname }: { shortname: string }) {
 
   return (
     <>
-      {park.activities.length > 0 && (
+      {park.activities.length > 0 && part !== 'facilities' && (
         <section>
-          <h3 className="text-lg">Things to do</h3>
-          <Rows items={park.activities} limit={PREVIEW} />
+          {!part && <h3 className="text-lg">Things to do</h3>}
+          <Rows items={park.activities} limit={part ? undefined : PREVIEW} />
         </section>
       )}
 
-      {(park.camping.length > 0 || park.amenities.length > 0 || park.rentals.length > 0) && (
+      {(park.camping.length > 0 || park.amenities.length > 0 || park.rentals.length > 0) && part !== 'activities' && (
         <section className="space-y-4">
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="text-lg">Facilities</h3>
+            {!part && <h3 className="text-lg">Facilities</h3>}
             {park.campsites != null && (
               <span className="text-sm text-[var(--ink-soft)]">{park.campsites.toLocaleString('en-CA')} campsites</span>
             )}

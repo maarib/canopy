@@ -12,7 +12,7 @@ import { isPhotoSpot, type ExploreArea, type Place, type Trail } from '../lib/ex
 import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
 import { TreeIcon } from './TreeIcon'
-import { BackButton, Badge, LinkButton, MoreLinks, ShareButton, Skeleton } from './ui'
+import { BackButton, Badge, DetailTabs, LinkButton, MoreLinks, ShareButton, Skeleton } from './ui'
 
 type Props = {
   region: Region
@@ -61,87 +61,109 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
 
       <ForecastStrip lat={region.lat} lng={region.lng} />
 
-      <section>
-        <h3 className="mb-2 text-lg">Trees to look for</h3>
-        <ul className="flex flex-wrap gap-1.5">
-          {region.species.map((s) => {
-            const icon = treeIconFor(s)
-            return (
-              <li key={s}>
-                {/* A tree with its own page links to it. */}
-                {icon ? (
-                  <button onClick={() => onSelectTree(icon)} className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm transition-colors hover:bg-[var(--surface-2)]">
-                    <TreeIcon id={icon} className="size-[18px]" />
-                    {s}
-                  </button>
-                ) : (
-                  <span className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm">{s}</span>
-                )}
-              </li>
-            )
-          })}
-        </ul>
-      </section>
+      <DetailTabs
+        label="Region sections"
+        tabs={[
+          {
+            id: 'overview',
+            label: 'Overview',
+            content: (
+              <>
+                <section>
+                  <h3 className="mb-2 text-lg">Trees to look for</h3>
+                  <ul className="flex flex-wrap gap-1.5">
+                    {region.species.map((s) => {
+                      const icon = treeIconFor(s)
+                      return (
+                        <li key={s}>
+                          {/* A tree with its own page links to it. */}
+                          {icon ? (
+                            <button onClick={() => onSelectTree(icon)} className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm transition-colors hover:bg-[var(--surface-2)]">
+                              <TreeIcon id={icon} className="size-[18px]" />
+                              {s}
+                            </button>
+                          ) : (
+                            <span className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm">{s}</span>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </section>
 
-      <section>
-        <h3 className="mb-2 text-lg">Don’t miss</h3>
-        <ul className="space-y-1 text-sm">
-          {region.highlights.map((h) => (
-            <li key={h} className="flex items-center gap-2">
-              <Star className="size-4 shrink-0 text-pumpkin" />
-              {h}
-            </li>
-          ))}
-        </ul>
-      </section>
+                <section>
+                  <h3 className="mb-2 text-lg">Don’t miss</h3>
+                  <ul className="space-y-1 text-sm">
+                    {region.highlights.map((h) => (
+                      <li key={h} className="flex items-center gap-2">
+                        <Star className="size-4 shrink-0 text-pumpkin" />
+                        {h}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </>
+            ),
+          },
+          ...(area || areaLoading
+            ? [
+                {
+                  id: 'trails',
+                  label: 'Trails',
+                  content: (
+                    <>
+                      {areaLoading && (
+                        <section role="status" aria-label="Loading trails">
+                          <h3 className="mb-2 text-lg">Trails</h3>
+                          <ul className="space-y-3">
+                            {Array.from({ length: 4 }, (_, i) => (
+                              <li key={i} className="flex items-center gap-3">
+                                <Skeleton className="size-10 rounded-xl" />
+                                <span className="flex-1 space-y-1.5">
+                                  <Skeleton className="h-4 w-2/3" />
+                                  <Skeleton className="h-3 w-1/2" />
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      )}
+                      {area && (
+                        <section>
+                          <h3 className="text-lg">Trails</h3>
+                          <p className="mb-1 text-xs text-[var(--ink-soft)]">
+                            {dayHikes.length} day hikes{backpacking.length ? ` · ${backpacking.length} backpacking` : ''}
+                          </p>
+                          <ul className="divide-y divide-[var(--line)]">
+                            {[...dayHikes, ...backpacking].map((t) => (
+                              <li key={t.id}>
+                                <TrailCard trail={t} places={places} onClick={() => onSelectTrail(t)} />
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      )}
 
-      {areaLoading && (
-        <section role="status" aria-label="Loading trails">
-          <h3 className="mb-2 text-lg">Trails</h3>
-          <ul className="space-y-3">
-            {Array.from({ length: 4 }, (_, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <Skeleton className="size-10 rounded-xl" />
-                <span className="flex-1 space-y-1.5">
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-3 w-1/2" />
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-      {area && (
-        <section>
-          <h3 className="text-lg">Trails</h3>
-          <p className="mb-1 text-xs text-[var(--ink-soft)]">
-            {dayHikes.length} day hikes{backpacking.length ? ` · ${backpacking.length} backpacking` : ''}
-          </p>
-          <ul className="divide-y divide-[var(--line)]">
-            {[...dayHikes, ...backpacking].map((t) => (
-              <li key={t.id}>
-                <TrailCard trail={t} places={places} onClick={() => onSelectTrail(t)} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {photoSpots.length > 0 && (
-        <section>
-          <h3 className="mb-2 text-lg">Waterfalls & lookouts</h3>
-          <ul className={LIST}>
-            {photoSpots.map((p) => (
-              <li key={p.id}>
-                <PlaceRow place={p} onClick={() => onSelectPlace(p)} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <NearbyPhotos lat={region.lat} lng={region.lng} />
-
+                      {photoSpots.length > 0 && (
+                        <section>
+                          <h3 className="mb-2 text-lg">Waterfalls & lookouts</h3>
+                          <ul className={LIST}>
+                            {photoSpots.map((p) => (
+                              <li key={p.id}>
+                                <PlaceRow place={p} onClick={() => onSelectPlace(p)} />
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      )}
+                    </>
+                  ),
+                },
+              ]
+            : []),
+          { id: 'photos', label: 'Photos', content: <NearbyPhotos lat={region.lat} lng={region.lng} bare /> },
+        ]}
+      />
     </div>
   )
 }

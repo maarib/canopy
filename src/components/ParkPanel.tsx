@@ -7,12 +7,18 @@ import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { NearbyStops } from './NearbyStops'
 import { ParkAmenities } from './ParkAmenities'
+import { amenitiesFor, fetchParkFacilities } from '../lib/parkFacilities'
+import { useQuery } from '@tanstack/react-query'
 import { SaveButton } from './SaveButton'
 import { LocationOn, Schedule } from 'relume-icons'
-import { BackButton, Badge, LinkButton, MoreLinks, ShareButton, Meter } from './ui'
+import { BackButton, Badge, DetailTabs, LinkButton, MoreLinks, ShareButton, Meter } from './ui'
 
 export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => void }) {
   const stage = STAGES[park.stage]
+  // Which of the park's tabs have something in them (the facility list is shared and cached).
+  const facilities = useQuery({ queryKey: ['park-facilities'], queryFn: fetchParkFacilities, staleTime: Infinity })
+  const facilitiesPending = facilities.isPending
+  const amenities = facilities.data ? amenitiesFor(facilities.data, park.shortname) : null
   const reported = park.reportedAt
     ? new Date(park.reportedAt).toLocaleDateString('en-CA', { month: 'long', day: 'numeric' })
     : null
@@ -78,11 +84,17 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         </section>
       )}
 
-      <ParkAmenities shortname={park.shortname} />
-
-      <NearbyStops lat={park.lat} lng={park.lng} />
-
-      <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} />
+      <DetailTabs
+        label="Park sections"
+        tabs={[
+          ...(amenities?.activities.length || facilitiesPending ? [{ id: 'activities', label: 'Activities', content: <ParkAmenities shortname={park.shortname} part="activities" /> }] : []),
+          ...(amenities && (amenities.camping.length || amenities.amenities.length || amenities.rentals.length)
+            ? [{ id: 'facilities', label: 'Facilities', content: <ParkAmenities shortname={park.shortname} part="facilities" /> }]
+            : []),
+          { id: 'nearby', label: 'Nearby', content: <NearbyStops lat={park.lat} lng={park.lng} bare /> },
+          { id: 'photos', label: 'Photos', content: <NearbyPhotos lat={park.lat} lng={park.lng} radiusKm={40} bare /> },
+        ]}
+      />
     </div>
   )
 }

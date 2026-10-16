@@ -8,7 +8,8 @@ import { SaveButton } from './SaveButton'
 import { Skeleton } from './ui'
 
 /** Groceries, places to eat, gas, beer and wine, and outfitters near a point. */
-export function NearbyStops({ lat, lng }: { lat: number; lng: number }) {
+/** `bare` leaves out the heading, for use under a tab of the same name. */
+export function NearbyStops({ lat, lng, bare = false }: { lat: number; lng: number; bare?: boolean }) {
   const feed = useQuery({ queryKey: ['nearby-stops'], queryFn: fetchNearbyStops, staleTime: Infinity })
   const groups = useMemo(() => (feed.data ? stopsNear(feed.data, lat, lng) : []), [feed.data, lat, lng])
 
@@ -29,7 +30,7 @@ export function NearbyStops({ lat, lng }: { lat: number; lng: number }) {
 
   return (
     <section className="space-y-3">
-      <h3 className="text-lg">Nearby</h3>
+      {!bare && <h3 className="text-lg">Nearby</h3>}
       {groups.length === 0 ? (
         <p className="text-sm leading-relaxed text-[var(--ink-soft)]">Nothing nearby.</p>
       ) : (

@@ -265,6 +265,28 @@ export function InfoRow({ icon, label, detail, value }: { icon?: ReactNode; labe
  * Segmented tabs or options (equal widths) with a pill that slides to the selected one.
  * `role` is "tablist" for tabs and "radiogroup" for a single choice.
  */
+/**
+ * The sections of a detail page below its forecast, one at a time, chosen from a segmented
+ * control that stays at the top of the panel while the section scrolls. Tabs with nothing to
+ * show are left out by the page.
+ */
+export function DetailTabs<T extends string>({ tabs, label }: { tabs: { id: T; label: string; content: ReactNode }[]; label: string }) {
+  const [tab, setTab] = useState<T>(tabs[0].id)
+  const current = tabs.find((t) => t.id === tab) ?? tabs[0]
+  return (
+    <section>
+      {/* Held just under the page's own sticky bar (the back button), with no gap for the page to
+          show through. */}
+      <div className="sticky top-12 z-10 -mx-5 bg-[var(--surface)] px-5 py-2">
+        <Segmented options={tabs.map((t) => ({ id: t.id, label: t.label }))} value={current.id} onChange={setTab} label={label} />
+      </div>
+      <div key={current.id} role="tabpanel" aria-label={current.label} className="mt-3 animate-fade-in space-y-6">
+        {current.content}
+      </div>
+    </section>
+  )
+}
+
 export function Segmented<T extends string>({
   options,
   value,
