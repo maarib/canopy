@@ -77,6 +77,13 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         ]}
       />
 
+      {trail.description && (
+        <section>
+          <p className="text-sm leading-relaxed">{trail.description}</p>
+          <p className="mt-2 text-xs text-[var(--ink-soft)]">Allowed: {trail.uses}</p>
+        </section>
+      )}
+
       <dl className="grid grid-cols-4 gap-2 text-center">
         {[
           ['Length', `${trail.lengthKm} km`],
@@ -90,14 +97,6 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
           </div>
         ))}
       </dl>
-
-      {trail.description && (
-        <section>
-          <h3 className="mb-1 text-lg">About</h3>
-          <p className="text-sm leading-relaxed">{trail.description}</p>
-          <p className="mt-2 text-xs text-[var(--ink-soft)]">Allowed: {trail.uses}</p>
-        </section>
-      )}
 
       <ForecastStrip lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
 

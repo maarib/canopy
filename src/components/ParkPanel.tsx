@@ -61,6 +61,13 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
         ]}
       />
 
+      {park.viewing && (
+        <section>
+          <h3 className="mb-1 text-lg">Best viewing</h3>
+          <p className="text-sm leading-relaxed">{park.viewing}</p>
+        </section>
+      )}
+
       {park.report ? (
         <section className="space-y-3">
           <Meter label="Color change" value={park.colorChange} color={stage.color} />
@@ -76,13 +83,6 @@ export function ParkPanel({ park, onBack }: { park: ParkReport; onBack: () => vo
       )}
 
       <ForecastStrip lat={park.lat} lng={park.lng} />
-
-      {park.viewing && (
-        <section>
-          <h3 className="mb-1 text-lg">Best viewing</h3>
-          <p className="text-sm leading-relaxed">{park.viewing}</p>
-        </section>
-      )}
 
       <DetailTabs
         label="Park sections"
