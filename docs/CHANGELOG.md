@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Detail pages: sections in tabs ([#161](https://github.com/maarib/canopy/pull/161)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
@@ -25,6 +26,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-16 | [Detail pages: sections in tabs](#2026-10-16-detail-pages-sections-in-tabs) | [#161](https://github.com/maarib/canopy/pull/161) |
 | 2026-10-14 | [Less text: credits, counts, subtitles and helper lines](#2026-10-14-less-text-credits-counts-subtitles-and-helper-lines) | [#151](https://github.com/maarib/canopy/pull/151) |
 | 2026-10-14 | [Explore on phones: the search card stays open](#2026-10-14-explore-on-phones-the-search-card-stays-open) | [#152](https://github.com/maarib/canopy/pull/152) |
 | 2026-10-14 | [Display font: Zalando Sans Expanded](#2026-10-14-display-font-zalando-sans-expanded) | [#153](https://github.com/maarib/canopy/pull/153) |
@@ -78,6 +80,28 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-16 · Detail pages: sections in tabs
+
+**Ref:** [#161](https://github.com/maarib/canopy/pull/161)
+
+**Before.** Everything below a detail page's weather forecast ran on in one long scroll: activities, facilities, nearby stops and photos on a park; elevation, the stops along the trail, the description, nearby stops and photos on a trail.
+
+**After.** Below the forecast, a segmented control picks one section at a time:
+
+| Page | Tabs |
+|---|---|
+| Park | Activities · Facilities · Nearby · Photos |
+| Trail | Route (elevation and the stops along it) · About · Nearby · Photos |
+| Place | Trails · Nearby · Photos |
+| Region | Overview (trees to look for, don't miss) · Trails (trails, waterfalls and lookouts) · Photos |
+
+- The first tab opens by default. A tab with nothing in it is left out: a park without Ontario Parks activities or facilities, a trail without a description, a region without mapped trails.
+- The control stays pinned under the page's title bar while a section scrolls, so another tab is always one tap away.
+- A section's own heading is dropped where the tab already names it. Activities show in full inside their tab, without the "Show N More" button.
+- Everything above the forecast (cover, title, actions, color report, Best viewing) is unchanged, and so is the fishing page, which has a single short section.
 
 ## v1.5.6
 
