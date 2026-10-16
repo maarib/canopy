@@ -9,7 +9,7 @@ import { NearbyStops } from './NearbyStops'
 import { PlaceIcon } from './PlaceIcon'
 import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
-import { BackButton, LinkButton, MoreLinks, ShareButton } from './ui'
+import { BackButton, DetailTabs, LinkButton, MoreLinks, ShareButton } from './ui'
 
 const BLURB: Record<Place['kind'], string> = {
   waterfall: 'Falls are at their most dramatic after rain; fall color on the banks peaks with the surrounding forest.',
@@ -73,26 +73,33 @@ export function PlacePanel({ place, area, trails, places, onBack, onSelectTrail 
 
       <ForecastStrip lat={place.lat} lng={place.lng} />
 
-      <section>
-        <h3 className="mb-1 text-lg">{onTrails.length ? 'Trails that reach it' : 'Trails'}</h3>
-        {onTrails.length ? (
-          <ul className="divide-y divide-[var(--line)]">
-            {onTrails.map(({ trail, km }) => (
-              <li key={trail.id}>
-                <TrailCard trail={trail} places={places} onClick={() => onSelectTrail(trail)} />
-                {km !== undefined && <p className="-mt-1.5 pb-2 pl-[52px] text-xs text-[var(--ink-soft)]">At km {km} along this trail</p>}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-[var(--ink-soft)]">No mapped trail passes here.</p>
-        )}
-      </section>
-
-      <NearbyStops lat={place.lat} lng={place.lng} />
-
-      <NearbyPhotos lat={place.lat} lng={place.lng} radiusKm={3} />
-
+      <DetailTabs
+        label="Place sections"
+        tabs={[
+          {
+            id: 'trails',
+            label: 'Trails',
+            content: (
+              <section>
+                {onTrails.length ? (
+                  <ul className="divide-y divide-[var(--line)]">
+                    {onTrails.map(({ trail, km }) => (
+                      <li key={trail.id}>
+                        <TrailCard trail={trail} places={places} onClick={() => onSelectTrail(trail)} />
+                        {km !== undefined && <p className="-mt-1.5 pb-2 pl-[52px] text-xs text-[var(--ink-soft)]">At km {km} along this trail</p>}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-[var(--ink-soft)]">No mapped trail passes here.</p>
+                )}
+              </section>
+            ),
+          },
+          { id: 'nearby', label: 'Nearby', content: <NearbyStops lat={place.lat} lng={place.lng} bare /> },
+          { id: 'photos', label: 'Photos', content: <NearbyPhotos lat={place.lat} lng={place.lng} radiusKm={3} bare /> },
+        ]}
+      />
     </div>
   )
 }

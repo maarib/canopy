@@ -21,7 +21,7 @@ import { NearbyStops } from './NearbyStops'
 import { PlaceIcon } from './PlaceIcon'
 import { Away } from './rows'
 import { SaveButton } from './SaveButton'
-import { BackButton, Badge, LinkButton, MoreLinks, ShareButton } from './ui'
+import { BackButton, Badge, DetailTabs, LinkButton, MoreLinks, ShareButton } from './ui'
 
 type Props = {
   trail: Trail
@@ -77,6 +77,13 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         ]}
       />
 
+      {trail.description && (
+        <section>
+          <p className="text-sm leading-relaxed">{trail.description}</p>
+          <p className="mt-2 text-xs text-[var(--ink-soft)]">Allowed: {trail.uses}</p>
+        </section>
+      )}
+
       <dl className="grid grid-cols-4 gap-2 text-center">
         {[
           ['Length', `${trail.lengthKm} km`],
@@ -93,55 +100,58 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
 
       <ForecastStrip lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
 
-      <section>
-        <h3 className="mb-2 text-lg">Elevation</h3>
-        <ElevationChart trail={trail} places={places} onHover={onHoverPoint} />
-      </section>
+      <DetailTabs
+        label="Trail sections"
+        tabs={[
+          {
+            id: 'route',
+            label: 'Route',
+            content: (
+              <>
+                <section>
+                  <h3 className="mb-2 text-lg">Elevation</h3>
+                  <ElevationChart trail={trail} places={places} onHover={onHoverPoint} />
+                </section>
 
-      <section>
-        <h3 className="mb-2 text-lg">Along the trail</h3>
-        <ol className="relative">
-          <TimelineRow
-            icon={<PlaceIcon kind="trailhead" className="size-4" />}
-            color={PLACE_KINDS.trailhead.color}
-            title="Trailhead"
-            detail="km 0 · start here"
-            first
-          />
-          {along.map(({ place, km, offM }) => (
-            <TimelineRow
-              key={place.id}
-              icon={<PlaceIcon kind={place.kind} className="size-4" />}
-              color={PLACE_KINDS[place.kind].color}
-              title={place.name}
-              detail={`km ${km} · ${PLACE_KINDS[place.kind].label}${isPhotoSpot(place.kind) ? ' · photo spot' : ''}${offM > 60 ? ` · ${offM} m off trail` : ''}`}
-              onClick={() => onSelectPlace(place)}
-            />
-          ))}
-          <TimelineRow
-            icon={<PlaceIcon kind="trailhead" className="size-4" />}
-            color={PLACE_KINDS.trailhead.color}
-            title={trail.loop ? 'Back at the trailhead' : 'End of trail'}
-            detail={`km ${trail.lengthKm}`}
-            last
-          />
-        </ol>
-        {along.length === 0 && (
-          <p className="mt-2 text-sm text-[var(--ink-soft)]">No mapped waterfalls, lookouts or lakes along this trail yet.</p>
-        )}
-      </section>
-
-      {trail.description && (
-        <section>
-          <h3 className="mb-1 text-lg">About</h3>
-          <p className="text-sm leading-relaxed">{trail.description}</p>
-          <p className="mt-2 text-xs text-[var(--ink-soft)]">Allowed: {trail.uses}</p>
-        </section>
-      )}
-
-      <NearbyStops lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
-
-      <NearbyPhotos lat={trail.trailhead[1]} lng={trail.trailhead[0]} radiusKm={Math.max(3, Math.round(trail.lengthKm / 2))} />
+                <section>
+                  <h3 className="mb-2 text-lg">Along the trail</h3>
+                  <ol className="relative">
+                    <TimelineRow
+                      icon={<PlaceIcon kind="trailhead" className="size-4" />}
+                      color={PLACE_KINDS.trailhead.color}
+                      title="Trailhead"
+                      detail="km 0 · start here"
+                      first
+                    />
+                    {along.map(({ place, km, offM }) => (
+                      <TimelineRow
+                        key={place.id}
+                        icon={<PlaceIcon kind={place.kind} className="size-4" />}
+                        color={PLACE_KINDS[place.kind].color}
+                        title={place.name}
+                        detail={`km ${km} · ${PLACE_KINDS[place.kind].label}${isPhotoSpot(place.kind) ? ' · photo spot' : ''}${offM > 60 ? ` · ${offM} m off trail` : ''}`}
+                        onClick={() => onSelectPlace(place)}
+                      />
+                    ))}
+                    <TimelineRow
+                      icon={<PlaceIcon kind="trailhead" className="size-4" />}
+                      color={PLACE_KINDS.trailhead.color}
+                      title={trail.loop ? 'Back at the trailhead' : 'End of trail'}
+                      detail={`km ${trail.lengthKm}`}
+                      last
+                    />
+                  </ol>
+                  {along.length === 0 && (
+                    <p className="mt-2 text-sm text-[var(--ink-soft)]">No mapped waterfalls, lookouts or lakes along this trail yet.</p>
+                  )}
+                </section>
+              </>
+            ),
+          },
+          { id: 'nearby', label: 'Nearby', content: <NearbyStops lat={trail.trailhead[1]} lng={trail.trailhead[0]} bare /> },
+          { id: 'photos', label: 'Photos', content: <NearbyPhotos lat={trail.trailhead[1]} lng={trail.trailhead[0]} radiusKm={Math.max(3, Math.round(trail.lengthKm / 2))} bare /> },
+        ]}
+      />
     </div>
   )
 }

@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { fetchLeafObservations } from '../lib/inaturalist'
 import { Skeleton } from './ui'
 
-export function NearbyPhotos({ lat, lng, radiusKm = 75 }: { lat: number; lng: number; radiusKm?: number }) {
+/** `bare` leaves out the heading, for use under a tab. */
+export function NearbyPhotos({ lat, lng, radiusKm = 75, bare = false }: { lat: number; lng: number; radiusKm?: number; bare?: boolean }) {
   const photos = useQuery({
     queryKey: ['nearby-photos', lat.toFixed(2), lng.toFixed(2), radiusKm],
     queryFn: ({ signal }) => fetchLeafObservations({ days: 21, perPage: 12, near: { lat, lng, radiusKm }, signal }).then((r) => r.items),
@@ -11,7 +12,7 @@ export function NearbyPhotos({ lat, lng, radiusKm = 75 }: { lat: number; lng: nu
 
   return (
     <section>
-      <h3 className="mb-2 text-lg">Recent color sightings nearby</h3>
+      {!bare && <h3 className="mb-2 text-lg">Recent color sightings nearby</h3>}
       {photos.isPending && (
         <div className="grid grid-cols-3 gap-1.5" role="status" aria-label="Loading photos">
           {Array.from({ length: 6 }, (_, i) => (
