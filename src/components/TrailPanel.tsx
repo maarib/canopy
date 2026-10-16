@@ -91,6 +91,14 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
         ))}
       </dl>
 
+      {trail.description && (
+        <section>
+          <h3 className="mb-1 text-lg">About</h3>
+          <p className="text-sm leading-relaxed">{trail.description}</p>
+          <p className="mt-2 text-xs text-[var(--ink-soft)]">Allowed: {trail.uses}</p>
+        </section>
+      )}
+
       <ForecastStrip lat={trail.trailhead[1]} lng={trail.trailhead[0]} />
 
       <DetailTabs
@@ -141,20 +149,6 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
               </>
             ),
           },
-          ...(trail.description
-            ? [
-                {
-                  id: 'about',
-                  label: 'About',
-                  content: (
-                    <section>
-                      <p className="text-sm leading-relaxed">{trail.description}</p>
-                      <p className="mt-2 text-xs text-[var(--ink-soft)]">Allowed: {trail.uses}</p>
-                    </section>
-                  ),
-                },
-              ]
-            : []),
           { id: 'nearby', label: 'Nearby', content: <NearbyStops lat={trail.trailhead[1]} lng={trail.trailhead[0]} bare /> },
           { id: 'photos', label: 'Photos', content: <NearbyPhotos lat={trail.trailhead[1]} lng={trail.trailhead[0]} radiusKm={Math.max(3, Math.round(trail.lengthKm / 2))} bare /> },
         ]}

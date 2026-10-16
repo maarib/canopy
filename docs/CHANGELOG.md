@@ -94,13 +94,14 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | Page | Tabs |
 |---|---|
 | Park | Activities · Facilities · Nearby · Photos |
-| Trail | Route (elevation and the stops along it) · About · Nearby · Photos |
+| Trail | Route (elevation and the stops along it) · Nearby · Photos |
 | Place | Trails · Nearby · Photos |
 | Region | Overview (trees to look for, don't miss) · Trails (trails, waterfalls and lookouts) · Photos |
 
-- The first tab opens by default. A tab with nothing in it is left out: a park without Ontario Parks activities or facilities, a trail without a description, a region without mapped trails.
+- The first tab opens by default. A tab with nothing in it is left out: a park without Ontario Parks activities or facilities, a region without mapped trails.
 - The control stays pinned under the page's title bar while a section scrolls, so another tab is always one tap away.
 - A section's own heading is dropped where the tab already names it. Activities show in full inside their tab, without the "Show N More" button.
+- A trail's **About** (its description and allowed uses) is not a tab: it always shows above the forecast, under the trail's stats.
 - Everything above the forecast (cover, title, actions, color report, Best viewing) is unchanged, and so is the fishing page, which has a single short section.
 
 ## v1.5.6
