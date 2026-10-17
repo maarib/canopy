@@ -9,6 +9,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | Version | Date | What's in it |
 |---|---|---|
 | Unreleased | | Detail pages: sections in tabs ([#161](https://github.com/maarib/canopy/pull/161)) |
+| Unreleased | | Faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
@@ -26,6 +27,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-16 | [Faster start and a lighter Parks list](#2026-10-16-faster-start-and-a-lighter-parks-list) | [#162](https://github.com/maarib/canopy/pull/162) |
 | 2026-10-16 | [Detail pages: sections in tabs](#2026-10-16-detail-pages-sections-in-tabs) | [#161](https://github.com/maarib/canopy/pull/161) |
 | 2026-10-14 | [Less text: credits, counts, subtitles and helper lines](#2026-10-14-less-text-credits-counts-subtitles-and-helper-lines) | [#151](https://github.com/maarib/canopy/pull/151) |
 | 2026-10-14 | [Explore on phones: the search card stays open](#2026-10-14-explore-on-phones-the-search-card-stays-open) | [#152](https://github.com/maarib/canopy/pull/152) |
@@ -82,6 +84,26 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-10-16 · Faster start and a lighter Parks list
+
+**Ref:** [#162](https://github.com/maarib/canopy/pull/162)
+
+**Before.** Opening Canopy fetched seven data files at once, alongside the map library: fishing access points (the largest, about 50 kB compressed), park facilities, the list of every park, the Explore trails and places, the fall color reports, the season's tree sightings, and, once the browser was idle, every page's code. Fishing pins only appear from zoom 8, and most of the rest is only used further in. The Parks list built all 348 rows at once.
+
+**After.**
+- **The map comes first.** Park facilities, the list of every park, the Explore trails and places, fresh tree sightings and the other pages' code wait until the map has drawn its first frame, the person touches the page, or 8 s pass. A page that needs one of them (a park, trail or place page, Parks, Places, Foliage, a tree, a trip) still loads it at once. A copy of the sightings saved on the device still shows straight away.
+- **Fishing points** load when the map is zoomed in to 7 or closer (their pins start at 8), or when a fishing page is opened, instead of on every visit.
+- **The Parks list** shows its first 40 rows at once and 40 more each time the list is scrolled near its end. Search, filters and sort start it over.
+
+**Measured** on the production build, through a local server, at phone size with the network slowed to 9 Mbps / 60 ms and the processor four times slower:
+- Downloaded before the map's first frame: 1,578 kB → 1,405 kB (median of five).
+- The map library finishes downloading at 1,722 ms instead of 1,945 ms (median of five), and its slowest run went from 3,906 ms to 1,825 ms.
+- A first visit downloads 48 kB less in all (no fishing points).
+- Opening Parks: the longest main-thread freeze went from 386 ms to 152 ms, and the list is on screen after 1,258 ms instead of 1,488 ms (both include the tab bar's 0.25 s label slide).
+- The time to the map's first frame itself varied too much between runs here (software graphics) to compare.
+
+**Limit.** In the first seconds, before the map has drawn, search finds only parks with a color report, regions and towns; trails, places and the other parks are added as soon as the map is up or the search box is touched.
 
 ### 2026-10-16 · Detail pages: sections in tabs
 
