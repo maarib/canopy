@@ -86,6 +86,10 @@ export type FlyTarget = {
 export type MapView = { lat: number; lng: number; zoom: number }
 
 type Props = {
+  /** The map has drawn its first frame; data the first screen doesn't need can follow. */
+  onReady?: () => void
+  /** The map has been zoomed in close enough that fishing pins are about to show. */
+  onFishingNear?: () => void
   /** Desktop: how much of the map's left side the floating panel covers (px), so places are framed in what's visible. */
   panelInset?: number
   /** How much of the map's bottom the landing page's search covers (px); 0 when it isn't showing. */
@@ -171,6 +175,11 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
   const panelInset = props.panelInset ?? 0
   const bottomInset = props.bottomInset ?? 0
   const [zoom, setZoom] = useState(3.3)
+  // Fishing points (the largest data file) are fetched a little before their pins appear.
+  const fishingNear = zoom >= FISHING_MIN_ZOOM - 1
+  useEffect(() => {
+    if (fishingNear) props.onFishingNear?.()
+  }, [fishingNear]) // eslint-disable-line react-hooks/exhaustive-deps
   const [bounds, setBounds] = useState<Bounds | null>(null)
   const [hovering, setHovering] = useState(false)
   const [popup, setPopup] = useState<PopupInfo | null>(null)
@@ -490,6 +499,7 @@ export const FoliageMap = memo(function FoliageMap(props: Props) {
         new ResizeObserver(() => box.clientWidth && box.clientHeight && e.target.resize()).observe(box)
         updateView(false)
         setMapReady(true)
+        props.onReady?.()
         // Fishing pins are GPU symbols (thousands of points); add their images before the layer needs them.
         drawFishingPins()
           .then((pins) => addPins(e.target, pins))

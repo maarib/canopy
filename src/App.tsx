@@ -131,6 +131,35 @@ export default function App() {
   )
   const [focus, setFocus] = useState<FlyTarget>(null)
 
+  const regionMatch = matchPath('/region/:id', location.pathname)
+  const treeMatch = matchPath('/tree/:id', location.pathname)
+  const parkMatch = matchPath('/park/:slug', location.pathname)
+  const trailMatch = matchPath('/trail/:slug', location.pathname)
+  const placeMatch = matchPath('/place/:slug', location.pathname)
+  const fishingMatch = matchPath('/fishing/:slug', location.pathname)
+  const sectionPath = (['/parks', '/places', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
+  const tripsMatch = matchPath('/trips', location.pathname)
+  const tripMatch = matchPath('/trip/:id', location.pathname)
+
+  // Data the first screen doesn't use waits until the map has drawn, the person touches the page,
+  // or 8 s pass (for when the map can't draw, e.g. without WebGL), so it doesn't compete with the map for the network. A page that needs it asks
+  // for it at once.
+  const [settled, setSettled] = useState(false)
+  const settle = useCallback(() => setSettled(true), [])
+  useEffect(() => {
+    if (settled) return
+    const t = setTimeout(settle, 8000)
+    window.addEventListener('pointerdown', settle, { once: true })
+    window.addEventListener('keydown', settle, { once: true })
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('pointerdown', settle)
+      window.removeEventListener('keydown', settle)
+    }
+  }, [settled, settle])
+  const [fishingNear, setFishingNear] = useState(false)
+  const nearFishing = useCallback(() => setFishingNear(true), [])
+
   // Sightings stream in page by page; a recent copy on the device makes reopening instant.
   const [cached] = useState(readCachedSightings)
   const sightings = useQuery({
@@ -143,20 +172,30 @@ export default function App() {
     }),
     initialData: cached?.data,
     initialDataUpdatedAt: cached?.savedAt,
+    // A copy on the device shows at once; fresh sightings wait for the map, like the rest.
+    enabled: settled || !!treeMatch || sectionPath === '/foliage',
   })
-  // The pages are fetched in the background once the first screen is up.
-  useEffect(preloadPages, [])
+  // The pages are fetched in the background once the map is up.
+  useEffect(() => {
+    if (settled) preloadPages()
+  }, [settled])
   useEffect(() => {
     if (sightings.data?.complete && sightings.dataUpdatedAt !== cached?.savedAt) writeCachedSightings(sightings.data)
   }, [sightings.data, sightings.dataUpdatedAt, cached?.savedAt])
   const sightingsLoading = sightings.isFetching && !sightings.data?.complete
+
   const parks = useQuery({ queryKey: ['ontario-parks'], queryFn: fetchOntarioParks })
   // Every provincial park, for search, the Parks list, trips and park pages. Parks with a fall
   // color report come first; the map's park pins stay with those.
-  const parksIndex = useQuery({ queryKey: ['parks-index'], queryFn: fetchParksIndex, staleTime: Infinity })
+  const parksIndex = useQuery({ queryKey: ['parks-index'], queryFn: fetchParksIndex, staleTime: Infinity, enabled: settled || !!parkMatch || sectionPath === '/parks' || !!tripMatch || !!tripsMatch })
   const everyPark = useMemo(() => (parks.data && parksIndex.data ? allParks(parks.data.parks, parksIndex.data) : parks.data?.parks), [parks.data, parksIndex.data])
-  const explore = useQuery({ queryKey: ['explore'], queryFn: fetchExploreAreas, staleTime: Infinity })
-  const facilities = useQuery({ queryKey: ['park-facilities'], queryFn: fetchParkFacilities, staleTime: Infinity })
+  const explore = useQuery({
+    queryKey: ['explore'],
+    queryFn: fetchExploreAreas,
+    staleTime: Infinity,
+    enabled: settled || !!trailMatch || !!placeMatch || !!regionMatch || !!tripMatch || !!tripsMatch || sectionPath === '/places' || sectionPath === '/trails',
+  })
+  const facilities = useQuery({ queryKey: ['park-facilities'], queryFn: fetchParkFacilities, staleTime: Infinity, enabled: settled || !!parkMatch || sectionPath === '/parks' })
 
   // Flattened lookups across all explore areas.
   const exploreIndex = useMemo(() => {
@@ -204,23 +243,15 @@ export default function App() {
     writeMapStyle(id)
   }
 
-  const regionMatch = matchPath('/region/:id', location.pathname)
-  const treeMatch = matchPath('/tree/:id', location.pathname)
-  const parkMatch = matchPath('/park/:slug', location.pathname)
-  const trailMatch = matchPath('/trail/:slug', location.pathname)
-  const placeMatch = matchPath('/place/:slug', location.pathname)
-  const fishingMatch = matchPath('/fishing/:slug', location.pathname)
-  const sectionPath = (['/parks', '/places', '/trails', '/foliage', '/about', '/sources'] as const).find((p) => location.pathname === p)
-  // Loaded only when the layer is on or a fishing link is opened (~50 KB gzipped).
+  // The largest data file (~50 KB gzipped): loaded when the layer is on and the map is zoomed in
+  // near where its pins appear, or when a fishing link is opened.
   const fishing = useQuery({
     queryKey: ['fishing-access'],
     queryFn: fetchFishingAccess,
     staleTime: Infinity,
-    enabled: layers.fishing || !!fishingMatch,
+    enabled: (layers.fishing && fishingNear) || !!fishingMatch,
   })
   const fishingById = useMemo(() => new Map((fishing.data?.points ?? []).map((a) => [a.id, a] as const)), [fishing.data])
-  const tripsMatch = matchPath('/trips', location.pathname)
-  const tripMatch = matchPath('/trip/:id', location.pathname)
   const trips = useTrips()
   const onTripsPage = !!tripsMatch
   const selection: Selection = useMemo(() => {
@@ -841,6 +872,8 @@ export default function App() {
         <div className={`relative min-w-0 flex-1 ${isDesktop && sheet === 'full' ? 'hidden' : ''} ${floatingPanel ? 'panel-floating' : ''}`} style={isDesktop ? undefined : { marginBottom: TAB_BAR_HEIGHT }}>
           <Suspense fallback={<MapSkeleton />}>
           <FoliageMap
+            onReady={settle}
+            onFishingNear={nearFishing}
             regions={REGIONS}
             parks={filteredParks ?? NO_PARKS}
             reports={parks.data?.parks ?? NO_PARKS}

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useGrowingList } from '../hooks'
 import { FilterList, Search } from 'relume-icons'
 import { PARK_FILTERS } from '../data/amenityIcons'
 import { distanceKm, locate, LOCATION_HELP, useLocation } from '../lib/location'
@@ -106,6 +107,8 @@ export function ParksPanel({
             : byColor(a, b),
       )
   }, [parks, query, sort, region, scope, origin])
+  // Over 300 parks: the first rows at once, the rest as the list scrolls toward them.
+  const { shown, sentinel } = useGrowingList(list)
 
   return (
     <div className="space-y-4 p-5">
@@ -153,12 +156,13 @@ export function ParksPanel({
 
       <p className="text-xs text-[var(--ink-soft)]">{parks ? `${list.length} parks` : 'Loading parks…'}</p>
       <ul className={`stagger ${LIST}`}>
-        {list.map((p) => (
+        {shown.map((p) => (
           <li key={p.id}>
             <ParkRow park={p} onClick={() => onSelectPark(p)} />
           </li>
         ))}
       </ul>
+      {shown.length < list.length && <div ref={sentinel} aria-hidden className="h-px" />}
       {parks && !list.length && <p className="py-6 text-center text-sm text-[var(--ink-soft)]">No parks match.</p>}
     </div>
   )
