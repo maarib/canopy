@@ -84,3 +84,37 @@ export function useGrowingList<T>(items: T[], step = 40): { shown: T[]; sentinel
   )
   return { shown: count >= items.length ? items : items.slice(0, count), sentinel }
 }
+
+const ITEMS = 'button:not([disabled]), a[href], input:not([disabled]), [role="menuitem"], [role="option"]'
+
+/**
+ * Keyboard use for a popover menu or list, the way native menus work: when it opens, focus moves
+ * to the chosen item (or the first); ↑ and ↓ move between items, Home and End to the ends; when
+ * it closes, focus goes back to whatever opened it. Pass the menu's element (or null while
+ * closed). Keys typed in a text field inside the menu are left alone.
+ */
+export function useMenuKeys(menu: HTMLElement | null) {
+  useEffect(() => {
+    if (!menu) return
+    const opener = document.activeElement as HTMLElement | null
+    const items = () => [...menu.querySelectorAll<HTMLElement>(ITEMS)].filter((el) => el.offsetParent !== null || el === document.activeElement)
+    // The current choice of a pick-one list (not a switch or tab elsewhere in the menu).
+    const chosen = menu.querySelector<HTMLElement>('[role="option"][aria-selected="true"], button[aria-pressed="true"]')
+    ;(chosen && items().includes(chosen) ? chosen : items()[0])?.focus({ preventScroll: true })
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement && e.target.type === 'text') return
+      const list = items()
+      const at = list.indexOf(document.activeElement as HTMLElement)
+      const to = e.key === 'ArrowDown' ? (at + 1) % list.length : e.key === 'ArrowUp' ? (at - 1 + list.length) % list.length : e.key === 'Home' ? 0 : e.key === 'End' ? list.length - 1 : -1
+      if (to < 0 || !list.length) return
+      e.preventDefault()
+      list[to].focus()
+    }
+    menu.addEventListener('keydown', onKey)
+    return () => {
+      menu.removeEventListener('keydown', onKey)
+      // Hand focus back only if it was in the menu (not if the person clicked elsewhere).
+      if (opener?.isConnected && (document.activeElement === document.body || menu.contains(document.activeElement))) opener.focus({ preventScroll: true })
+    }
+  }, [menu])
+}

@@ -22,7 +22,7 @@ import { MapSkeleton } from './MapSkeleton'
 import { useHoverPoint } from '../lib/hoverStore'
 import type { PlaceIconId } from './PlaceIcon'
 import { isPhotoSpot, PLACE_KINDS, type Place, type Trail } from '../lib/explore'
-import { useIsDesktop } from '../hooks'
+import { useIsDesktop, useMenuKeys } from '../hooks'
 import { useDark } from '../lib/theme'
 import { hexbin, hexSizeForZoom } from '../lib/hexbin'
 import { fetchOutlookGrid, outlookHexes } from '../lib/outlook'
@@ -1015,6 +1015,8 @@ function LocateControl() {
   const note = failed && seen !== here
 
   const [menu, setMenu] = useState(false)
+  const [menuEl, setMenuEl] = useState<HTMLElement | null>(null)
+  useMenuKeys(menuEl)
   const menuId = useId()
   useEffect(() => {
     if (!menu) return
@@ -1056,7 +1058,7 @@ function LocateControl() {
             </button>
           </div>
           {menu && position && (
-            <div id={menuId} role="menu" aria-label="My location" className="absolute top-0 right-full mr-2 origin-top-right animate-pop-in rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl">
+            <div ref={setMenuEl} id={menuId} role="menu" aria-label="My location" className="absolute top-0 right-full mr-2 origin-top-right animate-pop-in rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl">
               <button
                 type="button"
                 role="menuitem"

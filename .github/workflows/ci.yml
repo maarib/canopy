@@ -16,3 +16,24 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+
+  # Accessibility: axe-core (WCAG 2.1 A and AA) on every kind of page, light and dark, phone and
+  # desktop (scripts/check-a11y.mjs). Fails on any serious or critical issue. Runs without a
+  # Mapbox token, so the map itself isn't drawn; everything around it is checked.
+  a11y:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps --only-shell chromium
+      - run: npm run build
+      - name: Check accessibility
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          npx --yes wait-on@8 --timeout 60000 http://localhost:4173
+          npm run check:a11y

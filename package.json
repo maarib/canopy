@@ -16,7 +16,8 @@
     "data:parks-index": "node scripts/build-parks-index.mjs",
     "data:outlook-grid": "node scripts/build-outlook-grid.mjs",
     "data:nearby": "node scripts/build-nearby-stops.mjs",
-    "covers": "node scripts/build-covers.mjs"
+    "covers": "node scripts/build-covers.mjs",
+    "check:a11y": "node scripts/check-a11y.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.0",
@@ -29,6 +30,7 @@
     "relume-icons": "^1.4.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^24.13.3",

@@ -6,6 +6,9 @@
 @theme {
   /* The brand accent: buttons, links, selection, focus. Red stays for data (peak color, hard trails). */
   --color-brand: #f2600c;
+  /* Filled buttons with white text: a deeper orange, so the text meets WCAG AA (4.67:1; the
+     brand orange gives 3.25:1). Everything else keeps the brand orange. */
+  --color-brand-strong: #c94b06;
   --color-pumpkin: #e8730c;
   --color-birch: #e9b824;
   --color-spruce: #2f5d3a;

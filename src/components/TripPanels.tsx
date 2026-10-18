@@ -89,7 +89,7 @@ export function TripsPanel({
           maxLength={80}
           className="min-w-0 flex-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-brand/40"
         />
-        <button type="submit" className="inline-flex items-center justify-center gap-1 rounded-full bg-brand px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+        <button type="submit" className="inline-flex items-center justify-center gap-1 rounded-full bg-brand-strong px-4 py-2 text-sm font-medium text-white hover:opacity-90">
           <Add className="size-4" /> Create Trip
         </button>
       </form>
@@ -169,7 +169,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
       {shared && (
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-brand/10 p-3 text-sm">
           <span>This trip was shared with you. Save it to make changes.</span>
-          <button onClick={onSaveCopy} className="shrink-0 rounded-full bg-brand px-3 py-1.5 font-medium text-white hover:opacity-90">
+          <button onClick={onSaveCopy} className="shrink-0 rounded-full bg-brand-strong px-3 py-1.5 font-medium text-white hover:opacity-90">
             Save to My Trips
           </button>
         </div>
