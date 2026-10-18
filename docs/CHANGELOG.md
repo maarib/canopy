@@ -8,8 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Detail pages: sections in tabs ([#161](https://github.com/maarib/canopy/pull/161)) |
-| Unreleased | | Faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
+| [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
 | [v1.5.4](https://github.com/maarib/canopy/releases/tag/v1.5.4) | 2026-10-12 | Nearby stops on park, trail and place pages ([#143](https://github.com/maarib/canopy/pull/143)) |
@@ -83,7 +82,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ---
 
-## Unreleased
+## v1.5.7
 
 ### 2026-10-16 · Faster start and a lighter Parks list
 
