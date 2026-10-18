@@ -8,6 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
+| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)) |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
@@ -26,6 +27,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-18 | [Accessibility pass](#2026-10-18-accessibility-pass) | [#164](https://github.com/maarib/canopy/pull/164) |
 | 2026-10-16 | [Faster start and a lighter Parks list](#2026-10-16-faster-start-and-a-lighter-parks-list) | [#162](https://github.com/maarib/canopy/pull/162) |
 | 2026-10-16 | [Detail pages: sections in tabs](#2026-10-16-detail-pages-sections-in-tabs) | [#161](https://github.com/maarib/canopy/pull/161) |
 | 2026-10-14 | [Less text: credits, counts, subtitles and helper lines](#2026-10-14-less-text-credits-counts-subtitles-and-helper-lines) | [#151](https://github.com/maarib/canopy/pull/151) |
@@ -81,6 +83,25 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 | 2026-09-30 | [Initial scaffold and research](#2026-09-30-initial-scaffold-and-research) | `6d75d8e` |
 
 ---
+
+## Unreleased
+
+### 2026-10-18 · Accessibility pass
+
+**Ref:** [#164](https://github.com/maarib/canopy/pull/164) · issue [#63](https://github.com/maarib/canopy/issues/63)
+
+**Before.** An automated check (axe-core, WCAG 2.1 A and AA) on 14 kinds of page, in light and dark, at phone and desktop widths, found one critical and one serious problem. The account menu was marked as an ARIA menu but held the theme switch, which a menu can't contain. White text on the orange buttons was 3.25:1, under the 4.5:1 minimum. Menus and tabs also couldn't be worked with arrow keys.
+
+**After.**
+- **Keyboard menus.** Every popover (Sort, Region, Show, Activities and the other pill menus; Filters, Layers and Legend; Explore's Where, Looking for and Trees; the Foliage tree picker; the account menu; Save to a trip; My location) moves focus to its current choice, or its first item, when it opens. ↑ and ↓ move through the items and wrap round; Home and End jump to the ends. When it closes, focus goes back to the button that opened it.
+- **Keyboard tabs.** Segmented controls (detail page tabs, Foliage tabs, the map's light switch and the Filters tabs) take one Tab stop; ← and →, Home and End move between options. The theme switch in the account menu does the same.
+- **Account menu** is a labelled group of buttons and links rather than an ARIA menu, so the theme switch inside it is valid.
+- **Filled buttons** (Get Directions, Explore, Create Trip, Save a Copy, the + for a new trip) use a deeper orange, #C94B06, which gives white text 4.67:1. The brand orange, #F2600C, stays everywhere else: the logo, pins, links, badges, the selected tab and other accents.
+- **Checked on every pull request.** `scripts/check-a11y.mjs` (`npm run check:a11y`) runs axe on all 14 page types, light and dark, phone and desktop, with the Sort and account menus open too, and fails on any serious or critical issue. CI runs it as its own job against a build without a Mapbox token, so the map itself isn't drawn.
+
+**Result.** The check now finds no issues.
+
+**Still open on [#63](https://github.com/maarib/canopy/issues/63).** A pass with a real screen reader (VoiceOver, TalkBack): the automated check can't judge reading order or how announcements sound. The small orange count badges (white on #F2600C) were left in the brand orange, as accents.
 
 ## v1.5.7
 
