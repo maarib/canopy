@@ -142,6 +142,7 @@ npm run dev
 | `npm run data:explore [area]` | Rebuild trails and places (all areas, or one) |
 | `npm run data:parks-index` | Rebuild the list of every park from the boundary and facility files |
 | `npm run data:fishing` | Refresh fishing access points |
+| `npm run check:a11y` | Accessibility check (axe-core, WCAG 2.1 AA) against a running build: `npx vite preview --port 4173` first |
 | `npm run data:nearby` | Refresh nearby stops (takes about ten minutes) |
 | `npm run data:park-boundaries` | Refresh provincial park boundaries |
 | `npm run data:outlook-grid` | Rebuild the grid of Ontario hexagons for the color outlook (only needed if the hexagon sizes change) |

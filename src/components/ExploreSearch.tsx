@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, KeyboardArrowDown, Search } from 'relume-icons'
 import { PROVINCES, PROVINCE_BY_CODE, type ProvinceCode } from '../data/provinces'
 import type { TreeIconId } from '../data/treeIcons'
-import { usePresence } from '../hooks'
+import { useMenuKeys, usePresence } from '../hooks'
 import { PLACE_KINDS, type Place, type Trail } from '../lib/explore'
 import type { ParkReport } from '../lib/ontarioParks'
 import { STAGES } from '../lib/stage'
@@ -41,6 +41,8 @@ export type SearchProps = {
 function Field({ label, value, icon, up, children }: { label: string; value: string; icon?: ReactNode; /** Open the list above the row. */ up?: boolean; children: (close: () => void) => ReactNode }) {
   const [open, setOpen] = useState(false)
   const presence = usePresence(open)
+  const [menuEl, setMenuEl] = useState<HTMLElement | null>(null)
+  useMenuKeys(menuEl)
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
@@ -71,6 +73,7 @@ function Field({ label, value, icon, up, children }: { label: string; value: str
       </button>
       {presence.mounted && (
         <div
+          ref={setMenuEl}
           role="listbox"
           className={`absolute inset-x-0 z-30 max-h-80 ${up ? 'bottom-full mb-1 origin-bottom' : 'top-full mt-1 origin-top'} ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl`}
         >
@@ -186,7 +189,7 @@ export function ExploreSearch({ up, autoFocus, ...props }: SearchProps & { up?: 
         )}
         <button
           onClick={() => props.onSubmit({ province, what, tree })}
-          className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.99]"
+          className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-strong px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.99]"
         >
           <Search className="size-5" />
           {what === 'everything' ? `Explore ${PROVINCE_BY_CODE.get(province)!.name}` : `Show ${whatItem.label.toLowerCase()}`}

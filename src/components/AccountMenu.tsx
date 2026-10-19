@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { usePresence } from '../hooks'
+import { useMenuKeys, usePresence } from '../hooks'
 import { Bookmark, Description, KeyboardArrowDown, Mail, Person } from 'relume-icons'
 import { setTheme, useThemeSetting, type ThemeSetting } from '../lib/theme'
 import { ExternalIcon, InfoIcon, ThemeIcon } from './ui'
@@ -15,6 +15,8 @@ type Props = { tripCount: number; onNavigate: (path: string) => void }
 export function AccountMenu({ tripCount, onNavigate }: Props) {
   const [open, setOpen] = useState(false)
   const presence = usePresence(open)
+  const [menuEl, setMenuEl] = useState<HTMLElement | null>(null)
+  useMenuKeys(menuEl)
   const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -38,8 +40,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
     <div ref={root} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        aria-haspopup="menu"
-        aria-expanded={open}
+                aria-expanded={open}
         aria-label="Account menu"
         className={`flex items-center gap-1 rounded-full border border-[var(--line)] py-1 pr-2 pl-1 shadow-sm transition-colors hover:bg-[var(--surface-2)] ${
           open ? 'bg-[var(--surface-2)]' : ''
@@ -52,7 +53,7 @@ export function AccountMenu({ tripCount, onNavigate }: Props) {
       </button>
 
       {presence.mounted && (
-        <div role="menu" className={`absolute top-full right-0 z-40 mt-2 w-72 origin-top-right ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}>
+        <div ref={setMenuEl} role="group" aria-label="Account" className={`absolute top-full right-0 z-40 mt-2 w-72 origin-top-right ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}>
           <div className="flex items-center gap-3 px-2 pt-1 pb-3">
             <span className="flex size-10 items-center justify-center rounded-full bg-[var(--surface-2)]">
               <Person className="size-6 text-[var(--ink-soft)]" />
@@ -105,13 +106,21 @@ function ThemeRow() {
         Theme
       </span>
       <div role="radiogroup" aria-labelledby="theme-label" className="flex gap-0.5 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1">
-        {THEMES.map((t) => (
+        {THEMES.map((t, i) => (
           <button
             key={t.id}
             role="radio"
             aria-checked={theme === t.id}
             aria-label={t.label}
             title={t.label}
+            // ← and → choose the next theme, as in any radio group.
+            onKeyDown={(e) => {
+              const to = e.key === 'ArrowRight' ? (i + 1) % THEMES.length : e.key === 'ArrowLeft' ? (i - 1 + THEMES.length) % THEMES.length : -1
+              if (to < 0) return
+              e.preventDefault()
+              setTheme(THEMES[to].id)
+              ;(e.currentTarget.parentElement?.children[to] as HTMLElement | undefined)?.focus()
+            }}
             onClick={() => setTheme(t.id)}
             className={`flex h-7 w-9 items-center justify-center rounded-full transition-colors active:scale-[0.97] ${
               theme === t.id ? 'bg-brand text-white' : 'text-[var(--ink-soft)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
@@ -152,11 +161,11 @@ function Item({
     </>
   )
   return href ? (
-    <a role="menuitem" href={href} target="_blank" rel="noreferrer" className={cls}>
+    <a href={href} target="_blank" rel="noreferrer" className={cls}>
       {body}
     </a>
   ) : (
-    <button role="menuitem" onClick={onClick} disabled={disabled} aria-disabled={disabled} className={cls}>
+    <button onClick={onClick} disabled={disabled} aria-disabled={disabled} className={cls}>
       {body}
     </button>
   )

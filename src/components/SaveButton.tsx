@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { usePresence } from '../hooks'
+import { useMenuKeys, usePresence } from '../hooks'
 import { Add, Bookmark, Check } from 'relume-icons'
 import { tripActions, tripsContaining, useTrips, type StopRef } from '../lib/trips'
 
@@ -13,6 +13,8 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
   const saved = tripsContaining(trips, stopRef)
   const [open, setOpen] = useState(false)
   const presence = usePresence(open)
+  const [menuEl, setMenuEl] = useState<HTMLElement | null>(null)
+  useMenuKeys(menuEl)
   const [newName, setNewName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
   const root = useRef<HTMLDivElement>(null)
@@ -72,6 +74,7 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
 
       {presence.mounted && (
         <div
+          ref={setMenuEl}
           id={menuId}
           role="menu"
           aria-label={`Save ${name} to a trip`}
@@ -115,7 +118,7 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
               maxLength={80}
               className="min-w-0 flex-1 rounded-lg bg-[var(--surface-2)] px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-brand/40"
             />
-            <button type="submit" aria-label="Create trip and save" className="rounded-lg bg-brand p-1.5 text-white hover:opacity-90">
+            <button type="submit" aria-label="Create trip and save" className="rounded-lg bg-brand-strong p-1.5 text-white hover:opacity-90">
               <Add className="size-4" />
             </button>
           </form>

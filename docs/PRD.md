@@ -263,7 +263,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 | PLAT-3 | Backend API (Cloudflare Workers + D1 + R2 + KV) for reports, saves, cached data | P0 | ⬜ |
 | PLAT-4 | PWA: service worker, offline park/trail pages, install prompt | P1 | 🟡 manifest |
 | PLAT-5 | Bilingual EN/FR, including place names and content | P0 | ⬜ |
-| PLAT-6 | Accessibility WCAG 2.1 AA (keyboard map, screen-reader place lists, contrast) | P0 | 🟡 Automated audit (axe-core) run and fixed in v1.3. Open: white text on the orange button (3.25:1), arrow keys in menus, a screen-reader pass, axe in CI |
+| PLAT-6 | Accessibility WCAG 2.1 AA (keyboard map, screen-reader place lists, contrast) | P0 | 🟡 axe-core finds no issues on 14 page types (light/dark, phone/desktop) and runs on every PR; keyboard menus and tabs; AA contrast on filled buttons. Open: a real screen-reader pass |
 | PLAT-7 | Privacy-friendly analytics (Plausible/Umami) + event plan | P0 | ⬜ |
 | PLAT-8 | Error monitoring (Sentry) | P0 | ⬜ |
 | PLAT-9 | SEO: prerendered region/park pages, OG images ("Algonquin: Peak · Oct 2") | P1 | ⬜ |
@@ -303,7 +303,7 @@ Status: ✅ done · 🟡 partial · ⬜ not started.
 2. **A page for every provincial park** ([#86](https://github.com/maarib/canopy/issues/86)): ✅ pages, list and search for all 347. Still open there: pins or outlines on the map for parks without a report, and names in French, Ojibwe and Cree.
 3. **Near me** ([#22](https://github.com/maarib/canopy/issues/22)): ✅ shipped in v1.5.5.
 4. **Best right now / this weekend** ([#43](https://github.com/maarib/canopy/issues/43)): ranked lists for the landing page.
-5. **Accessibility follow-ups** ([#63](https://github.com/maarib/canopy/issues/63)): button contrast, arrow keys in menus, a screen-reader pass, axe in CI.
+5. **Accessibility follow-ups** ([#63](https://github.com/maarib/canopy/issues/63)): ✅ button contrast, arrow keys in menus, axe in CI. Open: a real screen-reader pass.
 6. **Québec** ([#23](https://github.com/maarib/canopy/issues/23)): Bonjour Québec stages and Sépaq parks.
 7. **Named lookouts and curated stops** ([#87](https://github.com/maarib/canopy/issues/87)).
 8. **Weather from Environment Canada** ([#36](https://github.com/maarib/canopy/issues/36)) and a **restricted Mapbox token** ([#79](https://github.com/maarib/canopy/issues/79)), both needed before any commercial use.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { FilterList } from 'relume-icons'
-import { usePresence } from '../hooks'
+import { useMenuKeys, usePresence } from '../hooks'
 import { Segmented } from './ui'
 
 export type FilterTab = { id: string; label: string; active: number; content: ReactNode }
@@ -18,6 +18,8 @@ export function MapFilters({ tabs, label = 'Filters', icon = <FilterList classNa
   const button = useRef<HTMLButtonElement>(null)
   const total = tabs.reduce((n, t) => n + t.active, 0)
   const presence = usePresence(open)
+  const [menuEl, setMenuEl] = useState<HTMLElement | null>(null)
+  useMenuKeys(menuEl)
 
   // Anchor to the viewport: below the button, left-aligned to it, never past either edge.
   const openMenu = () => {
@@ -63,6 +65,7 @@ export function MapFilters({ tabs, label = 'Filters', icon = <FilterList classNa
 
       {presence.mounted && (
         <div
+          ref={setMenuEl}
           style={place}
           className={`fixed z-40 origin-top-left ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} flex max-h-[min(72vh,600px)] flex-col rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-xl`}
         >

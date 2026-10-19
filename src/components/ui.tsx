@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowBack, ArrowForward, Check, KeyboardArrowDown, Link } from 'relume-icons'
-import { usePresence } from '../hooks'
+import { useMenuKeys, usePresence } from '../hooks'
 import { ICON_TILE, INFO_ROW, inkOn } from '../lib/styles'
 
 /** The nearest ancestor that scrolls (the desktop panel or the phone sheet). */
@@ -116,7 +116,7 @@ export function LinkButton({
       rel="noreferrer"
       className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition ${
         primary
-          ? 'bg-brand font-medium text-white hover:brightness-110 active:scale-[0.97]'
+          ? 'bg-brand-strong font-medium text-white hover:brightness-110 active:scale-[0.97]'
           : 'border border-[var(--line)] hover:bg-[var(--surface-2)] active:scale-[0.97]'
       }`}
     >
@@ -319,7 +319,7 @@ export function Segmented<T extends string>({
         className="absolute top-1 bottom-1 left-1 rounded-full bg-[var(--surface)] shadow-sm transition-transform duration-300 ease-[var(--ease-out-soft)]"
         style={{ width: `calc((100% - 0.5rem - ${n - 1} * 0.25rem) / ${n})`, transform: `translateX(calc(${index} * (100% + 0.25rem)))` }}
       />
-      {options.map((o) => {
+      {options.map((o, i) => {
         const on = o.id === value
         return (
           <button
@@ -327,6 +327,16 @@ export function Segmented<T extends string>({
             role={item}
             aria-selected={role === 'tablist' ? on : undefined}
             aria-checked={role === 'radiogroup' ? on : undefined}
+            // One stop in the tab order; ← and → (Home, End) move between the options.
+            tabIndex={on ? 0 : -1}
+            onKeyDown={(e) => {
+              const to = e.key === 'ArrowRight' ? (i + 1) % n : e.key === 'ArrowLeft' ? (i - 1 + n) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1
+              if (to < 0) return
+              e.preventDefault()
+              onChange(options[to].id)
+              const next = e.currentTarget.parentElement?.querySelectorAll<HTMLElement>(`[role="${item}"]`)[to]
+              requestAnimationFrame(() => next?.focus())
+            }}
             onClick={() => onChange(o.id)}
             className={`relative flex items-center justify-center gap-1 rounded-full px-2 font-medium transition-colors ${size === 'xs' ? 'py-1' : 'py-1.5'} ${
               on ? 'text-[var(--ink)]' : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
@@ -448,6 +458,8 @@ export function MenuButton({
   const root = useRef<HTMLDivElement>(null)
   const button = useRef<HTMLButtonElement>(null)
   const menu = useRef<HTMLDivElement>(null)
+  const [menuEl, setMenuEl] = useState<HTMLElement | null>(null)
+  useMenuKeys(menuEl)
 
   // Anchored to the viewport, so a scrolling row of pills or the panel's edge never clips it.
   const openMenu = () => {
@@ -498,7 +510,10 @@ export function MenuButton({
       {presence.mounted &&
         createPortal(
         <div
-          ref={menu}
+          ref={(el) => {
+            menu.current = el
+            setMenuEl(el)
+          }}
           role="group"
           aria-label={label}
           style={place}
