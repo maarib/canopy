@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)) |
+| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)) |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
@@ -27,6 +27,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-10-20 | [Tree icons: stems, veins and layer order](#2026-10-20-tree-icons-stems-veins-and-layer-order) | [#165](https://github.com/maarib/canopy/pull/165) |
 | 2026-10-18 | [Accessibility pass](#2026-10-18-accessibility-pass) | [#164](https://github.com/maarib/canopy/pull/164) |
 | 2026-10-16 | [Faster start and a lighter Parks list](#2026-10-16-faster-start-and-a-lighter-parks-list) | [#162](https://github.com/maarib/canopy/pull/162) |
 | 2026-10-16 | [Detail pages: sections in tabs](#2026-10-16-detail-pages-sections-in-tabs) | [#161](https://github.com/maarib/canopy/pull/161) |
@@ -85,6 +86,18 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-10-20 · Tree icons: stems, veins and layer order
+
+**Ref:** [#165](https://github.com/maarib/canopy/pull/165)
+
+**Before.** Every tree icon drew its stem at the same width and length, with veins at one width, and everything in ink sat on top of the leaf. Stems and veins were finished paths in `src/lib/leafShapes.ts`, so changing them meant editing each icon by hand.
+
+**After.**
+- **Edited in [leaf-icons](https://github.com/maarib/leaf-icons).** A small editor sets stem width and color, stalk length (how far it hangs below the leaf), midrib length, and vein width, length and color, for all icons or one, and moves each leaf, leaflet, fruit, vein group and stem forward or back. Its settings are copied into `LEAF_STYLE`.
+- **Shorter, lighter stems and veins** on maples, oaks, birches, aspens, beeches and alders.
+- **Leaflets behind the stem** on ashes, hickories and sumacs, so the stem reads as running through the leaf; the cherry leaf sits on top of its stalks.
+- **One drawing for app and map.** `LEAF_MARKS` lists each icon's paths back to front; `TreeIcon` and the map pins both draw from it. Stems keep the theme's `--leaf-ink`.
 
 ### 2026-10-18 · Accessibility pass
 
