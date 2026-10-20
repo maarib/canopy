@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { PlaceIcon, type PlaceIconId } from '../components/PlaceIcon'
 import type { TreeIconId } from '../data/treeIcons'
 import { PLACE_KINDS } from './explore'
-import { LEAF_COLORS, LEAF_SHAPES } from './leafShapes'
+import { LEAF_COLORS, LEAF_MARKS, type Paint } from './leafShapes'
 
 // Map pins drawn once onto canvases. Every pin shares one base: a disc with the same white border,
 // floating on a soft shadow. Each pin is drawn at each size it's shown and used two ways:
@@ -27,13 +27,12 @@ function svgImage(markup: string): Promise<HTMLImageElement> {
 
 /** The two-colour leaf as standalone SVG (ink fixed to the pin's light background). */
 function leafMarkup(id: TreeIconId): string {
-  const s = LEAF_SHAPES[id]
-  const c = LEAF_COLORS[id]
-  const ink = '#2d3550'
-  const blades = s.blades.map((b) => `<path d="${b.d}" fill="${b.tone === 'accent' ? (c.accent ?? c.leaf) : b.tone === 'ink' ? ink : c.leaf}"/>`).join('')
-  const needles = (s.needles ?? []).map((n) => `<path d="${n.d}" stroke-width="${n.width}"/>`).join('')
-  const strokes = s.ink.map((k) => `<path d="${k.d}" stroke-width="${k.width}"/>`).join('')
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${blades}<g fill="none" stroke="${c.leaf}" stroke-linecap="round">${needles}</g><g fill="none" stroke="${ink}" stroke-linecap="round" stroke-linejoin="round">${strokes}</g></svg>`
+  const { leaf, accent = leaf } = LEAF_COLORS[id]
+  const paint = (p?: Paint) => (!p ? 'none' : p === 'leaf' ? leaf : p === 'accent' ? accent : p === 'ink' ? '#2d3550' : p)
+  const paths = LEAF_MARKS[id]
+    .map((m) => `<path d="${m.d}" fill="${paint(m.fill)}"${m.stroke ? ` stroke="${paint(m.stroke)}" stroke-width="${m.width}"` : ''}/>`)
+    .join('')
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`
 }
 
 /** PlaceIcon rendered to a white SVG string, so the map pins and the app share one drawing. */

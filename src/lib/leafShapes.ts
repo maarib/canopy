@@ -4,17 +4,29 @@ import type { TreeIconId } from '../data/treeIcons'
 // tree's fall color, with the stem, stalk and veins drawn on top in one dark ink color.
 // Shapes follow each group's main Ontario species (see docs/CHANGELOG.md for sources):
 // e.g. sugar maple's rounded U-shaped sinuses, shagbark hickory's five leaflets, white ash's seven.
+// Shapes, stem and vein settings and layer order are edited in maarib/leaf-icons and copied here:
+// geometry below matches its src/shapes.ts, LEAF_STYLE its stems.config.json, leafMarks its src/render.js.
 
 type Pt = [number, number]
 type Stroke = { d: string; width: number }
 
+// Stems and veins are kept as geometry, not finished paths, so their length can be set in
+// stems.config.json (see src/render.js). Width is `k` × the part's configured width.
+/** Stalk below the leaf curving up into the midrib (see stemInto). */
+type StemStroke = { part: 'stem'; top: number; foot: number; bend: number; k?: number }
+/** A stalk with a fixed path (cherry stalks): width follows the stem, length does not. */
+type StalkStroke = { part: 'stem'; d: string; k?: number }
+/** A vein from point `a` on the midrib through control `c` to tip `b`. */
+type VeinStroke = { part: 'vein'; a: Pt; c: Pt; b: Pt; k?: number }
+type PartStroke = StemStroke | StalkStroke | VeinStroke
+
 export type LeafShape = {
-  /** Filled shapes: 'leaf' uses the tree's fall color, 'accent' a second color (fruit), 'ink' the stem color. */
-  blades: { d: string; tone?: 'leaf' | 'accent' | 'ink' }[]
+  /** Filled shapes: 'leaf' uses the tree's fall color, 'accent' a second color (fruit), 'stem' the stem color. */
+  blades: { d: string; tone?: 'leaf' | 'accent' | 'stem' }[]
   /** Strokes in the leaf color (larch needles). */
   needles?: Stroke[]
-  /** Stem, stalk and veins, in the ink color, drawn on top. */
-  ink: Stroke[]
+  /** Stems and veins, drawn on top. */
+  ink: PartStroke[]
 }
 
 const f = (n: number) => +n.toFixed(2)
@@ -56,20 +68,16 @@ const line = (pts: Pt[]) => `M${pts.map(([x, y]) => `${f(x)} ${f(y)}`).join('L')
 const curve = (a: Pt, c: Pt, b: Pt) => `M${f(a[0])} ${f(a[1])}Q${f(c[0])} ${f(c[1])} ${f(b[0])} ${f(b[1])}`
 const circle = (cx: number, cy: number, r: number) => `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`
 
-const STEM = 6.4
-const VEIN = 4.6
-
 /** Stem from below the leaf, straight up into the midrib, with a slight curve at the foot. */
-const stemInto = (top: number, foot = 95, bend = 4): Stroke => ({
-  d: `M${50 + bend} ${foot}Q50 ${foot - 6} 50 ${foot - 16}L50 ${top}`,
-  width: STEM,
-})
+const stemInto = (top: number, foot = 95, bend = 4): StemStroke => ({ part: 'stem', top, foot, bend })
+
+const vein = (a: Pt, c: Pt, b: Pt, k?: number): VeinStroke => ({ part: 'vein', a, c, b, k })
 
 /** Mirrored side veins from the midrib out toward the edge. */
-const pairs = (rows: [y: number, reach: number, rise: number][], width = VEIN): Stroke[] =>
+const pairs = (rows: [y: number, reach: number, rise: number][], k?: number): VeinStroke[] =>
   rows.flatMap(([y, reach, rise]) => [
-    { d: curve([50, y], [50 + reach * 0.45, y - rise * 0.2], [50 + reach, y - rise]), width },
-    { d: curve([50, y], [50 - reach * 0.45, y - rise * 0.2], [50 - reach, y - rise]), width },
+    vein([50, y], [50 + reach * 0.45, y - rise * 0.2], [50 + reach, y - rise], k),
+    vein([50, y], [50 - reach * 0.45, y - rise * 0.2], [50 - reach, y - rise], k),
   ])
 
 // ── Outline builders ────────────────────────────────────────────────────────────
@@ -157,7 +165,7 @@ function maple(): LeafShape {
   const left = right.map(([x, y]): Pt => [100 - x, y]).reverse()
   return {
     blades: [{ d: smooth(soften([...right, ...left.slice(0, -1)], 3, 0.24)) }],
-    ink: [stemInto(22), ...pairs([[52, 22, 16]]), ...pairs([[60, 18, 4]], VEIN - 0.6)],
+    ink: [stemInto(22), ...pairs([[52, 22, 16]]), ...pairs([[60, 18, 4]], 4 / 4.6)],
   }
 }
 
@@ -190,10 +198,10 @@ function oak(): LeafShape {
     blades: [{ d: smooth(soften([...right, ...left], 3, 0.24)) }],
     ink: [
       stemInto(14),
-      { d: curve([50, 36], [62, 34], [74, 30]), width: VEIN },
-      { d: curve([50, 58], [64, 56], [77, 53]), width: VEIN },
-      { d: curve([50, 42], [38, 40], [26, 34]), width: VEIN },
-      { d: curve([50, 63], [37, 61], [24, 57]), width: VEIN },
+      vein([50, 36], [62, 34], [74, 30]),
+      vein([50, 58], [64, 56], [77, 53]),
+      vein([50, 42], [38, 40], [26, 34]),
+      vein([50, 63], [37, 61], [24, 57]),
     ],
   }
 }
@@ -227,7 +235,7 @@ function larch(): LeafShape {
     return { d: curve(spur, mid, tip), width: 5.6 }
   })
   return {
-    blades: [{ d: circle(50, 61, 6.5), tone: 'ink' }],
+    blades: [{ d: circle(50, 61, 6.5), tone: 'stem' }],
     needles,
     ink: [stemInto(62)],
   }
@@ -257,7 +265,7 @@ function beech(): LeafShape {
   })
   return {
     blades: [{ d: smooth(pinnate(5, 77, body)) }],
-    ink: [stemInto(16), ...pairs(rows, VEIN - 0.8)],
+    ink: [stemInto(16), ...pairs(rows, 3.8 / 4.6)],
   }
 }
 
@@ -289,7 +297,7 @@ function basswood(): LeafShape {
   ]
   return {
     blades: [{ d: smooth(palmate(c, 21, lobes, 10)) }],
-    ink: [stemInto(20), { d: curve([50, 60], [58, 52], [68, 38]), width: VEIN }, { d: curve([50, 60], [42, 52], [32, 38]), width: VEIN }],
+    ink: [stemInto(20), vein([50, 60], [58, 52], [68, 38]), vein([50, 60], [42, 52], [32, 38])],
   }
 }
 
@@ -302,9 +310,9 @@ function cherries(): LeafShape {
       { d: circle(69, 79, 16), tone: 'accent' },
     ],
     ink: [
-      { d: curve([33, 60], [36, 32], [55, 17]), width: 5 },
-      { d: curve([67, 64], [64, 34], [55, 17]), width: 5 },
-      { d: line([[58, 15], [75, 7]]), width: 3.6 },
+      { d: curve([33, 60], [36, 32], [55, 17]), part: 'stem', k: 5 / 6.4 },
+      { d: curve([67, 64], [64, 34], [55, 17]), part: 'stem', k: 5 / 6.4 },
+      { d: line([[58, 15], [75, 7]]), part: 'stem', k: 3.6 / 6.4 },
     ],
   }
 }
@@ -379,3 +387,202 @@ export const LEAF_COLORS: Record<TreeIconId, { leaf: string; accent?: string }> 
   'other-trees': { leaf: '#f4c21b' }, // ginkgo: golden yellow
   shrubs: { leaf: '#d42a1f' }, // staghorn sumac: brilliant scarlet
 }
+
+// ── Stem and vein settings, layer order ───────────────────────────────────────
+
+type StemStyle = { width: number; color: string; length: number; midrib: number }
+type VeinStyle = { show: boolean; width: number; color: string; length: number }
+type IconStyle = { stem?: Partial<StemStyle>; veins?: Partial<VeinStyle>; order?: string[] }
+
+/** Default ink: drawn as the theme's --leaf-ink. Any other color is drawn as given. */
+const INK = '#2d3550'
+
+/** Shared stem and vein settings, then each icon's own. `order` lists layers back to front. */
+export const LEAF_STYLE: { stem: StemStyle; veins: VeinStyle; icons: Partial<Record<TreeIconId, IconStyle>> } = {
+  stem: {
+    width: 6.4,
+    color: '#2d3550',
+    length: 0,
+    midrib: 0
+  },
+  veins: {
+    show: true,
+    width: 4.6,
+    color: '#2d3550',
+    length: 1
+  },
+  icons: {
+    alders: {
+      stem: {
+        midrib: -6
+      },
+      veins: {
+        length: 0.63
+      }
+    },
+    ashes: {
+      stem: {
+        midrib: -8.5
+      },
+      veins: {
+        length: 1.1
+      },
+      order: [
+        'leaflet-2',
+        'leaflet-5',
+        'leaflet-6',
+        'leaflet-1',
+        'stem',
+        'leaflet-7',
+        'leaflet-4',
+        'leaflet-3'
+      ]
+    },
+    aspens: {
+      stem: {
+        midrib: -7.5
+      },
+      veins: {
+        length: 0.67
+      }
+    },
+    beeches: {
+      stem: {
+        width: 4.5
+      },
+      veins: {
+        width: 3.4,
+        length: 0.58
+      }
+    },
+    birches: {
+      stem: {
+        width: 4.2,
+        length: -8,
+        midrib: -7.5
+      },
+      veins: {
+        length: 0.61
+      }
+    },
+    cherries: {
+      order: [
+        'fruit-1',
+        'fruit-2',
+        'stalk-1',
+        'stalk-2',
+        'stalk-3',
+        'leaf'
+      ]
+    },
+    hickories: {
+      order: [
+        'leaflet-2',
+        'leaflet-3',
+        'leaflet-4',
+        'leaflet-5',
+        'stem',
+        'leaflet-1'
+      ]
+    },
+    larches: {
+      order: [
+        'spur',
+        'needles',
+        'stem'
+      ]
+    },
+    maples: {
+      stem: {
+        width: 5.8,
+        length: -10.5,
+        midrib: -10
+      },
+      veins: {
+        width: 5,
+        length: 0.61
+      }
+    },
+    oaks: {
+      stem: {
+        midrib: -13
+      },
+      veins: {
+        length: 0.37
+      }
+    },
+    shrubs: {
+      order: [
+        'leaflet-2',
+        'leaflet-5',
+        'leaflet-6',
+        'leaflet-9',
+        'stem',
+        'leaflet-8',
+        'leaflet-1',
+        'leaflet-7',
+        'leaflet-4',
+        'leaflet-3'
+      ]
+    }
+  }
+}
+
+/** 'leaf' and 'accent' are the tree's colors, 'ink' the theme's stem color; anything else is a CSS color. */
+export type Paint = 'leaf' | 'accent' | 'ink' | (string & {})
+/** One path to draw: filled, or stroked with round caps and joins. */
+export type LeafMark = { d: string; fill?: Paint; stroke?: Paint; width?: number }
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n))
+const ink = (color: string): Paint => (color.toLowerCase() === INK ? 'ink' : color)
+
+/** Stalk below the leaf curving up into the midrib; `length` extends the stalk, `midrib` the line up the leaf. */
+function stemPath(s: StemStroke, stem: StemStyle): string {
+  const foot = s.foot + stem.length
+  const top = clamp(s.top - stem.midrib, 2, foot - 16)
+  return `M${f(50 + s.bend)} ${f(foot)}Q50 ${f(foot - 6)} 50 ${f(foot - 16)}L50 ${f(top)}`
+}
+
+/** Vein scaled from where it leaves the midrib. */
+function veinPath(v: VeinStroke, length: number): string {
+  const at = (p: Pt): Pt => [v.a[0] + (p[0] - v.a[0]) * length, v.a[1] + (p[1] - v.a[1]) * length]
+  return curve(v.a, at(v.c), at(v.b))
+}
+
+type Layer = { id: string; marks: LeafMark[] }
+
+/** The icon's layers with ids as in maarib/leaf-icons, back to front in drawing order. */
+function layers(id: TreeIconId): Layer[] {
+  const shape = LEAF_SHAPES[id]
+  const own = LEAF_STYLE.icons[id] ?? {}
+  const stem = { ...LEAF_STYLE.stem, ...own.stem }
+  const veins = { ...LEAF_STYLE.veins, ...own.veins }
+  const leaves = shape.blades.filter((b) => !b.tone || b.tone === 'leaf').length
+  const count: Record<string, number> = {}
+  const next = (key: string) => `${key}-${(count[key] = (count[key] ?? 0) + 1)}`
+  const out: Layer[] = shape.blades.map((b) =>
+    b.tone === 'stem'
+      ? { id: 'spur', marks: [{ d: b.d, fill: ink(stem.color) }] }
+      : b.tone === 'accent'
+        ? { id: next('fruit'), marks: [{ d: b.d, fill: 'accent' }] }
+        : { id: leaves === 1 ? 'leaf' : next('leaflet'), marks: [{ d: b.d, fill: 'leaf' }] },
+  )
+  if (shape.needles) out.push({ id: 'needles', marks: shape.needles.map((n) => ({ d: n.d, stroke: 'leaf', width: n.width })) })
+  const veinStrokes = shape.ink.filter((s): s is VeinStroke => s.part === 'vein')
+  if (veinStrokes.length && veins.show)
+    out.push({ id: 'veins', marks: veinStrokes.map((v) => ({ d: veinPath(v, veins.length), stroke: ink(veins.color), width: f(veins.width * (v.k ?? 1)) })) })
+  for (const s of shape.ink) {
+    if (s.part !== 'stem') continue
+    const width = f(stem.width * (s.k ?? 1))
+    if ('d' in s) out.push({ id: next('stalk'), marks: [{ d: s.d, stroke: ink(stem.color), width }] })
+    else out.push({ id: 'stem', marks: [{ d: stemPath(s, stem), stroke: ink(stem.color), width }] })
+  }
+  const order = own.order ?? []
+  const rank = (l: Layer) => (order.includes(l.id) ? order.indexOf(l.id) : order.length)
+  return out.map((l, i) => ({ l, i })).sort((a, b) => rank(a.l) - rank(b.l) || a.i - b.i).map(({ l }) => l)
+}
+
+/** Every icon as paths to draw, back to front, with its stem and vein settings applied. */
+export const LEAF_MARKS = Object.fromEntries(
+  (Object.keys(LEAF_SHAPES) as TreeIconId[]).map((id) => [id, layers(id).flatMap((l) => l.marks)]),
+) as Record<TreeIconId, LeafMark[]>
