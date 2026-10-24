@@ -1,6 +1,6 @@
 {
  "source": "https://www.ontarioparks.ca/fallcolour",
- "fetchedAt": "2026-10-23T18:49:03.086Z",
+ "fetchedAt": "2026-10-24T17:44:52.609Z",
  "parks": [
   {
    "id": "189",
@@ -606,9 +606,9 @@
    "region": "Northwestern",
    "dominantColor": "Yellow",
    "colorChange": 100,
-   "leafFall": 70,
+   "leafFall": 80,
    "viewing": "Spectacular views of Lake Superior’s fall colours can be enjoyed by simply driving through the park along the Trans-Canada Highway. Visitors should note that given the size and forest diversity of the park, fall colours and leaf-change timing vary greatly between the north and south ends of Lake Superior Provincial Park.\n\nNorth of Mijineungshing Road, visitors will notice the red and orange colours of the Great Lakes-St. Lawrence Forest start to transition to more golden hues typical of the Boreal Forest that dominates the northern tip of the park. The Nokomis Trail, a moderate hike, provides stunning views of this transition zone. For those looking for a more challenging hike in the north end of the park, the Peat Mountain Trail offers breathtaking views of rolling hills of maple-rich Great-Lakes St. Lawrence Forest. Rabbit Blanket Lake and Mijinemungshing Lake are especially beautiful routes for fall paddling located in the north end of the park.\n\nVisitors are encouraged to stop by the Park Office at Red Rock Lake upon arrival for more fall colour viewing suggestions. ",
-   "reportedAt": "2026-10-17T19:30:04.000Z",
+   "reportedAt": "2026-10-23T20:13:32.000Z",
    "closingDate": "2026-10-25",
    "lat": 47.753297,
    "lng": -84.825847,
@@ -623,9 +623,9 @@
    "region": "Northwestern",
    "dominantColor": "Yellow",
    "colorChange": 100,
-   "leafFall": 70,
+   "leafFall": 80,
    "viewing": "Spectacular views of Lake Superior’s fall colours can be enjoyed by simply driving through the park along the Trans-Canada Highway. Visitors should note that given the size and forest diversity of the park, fall colours and leaf-change timing vary greatly between the north and south ends of Lake Superior Provincial Park.   \n\nSouth of the Park Office at Red Rock Lake, the park is predominated by Great Lakes-St. Lawrence Forest and brilliant shades of red, orange, and yellow. The Crescent Lake Trail, Pinguisibi (Sand River) Trail, and the first portion of Towab Trail to Burnt Rock Pool offer accessible yet stunning hiking through maple studded forests. For those up for more challenging hiking, Orphan Lake Trail and Awausee Trail deliver breathtaking views overlooking rolling hills of colour. Crescent Lake is an especially beautiful route for fall paddling located in the south end of the park.  \n\nVisitors are encouraged to stop by the Visitor Centre at Agawa Bay upon arrival for more fall colour viewing suggestions. ",
-   "reportedAt": "2026-10-17T15:17:20.000Z",
+   "reportedAt": "2026-10-23T20:24:00.000Z",
    "closingDate": "2026-10-25",
    "lat": 47.33558,
    "lng": -84.61714,
