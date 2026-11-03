@@ -1,6 +1,6 @@
 {
  "source": "https://www.ontarioparks.ca/fallcolour",
- "fetchedAt": "2026-11-02T22:57:23.496Z",
+ "fetchedAt": "2026-11-03T20:43:43.625Z",
  "parks": [
   {
    "id": "189",
@@ -453,9 +453,9 @@
    "region": "Southwestern",
    "dominantColor": "Yellow",
    "colorChange": 90,
-   "leafFall": 40,
+   "leafFall": 60,
    "viewing": "Enjoy beautiful fall colours on Komoka’s 11 kilometre trail network. The White Trail offers a walk beneath the canopy of towering maple, oak, and beech trees along the Thames River. The Blue, Yellow, and Orange Trails showcase meadow scenes with fall colours in the distance.",
-   "reportedAt": "2026-10-29T20:27:39.000Z",
+   "reportedAt": "2026-11-03T18:57:12.000Z",
    "closingDate": "2026-11-30",
    "lat": 42.952685,
    "lng": -81.383479,
