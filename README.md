@@ -182,7 +182,7 @@ docs/                  PRD, technical plan, Explore design, change log
 
 ## What's next
 
-The next releases (v1.5.8 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, a page for every provincial park, a locate button, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
+The next releases (v1.5.8 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
 
 ## Releases
 
@@ -208,7 +208,7 @@ Each release is a git tag and a [GitHub Release](https://github.com/maarib/canop
 
 Tracked as epics and milestones on the [project board](https://github.com/users/maarib/projects/2):
 - **Trips:** account sync, booking links for every park system (#48), trip suggestions
-- **Explore Ontario:** more areas (Killarney, Bon Echo, Frontenac, Arrowhead, Bruce Peninsula), pages for all 347 provincial parks, smaller parks and conservation areas
+- **Explore Ontario:** more areas (Killarney, Bon Echo, Frontenac, Arrowhead, Bruce Peninsula), map pins for the parks without a color report, smaller parks and conservation areas
 - **When to go:** historical peak dates from satellite data, a forecast model and a season timeline
 - **Community:** color reports with photos
 - **Launch readiness:** French, accessibility, offline use, notifications and SEO
