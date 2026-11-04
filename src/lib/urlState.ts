@@ -84,3 +84,12 @@ export function writeActivities(params: URLSearchParams, ids: string[]) {
   if (ids.length) params.set('do', ids.join(','))
   else params.delete('do')
 }
+
+/** The query a link to another page carries: filters and layers stay, what belonged to this page goes. */
+export function pageSearch(search: string) {
+  const next = new URLSearchParams(search)
+  next.delete('map') // the place decides the view
+  next.delete('level') // a list's starting filter doesn't follow you to a place
+  next.delete('t') // a shared trip's payload belongs only to /trip/shared
+  return next.toString()
+}

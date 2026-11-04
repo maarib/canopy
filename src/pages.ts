@@ -32,6 +32,13 @@ export const PlacePanel = lazy(() => load.place().then((m) => ({ default: m.Plac
 export const FishingPanel = lazy(() => load.fishing().then((m) => ({ default: m.FishingPanel })))
 export const TreePanel = lazy(() => load.tree().then((m) => ({ default: m.TreePanel })))
 
+export type PageName = keyof typeof load
+
+/** Fetches one page ahead of opening it (a link under the pointer or finger); the browser keeps it. */
+export function preloadPage(name: PageName) {
+  void load[name]().catch(() => {})
+}
+
 /**
  * Fetches every page in the background once the browser has nothing better to do. Skipped for
  * people who have asked their browser to save data; their pages load when opened.
