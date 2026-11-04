@@ -67,6 +67,8 @@ function coverMap(): Promise<MapboxMap> {
       attributionControl: false,
       preserveDrawingBuffer: true,
       fadeDuration: 0,
+      // Each cover reads lakes somewhere new, so tiles kept from the last one are never used again.
+      maxTileCacheSize: 16,
       center: [-30, 0],
       zoom: 12,
       ...VIEW,
@@ -377,6 +379,37 @@ const done = new Map<string, Promise<string>>()
 const KEEP_STILLS = 12
 let queue: Promise<unknown> = Promise.resolve()
 
+/**
+ * How long the cover map is kept once nothing is using it. It holds a second WebGL context, with
+ * shadow maps, models and tiles, for as long as it lives; taken down, the next cover sets it up
+ * again (about one map load).
+ */
+const RETIRE_MS = 60_000
+let retiring: ReturnType<typeof setTimeout> | undefined
+
+/** Takes the cover map down after `RETIRE_MS` if no cover is drawn or held on the page by then. */
+function retireWhenIdle() {
+  clearTimeout(retiring)
+  const last = queue
+  last.then(() => {
+    if (queue !== last) return
+    retiring = setTimeout(() => {
+      if (queue !== last || !ready) return
+      const going = ready
+      ready = undefined
+      onStage = undefined
+      going.then(
+        (map) => {
+          const box = map.getContainer()
+          map.remove() // also lets the WebGL context go
+          box.remove()
+        },
+        () => {},
+      )
+    }, RETIRE_MS)
+  })
+}
+
 function keep(key: string, still: Promise<string>) {
   // Set again so it counts as the most recent.
   done.delete(key)
@@ -404,6 +437,7 @@ export function forestCover(shape: CoverShape, foliage: Foliage, signal: AbortSi
     return draw(shape, foliage)
   })
   queue = job.catch(() => {})
+  retireWhenIdle()
   job.then(
     () => keep(key, job),
     () => {},
@@ -444,5 +478,6 @@ export function stageCover(shape: CoverShape, foliage: Foliage, signal: AbortSig
     () => held,
     () => {},
   )
+  retireWhenIdle()
   return job
 }
