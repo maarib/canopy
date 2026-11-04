@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)); a faster first load ([#167](https://github.com/maarib/canopy/pull/167)); the cover map let go when idle, and a lighter bottom sheet ([#168](https://github.com/maarib/canopy/pull/168)); repeat visits load from the device ([#NNN](https://github.com/maarib/canopy/pull/NNN)) |
+| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)); a faster first load ([#167](https://github.com/maarib/canopy/pull/167)); the cover map let go when idle, and a lighter bottom sheet ([#168](https://github.com/maarib/canopy/pull/168)); repeat visits load from the device ([#169](https://github.com/maarib/canopy/pull/169)) |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
@@ -27,7 +27,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-11-03 | [Repeat visits load from the device](#2026-11-03-repeat-visits-load-from-the-device) | [#NNN](https://github.com/maarib/canopy/pull/NNN) |
+| 2026-11-03 | [Repeat visits load from the device](#2026-11-03-repeat-visits-load-from-the-device) | [#169](https://github.com/maarib/canopy/pull/169) |
 | 2026-11-03 | [Lighter on memory: the cover map let go when idle, and a bottom sheet that slides](#2026-11-03-lighter-on-memory-the-cover-map-let-go-when-idle-and-a-bottom-sheet-that-slides) | [#168](https://github.com/maarib/canopy/pull/168) |
 | 2026-11-03 | [Faster first load: fonts and the map arrive with the app](#2026-11-03-faster-first-load-fonts-and-the-map-arrive-with-the-app) | [#167](https://github.com/maarib/canopy/pull/167) |
 | 2026-10-20 | [Tree icons: stems, veins and layer order](#2026-10-20-tree-icons-stems-veins-and-layer-order) | [#165](https://github.com/maarib/canopy/pull/165) |
@@ -92,7 +92,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 ### 2026-11-03 · Repeat visits load from the device
 
-**Ref:** [#NNN](https://github.com/maarib/canopy/pull/NNN) · groundwork for issue [#64](https://github.com/maarib/canopy/issues/64)
+**Ref:** [#169](https://github.com/maarib/canopy/pull/169) · groundwork for issue [#64](https://github.com/maarib/canopy/issues/64)
 
 **Before.** GitHub Pages lets browsers keep Canopy's files for ten minutes. After that, every visit asked the server again for the page, the app's code, its styles and its data, and with no connection the app didn't open at all.
 
