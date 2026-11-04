@@ -10,6 +10,9 @@ const baseHeightFor = (snap: SnapPoint, bottom = 0) => {
   return snap === 'peek' ? 132 : snap === 'half' ? Math.round(vh * 0.52) : vh - (document.querySelector('header')?.offsetHeight ?? 0)
 }
 
+/** How far the sheet reaches below the tab bar, hidden behind it. */
+const OVERSHOOT = 48
+
 type Props = {
   snap: SnapPoint
   onSnap: (s: SnapPoint) => void
@@ -56,12 +59,17 @@ export function BottomSheet({ snap, onSnap, contentKey, bottomOffset = 0, childr
     onSnap(snaps.reduce((best, s) => (Math.abs(heightFor(s) - h) < Math.abs(heightFor(best) - h) ? s : best)))
   }
 
+  // The sheet is always laid out at its full height and slides down to show less of itself, so a
+  // drag or a snap moves one layer on the GPU instead of laying out the whole panel every frame.
+  // It reaches `OVERSHOOT` below the tab bar so the spring's overshoot never shows a gap there.
+  const full = heightFor('full')
+  const shown = dragHeight ?? heightFor(snap)
   return (
     <section
       // The full panel is a page, flush under the header; the other heights are a card over the map.
-      className={`fixed inset-x-0 z-20 flex flex-col border-t border-[var(--line)] bg-[var(--surface)] shadow-[0_-8px_30px_rgba(0,0,0,0.18)] transition-[border-radius] duration-300 ${snap === 'full' && dragHeight === null ? '' : 'rounded-t-3xl'}`}
-      style={{ bottom: bottomOffset, height: dragHeight ?? heightFor(snap), // A gentle spring: settles with a hint of overshoot.
-        transition: dragHeight === null ? 'height 380ms cubic-bezier(0.3, 1.1, 0.45, 1)' : 'none' }}
+      className={`fixed inset-x-0 z-20 flex flex-col border-t border-[var(--line)] bg-[var(--surface)] shadow-[0_-8px_30px_rgba(0,0,0,0.18)] transition-[border-radius] duration-300 will-change-transform ${snap === 'full' && dragHeight === null ? '' : 'rounded-t-3xl'}`}
+      style={{ bottom: bottomOffset - OVERSHOOT, height: full + OVERSHOOT, transform: `translateY(${full - shown}px)`, // A gentle spring: settles with a hint of overshoot.
+        transition: dragHeight === null ? 'transform 380ms cubic-bezier(0.3, 1.1, 0.45, 1)' : 'none' }}
     >
       <div
         className="group flex shrink-0 cursor-grab touch-none justify-center pt-2.5 pb-1.5 active:cursor-grabbing"
@@ -81,7 +89,8 @@ export function BottomSheet({ snap, onSnap, contentKey, bottomOffset = 0, childr
       >
         <span className="h-1.5 w-10 rounded-full bg-[var(--line)] transition-colors group-hover:bg-[var(--ink-soft)]" />
       </div>
-      <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+      {/* What sits below the screen's edge is padded out, so the last rows can still be scrolled into view. */}
+      <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto overscroll-contain" style={{ paddingBottom: full - heightFor(snap) + OVERSHOOT }}>
         {children}
       </div>
     </section>

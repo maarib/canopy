@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)); a faster first load ([#167](https://github.com/maarib/canopy/pull/167)) |
+| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)); a faster first load ([#167](https://github.com/maarib/canopy/pull/167)); the cover map let go when idle, and a lighter bottom sheet ([#168](https://github.com/maarib/canopy/pull/168)) |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
@@ -27,6 +27,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-11-03 | [Lighter on memory: the cover map let go when idle, and a bottom sheet that slides](#2026-11-03-lighter-on-memory-the-cover-map-let-go-when-idle-and-a-bottom-sheet-that-slides) | [#168](https://github.com/maarib/canopy/pull/168) |
 | 2026-11-03 | [Faster first load: fonts and the map arrive with the app](#2026-11-03-faster-first-load-fonts-and-the-map-arrive-with-the-app) | [#167](https://github.com/maarib/canopy/pull/167) |
 | 2026-10-20 | [Tree icons: stems, veins and layer order](#2026-10-20-tree-icons-stems-veins-and-layer-order) | [#165](https://github.com/maarib/canopy/pull/165) |
 | 2026-10-18 | [Accessibility pass](#2026-10-18-accessibility-pass) | [#164](https://github.com/maarib/canopy/pull/164) |
@@ -87,6 +88,22 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-11-03 · Lighter on memory: the cover map let go when idle, and a bottom sheet that slides
+
+**Ref:** [#168](https://github.com/maarib/canopy/pull/168)
+
+**Before.** The hidden map that draws the island covers was set up on the first page with a cover and then kept for the rest of the visit: a second WebGL context with its shadow maps, tree models and map tiles, held even after the visitor had gone back to the map or a list. It also kept up to Mapbox's usual number of tiles, though each cover reads lakes somewhere new and never uses the last one's again. On phones, dragging or snapping the bottom sheet changed its height, so the whole panel (rows, photos, tabs) was laid out again on every frame of the movement.
+
+**After.**
+- **The cover map is taken down after a minute unused** (no cover being drawn and none turned by hand on the page), which frees its WebGL context. The next cover sets it up again, about one map load; stills already drawn are kept as before.
+- **It keeps at most 16 tiles.**
+- **The bottom sheet slides instead of resizing.** It is laid out once at its full height and moved on the GPU; a drag or a snap no longer lays out the panel. It looks and moves as before (the same spring), reaching a little way under the tab bar so the spring's overshoot never shows a gap, and the end of a page can still be scrolled into view at every height.
+
+**Measured** on the production build in headless Chromium at phone size (software graphics):
+- After four park pages and a minute on the Parks list, one map canvas is left instead of two. The next park page sets the cover map up again and draws its cover.
+- Six snaps of the sheet on a park page, with the processor six times slower: 45 and 13 layout passes (two runs) → 6, and about 30 ms and 14 ms of layout → 8 ms and 10 ms. Frame times varied too much under software graphics to compare.
+- The sheet's position and the end of a page at the peek, half and full heights match the previous version exactly.
 
 ### 2026-11-03 · Faster first load: fonts and the map arrive with the app
 
@@ -190,6 +207,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - **Helper lines** are gone: the Foliage sightings and peak-window notes, the Parks note about facility data, Places' "Algonquin's Highway 60 corridor for now", "Some facilities are seasonal…", the account menu's "Your trips are saved on this device", and the hints under Explore's Where and Looking for options and most Layers. Layers keep "Shown when you zoom in" where a layer would otherwise look empty, and Looking for keeps "Ontario only for now" on options that are off outside Ontario.
 - **Shorter messages:** a park without a report says "No fall color report for this park."; empty lists say "No parks match.", "No mapped trail passes here.", "Nothing nearby."
 - **Kept:** the version line on About, the header's "Explore Ontario's outdoors" on desktop, error messages, and "Set a start date to add this trip to your calendar."
+
 ### 2026-10-14 · Explore on phones: the search card stays open
 
 **Ref:** [#152](https://github.com/maarib/canopy/pull/152)
@@ -197,6 +215,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **Before.** On phones the landing page's search card showed only the search box, with a filter button beside it that revealed Where and Looking for.
 
 **After.** The card shows the search box, Where, Looking for and the Explore button on phones too, as on desktop. The filter button is gone. The card is 178 px tall; on a 375 × 667 screen its top sits at 332 px, with the quick links under it.
+
 ### 2026-10-14 · Display font: Zalando Sans Expanded
 
 **Ref:** [#153](https://github.com/maarib/canopy/pull/153)
@@ -210,6 +229,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - Livvic is unchanged for everything else. The Data sources page credits the new font.
 
 **Limit.** The face is wider, so long titles wrap sooner: Oxtongue-River Ragged Falls Hiking Trail now takes three lines on a 390 px phone.
+
 ### 2026-10-14 · Page transitions on phones and desktop
 
 **Ref:** [#155](https://github.com/maarib/canopy/pull/155)
@@ -249,6 +269,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - Distances are straight lines, not by road.
 - The map does not centre on you when the app first opens; that part of MAP-7 is not built.
 - Checked in headless Chromium with a set position; not on a real phone.
+
 ### 2026-10-13 · A page for every Ontario provincial park
 
 **Ref:** [#146](https://github.com/maarib/canopy/pull/146) · issue [#86](https://github.com/maarib/canopy/issues/86)
@@ -273,6 +294,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - Its region is that of the nearest park with a report, since Ontario Parks only assigns regions on its color report.
 - Seven parks have no Ontario Parks page (Alfred Bog, Hay Marsh, Uxbridge and four additions), so they have no activities, facilities or link.
 - Names in French, Ojibwe and Cree, and operating status, are not shown.
+
 ### 2026-10-13 · Trips: save nearby stops
 
 **Ref:** [#147](https://github.com/maarib/canopy/pull/147) · issue [#142](https://github.com/maarib/canopy/issues/142)
@@ -363,6 +385,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **After.** The twelve most recently shown are kept. Past that, the one shown longest ago is released; going back to its page draws it again. A still is about 50 kB, so this is a small saving that only shows on long visits.
 
 **How.** `forestCover()` in `src/lib/forestCover.ts` keeps its stills in order of last use and revokes the oldest one's image URL.
+
 ### 2026-10-09 · Pages load on demand
 
 **Ref:** [#137](https://github.com/maarib/canopy/pull/137)
@@ -393,6 +416,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - Unchanged, still in sentence case: menu items, tabs, filter pills and their options, the Explore quick links, and text links such as "Reserve a site" and "All reports".
 
 **How.** Label text in the page components, `ui.tsx` and `TripPanels.tsx`; the form in `TripPanels.tsx` stacks below the `md` breakpoint.
+
 ### 2026-10-09 · Phone tab bar: icons only, gathered in the middle
 
 **Ref:** [#133](https://github.com/maarib/canopy/pull/133)
@@ -406,6 +430,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - The bar is the same height, and the desktop rail is unchanged.
 
 **How.** `TabBar` in `src/components/AppNav.tsx`.
+
 ### 2026-10-09 · Light, dark or match the device, from the account menu
 
 **Ref:** [#132](https://github.com/maarib/canopy/pull/132)
@@ -538,6 +563,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **Why.** People look for a tree before they look for a report: "where are the maples red?". The journey can now start from the leaf.
 
 **Limits.** Timing in the write-ups is typical for southern and central Ontario, not a forecast. "Turning now" depends on where iNaturalist observers happen to be, so busy areas near cities are over-represented.
+
 ### 2026-10-06 · Color outlook across Ontario
 
 **Ref:** [#121](https://github.com/maarib/canopy/pull/121)
@@ -746,6 +772,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 - **Pre-render.** `scripts/build-covers.mjs` draws places too, and takes `--only <prefix>` to draw a subset while checking.
 
 **Why.** The cover should say what a place is at a glance, and its real shape is what makes it that place.
+
 ### 2026-10-03 · Icons for the nine missing activities
 
 **Ref:** [#110](https://github.com/maarib/canopy/pull/110)
