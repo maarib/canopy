@@ -184,7 +184,7 @@ docs/                  PRD, technical plan, Explore design, change log
 
 ## What's next
 
-The next releases (v1.5.8 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
+The next releases (v1.5.9 onward) are planned in [docs/PRD.md §11](docs/PRD.md#11-release-plan) and tracked by the [`next`](https://github.com/maarib/canopy/issues?q=is%3Aissue+is%3Aopen+label%3Anext) label: more of Ontario's trails and places, ranked "best right now" lists, accessibility follow-ups and Québec's color reports.
 
 ## Releases
 
@@ -192,6 +192,7 @@ Each release is a git tag and a [GitHub Release](https://github.com/maarib/canop
 
 | Version | What's in it |
 |---|---|
+| [v1.5.8](https://github.com/maarib/canopy/releases/tag/v1.5.8) | An accessibility pass, a faster first load, quicker repeat visits, less memory, and list rows that are real links |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | Detail pages with their sections in tabs, and a faster start with a lighter Parks list |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | Less text across the app, the Explore search card open on phones, a new display font (Zalando Sans Expanded), and page transitions |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | Near me (your location on the map, distances in lists, a Nearest sort), a page for every Ontario provincial park, and nearby stops saved to trips |
