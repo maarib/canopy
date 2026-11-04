@@ -5,7 +5,8 @@ import { signatureTree, REGIONS } from '../data/regions'
 import type { TreeIconId } from '../data/treeIcons'
 import { PLACE_KINDS, type Place, type Trail } from '../lib/explore'
 import { parkColor, type ParkReport } from '../lib/ontarioParks'
-import { searchLocal, searchPlaces, type SearchResult } from '../lib/search'
+import { resultPath, searchLocal, searchPlaces, type SearchResult } from '../lib/search'
+import { PageLink } from './PageLink'
 import { PlaceIcon } from './PlaceIcon'
 import { TreeIcon } from './TreeIcon'
 
@@ -132,37 +133,51 @@ export function SearchBox({
       </div>
 
       {showList && (
-        <ul
+        <div
           id={listId}
           role="listbox"
           className={`absolute inset-x-0 z-20 max-h-[50vh] ${up ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} animate-pop-in overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-1.5 shadow-xl`}
         >
-          {results.map((r, i) => (
-            <li
-              key={`${r.kind}:${r.kind === 'park' ? r.park.id : r.kind === 'trail' ? r.trail.id : r.kind === 'explore-place' ? r.place.id : r.id}`}
-              id={`${listId}-${i}`}
-              role="option"
-              aria-selected={i === active}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => choose(r)}
-              onMouseEnter={() => setActive(i)}
-              className={`flex cursor-pointer items-center gap-3 px-3.5 py-2 ${i === active ? 'bg-[var(--surface-2)]' : ''}`}
-            >
-              <ResultIcon result={r} />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium">{r.label}</span>
-                <span className="block truncate text-xs text-[var(--ink-soft)]">{r.detail}</span>
-              </span>
-            </li>
-          ))}
+          {results.map((r, i) => {
+            const option = {
+              id: `${listId}-${i}`,
+              role: 'option',
+              'aria-selected': i === active,
+              // The cursor stays in the box; arrow keys move through the results.
+              onMouseDown: (e: React.MouseEvent) => e.preventDefault(),
+              onMouseEnter: () => setActive(i),
+              className: `flex cursor-pointer items-center gap-3 px-3.5 py-2 ${i === active ? 'bg-[var(--surface-2)]' : ''}`,
+            } as const
+            const body = (
+              <>
+                <ResultIcon result={r} />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium">{r.label}</span>
+                  <span className="block truncate text-xs text-[var(--ink-soft)]">{r.detail}</span>
+                </span>
+              </>
+            )
+            const key = `${r.kind}:${r.kind === 'park' ? r.park.id : r.kind === 'trail' ? r.trail.id : r.kind === 'explore-place' ? r.place.id : r.id}`
+            const path = resultPath(r)
+            // A result with a page is a link to it; a town or landmark only moves the map.
+            return path ? (
+              <PageLink key={key} {...option} to={path} boundary={r.kind === 'park' ? r.park.shortname : undefined} tabIndex={-1} onOpen={() => choose(r)}>
+                {body}
+              </PageLink>
+            ) : (
+              <div key={key} {...option} onClick={() => choose(r)}>
+                {body}
+              </div>
+            )
+          })}
           {!results.length && !loading && (
-            <li className="px-3.5 py-3 text-sm text-[var(--ink-soft)]">
+            <div className="px-3.5 py-3 text-sm text-[var(--ink-soft)]">
               {trimmed.length < 3
                 ? 'Keep typing to search towns and landmarks'
                 : `No matches for “${trimmed}”. Try a park, trail, town or tree.`}
-            </li>
+            </div>
           )}
-        </ul>
+        </div>
       )}
     </div>
   )

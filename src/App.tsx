@@ -15,9 +15,10 @@ import { MapFilters } from './components/MapFilters'
 import { PROVINCE_BY_CODE } from './data/provinces'
 import { DEFAULT_LAYERS } from './lib/urlState'
 import { amenityIconUrl, PARK_FILTERS } from './data/amenityIcons'
-import { fetchParkFacilities, parkMatches } from './lib/parkFacilities'
+import { parkMatches } from './lib/parkFacilities'
+import { exploreQuery, facilitiesQuery, fishingQuery, parkBoundaryQuery, parksIndexQuery, parksQuery } from './lib/queries'
 import { SiteFooter } from './components/SiteFooter'
-import { accessTitle, fetchFishingAccess, fishingIdFromSlug, fishingPath, type FishingAccess } from './lib/fishingAccess'
+import { accessTitle, fishingIdFromSlug, fishingPath, type FishingAccess } from './lib/fishingAccess'
 import type { StopInfo } from './components/TripPanels'
 import { PlaceIcon } from './components/PlaceIcon'
 import { TreeIcon } from './components/TreeIcon'
@@ -44,7 +45,6 @@ import {
   TripsPanel,
 } from './pages'
 import {
-  fetchExploreAreas,
   placeIdFromSlug,
   placePath,
   trailIdFromSlug,
@@ -65,16 +65,16 @@ import {
   streamSeasonSightings,
   writeCachedSightings,
 } from './lib/inaturalist'
-import { allParks, fetchOntarioParks, fetchParksIndex, parkColor, parkDetail, parkTitle, type ParkReport } from './lib/ontarioParks'
-import { fetchParkBoundary } from './lib/parkBoundaries'
+import { allParks, parkColor, parkDetail, parkTitle, type ParkReport } from './lib/ontarioParks'
 import { readMapStyle, writeMapStyle, type LightSetting, type MapStyleId } from './lib/mapStyle'
 import { PHASE_STYLE, peakPhase } from './lib/peak'
 import { movePage, pageShown, type PageMove } from './lib/pageTransition'
 import { decodeTrip, parseStopRef, tripActions, useTrips, type SharedTrip, type StopRef, type Trip } from './lib/trips'
 import { STOP_KINDS, stopMapsUrl } from './lib/nearbyStops'
-import type { SearchResult } from './lib/search'
+import { resultPath, type SearchResult } from './lib/search'
 import {
   formatMapView,
+  pageSearch,
   parkIdFromSlug,
   parkPath,
   readDate,
@@ -184,18 +184,16 @@ export default function App() {
   }, [sightings.data, sightings.dataUpdatedAt, cached?.savedAt])
   const sightingsLoading = sightings.isFetching && !sightings.data?.complete
 
-  const parks = useQuery({ queryKey: ['ontario-parks'], queryFn: fetchOntarioParks })
+  const parks = useQuery(parksQuery)
   // Every provincial park, for search, the Parks list, trips and park pages. Parks with a fall
   // color report come first; the map's park pins stay with those.
-  const parksIndex = useQuery({ queryKey: ['parks-index'], queryFn: fetchParksIndex, staleTime: Infinity, enabled: settled || !!parkMatch || sectionPath === '/parks' || !!tripMatch || !!tripsMatch })
+  const parksIndex = useQuery({ ...parksIndexQuery, enabled: settled || !!parkMatch || sectionPath === '/parks' || !!tripMatch || !!tripsMatch })
   const everyPark = useMemo(() => (parks.data && parksIndex.data ? allParks(parks.data.parks, parksIndex.data) : parks.data?.parks), [parks.data, parksIndex.data])
   const explore = useQuery({
-    queryKey: ['explore'],
-    queryFn: fetchExploreAreas,
-    staleTime: Infinity,
+    ...exploreQuery,
     enabled: settled || !!trailMatch || !!placeMatch || !!regionMatch || !!tripMatch || !!tripsMatch || sectionPath === '/places' || sectionPath === '/trails',
   })
-  const facilities = useQuery({ queryKey: ['park-facilities'], queryFn: fetchParkFacilities, staleTime: Infinity, enabled: settled || !!parkMatch || sectionPath === '/parks' })
+  const facilities = useQuery({ ...facilitiesQuery, enabled: settled || !!parkMatch || sectionPath === '/parks' })
 
   // Flattened lookups across all explore areas.
   const exploreIndex = useMemo(() => {
@@ -246,9 +244,7 @@ export default function App() {
   // The largest data file (~50 KB gzipped): loaded when the layer is on and the map is zoomed in
   // near where its pins appear, or when a fishing link is opened.
   const fishing = useQuery({
-    queryKey: ['fishing-access'],
-    queryFn: fetchFishingAccess,
-    staleTime: Infinity,
+    ...fishingQuery,
     enabled: (layers.fishing && fishingNear) || !!fishingMatch,
   })
   const fishingById = useMemo(() => new Map((fishing.data?.points ?? []).map((a) => [a.id, a] as const)), [fishing.data])
@@ -307,27 +303,27 @@ export default function App() {
         const r = REGIONS.find((x) => x.id === id)
         if (!r) return null
         const color = PHASE_STYLE[peakPhase(r)].color
-        return { ref, kind, name: r.name, lng: r.lng, lat: r.lat, color, icon: <TreeIcon id={signatureTree(r)} tone="mono" className="size-4" />, detail: `${r.province} · Region` }
+        return { ref, kind, name: r.name, lng: r.lng, lat: r.lat, color, icon: <TreeIcon id={signatureTree(r)} tone="mono" className="size-4" />, detail: `${r.province} · Region`, href: { page: regionPath(r.id) } }
       }
       if (kind === 'park') {
         const p = everyPark?.find((x) => x.id === id)
         if (!p) return null
-        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: parkColor(p), icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${parkDetail(p)}` }
+        return { ref, kind, name: parkTitle(p), lng: p.lng, lat: p.lat, color: parkColor(p), icon: <TreeIcon id="maples" tone="mono" className="size-4" />, detail: `Provincial park · ${parkDetail(p)}`, href: { page: parkPath(p) } }
       }
       if (kind === 'stop') {
         const s = parseStopRef(ref)
         const k = s && STOP_KINDS.find((x) => x.id === s.kind)
         if (!s || !k) return null
-        return { ref, kind, name: s.name, lng: s.lng, lat: s.lat, color: STOP_COLOR, icon: <img src={amenityIconUrl(k.icon, 16)} width={16} height={16} alt="" />, detail: k.one }
+        return { ref, kind, name: s.name, lng: s.lng, lat: s.lat, color: STOP_COLOR, icon: <img src={amenityIconUrl(k.icon, 16)} width={16} height={16} alt="" />, detail: k.one, href: { external: stopMapsUrl(s) } }
       }
       if (kind === 'trail') {
         const t = exploreIndex.trailById.get(id)
         if (!t) return null
-        return { ref, kind, name: t.name, lng: t.trailhead[0], lat: t.trailhead[1], color: PLACE_KINDS.trail.color, icon: <PlaceIcon kind="trail" className="size-4" />, detail: `Trail · ${t.lengthKm} km · ${formatDuration(t.durationH)}`, trail: t }
+        return { ref, kind, name: t.name, lng: t.trailhead[0], lat: t.trailhead[1], color: PLACE_KINDS.trail.color, icon: <PlaceIcon kind="trail" className="size-4" />, detail: `Trail · ${t.lengthKm} km · ${formatDuration(t.durationH)}`, trail: t, href: { page: trailPath(t) } }
       }
       const pl = exploreIndex.placeById.get(id)
       if (!pl) return null
-      return { ref, kind: 'place', name: pl.name, lng: pl.lng, lat: pl.lat, color: PLACE_KINDS[pl.kind].color, icon: <PlaceIcon kind={pl.kind} className="size-4" />, detail: PLACE_KINDS[pl.kind].label }
+      return { ref, kind: 'place', name: pl.name, lng: pl.lng, lat: pl.lat, color: PLACE_KINDS[pl.kind].color, icon: <PlaceIcon kind={pl.kind} className="size-4" />, detail: PLACE_KINDS[pl.kind].label, href: { page: placePath(pl) } }
     },
     [everyPark, exploreIndex],
   )
@@ -336,11 +332,7 @@ export default function App() {
   // Stable callbacks, so the memoized map doesn't re-render when the app does.
   const go = useCallback(
     (pathname: string, move: PageMove = 'forward') => {
-      const next = new URLSearchParams(window.location.search)
-      next.delete('map') // the place decides the view
-      next.delete('level') // a list's starting filter doesn't follow you to a place
-      next.delete('t') // a shared trip's payload belongs only to /trip/shared
-      movePage(move, () => navigate({ pathname, search: next.toString() }))
+      movePage(move, () => navigate({ pathname, search: pageSearch(window.location.search) }))
     },
     [navigate],
   )
@@ -477,12 +469,9 @@ export default function App() {
   useEffect(() => setHoverPoint(null), [selectionKey])
 
   function onSearch(r: SearchResult) {
-    if (r.kind === 'region') go(regionPath(r.id))
-    else if (r.kind === 'park') go(parkPath(r.park))
-    else if (r.kind === 'tree') go(treePath(r.id))
-    else if (r.kind === 'trail') go(trailPath(r.trail))
-    else if (r.kind === 'explore-place') go(placePath(r.place))
-    else {
+    const path = resultPath(r)
+    if (path) go(path)
+    else if (r.kind === 'place') {
       if (selection) goHome()
       setFocus({ id: `${r.id}:${Date.now()}`, lng: r.lng, lat: r.lat, zoom: r.zoom })
       // The map is what answers this search.
@@ -616,12 +605,7 @@ export default function App() {
 
   // The open park's regulated boundary, outlined on the map.
   const parkShortname = selection?.kind === 'park' ? selection.park.shortname : null
-  const boundary = useQuery({
-    queryKey: ['park-boundary', parkShortname],
-    queryFn: () => fetchParkBoundary(parkShortname!),
-    enabled: !!parkShortname,
-    staleTime: Infinity,
-  })
+  const boundary = useQuery(parkBoundaryQuery(parkShortname))
   const parkBoundary = parkShortname ? (boundary.data ?? null) : null
   const boundaryPending = !!parkShortname && boundary.isPending
 

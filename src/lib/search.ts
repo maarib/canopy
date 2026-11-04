@@ -1,7 +1,9 @@
 import { REGIONS } from '../data/regions'
 import { TREE_GROUPS } from '../data/treeGroups'
-import { formatDuration, PLACE_KINDS, type Place, type Trail } from './explore'
+import { treePath } from '../data/trees'
+import { formatDuration, PLACE_KINDS, placePath, trailPath, type Place, type Trail } from './explore'
 import { isListed, parkDetail, parkTitle, type ParkReport } from './ontarioParks'
+import { parkPath, regionPath } from './urlState'
 
 export type SearchResult =
   | { kind: 'region'; id: string; label: string; detail: string }
@@ -10,6 +12,16 @@ export type SearchResult =
   | { kind: 'trail'; trail: Trail; label: string; detail: string }
   | { kind: 'explore-place'; place: Place; label: string; detail: string }
   | { kind: 'place'; id: string; label: string; detail: string; lat: number; lng: number; zoom: number }
+
+/** The page a result opens; a town or landmark has none (the map moves to it instead). */
+export function resultPath(r: SearchResult): string | null {
+  if (r.kind === 'region') return regionPath(r.id)
+  if (r.kind === 'park') return parkPath(r.park)
+  if (r.kind === 'tree') return treePath(r.id)
+  if (r.kind === 'trail') return trailPath(r.trail)
+  if (r.kind === 'explore-place') return placePath(r.place)
+  return null
+}
 
 /** Lowercase, strip accents (Québec → quebec) and punctuation. */
 export const normalize = (s: string) =>

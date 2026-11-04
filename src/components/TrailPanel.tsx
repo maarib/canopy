@@ -7,7 +7,9 @@ import {
   formatDuration,
   isPhotoSpot,
   PLACE_KINDS,
+  placePath,
   trailGpx,
+  trailPath,
   type ExploreArea,
   type Place,
   type Trail,
@@ -18,6 +20,7 @@ import { ElevationChart } from './ElevationChart'
 import { ForecastStrip } from './ForecastStrip'
 import { NearbyPhotos } from './NearbyPhotos'
 import { NearbyStops } from './NearbyStops'
+import { PageLink } from './PageLink'
 import { PlaceIcon } from './PlaceIcon'
 import { Away } from './rows'
 import { SaveButton } from './SaveButton'
@@ -130,6 +133,7 @@ export function TrailPanel({ trail, area, places, onBack, onSelectPlace, onHover
                         color={PLACE_KINDS[place.kind].color}
                         title={place.name}
                         detail={`km ${km} · ${PLACE_KINDS[place.kind].label}${isPhotoSpot(place.kind) ? ' · photo spot' : ''}${offM > 60 ? ` · ${offM} m off trail` : ''}`}
+                        to={placePath(place)}
                         onClick={() => onSelectPlace(place)}
                       />
                     ))}
@@ -161,6 +165,7 @@ function TimelineRow({
   color,
   title,
   detail,
+  to,
   onClick,
   first,
   last,
@@ -169,11 +174,28 @@ function TimelineRow({
   color: string
   title: string
   detail: string
+  /** A stop with a page of its own links to it. */
+  to?: string
   onClick?: () => void
   first?: boolean
   last?: boolean
 }) {
-  const Tag = onClick ? 'button' : 'div'
+  const body = (
+    <>
+      <span
+        className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 bg-[var(--surface)]"
+        style={{ color, borderColor: color }}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium">{title}</span>
+        <span className="block truncate text-xs text-[var(--ink-soft)]">{detail}</span>
+      </span>
+      {to && <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />}
+    </>
+  )
+  const row = 'relative flex w-full items-center gap-3 py-1.5 text-left'
   return (
     <li className="relative flex">
       {/* the trail line */}
@@ -182,22 +204,13 @@ function TimelineRow({
         className="absolute left-[15px] w-0.5 bg-[var(--line)]"
         style={{ top: first ? 16 : 0, bottom: last ? 'calc(100% - 16px)' : 0 }}
       />
-      <Tag
-        onClick={onClick}
-        className={`relative flex w-full items-center gap-3 py-1.5 text-left ${onClick ? 'rounded-lg hover:bg-[var(--surface-2)]' : ''}`}
-      >
-        <span
-          className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 bg-[var(--surface)]"
-          style={{ color, borderColor: color }}
-        >
-          {icon}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium">{title}</span>
-          <span className="block truncate text-xs text-[var(--ink-soft)]">{detail}</span>
-        </span>
-        {onClick && <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />}
-      </Tag>
+      {to && onClick ? (
+        <PageLink to={to} onOpen={onClick} className={`${row} rounded-lg hover:bg-[var(--surface-2)]`}>
+          {body}
+        </PageLink>
+      ) : (
+        <div className={row}>{body}</div>
+      )}
     </li>
   )
 }
@@ -207,7 +220,7 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
   const difficulty = DIFFICULTY[trail.difficulty]
   const kinds = [...new Set(trail.along.map((a) => places.get(a.poi)?.kind).filter(Boolean))] as Place['kind'][]
   return (
-    <button onClick={onClick} className={ROW}>
+    <PageLink to={trailPath(trail)} onOpen={onClick} className={ROW}>
       <CoverThumb
         spec={trailCover(trail)}
         fallback={
@@ -234,6 +247,6 @@ export function TrailCard({ trail, places, onClick }: { trail: Trail; places: Ma
         </span>
       </span>
       <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-    </button>
+    </PageLink>
   )
 }

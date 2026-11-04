@@ -1,15 +1,17 @@
 import type { ReactNode } from 'react'
 import { ChevronRight } from 'relume-icons'
 import { signatureTree, type Region } from '../data/regions'
-import type { TreeInfo } from '../data/trees'
+import { treePath, type TreeInfo } from '../data/trees'
 import { parkCover, placeCover, regionCover } from '../lib/coverSpec'
-import { PLACE_KINDS, type Place } from '../lib/explore'
+import { PLACE_KINDS, placePath, type Place } from '../lib/explore'
 import { parkColor, parkDetail, parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { useAway } from '../lib/location'
 import { formatWindow, peakPhase, PHASE_STYLE } from '../lib/peak'
 import { STAGES } from '../lib/stage'
 import { ICON_TILE, ROW } from '../lib/styles'
+import { parkPath, regionPath } from '../lib/urlState'
 import { CoverThumb } from './ForestCover'
+import { PageLink } from './PageLink'
 import { PlaceIcon } from './PlaceIcon'
 import { TreeIcon } from './TreeIcon'
 import { Badge } from './ui'
@@ -17,11 +19,29 @@ import { Badge } from './ui'
 // One row per kind of thing, used wherever that thing is listed: its cover on the left, its name
 // and a line of detail, a badge where it has a status, and a chevron. A park looks the same in
 // Parks, Foliage, Explore and on a tree's page; only the line of detail may differ. (Trails have
-// TrailCard in TrailPanel, built the same way.)
+// TrailCard in TrailPanel, built the same way.) Each row is a link to the thing's page.
 
-function Row({ cover, name, detail, at, badge, onClick }: { cover: ReactNode; name: string; detail: ReactNode; at?: { lat: number; lng: number }; badge?: ReactNode; onClick: () => void }) {
+function Row({
+  to,
+  boundary,
+  cover,
+  name,
+  detail,
+  at,
+  badge,
+  onClick,
+}: {
+  to: string
+  boundary?: string
+  cover: ReactNode
+  name: string
+  detail: ReactNode
+  at?: { lat: number; lng: number }
+  badge?: ReactNode
+  onClick: () => void
+}) {
   return (
-    <button onClick={onClick} className={ROW}>
+    <PageLink to={to} boundary={boundary} onOpen={onClick} className={ROW}>
       {cover}
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium">{name}</span>
@@ -32,7 +52,7 @@ function Row({ cover, name, detail, at, badge, onClick }: { cover: ReactNode; na
       </span>
       {badge}
       <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-    </button>
+    </PageLink>
   )
 }
 
@@ -47,6 +67,8 @@ export function ParkRow({ park, detail, onClick }: { park: ParkReport; detail?: 
   const stage = STAGES[park.stage]
   return (
     <Row
+      to={parkPath(park)}
+      boundary={park.shortname}
       cover={
         <CoverThumb
           spec={parkCover(park)}
@@ -71,6 +93,7 @@ export function RegionRow({ region, onClick }: { region: Region; onClick: () => 
   const phase = PHASE_STYLE[peakPhase(region)]
   return (
     <Row
+      to={regionPath(region.id)}
       cover={
         <CoverThumb
           spec={regionCover(region)}
@@ -95,6 +118,7 @@ export function PlaceRow({ place, onClick }: { place: Place; onClick: () => void
   const kind = PLACE_KINDS[place.kind]
   return (
     <Row
+      to={placePath(place)}
       cover={
         <CoverThumb
           spec={placeCover(place)}
@@ -117,6 +141,7 @@ export function PlaceRow({ place, onClick }: { place: Place; onClick: () => void
 export function TreeRow({ tree, turning, onClick }: { tree: TreeInfo; turning: number | undefined; onClick: () => void }) {
   return (
     <Row
+      to={treePath(tree.id)}
       cover={
         <span className={`${ICON_TILE} bg-[var(--surface-2)]`}>
           <TreeIcon id={tree.id} className="size-7" />

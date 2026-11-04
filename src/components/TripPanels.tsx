@@ -21,6 +21,7 @@ import {
   type Trip,
 } from '../lib/trips'
 import { ROW } from '../lib/styles'
+import { PageLink } from './PageLink'
 import { BackButton, ShareButton } from './ui'
 
 /** A trip stop resolved against the app's data, with how to draw and open it. */
@@ -29,9 +30,25 @@ export type StopInfo = ResolvedStop & {
   color: string
   detail: string
   trail?: Trail
+  /** Where the stop opens: its page in the app, or (a nearby stop) Google Maps. */
+  href: { page: string } | { external: string }
 }
 
 export type ResolveStop = (ref: StopRef) => StopInfo | null
+
+/** A stop on a trip's day: a link to its page, or to Google Maps for a nearby stop (as in a Nearby list). */
+function StopLink({ stop, onOpen, children }: { stop: StopInfo; onOpen: () => void; children: ReactNode }) {
+  const className = '-my-1 min-w-0 flex-1 rounded-lg px-1.5 py-1 text-left transition-colors hover:bg-[var(--surface-2)]'
+  return 'page' in stop.href ? (
+    <PageLink to={stop.href.page} onOpen={onOpen} className={className}>
+      {children}
+    </PageLink>
+  ) : (
+    <a href={stop.href.external} target="_blank" rel="noreferrer" className={className}>
+      {children}
+    </a>
+  )
+}
 
 function dayLabel(trip: Pick<Trip, 'startDate'>, day: number) {
   if (!trip.startDate) return `Day ${day}`
@@ -105,7 +122,7 @@ export function TripsPanel({
             const sum = totals(stops)
             return (
               <li key={t.id}>
-                <button onClick={() => onOpen(t)} className={ROW}>
+                <PageLink to={`/trip/${t.id}`} onOpen={() => onOpen(t)} className={ROW}>
                   <span className="flex -space-x-2">
                     {stops.slice(0, 3).map((s) => (
                       <span
@@ -127,7 +144,7 @@ export function TripsPanel({
                     </span>
                   </span>
                   <ChevronRight className="size-4 shrink-0 text-[var(--ink-soft)]" />
-                </button>
+                </PageLink>
               </li>
             )
           })}
@@ -273,13 +290,13 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
                         >
                           {n}
                         </span>
-                        <button onClick={() => onOpenStop(s.ref)} className="-my-1 min-w-0 flex-1 rounded-lg px-1.5 py-1 text-left transition-colors hover:bg-[var(--surface-2)]">
+                        <StopLink stop={s} onOpen={() => onOpenStop(s.ref)}>
                           <span className="flex items-center gap-1.5 truncate text-sm font-medium">
                             <span style={{ color: s.color }}>{s.icon}</span>
                             <span className="truncate">{s.name}</span>
                           </span>
                           <span className="block truncate text-xs text-[var(--ink-soft)]">{s.detail}</span>
-                        </button>
+                        </StopLink>
                         {editable && (
                           <span className="flex shrink-0 items-center">
                             <IconButton label="Move up" disabled={i === 0} onClick={() => tripActions.shift(id!, s.ref, -1)}>

@@ -8,6 +8,8 @@ import { LIST } from '../lib/styles'
 import { NearbyPhotos } from './NearbyPhotos'
 import { CalendarToday, LocationOn, Star } from 'relume-icons'
 import { treeIconFor } from '../data/treeIcons'
+import { treePath } from '../data/trees'
+import { PageLink } from './PageLink'
 import { isPhotoSpot, type ExploreArea, type Place, type Trail } from '../lib/explore'
 import { SaveButton } from './SaveButton'
 import { TrailCard } from './TrailPanel'
@@ -78,10 +80,10 @@ export function RegionPanel({ region, onBack, area, areaLoading, places, onSelec
                         <li key={s}>
                           {/* A tree with its own page links to it. */}
                           {icon ? (
-                            <button onClick={() => onSelectTree(icon)} className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm transition-colors hover:bg-[var(--surface-2)]">
+                            <PageLink to={treePath(icon)} onOpen={() => onSelectTree(icon)} className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm transition-colors hover:bg-[var(--surface-2)]">
                               <TreeIcon id={icon} className="size-[18px]" />
                               {s}
-                            </button>
+                            </PageLink>
                           ) : (
                             <span className="flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-sm">{s}</span>
                           )}
