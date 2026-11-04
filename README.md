@@ -151,6 +151,8 @@ npm run dev
 
 **Deploys:** the Pages build reads `VITE_MAPBOX_TOKEN` from a repository variable and serves the app under `/canopy/` (`BASE_PATH`).
 
+**Service worker:** production builds keep the app's own files on the device (`src/sw.js`), so repeat visits load without the network. To turn it off on one device, open the site with `?sw=off` (`?sw=on` turns it back on). To turn it off for everyone, deploy a build made with `SERVICE_WORKER=off`: it removes itself from devices that have it.
+
 ## Project structure
 
 ```
