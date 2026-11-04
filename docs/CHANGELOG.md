@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)) |
+| Unreleased | | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)); a faster first load ([#167](https://github.com/maarib/canopy/pull/167)) |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
 | [v1.5.5](https://github.com/maarib/canopy/releases/tag/v1.5.5) | 2026-10-14 | Near me: your location on the map and distances in lists ([#145](https://github.com/maarib/canopy/pull/145)); a page for every Ontario provincial park ([#146](https://github.com/maarib/canopy/pull/146)); nearby stops saved to trips ([#147](https://github.com/maarib/canopy/pull/147)) |
@@ -27,6 +27,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-11-03 | [Faster first load: fonts and the map arrive with the app](#2026-11-03-faster-first-load-fonts-and-the-map-arrive-with-the-app) | [#167](https://github.com/maarib/canopy/pull/167) |
 | 2026-10-20 | [Tree icons: stems, veins and layer order](#2026-10-20-tree-icons-stems-veins-and-layer-order) | [#165](https://github.com/maarib/canopy/pull/165) |
 | 2026-10-18 | [Accessibility pass](#2026-10-18-accessibility-pass) | [#164](https://github.com/maarib/canopy/pull/164) |
 | 2026-10-16 | [Faster start and a lighter Parks list](#2026-10-16-faster-start-and-a-lighter-parks-list) | [#162](https://github.com/maarib/canopy/pull/162) |
@@ -86,6 +87,21 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-11-03 · Faster first load: fonts and the map arrive with the app
+
+**Ref:** [#167](https://github.com/maarib/canopy/pull/167)
+
+**Before.** The two typefaces came from Google Fonts: the page waited on a stylesheet from another site (about half a second, and it held up the first paint), which then named the font files, fetched from a third site. The map's code (the map component and the ~500 kB map engine) was only requested once the app's own code had downloaded and run, about a second in.
+
+**After.**
+- **Fonts are served with the app.** The same Livvic and Zalando Sans Expanded files, in the same subsets, now ship in the build, and the four faces the first screen uses are fetched straight away alongside the app's code. The others (italic, bold, and the Latin Extended and Vietnamese subsets) still load only when a page uses them.
+- **The map's code is preloaded from the page**, so its download starts with the app's instead of after it. A small build step adds the links, so they follow the file names of each build.
+
+**Measured** on the production build, through a local server, at phone size with the network slowed to 9 Mbps / 60 ms, the processor four times slower and nothing cached (median of five):
+- First paint: 2,008 ms → 1,568 ms.
+- The map engine finishes downloading at 894 ms instead of 2,753 ms.
+- The first map tile arrives at 5,069 ms instead of 6,701 ms.
 
 ### 2026-10-20 · Tree icons: stems, veins and layer order
 
