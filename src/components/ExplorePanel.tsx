@@ -34,7 +34,7 @@ export function ExplorePanel(props: Props) {
         <section>
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg">Peaking now in Ontario</h3>
-            <button onClick={() => props.onNavigate('/foliage')} className="text-sm font-medium text-brand hover:underline">
+            <button onClick={() => props.onNavigate('/foliage')} className="text-sm font-medium text-brand-strong hover:underline dark:text-brand">
               All reports
             </button>
           </div>
@@ -52,7 +52,7 @@ export function ExplorePanel(props: Props) {
         <section>
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg">Short fall hikes</h3>
-            <button onClick={() => props.onNavigate('/places?show=trails')} className="text-sm font-medium text-brand hover:underline">
+            <button onClick={() => props.onNavigate('/places?show=trails')} className="text-sm font-medium text-brand-strong hover:underline dark:text-brand">
               All trails
             </button>
           </div>

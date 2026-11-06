@@ -199,7 +199,7 @@ function Shelf({ title, onAll, children }: { title: string; onAll: () => void; c
     <section>
       <div className="mb-3 flex items-baseline justify-between">
         <h3 className="text-lg">{title}</h3>
-        <button onClick={onAll} className="text-sm font-medium text-brand hover:underline">
+        <button onClick={onAll} className="text-sm font-medium text-brand-strong hover:underline dark:text-brand">
           All {title.toLowerCase()}
         </button>
       </div>
