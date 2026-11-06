@@ -209,20 +209,27 @@ function Shelf({ title, onAll, children }: { title: string; onAll: () => void; c
   )
 }
 
-/** A square card: the category's icon on its color, then the name and a line of detail. */
+/** A square card on the active-tab fill: the category's icon at the top left, the name and a line of detail at the bottom left. */
 function PickCard({ to, kind, name, detail, onOpen }: { to: string; kind: PlaceKind | 'trail'; name: string; detail: React.ReactNode; onOpen: () => void }) {
   return (
     <li className="w-36 shrink-0 snap-start">
-      <PageLink to={to} onOpen={onOpen} className="group block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
-        <span className="flex aspect-square w-full items-center justify-center rounded-2xl text-white transition group-hover:brightness-110 group-active:scale-[0.97]" style={{ background: PLACE_KINDS[kind].color }}>
-          <PlaceIcon kind={kind} className="size-10" />
+      <PageLink
+        to={to}
+        onOpen={onOpen}
+        className="flex aspect-square w-full flex-col justify-between rounded-2xl bg-[var(--surface-2)] p-3 text-[var(--ink)] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand active:scale-[0.97]"
+      >
+        <span style={{ color: PLACE_KINDS[kind].color }}>
+          <PlaceIcon kind={kind} className="size-6" />
         </span>
-        <span className="mt-2 line-clamp-2 text-sm leading-snug font-medium">{name}</span>
-        <span className="mt-0.5 flex items-center gap-1 text-xs text-[var(--ink-soft)]">{detail}</span>
+        <span className="min-w-0">
+          <span className="line-clamp-2 text-sm leading-snug font-medium">{name}</span>
+          <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-[var(--ink-soft)]">{detail}</span>
+        </span>
       </PageLink>
     </li>
   )
 }
+
 
 
 /**
