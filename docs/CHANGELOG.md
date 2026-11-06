@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | — | Parks: Show filter removed, Sort at the right ([#173](https://github.com/maarib/canopy/pull/173)) |
+| Unreleased | — | Places opens on carousels of picks from each category ([#174](https://github.com/maarib/canopy/pull/174)); Parks: Show filter removed, Sort at the right ([#173](https://github.com/maarib/canopy/pull/173)) |
 | [v1.5.8](https://github.com/maarib/canopy/releases/tag/v1.5.8) | 2026-11-04 | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)); a faster first load ([#167](https://github.com/maarib/canopy/pull/167)); the cover map let go when idle, and a lighter bottom sheet ([#168](https://github.com/maarib/canopy/pull/168)); repeat visits load from the device ([#169](https://github.com/maarib/canopy/pull/169)); list rows as real links ([#170](https://github.com/maarib/canopy/pull/170)); `App.tsx` split up ([#171](https://github.com/maarib/canopy/pull/171)) |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
@@ -28,6 +28,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-11-05 | [Places: picks from each category](#2026-11-05-places-picks-from-each-category) | [#174](https://github.com/maarib/canopy/pull/174) |
 | 2026-11-05 | [Parks: Show filter removed](#2026-11-05-parks-show-filter-removed) | [#173](https://github.com/maarib/canopy/pull/173) |
 | 2026-11-03 | [`App.tsx` split into focused pieces](#2026-11-03-apptsx-split-into-focused-pieces) | [#171](https://github.com/maarib/canopy/pull/171) |
 | 2026-11-03 | [List rows are real links](#2026-11-03-list-rows-are-real-links) | [#170](https://github.com/maarib/canopy/pull/170) |
@@ -93,6 +94,20 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-11-05 · Places: picks from each category
+
+**Ref:** [#174](https://github.com/maarib/canopy/pull/174)
+
+**Before.** Places opened with the Trails chip already on, showing every trail. The other categories (Waterfalls, Lookouts, Lakes, Peaks, Rivers, Creeks) were a tap away, but nothing on arrival said what was worth seeing.
+
+**After.**
+- **No category is chosen on arrival.** Each one is a carousel of up to eight square cards on the active-tab fill (the category's icon in the text color at the top left, the name and a line of detail at the bottom left), with **All …** to see the whole list.
+- **The chips are filters:** tapping one shows that category, tapping it again returns to the picks.
+- **Picks:** trails with the most to see along the way, shorter first, no backpacking routes; places reachable on the most trails, then the highest peaks. Generic names ("Falls on …", a bare "Lookout") stay in the full lists but aren't picked.
+- **Search** on the landing page looks across every category.
+
+**Why.** Places should answer "where should I go?" before asking the person to choose a category.
 
 ### 2026-11-05 · Parks: Show filter removed
 

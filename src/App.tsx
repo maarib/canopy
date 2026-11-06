@@ -73,7 +73,7 @@ export default function App() {
     setFocus({ id: `province:${q.province}:${exploreSeq.current}`, lng: (bounds[0] + bounds[2]) / 2, lat: (bounds[1] + bounds[3]) / 2, zoom: 6, bounds })
     if (q.what === 'colors') nav.openSection('/foliage', (p) => writeTree(p, q.tree))
     else if (q.what === 'parks') nav.openSection('/parks')
-    else if (q.what === 'trails') nav.openSection('/places')
+    else if (q.what === 'trails') nav.openSection('/places?show=trails')
     else if (q.what === 'places') nav.openSection('/places?show=waterfall')
     else setSheet('peek')
   }
