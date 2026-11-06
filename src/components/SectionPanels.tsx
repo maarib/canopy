@@ -143,7 +143,7 @@ export function ParksPanel({
       {activities.length > 0 && (
         <p className="text-sm">
           With <strong className="font-semibold">{activities.map((id) => PARK_FILTERS.get(id)?.label).join(', ')}</strong>{' '}
-          <button onClick={() => onActivities([])} className="ml-1 text-xs font-medium text-brand hover:underline">
+          <button onClick={() => onActivities([])} className="ml-1 text-xs font-medium text-brand-ink hover:underline">
             Clear
           </button>
         </p>
@@ -199,7 +199,7 @@ function Shelf({ title, onAll, children }: { title: string; onAll: () => void; c
     <section>
       <div className="mb-3 flex items-baseline justify-between">
         <h3 className="text-lg">{title}</h3>
-        <button onClick={onAll} className="text-sm font-medium text-brand-strong hover:underline dark:text-brand">
+        <button onClick={onAll} className="text-sm font-medium text-brand-ink hover:underline">
           All {title.toLowerCase()}
         </button>
       </div>
@@ -498,7 +498,7 @@ export function DataSourcesPanel() {
             key={s.name}
             label={
               // Inline, with the arrow tied to the last word, so it follows the name when it wraps.
-              <a href={s.url} target="_blank" rel="noreferrer" className="hover:text-brand">
+              <a href={s.url} target="_blank" rel="noreferrer" className="hover:text-brand-ink">
                 {s.name}
                 {'\u00a0'}
                 <ExternalIcon className="inline size-3.5 align-[-2px] text-[var(--ink-soft)]" />
@@ -517,7 +517,7 @@ export function DataSourcesPanel() {
               key={d.name}
               label={
                 d.url ? (
-                  <a href={d.url} target="_blank" rel="noreferrer" className="hover:text-brand">
+                  <a href={d.url} target="_blank" rel="noreferrer" className="hover:text-brand-ink">
                     {d.name}
                     {'\u00a0'}
                     <ExternalIcon className="inline size-3.5 align-[-2px] text-[var(--ink-soft)]" />

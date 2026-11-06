@@ -267,7 +267,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
                     target="_blank"
                     rel="noreferrer"
                     aria-label={`Directions for ${dayLabel(trip, d + 1)}`}
-                    className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-brand transition-colors hover:bg-brand/10"
+                    className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-brand-ink transition-colors hover:bg-brand/10"
                   >
                     <LocationOn className="size-4" /> Directions
                   </a>
@@ -382,7 +382,7 @@ export function TripPanel({ trip, shared, resolve, onBack, onOpenStop, onSaveCop
               onDeleted?.()
             }
           }}
-          className="text-sm text-[var(--ink-soft)] underline hover:text-brand"
+          className="text-sm text-[var(--ink-soft)] underline hover:text-brand-ink"
         >
           Delete Trip
         </button>

@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | — | Places opens on carousels of picks from each category ([#174](https://github.com/maarib/canopy/pull/174)); Parks: Show filter removed, Sort at the right ([#173](https://github.com/maarib/canopy/pull/173)) |
+| Unreleased | — | Accessibility: readable orange text, menu structure, a steadier check ([#175](https://github.com/maarib/canopy/pull/175)); Places opens on carousels of picks from each category ([#174](https://github.com/maarib/canopy/pull/174)); Parks: Show filter removed, Sort at the right ([#173](https://github.com/maarib/canopy/pull/173)) |
 | [v1.5.8](https://github.com/maarib/canopy/releases/tag/v1.5.8) | 2026-11-04 | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)); a faster first load ([#167](https://github.com/maarib/canopy/pull/167)); the cover map let go when idle, and a lighter bottom sheet ([#168](https://github.com/maarib/canopy/pull/168)); repeat visits load from the device ([#169](https://github.com/maarib/canopy/pull/169)); list rows as real links ([#170](https://github.com/maarib/canopy/pull/170)); `App.tsx` split up ([#171](https://github.com/maarib/canopy/pull/171)) |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
@@ -28,6 +28,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-11-06 | [Accessibility: orange text, menus and a steadier check](#2026-11-06-accessibility-orange-text-menus-and-a-steadier-check) | [#175](https://github.com/maarib/canopy/pull/175) |
 | 2026-11-05 | [Places: picks from each category](#2026-11-05-places-picks-from-each-category) | [#174](https://github.com/maarib/canopy/pull/174) |
 | 2026-11-05 | [Parks: Show filter removed](#2026-11-05-parks-show-filter-removed) | [#173](https://github.com/maarib/canopy/pull/173) |
 | 2026-11-03 | [`App.tsx` split into focused pieces](#2026-11-03-apptsx-split-into-focused-pieces) | [#171](https://github.com/maarib/canopy/pull/171) |
@@ -94,6 +95,17 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-11-06 · Accessibility: orange text, menus and a steadier check
+
+**Ref:** [#175](https://github.com/maarib/canopy/pull/175)
+
+**Before.** Orange text (links such as "All reports", Clear, Retry, Directions for a day, the saved state of Save) used the brand orange everywhere: 3.2:1 on the light page and 2.9:1 on light cards, under the 4.5:1 that text needs. The Activities options and the Trees on the map options sat in lists that broke the menu and radio structure screen readers read. The check missed all of this: it never opened the Explore panel or those menus, and it sometimes measured list rows while they were still fading in, so it failed at random.
+
+**After.**
+- **`brand-ink`:** orange text uses a deeper orange on light surfaces (5.35:1 on the page, 4.8:1 on cards) and the brand orange on dark, where it already passes. Filled buttons, icons, focus rings and the map keep the brand orange.
+- **Menus:** Activities options are checkboxes in a named group per section; the lists under Trees on the map and Save to a trip are layout only.
+- **The check** waits for fades to finish before measuring, no longer waits on map tiles to load a page, and also checks the Explore panel, a Places category, and the Region, Activities, Filters and Layers menus. It finds no issues.
 
 ### 2026-11-05 · Places: picks from each category
 

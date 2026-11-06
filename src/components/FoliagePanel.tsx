@@ -68,7 +68,7 @@ export function FoliagePanel(props: Props) {
               </span>
               <button
                 onClick={props.activityFilter.onClear}
-                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium text-brand transition-colors hover:bg-brand/10"
+                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium text-brand-ink transition-colors hover:bg-brand/10"
               >
                 Clear
               </button>
