@@ -3,12 +3,13 @@ import { useGrowingList } from '../hooks'
 import { FilterList, Search } from 'relume-icons'
 import { PARK_FILTERS } from '../data/amenityIcons'
 import { distanceKm, locate, LOCATION_HELP, useLocation } from '../lib/location'
-import { DIFFICULTY, PLACE_KINDS, type Difficulty, type Place, type PlaceKind, type PlacesShow, type Trail } from '../lib/explore'
+import { DIFFICULTY, PLACE_KINDS, placePath, trailPath, type Difficulty, type Place, type PlaceKind, type PlacesShow, type Trail } from '../lib/explore'
 import { isListed, parkTitle, type ParkReport } from '../lib/ontarioParks'
 import { normalize } from '../lib/search'
 import { STAGE_ORDER } from '../lib/stage'
 import { LIST } from '../lib/styles'
 import { ActivityOptions } from './ActivityFilter'
+import { PageLink } from './PageLink'
 import { PlaceIcon } from './PlaceIcon'
 import { ParkRow, PlaceRow } from './rows'
 import { TrailCard } from './TrailPanel'
@@ -171,8 +172,8 @@ const PLACE_TABS: PlaceKind[] = ['waterfall', 'viewpoint', 'lake', 'peak', 'rive
 const listedPlace = (p: Place) => !/^(Lookout on|Unnamed)/.test(p.name)
 /** Picks need a real name: "Falls on Oxtongue River" or a bare "Lookout" make poor suggestions. */
 const namedPlace = (p: Place) => listedPlace(p) && !/^(Falls on |Lookout$)/.test(p.name)
-/** How many picks each category shows on the landing page. */
-const PICKS = 3
+/** How many picks each category's carousel holds on the landing page. */
+const PICKS = 8
 
 /**
  * Picks for the landing page. Trails: the most to see along the way (waterfalls, lookouts…),
@@ -192,25 +193,37 @@ function placePicks(places: Place[], kind: PlaceKind) {
     .slice(0, PICKS)
 }
 
-/** One category on the landing page: its name, a link to all of it, and a few picks. */
-function Shelf({ title, kind, onAll, children }: { title: string; kind: PlaceKind | 'trail'; onAll: () => void; children: React.ReactNode }) {
+/** One category on the landing page: its name, a link to all of it, and its picks as a carousel of square cards. */
+function Shelf({ title, onAll, children }: { title: string; onAll: () => void; children: React.ReactNode }) {
   return (
     <section>
-      <div className="flex items-baseline justify-between">
-        <h3 className="flex items-center gap-1.5 text-lg">
-          <span className="self-center" style={{ color: PLACE_KINDS[kind].color }}>
-            <PlaceIcon kind={kind} className="size-4" />
-          </span>
-          {title}
-        </h3>
+      <div className="mb-3 flex items-baseline justify-between">
+        <h3 className="text-lg">{title}</h3>
         <button onClick={onAll} className="text-sm font-medium text-brand hover:underline">
           All {title.toLowerCase()}
         </button>
       </div>
-      <ul className={`stagger ${LIST}`}>{children}</ul>
+      {/* Runs to the panel's edges, so cards scroll out of view rather than stopping at the padding. */}
+      <ul className="-mx-5 flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none]">{children}</ul>
     </section>
   )
 }
+
+/** A square card: the category's icon on its color, then the name and a line of detail. */
+function PickCard({ to, kind, name, detail, onOpen }: { to: string; kind: PlaceKind | 'trail'; name: string; detail: React.ReactNode; onOpen: () => void }) {
+  return (
+    <li className="w-36 shrink-0 snap-start">
+      <PageLink to={to} onOpen={onOpen} className="group block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+        <span className="flex aspect-square w-full items-center justify-center rounded-2xl text-white transition group-hover:brightness-110 group-active:scale-[0.97]" style={{ background: PLACE_KINDS[kind].color }}>
+          <PlaceIcon kind={kind} className="size-10" />
+        </span>
+        <span className="mt-2 line-clamp-2 text-sm leading-snug font-medium">{name}</span>
+        <span className="mt-0.5 flex items-center gap-1 text-xs text-[var(--ink-soft)]">{detail}</span>
+      </PageLink>
+    </li>
+  )
+}
+
 
 /**
  * `show` is "trails" or a place kind (from ?show=), or null for the landing page: a few picks from
@@ -298,20 +311,35 @@ export function TrailsPanel({
       ) : !show ? (
         <div className="space-y-7 pt-3">
           {picks.trails.length > 0 && (
-            <Shelf title="Trails" kind="trail" onAll={() => onShow('trails')}>
+            <Shelf title="Trails" onAll={() => onShow('trails')}>
               {picks.trails.map((t) => (
-                <li key={t.id}>
-                  <TrailCard trail={t} places={placeById} onClick={() => onSelectTrail(t)} />
-                </li>
+                <PickCard
+                  key={t.id}
+                  to={trailPath(t)}
+                  kind="trail"
+                  name={t.name}
+                  detail={
+                    <>
+                      <span className="size-2 rounded-full" style={{ background: DIFFICULTY[t.difficulty].color }} />
+                      {DIFFICULTY[t.difficulty].label} · {t.lengthKm} km
+                    </>
+                  }
+                  onOpen={() => onSelectTrail(t)}
+                />
               ))}
             </Shelf>
           )}
           {picks.places.map(([k, list]) => (
-            <Shelf key={k} title={PLACE_KINDS[k].plural} kind={k} onAll={() => onShow(k)}>
+            <Shelf key={k} title={PLACE_KINDS[k].plural} onAll={() => onShow(k)}>
               {list.map((p) => (
-                <li key={p.id}>
-                  <PlaceRow place={p} onClick={() => onSelectPlace(p)} />
-                </li>
+                <PickCard
+                  key={p.id}
+                  to={placePath(p)}
+                  kind={k}
+                  name={p.name}
+                  detail={p.ele ? `${p.ele} m` : p.trails.length ? `On ${p.trails.length} trail${p.trails.length > 1 ? 's' : ''}` : PLACE_KINDS[k].label}
+                  onOpen={() => onSelectPlace(p)}
+                />
               ))}
             </Shelf>
           ))}
