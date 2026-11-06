@@ -3,6 +3,8 @@ import type { MultiLineString } from 'geojson'
 // Trails and places along them, built per area by scripts/build-explore.mjs.
 
 export type PlaceKind = 'waterfall' | 'viewpoint' | 'peak' | 'lake' | 'river' | 'creek'
+/** A Places category: trails, or a kind of place. */
+export type PlacesShow = 'trails' | PlaceKind
 export type Difficulty = 'easy' | 'moderate' | 'hard' | 'backpacking'
 
 export type AlongEntry = { poi: string; km: number; offM: number }

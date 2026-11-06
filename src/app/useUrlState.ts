@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import type { MapLayers } from '../components/FoliageMap'
 import type { TreeFilterValue } from '../components/MapControls'
-import { PLACE_KINDS, type PlaceKind } from '../lib/explore'
+import { PLACE_KINDS, type PlaceKind, type PlacesShow } from '../lib/explore'
 import { readMapStyle, writeMapStyle, type LightSetting, type MapStyleId } from '../lib/mapStyle'
 import {
   readActivities,
@@ -44,10 +44,14 @@ export function useUrlState() {
   )
   const [mapStyle, setMapStyle] = useState<MapStyleId>(readMapStyle)
 
-  /** Places' tab (from ?show=): trails, or a kind of place. */
-  const trailsShow: 'trails' | PlaceKind = (() => {
+  /**
+   * Places' category (from ?show=): trails or a kind of place, or null for the landing page with a
+   * few picks from each. A difficulty (?level=, the landing page's "Easy trails") means trails.
+   */
+  const trailsShow: PlacesShow | null = (() => {
     const s = params.get('show')
-    return s && s in PLACE_KINDS && s !== 'trail' && s !== 'trailhead' ? (s as PlaceKind) : 'trails'
+    if (s === 'trails' || (!s && params.has('level'))) return 'trails'
+    return s && s in PLACE_KINDS && s !== 'trail' && s !== 'trailhead' ? (s as PlaceKind) : null
   })()
 
   return {
@@ -70,7 +74,12 @@ export function useUrlState() {
       writeMapStyle(id)
     },
     trailsShow,
-    setTrailsShow: (v: 'trails' | PlaceKind) => updateParams((p) => (v === 'trails' ? p.delete('show') : p.set('show', v))),
+    setTrailsShow: (v: PlacesShow | null) =>
+      updateParams((p) => {
+        p.delete('level')
+        if (v) p.set('show', v)
+        else p.delete('show')
+      }),
   }
 }
 
