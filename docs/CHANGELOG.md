@@ -28,7 +28,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
-| 2026-11-05 | [Parks: Show filter removed](#2026-11-05--parks-show-filter-removed) | [#173](https://github.com/maarib/canopy/pull/173) |
+| 2026-11-05 | [Parks: Show filter removed](#2026-11-05-parks-show-filter-removed) | [#173](https://github.com/maarib/canopy/pull/173) |
 | 2026-11-03 | [`App.tsx` split into focused pieces](#2026-11-03-apptsx-split-into-focused-pieces) | [#171](https://github.com/maarib/canopy/pull/171) |
 | 2026-11-03 | [List rows are real links](#2026-11-03-list-rows-are-real-links) | [#170](https://github.com/maarib/canopy/pull/170) |
 | 2026-11-03 | [Repeat visits load from the device](#2026-11-03-repeat-visits-load-from-the-device) | [#169](https://github.com/maarib/canopy/pull/169) |
