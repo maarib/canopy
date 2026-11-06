@@ -209,7 +209,7 @@ function Shelf({ title, onAll, children }: { title: string; onAll: () => void; c
   )
 }
 
-/** A square card on the active-tab fill: the category's icon at the top left, the name and a line of detail at the bottom left. */
+/** A square card on the active-tab fill: the category's icon (in the text color) at the top left, the name and a line of detail at the bottom left. */
 function PickCard({ to, kind, name, detail, onOpen }: { to: string; kind: PlaceKind | 'trail'; name: string; detail: React.ReactNode; onOpen: () => void }) {
   return (
     <li className="w-36 shrink-0 snap-start">
@@ -218,9 +218,7 @@ function PickCard({ to, kind, name, detail, onOpen }: { to: string; kind: PlaceK
         onOpen={onOpen}
         className="flex aspect-square w-full flex-col justify-between rounded-2xl bg-[var(--surface-2)] p-3 text-[var(--ink)] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand active:scale-[0.97]"
       >
-        <span style={{ color: PLACE_KINDS[kind].color }}>
-          <PlaceIcon kind={kind} className="size-6" />
-        </span>
+        <PlaceIcon kind={kind} className="size-6" />
         <span className="min-w-0">
           <span className="line-clamp-2 text-sm leading-snug font-medium">{name}</span>
           <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-[var(--ink-soft)]">{detail}</span>

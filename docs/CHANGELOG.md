@@ -102,7 +102,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 **Before.** Places opened with the Trails chip already on, showing every trail. The other categories (Waterfalls, Lookouts, Lakes, Peaks, Rivers, Creeks) were a tap away, but nothing on arrival said what was worth seeing.
 
 **After.**
-- **No category is chosen on arrival.** Each one is a carousel of up to eight square cards on the active-tab fill (the category's icon at the top left, the name and a line of detail at the bottom left), with **All …** to see the whole list.
+- **No category is chosen on arrival.** Each one is a carousel of up to eight square cards on the active-tab fill (the category's icon in the text color at the top left, the name and a line of detail at the bottom left), with **All …** to see the whole list.
 - **The chips are filters:** tapping one shows that category, tapping it again returns to the picks.
 - **Picks:** trails with the most to see along the way, shorter first, no backpacking routes; places reachable on the most trails, then the highest peaks. Generic names ("Falls on …", a bare "Lookout") stay in the full lists but aren't picked.
 - **Search** on the landing page looks across every category.
