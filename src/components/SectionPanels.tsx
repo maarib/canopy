@@ -60,9 +60,6 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
 const regionOf = (p: ParkReport) => p.region.replace(/^(North(?:east|west))$/, '$1ern')
 
 type ParkSort = 'color' | 'near' | 'name'
-/** Which parks the list shows: all of them, or only those with a fall color report. */
-type ParkScope = 'all' | 'reports'
-const PARK_SCOPES: Record<ParkScope, string> = { all: 'All parks', reports: 'With a color report' }
 const PARK_SORTS: Record<ParkSort, string> = { color: 'Best color', near: 'Nearest', name: 'A–Z' }
 
 export function ParksPanel({
@@ -84,7 +81,6 @@ export function ParksPanel({
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<ParkSort>('color')
   const [region, setRegion] = useState<string | null>(null)
-  const [scope, setScope] = useState<ParkScope>('all')
   const regions = useMemo(() => [...new Set((parks ?? []).filter(isListed).map(regionOf))].sort(), [parks])
 
   const here = useLocation()
@@ -97,7 +93,7 @@ export function ParksPanel({
       Number(b.report) - Number(a.report) ||
       (a.report ? STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || (b.colorChange ?? 0) - (a.colorChange ?? 0) : parkTitle(a).localeCompare(parkTitle(b)))
     return (parks ?? [])
-      .filter((p) => isListed(p) && (scope === 'all' || p.report) && (!region || regionOf(p) === region) && (!q || normalize(parkTitle(p)).includes(q)))
+      .filter((p) => isListed(p) && (!region || regionOf(p) === region) && (!q || normalize(parkTitle(p)).includes(q)))
       .sort((a, b) =>
         sort === 'name'
           ? parkTitle(a).localeCompare(parkTitle(b))
@@ -106,7 +102,7 @@ export function ParksPanel({
             ? distanceKm(origin.lat, origin.lng, a.lat, a.lng) - distanceKm(origin.lat, origin.lng, b.lat, b.lng)
             : byColor(a, b),
       )
-  }, [parks, query, sort, region, scope, origin])
+  }, [parks, query, sort, region, origin])
   // Over 300 parks: the first rows at once, the rest as the list scrolls toward them.
   const { shown, sentinel } = useGrowingList(list)
 
@@ -126,19 +122,17 @@ export function ParksPanel({
             </>
           )}
         </MenuButton>
-        <MenuButton label="Show" value={scope === 'all' ? undefined : PARK_SCOPES[scope]} active={scope !== 'all'}>
-          {(close) =>
-            (Object.keys(PARK_SCOPES) as ParkScope[]).map((id) => <MenuOption key={id} selected={scope === id} label={PARK_SCOPES[id]} onClick={() => (setScope(id), close())} />)
-          }
-        </MenuButton>
         <MenuButton label="Activities" count={activities.length} icon={<FilterList className="size-4" />} width={340}>
           {() => <ActivityOptions value={activities} onChange={onActivities} countWith={countWith} ready={facilitiesReady} />}
         </MenuButton>
-        <MenuButton label="Sort" value={PARK_SORTS[sort]} active={false}>
-          {(close) =>
-            (Object.keys(PARK_SORTS) as ParkSort[]).map((id) => <MenuOption key={id} selected={sort === id} label={PARK_SORTS[id]} onClick={() => (id === 'near' && locate(), setSort(id), close())} />)
-          }
-        </MenuButton>
+        {/* Sort sits apart from the filters, at the row's right end. */}
+        <div className="ml-auto shrink-0">
+          <MenuButton label="Sort" value={PARK_SORTS[sort]} active={false}>
+            {(close) =>
+              (Object.keys(PARK_SORTS) as ParkSort[]).map((id) => <MenuOption key={id} selected={sort === id} label={PARK_SORTS[id]} onClick={() => (id === 'near' && locate(), setSort(id), close())} />)
+            }
+          </MenuButton>
+        </div>
       </div>
 
       {sort === 'near' && (here.status === 'denied' || here.status === 'unavailable') && (
