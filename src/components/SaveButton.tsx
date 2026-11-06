@@ -81,11 +81,12 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
           className={`absolute top-full z-30 mt-2 w-64 ${compact ? 'right-0 origin-top-right' : 'left-0 origin-top-left'} ${presence.closing ? 'pointer-events-none animate-pop-out' : 'animate-pop-in'} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-xl`}
         >
           <p className="px-2 pt-1 pb-2 text-xs font-semibold">Save to a trip</p>
-          <ul className="max-h-56 overflow-y-auto">
+          {/* The menu's items are its checkboxes; the list is only layout. */}
+          <ul role="none" className="max-h-56 overflow-y-auto">
             {trips.map((t) => {
               const inTrip = saved.some((s) => s.id === t.id)
               return (
-                <li key={t.id}>
+                <li key={t.id} role="none">
                   <button
                     role="menuitemcheckbox"
                     aria-checked={inTrip}

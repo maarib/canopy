@@ -37,7 +37,7 @@ export function ActivityOptions({
       {PARK_FILTER_GROUPS.map((g) => (
         <section key={g.title} className="pt-2">
           <h3 className="px-2 pb-1 text-[11px] font-semibold tracking-wide text-[var(--ink-soft)] uppercase">{g.title}</h3>
-          {/* A named group, so its checkboxes sit in a menu structure; the list itself is only layout. */}
+          {/* A named group of checkboxes; the list itself is only layout. */}
           <ul role="group" aria-label={g.title}>
             {g.filters.map((f) => {
               const on = value.includes(f.id)
@@ -46,7 +46,7 @@ export function ActivityOptions({
               return (
                 <li key={f.id} role="none">
                   <button
-                    role="menuitemcheckbox"
+                    role="checkbox"
                     aria-checked={on}
                     disabled={empty}
                     onClick={() => toggle(f.id)}
