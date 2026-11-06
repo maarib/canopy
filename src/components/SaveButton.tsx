@@ -65,7 +65,7 @@ export function SaveButton({ stopRef, name, compact = false }: { stopRef: StopRe
         aria-label={compact ? (isSaved ? `${name}: saved to a trip` : `Save ${name} to a trip`) : undefined}
         title={compact ? (isSaved ? 'Saved to a trip' : 'Save to a trip') : undefined}
         className={`inline-flex items-center rounded-full border text-sm transition active:scale-[0.97] ${compact ? 'size-9 justify-center' : 'gap-1.5 px-4 py-2'} ${
-          isSaved ? 'border-brand bg-brand/10 font-medium text-brand hover:bg-brand/15' : 'border-[var(--line)] hover:bg-[var(--surface-2)]'
+          isSaved ? 'border-brand bg-brand/10 font-medium text-brand-ink hover:bg-brand/15' : 'border-[var(--line)] hover:bg-[var(--surface-2)]'
         }`}
       >
         <Bookmark className="size-4" />

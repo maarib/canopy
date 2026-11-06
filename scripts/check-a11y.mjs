@@ -1,5 +1,5 @@
 // Accessibility check: axe-core (WCAG 2.1 A and AA rules) on every kind of page, in light and
-// dark, at phone and desktop widths, plus a few open menus. Run against a running build:
+// dark, at phone and desktop widths, plus the Explore panel and the open menus and popovers. Run against a running build:
 //   npm run build && npx vite preview --port 4173 &
 //   npm run check:a11y            (or: node scripts/check-a11y.mjs http://localhost:4173)
 // Exits with 1 if any serious or critical issue is found, so CI can fail on it.
@@ -12,6 +12,7 @@ const PAGES = [
   ['home', '/'],
   ['parks', '/parks'],
   ['places', '/places'],
+  ['places · trails', '/places?show=trails'],
   ['foliage', '/foliage'],
   ['trips', '/trips'],
   ['about', '/about'],
@@ -24,11 +25,32 @@ const PAGES = [
   ['tree', '/tree/maples'],
   ['fishing', '/fishing/-x'],
 ]
-/** Menus and popovers, opened before checking (they aren't in the page until then). */
+/** Menus, popovers and panels, each opened and checked in turn (they aren't in the page until then). */
+const pill = (name) => (p) => p.getByRole('button', { name }).first().click()
 const OPEN = {
-  parks: (p) => p.getByRole('button', { name: /^Sort/ }).click(),
-  home: (p) => p.getByRole('button', { name: 'Account menu' }).click(),
+  parks: { 'Sort menu': pill(/^Sort/), 'Region menu': pill(/^Region/), 'Activities menu': pill(/^Activities/) },
+  home: {
+    'Account menu': pill('Account menu'),
+    'Filters menu': pill(/^Map filters/),
+    'Layers menu': pill(/^Map layers/),
+    // Last: the panel covers the map, and Escape doesn't close it.
+    'Explore panel': (p) => p.getByRole('radio', { name: 'Panel', exact: true }).click(),
+  },
 }
+
+/**
+ * Lets fades and slides finish, so colors are measured as they end up rather than part way in
+ * (list rows fade in one after another). Looping animations are left running.
+ */
+const settle = (page) =>
+  page
+    .evaluate(() =>
+      Promise.race([
+        Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))),
+        new Promise((done) => setTimeout(done, 5000)),
+      ]),
+    )
+    .catch(() => {})
 const SIZES = { phone: { width: 390, height: 844 }, desktop: { width: 1280, height: 800 } }
 
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] })
@@ -38,23 +60,35 @@ for (const [size, viewport] of Object.entries(SIZES))
     const context = await browser.newContext({ viewport, colorScheme: scheme })
     const page = await context.newPage()
     for (const [name, path] of PAGES) {
-      await page.goto(BASE + path)
+      // Not waiting for "load": the map's tiles can keep it from firing for a long time.
+      await page.goto(BASE + path, { waitUntil: 'domcontentloaded', timeout: 60_000 })
       await page.waitForTimeout(2500)
-      for (const open of [null, OPEN[name]]) {
-        if (open === undefined) continue
-        if (open) await open(page).then(() => page.waitForTimeout(400)).catch(() => {})
+      await settle(page)
+      for (const [label, open] of [[null, null], ...Object.entries(OPEN[name] ?? {})]) {
+        if (open) {
+          const opened = await open(page).then(() => true, () => false)
+          if (!opened) {
+            console.log(`  (could not open ${label} on ${name} · ${size} · ${scheme})`)
+            continue
+          }
+          await page.waitForTimeout(300)
+          await settle(page)
+        }
         const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
         for (const v of violations) {
           const f = found.get(v.id) ?? { impact: v.impact, help: v.help, where: new Map() }
           for (const n of v.nodes) {
             const key = n.target.join(' ')
             const w = f.where.get(key) ?? { pages: new Set(), summary: (n.failureSummary ?? '').split('\n').slice(1, 2).join(' ').trim(), html: n.html.slice(0, 120) }
-            w.pages.add(`${name}${open ? ' (menu open)' : ''} · ${size} · ${scheme}`)
+            w.pages.add(`${name}${label ? ` (${label})` : ''} · ${size} · ${scheme}`)
             f.where.set(key, w)
           }
           found.set(v.id, f)
         }
-        if (open) await page.keyboard.press('Escape')
+        if (open) {
+          await page.keyboard.press('Escape')
+          await page.waitForTimeout(300)
+        }
       }
     }
     await context.close()

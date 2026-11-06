@@ -176,11 +176,16 @@ export function TreeOptions({
 }) {
   return (
     <ul role="radiogroup" aria-label="Trees on the map">
-      {!counts.size && <li className="px-2 py-2 text-xs text-[var(--ink-soft)]">Loading sightings…</li>}
+      {!counts.size && (
+        <li role="none" className="px-2 py-2 text-xs text-[var(--ink-soft)]">
+          Loading sightings…
+        </li>
+      )}
       {treeOptions(counts).map((o) => {
         const on = value === o.id
         return (
-          <li key={o.id}>
+          // The radios belong to the group; the list items are only layout.
+          <li key={o.id} role="none">
             <button
               role="radio"
               aria-checked={on}

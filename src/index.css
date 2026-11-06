@@ -33,6 +33,13 @@
   --animate-pin-in: pin-in 280ms var(--ease-spring) both;
 }
 
+/* Brand-colored text (links, small actions): a deeper orange on light surfaces, where the brand
+   orange is under 4.5:1 (3.2:1 on the page, 2.9:1 on cards), and the brand orange on dark, where
+   it passes. Set per theme below. */
+@theme inline {
+  --color-brand-ink: var(--brand-ink);
+}
+
 /* Menus and dropdowns grow from their anchor (set transform-origin where they open). */
 @keyframes pop-in {
   from {
@@ -214,6 +221,7 @@ html[data-page-move='tab']::view-transition-new(page) {
   --ink: #2a211c;
   --ink-soft: #6f625a;
   --line: #e7ddd1;
+  --brand-ink: #b84405;
   /* Stem and vein color for the two-color tree icons. */
   --leaf-ink: #2d3550;
 }
@@ -225,6 +233,7 @@ html[data-page-move='tab']::view-transition-new(page) {
   --ink: #f3ebe2;
   --ink-soft: #b3a69a;
   --line: #3a312a;
+  --brand-ink: #f2600c;
   --leaf-ink: #f1e8dd;
 }
 /* …and the device, on a page where nothing has set a theme. */
@@ -235,6 +244,7 @@ html[data-page-move='tab']::view-transition-new(page) {
     --ink: #f3ebe2;
     --ink-soft: #b3a69a;
     --line: #3a312a;
+    --brand-ink: #f2600c;
     --leaf-ink: #f1e8dd;
   }
 }

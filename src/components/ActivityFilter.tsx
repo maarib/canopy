@@ -29,7 +29,7 @@ export function ActivityOptions({
           {!ready ? 'Loading park facilities…' : active ? `${countWith(value)} Ontario Parks offer all of these` : 'Ontario Parks that offer…'}
         </p>
         {active && (
-          <button onClick={() => onChange([])} className="rounded-full px-2 py-1 text-xs font-medium text-brand transition-colors hover:bg-brand/10">
+          <button onClick={() => onChange([])} className="rounded-full px-2 py-1 text-xs font-medium text-brand-ink transition-colors hover:bg-brand/10">
             Clear
           </button>
         )}
@@ -37,13 +37,14 @@ export function ActivityOptions({
       {PARK_FILTER_GROUPS.map((g) => (
         <section key={g.title} className="pt-2">
           <h3 className="px-2 pb-1 text-[11px] font-semibold tracking-wide text-[var(--ink-soft)] uppercase">{g.title}</h3>
-          <ul>
+          {/* A named group, so its checkboxes sit in a menu structure; the list itself is only layout. */}
+          <ul role="group" aria-label={g.title}>
             {g.filters.map((f) => {
               const on = value.includes(f.id)
               const n = ready ? countWith(on ? value : [...value, f.id]) : null
               const empty = n === 0 && !on
               return (
-                <li key={f.id}>
+                <li key={f.id} role="none">
                   <button
                     role="menuitemcheckbox"
                     aria-checked={on}

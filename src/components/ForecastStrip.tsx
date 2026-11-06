@@ -21,7 +21,7 @@ export function ForecastStrip({ lat, lng }: { lat: number; lng: number }) {
       {forecast.isError && (
         <p className="flex items-center gap-2 text-sm">
           <span className="text-[var(--ink-soft)]">Couldn’t load the forecast.</span>
-          <button onClick={() => forecast.refetch()} className="rounded-full px-2 py-0.5 text-brand transition-colors hover:bg-brand/10">
+          <button onClick={() => forecast.refetch()} className="rounded-full px-2 py-0.5 text-brand-ink transition-colors hover:bg-brand/10">
             Try Again
           </button>
         </p>
