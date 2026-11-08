@@ -1,6 +1,6 @@
 {
  "source": "https://www.ontarioparks.ca/fallcolour",
- "fetchedAt": "2026-11-07T19:13:23.164Z",
+ "fetchedAt": "2026-11-08T19:15:27.611Z",
  "parks": [
   {
    "id": "189",
@@ -188,23 +188,6 @@
    "lat": 46.012567,
    "lng": -81.401889,
    "url": "https://www.ontarioparks.ca/park/killarney"
-  },
-  {
-   "id": "261",
-   "name": "Mark S. Burnham",
-   "shortname": "marksburnham",
-   "location": "Park Entrance",
-   "main": true,
-   "region": "Southeastern",
-   "dominantColor": "Orange",
-   "colorChange": 100,
-   "leafFall": 90,
-   "viewing": "Mark S. Burnham has many of the oldest maple, beech, elm and hemlock trees in the area, this makes for wonderful fall colours. Try hiking the small loop or long loop of the trail to see the many different colour changes throughout the season. Also take a break at the picnic shelter surrounded by many colourful trees and their changing leaves. ",
-   "reportedAt": "2026-11-04T18:47:12.000Z",
-   "closingDate": "2026-11-08",
-   "lat": 44.296983,
-   "lng": -78.270292,
-   "url": "https://www.ontarioparks.ca/park/marksburnham"
   },
   {
    "id": "322",
