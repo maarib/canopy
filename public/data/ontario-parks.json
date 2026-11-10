@@ -1,6 +1,6 @@
 {
  "source": "https://www.ontarioparks.ca/fallcolour",
- "fetchedAt": "2026-11-09T23:39:30.837Z",
+ "fetchedAt": "2026-11-10T21:08:03.284Z",
  "parks": [
   {
    "id": "189",
@@ -10,10 +10,10 @@
    "main": true,
    "region": "Southwestern",
    "dominantColor": "Brown",
-   "colorChange": 100,
-   "leafFall": 90,
+   "colorChange": 0,
+   "leafFall": 100,
    "viewing": "Enjoy a natural amphitheatre of vivid colour at Kettle’s Lake with a walk around the Wendat Trail. The Park’s Georgian Bay waterfront and Beach Trail offers the best September viewing while the main Awenda Park Road often features a tunnel of subtle yellows right through until November.  ",
-   "reportedAt": "2026-11-02T19:56:16.000Z",
+   "reportedAt": "2026-11-10T13:07:10.000Z",
    "closingDate": "2026-11-30",
    "lat": 44.843699,
    "lng": -80.002699,
@@ -283,9 +283,9 @@
    "region": "Northwestern",
    "dominantColor": "Green",
    "colorChange": 100,
-   "leafFall": 90,
+   "leafFall": 100,
    "viewing": "The dominant fall leaf colour in Quetico is yellow. Aspen, tamarack, and birch are found throughout the backcountry of the park along with pockets of smaller red maples. Quetico’s Dawson Trail Campground has numerous day hiking opportunities which offer opportunities to take in the fall colours.",
-   "reportedAt": "2026-11-04T18:50:54.000Z",
+   "reportedAt": "2026-11-10T16:56:37.000Z",
    "closingDate": "2026-11-30",
    "lat": 48.675,
    "lng": -91.1258,
