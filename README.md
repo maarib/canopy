@@ -4,7 +4,7 @@
 
 [![Release](https://img.shields.io/github/v/release/maarib/canopy?label=version&color=f2600c)](https://github.com/maarib/canopy/releases)
 [![CI](https://github.com/maarib/canopy/actions/workflows/ci.yml/badge.svg)](https://github.com/maarib/canopy/actions/workflows/ci.yml)
-[![Deploy](https://github.com/maarib/canopy/actions/workflows/deploy.yml/badge.svg)](https://github.com/maarib/canopy/actions/workflows/deploy.yml)
+[![Deploy](https://img.shields.io/github/actions/workflow/status/maarib/canopy/deploy.yml?branch=main&label=deploy&logo=github)](https://github.com/maarib/canopy/actions/workflows/deploy.yml)
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
 ![Mapbox](https://img.shields.io/badge/Mapbox_GL-3-000?logo=mapbox&logoColor=white)
