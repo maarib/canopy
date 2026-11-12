@@ -8,7 +8,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Version | Date | What's in it |
 |---|---|---|
-| Unreleased | — | Accessibility: readable orange text, menu structure, a steadier check ([#175](https://github.com/maarib/canopy/pull/175)); Places opens on carousels of picks from each category ([#174](https://github.com/maarib/canopy/pull/174)); Parks: Show filter removed, Sort at the right ([#173](https://github.com/maarib/canopy/pull/173)) |
+| Unreleased | — | README: badges for version, CI, deploy and stack ([#176](https://github.com/maarib/canopy/pull/176)); Accessibility: readable orange text, menu structure, a steadier check ([#175](https://github.com/maarib/canopy/pull/175)); Places opens on carousels of picks from each category ([#174](https://github.com/maarib/canopy/pull/174)); Parks: Show filter removed, Sort at the right ([#173](https://github.com/maarib/canopy/pull/173)) |
 | [v1.5.8](https://github.com/maarib/canopy/releases/tag/v1.5.8) | 2026-11-04 | Accessibility pass ([#164](https://github.com/maarib/canopy/pull/164)); tree icon stems, veins and layer order ([#165](https://github.com/maarib/canopy/pull/165)); a faster first load ([#167](https://github.com/maarib/canopy/pull/167)); the cover map let go when idle, and a lighter bottom sheet ([#168](https://github.com/maarib/canopy/pull/168)); repeat visits load from the device ([#169](https://github.com/maarib/canopy/pull/169)); list rows as real links ([#170](https://github.com/maarib/canopy/pull/170)); `App.tsx` split up ([#171](https://github.com/maarib/canopy/pull/171)) |
 | [v1.5.7](https://github.com/maarib/canopy/releases/tag/v1.5.7) | 2026-10-17 | Detail pages: sections in tabs, descriptions under the links ([#161](https://github.com/maarib/canopy/pull/161)); faster start and a lighter Parks list ([#162](https://github.com/maarib/canopy/pull/162)) |
 | [v1.5.6](https://github.com/maarib/canopy/releases/tag/v1.5.6) | 2026-10-16 | Less text: per-page credits, subtitles and helper lines removed ([#151](https://github.com/maarib/canopy/pull/151); counts kept, [#159](https://github.com/maarib/canopy/pull/159)); the Explore search card stays open on phones ([#152](https://github.com/maarib/canopy/pull/152)); display font Zalando Sans Expanded ([#153](https://github.com/maarib/canopy/pull/153)); page transitions on phones and desktop ([#155](https://github.com/maarib/canopy/pull/155)) |
@@ -28,6 +28,7 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 
 | Date | Change | Ref |
 |---|---|---|
+| 2026-11-11 | [README: badges](#2026-11-11-readme-badges) | [#176](https://github.com/maarib/canopy/pull/176) |
 | 2026-11-06 | [Accessibility: orange text, menus and a steadier check](#2026-11-06-accessibility-orange-text-menus-and-a-steadier-check) | [#175](https://github.com/maarib/canopy/pull/175) |
 | 2026-11-05 | [Places: picks from each category](#2026-11-05-places-picks-from-each-category) | [#174](https://github.com/maarib/canopy/pull/174) |
 | 2026-11-05 | [Parks: Show filter removed](#2026-11-05-parks-show-filter-removed) | [#173](https://github.com/maarib/canopy/pull/173) |
@@ -95,6 +96,14 @@ Each release is a git tag and a GitHub Release. The live site is always the late
 ---
 
 ## Unreleased
+
+### 2026-11-11 · README: badges
+
+**Ref:** [#176](https://github.com/maarib/canopy/pull/176)
+
+**Before.** The README opened with a line of text links to the live site, the board and issues, with no quick sign of the current version or whether the build and deploy were passing.
+
+**After.** A row of badges under the description: the latest release, CI and deploy status (each linking to its runs), and React, Vite and Mapbox GL versions. The live site, board and issues links stay as text below them.
 
 ### 2026-11-06 · Accessibility: orange text, menus and a steadier check
 
