@@ -2,7 +2,15 @@
 
 **Fall colors across Canada, and everything worth exploring in Ontario.** Canopy shows where the leaves are turning right now, when to go, and what to do when you get there: trails, waterfalls, lookouts, lakes and creeks.
 
-**Live:** https://maarib.github.io/canopy/ · **Board:** [Canopy roadmap](https://github.com/users/maarib/projects/2) · **Issues:** [maarib/canopy/issues](https://github.com/maarib/canopy/issues)
+[![Release](https://img.shields.io/github/v/release/maarib/canopy?label=version&color=f2600c)](https://github.com/maarib/canopy/releases)
+[![CI](https://github.com/maarib/canopy/actions/workflows/ci.yml/badge.svg)](https://github.com/maarib/canopy/actions/workflows/ci.yml)
+[![Deploy](https://github.com/maarib/canopy/actions/workflows/deploy.yml/badge.svg)](https://github.com/maarib/canopy/actions/workflows/deploy.yml)
+![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
+![Mapbox](https://img.shields.io/badge/Mapbox_GL-3-000?logo=mapbox&logoColor=white)
+[![Live](https://img.shields.io/badge/live-maarib.github.io%2Fcanopy-f2600c)](https://maarib.github.io/canopy/)
+
+**Board:** [Canopy roadmap](https://github.com/users/maarib/projects/2) · **Issues:** [maarib/canopy/issues](https://github.com/maarib/canopy/issues)
 
 > "Canopy" is a working title.
 
