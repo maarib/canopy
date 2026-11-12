@@ -8,9 +8,8 @@
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
 ![Mapbox](https://img.shields.io/badge/Mapbox_GL-3-000?logo=mapbox&logoColor=white)
-[![Live](https://img.shields.io/badge/live-maarib.github.io%2Fcanopy-f2600c)](https://maarib.github.io/canopy/)
 
-**Board:** [Canopy roadmap](https://github.com/users/maarib/projects/2) · **Issues:** [maarib/canopy/issues](https://github.com/maarib/canopy/issues)
+**Live:** https://maarib.github.io/canopy/ · **Board:** [Canopy roadmap](https://github.com/users/maarib/projects/2) · **Issues:** [maarib/canopy/issues](https://github.com/maarib/canopy/issues)
 
 > "Canopy" is a working title.
 
