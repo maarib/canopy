@@ -1,6 +1,6 @@
 {
  "source": "https://www.ontarioparks.ca/fallcolour",
- "fetchedAt": "2026-11-15T20:03:46.481Z",
+ "fetchedAt": "2026-11-16T23:36:42.106Z",
  "parks": [
   {
    "id": "189",
@@ -215,9 +215,9 @@
    "region": "Southeastern",
    "dominantColor": "Brown",
    "colorChange": 100,
-   "leafFall": 90,
+   "leafFall": 100,
    "viewing": "Silent Lake has many beautiful scenic locations to view fall colours. Silent Lake offers three hiking trails that offer plenty of opportunities to view fall colours: Lakehead Loop (1.5 km), Bonnies Pond (3 km), and the Lakeshore Hiking Trail (15 km). These trails offer a variety of viewpoints such as a lookout, beaches, heavily forested areas, and many lakeside viewing areas. Other prominent viewing areas include the Day Use Beach and Camper’s Beach. ",
-   "reportedAt": "2026-11-05T14:18:06.000Z",
+   "reportedAt": "2026-11-15T20:33:39.000Z",
    "closingDate": "2026-11-30",
    "lat": 44.92306,
    "lng": -78.07121,
@@ -384,10 +384,10 @@
    "main": false,
    "region": "Southwestern",
    "dominantColor": "Yellow/Orange",
-   "colorChange": 90,
+   "colorChange": 100,
    "leafFall": 90,
    "viewing": "The most scenic and picturesque areas during the fall include the Lookout/ Ravine Trail #4, Half Moon Valley Trail #6, Field and Forest Trail # 8 and for that old country charm you can't beat the farm area around Spruce Lane (parking lot F) in the day use only area. Be sure to check out our fall events!",
-   "reportedAt": "2026-11-09T14:52:53.000Z",
+   "reportedAt": "2026-11-16T14:37:23.000Z",
    "closingDate": "2026-11-30",
    "lat": 43.40684,
    "lng": -79.76889,
