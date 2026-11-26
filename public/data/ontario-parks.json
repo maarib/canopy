@@ -1,6 +1,6 @@
 {
  "source": "https://www.ontarioparks.ca/fallcolour",
- "fetchedAt": "2026-11-25T23:25:40.251Z",
+ "fetchedAt": "2026-11-26T23:25:12.817Z",
  "parks": [
   {
    "id": "189",
@@ -264,11 +264,11 @@
    "location": "Main Gate",
    "main": true,
    "region": "Southwestern",
-   "dominantColor": "Burgundy",
+   "dominantColor": "Brown",
    "colorChange": 100,
-   "leafFall": 90,
+   "leafFall": 100,
    "viewing": "As the colours begin to change in mid-September to early October, check out Spicebush Trail for great views. Later in the season the eastern side of the park and the Black Oak Trail will display the golds and burgundies of oak trees.",
-   "reportedAt": "2026-11-19T16:51:17.000Z",
+   "reportedAt": "2026-11-26T14:43:11.000Z",
    "closingDate": "2026-11-30",
    "lat": 42.32407146,
    "lng": -81.84698045,
